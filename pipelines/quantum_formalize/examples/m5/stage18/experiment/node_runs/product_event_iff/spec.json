@@ -1,0 +1,13 @@
+{
+  "name": "M5.FactorProduct.product_event_iff",
+  "statement": "∀ (S : Finset M5.BinaryPolynomial) (F A : M5.BinaryPolynomial), F ≠ 0 → F ∣ A → (∀ p ∈ S, p.Monic ∧ Irreducible p) → (F * (∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, F * p ∣ A)",
+  "imports": [
+    "M5FactorProduct"
+  ],
+  "context": "theorem M5.FactorProduct.common_factor_dvd : ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F) := by\n  change ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F)\n  intro F H A hF hFA\n  constructor\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h\n  · rintro ⟨K, hK⟩\n    refine ⟨K, ?_⟩\n    calc\n      A = F * (A / F) := (EuclideanDomain.mul_div_cancel' hF hFA).symm\n      _ = F * (H * K) := congrArg (fun x => F * x) hK\n      _ = (F * H) * K := (mul_assoc F H K).symm\n\ntheorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩\n\ntheorem M5.FactorProduct.irreducible_product_dvd : ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A) := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)\n  intro S A hS\n  constructor\n  · intro h p hp\n    exact (Finset.dvd_prod_of_mem (fun q : M5.BinaryPolynomial => q) hp).trans h\n  · intro h\n    refine Finset.prod_dvd_of_coprime ?_ h\n    intro p hp q hq hpq\n    exact M5.FactorProduct.distinct_irreducibles_coprime p q\n      (hS p hp).1 (hS q hq).1 (hS p hp).2 (hS q hq).2 hpq",
+  "queries": [
+    "pairwise coprime product divides",
+    "polynomial irreducible associated monic"
+  ],
+  "guidance": "Apply common_factor_dvd to the product and to every individual factor, then irreducible_product_dvd to A/F. Preserve every multiplicity already contained in F. Do not assume F coprime to S or F squarefree. F|A is needed in the empty subset case. Return only tactic lines without a leading by. Preserve exact target."
+}

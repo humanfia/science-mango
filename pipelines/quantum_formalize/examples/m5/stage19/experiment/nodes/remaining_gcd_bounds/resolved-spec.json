@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalBridge.remaining_gcd_bounds",
+  "statement": "∀ (A B : Finset ℕ) (e K : ℕ), 2 ≤ B.card → 0 ∈ B → (∀ b ∈ B, b < K) → 0 < M5.PhysicalBridge.remainingGcd A B e ∧ M5.PhysicalBridge.remainingGcd A B e < K",
+  "imports": [
+    "M5PhysicalBridge"
+  ],
+  "context": "theorem M5.PhysicalBridge.positive_member : ∀ A : Finset ℕ, 2 ≤ A.card → 0 ∈ A → ∃ a ∈ A, 0 < a := by\n  change ∀ A : Finset ℕ, 2 ≤ A.card → 0 ∈ A → ∃ a ∈ A, 0 < a\n  intro A hcard hzero\n  by_contra h\n  have hsub : A ⊆ {0} := by\n    intro a ha\n    have haz : a = 0 := by\n      by_contra hne\n      exact h ⟨a, ha, Nat.pos_of_ne_zero hne⟩\n    simpa only [Finset.mem_singleton] using haz\n  have hle : A.card ≤ 1 := by\n    simpa using Finset.card_le_card hsub\n  omega",
+  "queries": [
+    "Finset gcd divisibility insert erase",
+    "natural gcd divisibility sum"
+  ],
+  "guidance": "Take a positive member of B. remainingGcd divides this member through Nat.gcd_dvd_right and Finset.gcd_dvd. A divisor of a positive natural is positive and at most it. Zeros in the gcd are harmless. Return tactic lines without a leading by; preserve exact target."
+}

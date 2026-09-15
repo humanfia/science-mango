@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k) = (2 : ℤ) ^ D * (M5.SubsetCharacter.count S k f z : ℤ)\nintro D S k f z\nclassical\nhave hself (v : M5.Character.BinaryVector D) : v + v = 0 := by\n  funext i\n  change v i + v i = (0 : ZMod 2)\n  have htwo : (2 : ZMod 2) = 0 := by decide\n  rw [← two_mul, htwo, zero_mul]\nhave hzero (v : M5.Character.BinaryVector D) : z + v = 0 ↔ v = z := by\n  constructor\n  · intro h\n    have hh := congrArg (fun w : M5.Character.BinaryVector D => z + w) h\n    simpa only [← add_assoc, hself, zero_add, add_zero] using hh\n  · intro h\n    subst v\n    exact hself z\nsimp_rw [M5.SubsetCharacter.signed_product_coefficient, Finset.mul_sum]\nrw [Finset.sum_comm]\nfirst\n| simp_rw [← M5.Character.character_add]\n| simp_rw [← M5.SubsetCharacter.character_add]\nfirst\n| simp_rw [M5.Character.character_orthogonality]\n| simp_rw [M5.SubsetCharacter.character_orthogonality]\nsimp_rw [hzero]\nrw [← Finset.sum_filter]\nsimp [M5.SubsetCharacter.count, mul_comm]",
+  "queries": [
+    "M5.Character.character_orthogonality",
+    "M5.SubsetCharacter.count",
+    "M5.Character.BinaryVector"
+  ]
+}

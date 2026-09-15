@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (w T : ℕ) (r s : Fin w → Fin T), M5.Connectivity.supportGcd T (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) = Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => (r i).val)) (Finset.univ.gcd (fun i : Fin w => (s i).val)))\nintro w T r s\nhave h : ∀ d : ℕ, d ∣ M5.Connectivity.supportGcd T (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) ↔ d ∣ Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => (r i).val)) (Finset.univ.gcd (fun i : Fin w => (s i).val))) := by\n  intro d\n  by_cases hd : d ∣ T <;>\n    simp [M5.Connectivity.support_gcd_dvd, Nat.dvd_gcd_iff,\n      Finset.dvd_gcd_iff, M5.PhysicalBridge.packed_divisibility, hd]\nexact Nat.dvd_antisymm ((h _).mp (dvd_refl _)) ((h _).mpr (dvd_refl _))",
+  "queries": [
+    "M5.Connectivity.support_gcd_dvd",
+    "Finset.dvd_gcd_iff"
+  ]
+}

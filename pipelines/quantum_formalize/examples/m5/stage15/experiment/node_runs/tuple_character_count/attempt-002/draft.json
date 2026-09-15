@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro D n k f z\nhave hself : z + z = 0 := by\n  ext i\n  exact (show ∀ a : ZMod 2, a + a = 0 by decide) (z i)\nhave hz : ∀ u : M5.Character.BinaryVector D, z + u = 0 ↔ u = z := by\n  intro u\n  constructor\n  · intro h\n    apply add_left_cancel (a := z)\n    exact h.trans hself.symm\n  · rintro rfl\n    exact hself\nsimp only [Finset.mul_sum]\nrw [Finset.sum_comm]\nsimp_rw [← M5.Character.character_add, M5.Character.character_orthogonality, hz]\nsimp [← Finset.sum_filter, M5.TupleCharacter.count, mul_comm]",
+  "queries": [
+    "M5.Character.character_orthogonality",
+    "M5.TupleCharacter.count",
+    "Finset.sum_filter"
+  ]
+}

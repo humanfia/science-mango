@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), S.powerset.filter (fun H => ∀ p ∈ H, bad p = true) = (S.filter (fun p => bad p = true)).powerset\nintro S bad\nclassical\napply Finset.ext\nintro H\nsimp only [Finset.mem_filter, Finset.mem_powerset]\nconstructor\n· rintro ⟨hHS, hbad⟩\n  intro p hp\n  exact Finset.mem_filter.mpr ⟨hHS hp, hbad p hp⟩\n· intro hH\n  constructor\n  · intro p hp\n    exact (Finset.mem_filter.mp (hH hp)).1\n  · intro p hp\n    exact (Finset.mem_filter.mp (hH hp)).2",
+  "queries": []
+}

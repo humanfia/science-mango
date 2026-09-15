@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro D n k f z\nhave hself : z + z = 0 := by\n  ext i\n  change (z i + z i : ZMod 2) = 0\n  have htwo : (2 : ZMod 2) = 0 := by decide\n  simpa only [← two_mul, htwo, zero_mul]\nhave hz (u : M5.Character.BinaryVector D) : z + u = 0 ↔ u = z := by\n  constructor\n  · intro h\n    exact add_left_cancel (h.trans hself.symm)\n  · intro h\n    simpa only [h] using hself\nsimp_rw [Finset.mul_sum]\nrw [Finset.sum_comm]\n simp_rw [← M5.Character.character_add, M5.Character.character_orthogonality, hz]\nsimp [M5.TupleCharacter.count, ← Finset.sum_filter, mul_comm]",
+  "queries": [
+    "M5.Character.character_add M5.Character.character_orthogonality",
+    "M5.TupleCharacter.count",
+    "M5.Character.finite_fibre_count"
+  ]
+}

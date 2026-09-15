@@ -1,0 +1,13 @@
+{
+  "name": "M5.TupleCharacter.tuple_character_count",
+  "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ)",
+  "imports": [
+    "M5TupleCharacter"
+  ],
+  "context": "",
+  "queries": [
+    "Fintype sum_pow",
+    "finite character orthogonality"
+  ],
+  "guidance": "Distribute multiplication over the tuple sum and swap finite sums. Combine the two characters via character_add, then apply accepted character_orthogonality. Over BinaryVector D, z+u=0 iff u=z (pointwise characteristic two, including D=0). The remaining indicator sum is the filter cardinality defining count. This is the same finite-fibre orthogonality argument as the accepted finite_fibre_count, with function tuples as the finite domain, not a support-set enumeration or distinctness constraint. Return only tactic lines without a leading by. Preserve exact statements."
+}

@@ -1,0 +1,15 @@
+import FrozenTarget_edd5d8ba6f1b277b
+theorem M5.PhysicalBridge.remaining_gcd_bounds : QuantumHarnessFrozenTarget := by
+  change ∀ (A B : Finset ℕ) (e K : ℕ), 2 ≤ B.card → 0 ∈ B → (∀ b ∈ B, b < K) → 0 < M5.PhysicalBridge.remainingGcd A B e ∧ M5.PhysicalBridge.remainingGcd A B e < K
+  intro A B e K hcard hzero hbound
+  obtain ⟨b, hb, hbpos⟩ := M5.PhysicalBridge.positive_member B hcard hzero
+  have hd : M5.PhysicalBridge.remainingGcd A B e ∣ b := by
+    unfold M5.PhysicalBridge.remainingGcd
+    exact dvd_trans (Nat.gcd_dvd_right _ _) (Finset.gcd_dvd hb)
+  have hpos : 0 < M5.PhysicalBridge.remainingGcd A B e := by
+    by_contra h
+    have hz : M5.PhysicalBridge.remainingGcd A B e = 0 := by omega
+    rw [hz] at hd
+    simp only [zero_dvd_iff] at hd
+    omega
+  exact ⟨hpos, lt_of_le_of_lt (Nat.le_of_dvd hbpos hd) (hbound b hb)⟩

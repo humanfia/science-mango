@@ -1,0 +1,60 @@
+{
+  "id": "tuple_character_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.TupleCharacter.tuple_character_count",
+    "spec_sha256": "d352d358d3ea5972b76aa5af8d790a3a48ab428ce7faa0831efd313712828b36",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c/attempt-001/Candidate_faba7d2c61cc7d3a.lean:9:4: warning: try 'simp' instead of 'simpa'\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c/attempt-001/Candidate_faba7d2c61cc7d3a.lean:2:80: error: unsolved goals\nD n k : ℕ\nf : Fin n → Character.BinaryVector D\nz : Character.BinaryVector D\nhself : z + z = 0\nhz : ∀ (u : Character.BinaryVector D), z + u = 0 ↔ u = z\n⊢ ∑ y, ∑ x, Character.value x z * Character.value x (vectorSum f y) = 2 ^ D * ↑(count k f z)\n/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c/attempt-001/Candidate_faba7d2c61cc7d3a.lean:18:3: error: unexpected identifier; expected command\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c/attempt-002/Candidate_7d34a19f820be00f.lean",
+        "target_path": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c/attempt-002/FrozenTarget_7d34a19f820be00f.lean",
+        "feedback": "",
+        "target_sha256": "7ccb2269d3b036f1ea0909ed97bf1ac41f3427527762cf03a86aeca268a21bf6",
+        "target_olean_sha256": "14ff3c0fd5e6e142992a6a47abfe1dc1d37c02b44f18a624c350170053800c58",
+        "source_sha256": "1922ee6cc0d7f7d520b4f578a57a5a50018424ee656d6efdb6e1a54b66e202c9",
+        "olean_sha256": "7767f1950f81a571e0f010634437c4b8ad55ee6aca42d94dbb1b3ae4167c954d",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:25:35.764080+00:00",
+    "work": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-wvrgwy_c/attempt-002/Candidate_7d34a19f820be00f.lean",
+    "environment_sha256": "a88bf8c7b87e405c703ad2ae810622acdf6c4c54f6545dd55e3e8b4929223ba5",
+    "artifacts": {
+      "tuple_character_count": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.tuple_character_count : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ) := by\n  classical\n  intro D n k f z\n  have hself : z + z = 0 := by\n    ext i\n    exact (show ∀ a : ZMod 2, a + a = 0 by decide) (z i)\n  have hz : ∀ u : M5.Character.BinaryVector D, z + u = 0 ↔ u = z := by\n    intro u\n    constructor\n    · intro h\n      apply add_left_cancel (a := z)\n      exact h.trans hself.symm\n    · rintro rfl\n      exact hself\n  simp only [Finset.mul_sum]\n  rw [Finset.sum_comm]\n  simp_rw [← M5.Character.character_add, M5.Character.character_orthogonality, hz]\n  simp [← Finset.sum_filter, M5.TupleCharacter.count, mul_comm]",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.tuple_character_count",
+          "ancestors": [],
+          "spec_sha256": "d352d358d3ea5972b76aa5af8d790a3a48ab428ce7faa0831efd313712828b36"
+        },
+        "sha256": "1b4ce964535ad8061819d0569a6c61f84263d97ae1ab7878d0a86d8b686762ed"
+      }
+    }
+  }
+}

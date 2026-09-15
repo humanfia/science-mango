@@ -1,0 +1,112 @@
+{
+  "id": "ordered_tuple_power_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.TupleCharacter.ordered_tuple_power_count",
+    "spec_sha256": "411e267cce213f23c90b3d99b25e7fca6f1778e72fce5e98bd0521469daf136d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-k7ckzj2i/attempt-001/Candidate_2fe0bc0f1aad64e3.lean",
+        "target_path": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-k7ckzj2i/attempt-001/FrozenTarget_2fe0bc0f1aad64e3.lean",
+        "feedback": "",
+        "target_sha256": "4e87611da8330c49bfc7235f9b48e366415a872a5bdc636eb17cb3fbfa6e2435",
+        "target_olean_sha256": "bd9554479be56e865f1164547a8e53af5a174646cae7534af797725e32d13d4b",
+        "source_sha256": "a550d93d36bf11cb7dcb5d5c6b248d0d2ffc5909f8537565aa8f6ba559ba8f78",
+        "olean_sha256": "a6ef56adf63656f14271c407f48b9fccb483695452df8d6d5d4153d9ddda6e70",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:28:59.207207+00:00",
+    "work": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-k7ckzj2i",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-k7ckzj2i/attempt-001/Candidate_2fe0bc0f1aad64e3.lean",
+    "environment_sha256": "a88bf8c7b87e405c703ad2ae810622acdf6c4c54f6545dd55e3e8b4929223ba5",
+    "artifacts": {
+      "value_zero": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.value_zero : ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1 := by\n  change ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1\n  intro D lam\n  simp [M5.Character.value, M5.Character.bitSign]",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.value_zero",
+          "ancestors": [],
+          "spec_sha256": "63c84d3f51b1b8d0fd00508f6ff66d35844275b1e887323718462c1086b4888b"
+        },
+        "sha256": "0f8464b2a78f083f55623d974973c4e41049fc7160e46ebf595d9b7c797dfa35"
+      },
+      "character_tuple_sum": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.character_tuple_sum : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i)) := by\n  change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i))\n  intro D n k f t lam\n  classical\n  have h : ∀ s : Finset (Fin k), M5.Character.value lam (∑ i ∈ s, f (t i)) = ∏ i ∈ s, M5.Character.value lam (f (t i)) := by\n    intro s\n    induction s using Finset.induction_on with\n    | empty =>\n        simpa only [Finset.sum_empty, Finset.prod_empty] using M5.TupleCharacter.value_zero D lam\n    | @insert a s ha ih =>\n        rw [Finset.sum_insert ha, Finset.prod_insert ha]\n        first\n        | rw [M5.TupleCharacter.character_add]\n        | rw [M5.Character.character_add]\n        rw [ih]\n  simpa [M5.TupleCharacter.vectorSum, Finset.sum_apply] using h Finset.univ",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.character_tuple_sum",
+          "ancestors": [
+            "value_zero"
+          ],
+          "spec_sha256": "5bbf15f0fe2592c694f6298d90e98c4ca3cde9e6085fa5d1ccb47aa06115a678"
+        },
+        "sha256": "cd7d31ce1f124aa48df1c8bf5e9ef9f1a7e1f17c6b3818ef8d6bf4c02b2f1a07"
+      },
+      "tuple_character_power": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.tuple_character_power : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (∑ a : Fin n, M5.Character.value lam (f a)) ^ k := by\n  change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (∑ a : Fin n, M5.Character.value lam (f a)) ^ k\n  intro D n k f lam\n  classical\n  simp only [M5.TupleCharacter.character_tuple_sum]\n  exact (Fintype.sum_pow (fun a : Fin n => M5.Character.value lam (f a)) k).symm",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.tuple_character_power",
+          "ancestors": [
+            "character_tuple_sum",
+            "value_zero"
+          ],
+          "spec_sha256": "1956d34b4aef64c4e3684b64adb2118641d56f6f595e525044da87fe30c62299"
+        },
+        "sha256": "670176fae6728e1fc7a6d434cac59d9356623e4d0127de4e5e1af8ee58ece0d6"
+      },
+      "tuple_character_count": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.tuple_character_count : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ) := by\n  classical\n  intro D n k f z\n  have hself : z + z = 0 := by\n    ext i\n    exact (show ∀ a : ZMod 2, a + a = 0 by decide) (z i)\n  have hz : ∀ u : M5.Character.BinaryVector D, z + u = 0 ↔ u = z := by\n    intro u\n    constructor\n    · intro h\n      apply add_left_cancel (a := z)\n      exact h.trans hself.symm\n    · rintro rfl\n      exact hself\n  simp only [Finset.mul_sum]\n  rw [Finset.sum_comm]\n  simp_rw [← M5.Character.character_add, M5.Character.character_orthogonality, hz]\n  simp [← Finset.sum_filter, M5.TupleCharacter.count, mul_comm]",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.tuple_character_count",
+          "ancestors": [],
+          "spec_sha256": "d352d358d3ea5972b76aa5af8d790a3a48ab428ce7faa0831efd313712828b36"
+        },
+        "sha256": "1b4ce964535ad8061819d0569a6c61f84263d97ae1ab7878d0a86d8b686762ed"
+      },
+      "ordered_tuple_power_count": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.ordered_tuple_power_count : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (∑ a : Fin n, M5.Character.value lam (f a)) ^ k) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ) := by\n  classical\n  change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (∑ a : Fin n, M5.Character.value lam (f a)) ^ k) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ)\n  intro D n k f z\n  simpa only [M5.TupleCharacter.tuple_character_power] using M5.TupleCharacter.tuple_character_count D n k f z",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.ordered_tuple_power_count",
+          "ancestors": [
+            "character_tuple_sum",
+            "tuple_character_count",
+            "tuple_character_power",
+            "value_zero"
+          ],
+          "spec_sha256": "89e6300b9d4a4c2af223e2693ff201bc3ed0c51942659fd6acd3f4dd93666e68"
+        },
+        "sha256": "cef3332b545134d3cae59eab2de38b0b8868ec114b72201f3a85bbf8b646a7a4"
+      }
+    }
+  }
+}

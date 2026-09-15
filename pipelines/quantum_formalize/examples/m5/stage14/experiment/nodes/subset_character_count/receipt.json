@@ -1,0 +1,116 @@
+{
+  "id": "subset_character_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SubsetCharacter.subset_character_count",
+    "spec_sha256": "b0bee8667033b06e455272a959fe3e065eccb8a72757e523fe6be78e7dbcc656",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-ytf2_y5l/attempt-001/Candidate_0b4928d0820c95dd.lean",
+        "target_path": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-ytf2_y5l/attempt-001/FrozenTarget_0b4928d0820c95dd.lean",
+        "feedback": "",
+        "target_sha256": "30115650a14fff84d472071699f41fc2534d1af28486971e7b4f7f8d0cac7fe4",
+        "target_olean_sha256": "c2ade1660104af0a6d706305393c57838331c44829a35f551cb865d790c920e2",
+        "source_sha256": "68378f0b90fdd78460ad1a95c9db5e09fc9f041ebdaa0640443e5edabdf3a53a",
+        "olean_sha256": "6bea97877acdff1d6ea7e4ca2f1a5fb0f7a200f549138152333c14e4f03f5326",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:39:40.586410+00:00",
+    "work": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-ytf2_y5l",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-ytf2_y5l/attempt-001/Candidate_0b4928d0820c95dd.lean",
+    "environment_sha256": "87da1a6e604adad59e69379087d0c08302238952085df45b985b8a01b77aefaa",
+    "artifacts": {
+      "value_zero": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.value_zero : ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1 := by\n  change ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1\n  intro D lam\n  simp [M5.Character.value, M5.Character.bitSign]",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.value_zero",
+          "ancestors": [],
+          "spec_sha256": "d175de815b9b9fe7e8fe14577f446b56934e2f2b500e385799c3b90212f517ee"
+        },
+        "sha256": "6844c3c0ff6c917670711cfacb77ecbca2b14cbd4d8fb5b3b39f2ee2bcab9ff4"
+      },
+      "character_subset_sum": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.character_subset_sum : ∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s) := by\n  change ∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s)\n  intro D U f lam\n  classical\n  unfold M5.SubsetCharacter.vectorSum\n  induction U using Finset.induction_on with\n  | empty =>\n      simpa using M5.SubsetCharacter.value_zero D lam\n  | @insert s U hs ih =>\n      rw [Finset.sum_insert hs, Finset.prod_insert hs]\n      first\n      | rw [M5.Character.character_add, ih]\n      | rw [M5.SubsetCharacter.character_add, ih]",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.character_subset_sum",
+          "ancestors": [
+            "value_zero"
+          ],
+          "spec_sha256": "24325851472a04103b7d545ee48131629f712eec0438fee56ab52788ef79eccf"
+        },
+        "sha256": "01d0eca6c1f8e5b9840ddccb2358014f08a7c6c9d7047a969c62910c47dd3c24"
+      },
+      "signed_product_expansion": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.signed_product_expansion : ∀ (D : ℕ) (S : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s)) = ∑ U ∈ S.powerset, Polynomial.C (M5.Character.value lam (M5.SubsetCharacter.vectorSum U f)) * (Polynomial.X : Polynomial ℤ) ^ U.card := by\n  change ∀ (D : ℕ) (S : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s)) = ∑ U ∈ S.powerset, Polynomial.C (M5.Character.value lam (M5.SubsetCharacter.vectorSum U f)) * (Polynomial.X : Polynomial ℤ) ^ U.card\n  intro D S f lam\n  classical\n  unfold M5.SubsetCharacter.signedProduct\n  rw [Finset.prod_one_add]\n  apply Finset.sum_congr rfl\n  intro U hU\n  clear hU\n  rw [M5.SubsetCharacter.character_subset_sum]\n  induction U using Finset.induction_on with\n  | empty => simp\n  | @insert s U hs ih =>\n      rw [Finset.prod_insert hs, Finset.prod_insert hs, Finset.card_insert_of_notMem hs, ih, map_mul, pow_succ]\n      ring",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.signed_product_expansion",
+          "ancestors": [
+            "character_subset_sum",
+            "value_zero"
+          ],
+          "spec_sha256": "03eff9b06434fcbd202435f287fe0f9b8addd8549d25f63b7267c5fd6cd458c0"
+        },
+        "sha256": "b344b156b405feed1f4fde6e50b3d7279879ae66fca0f155dd93f6fc8705373e"
+      },
+      "signed_product_coefficient": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.signed_product_coefficient : ∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k = ∑ U ∈ S.powersetCard k, M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) := by\n  change ∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k = ∑ U ∈ S.powersetCard k, M5.Character.value lam (M5.SubsetCharacter.vectorSum U f)\n  intro D S k f lam\n  classical\n  rw [M5.SubsetCharacter.signed_product_expansion]\n  simp [Polynomial.finsetSum_coeff, Polynomial.coeff_C_mul_X_pow, Finset.powersetCard_eq_filter, Finset.sum_filter, eq_comm]",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.signed_product_coefficient",
+          "ancestors": [
+            "character_subset_sum",
+            "signed_product_expansion",
+            "value_zero"
+          ],
+          "spec_sha256": "080c0402358b961ef4aeae248f70a27327a33076c5e62e3626478d7193f3a804"
+        },
+        "sha256": "f6702dbc6def9e5aaab46df2be93b36f025431466e9a68bfd764ca5fc447d144"
+      },
+      "subset_character_count": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.subset_character_count : ∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k) = (2 : ℤ) ^ D * (M5.SubsetCharacter.count S k f z : ℤ) := by\n  change ∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k) = (2 : ℤ) ^ D * (M5.SubsetCharacter.count S k f z : ℤ)\n  intro D S k f z\n  classical\n  have hself (v : M5.Character.BinaryVector D) : v + v = 0 := by\n    funext i\n    change v i + v i = (0 : ZMod 2)\n    have htwo : (2 : ZMod 2) = 0 := by decide\n    rw [← two_mul, htwo, zero_mul]\n  have hzero (v : M5.Character.BinaryVector D) : z + v = 0 ↔ v = z := by\n    constructor\n    · intro h\n      have hh := congrArg (fun w : M5.Character.BinaryVector D => z + w) h\n      simpa only [← add_assoc, hself, zero_add, add_zero] using hh\n    · intro h\n      subst v\n      exact hself z\n  simp_rw [M5.SubsetCharacter.signed_product_coefficient, Finset.mul_sum]\n  rw [Finset.sum_comm]\n  first\n  | simp_rw [← M5.Character.character_add]\n  | simp_rw [← M5.SubsetCharacter.character_add]\n  first\n  | simp_rw [M5.Character.character_orthogonality]\n  | simp_rw [M5.SubsetCharacter.character_orthogonality]\n  simp_rw [hzero]\n  rw [← Finset.sum_filter]\n  simp [M5.SubsetCharacter.count, mul_comm]",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.subset_character_count",
+          "ancestors": [
+            "character_subset_sum",
+            "signed_product_coefficient",
+            "signed_product_expansion",
+            "value_zero"
+          ],
+          "spec_sha256": "5a78e691a4f6bee751d7a65b96c6f3bee79336d55cea4e16a009ae9c2c4e3727"
+        },
+        "sha256": "ad68907751c3de6716834b298e805f38a2efcfa086d43627719489ec29320db4"
+      }
+    }
+  }
+}

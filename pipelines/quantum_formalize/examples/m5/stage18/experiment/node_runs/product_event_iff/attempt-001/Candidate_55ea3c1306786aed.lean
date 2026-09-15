@@ -1,0 +1,12 @@
+import FrozenTarget_55ea3c1306786aed
+theorem M5.FactorProduct.product_event_iff : QuantumHarnessFrozenTarget := by
+  classical
+  change ∀ (S : Finset M5.BinaryPolynomial) (F A : M5.BinaryPolynomial), F ≠ 0 → F ∣ A → (∀ p ∈ S, p.Monic ∧ Irreducible p) → (F * (∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, F * p ∣ A)
+  intro S F A hF hFA hS
+  rw [M5.FactorProduct.common_factor_dvd F (∏ p ∈ S, p) A hF hFA,
+    M5.FactorProduct.irreducible_product_dvd S (A / F) hS]
+  constructor
+  · intro h p hp
+    exact (M5.FactorProduct.common_factor_dvd F p A hF hFA).mpr (h p hp)
+  · intro h p hp
+    exact (M5.FactorProduct.common_factor_dvd F p A hF hFA).mp (h p hp)

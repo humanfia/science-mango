@@ -1,0 +1,13 @@
+{
+  "name": "M5.PhysicalBridge.packed_combined_gcd",
+  "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), M5.Connectivity.supportGcd T (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) = Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => (r i).val)) (Finset.univ.gcd (fun i : Fin w => (s i).val)))",
+  "imports": [
+    "M5PhysicalBridge"
+  ],
+  "context": "theorem M5.PhysicalBridge.packed_divisibility : ∀ (w T d : ℕ) (r : Fin w → Fin T), d ∣ T → ((∀ a ∈ M5.Packing.packedSupport r, d ∣ a) ↔ ∀ i, d ∣ (r i).val) := by\n  change ∀ (w T d : ℕ) (r : Fin w → Fin T), d ∣ T → ((∀ a ∈ M5.Packing.packedSupport r, d ∣ a) ↔ ∀ i, d ∣ (r i).val)\n  intro w T d r hd\n  have ht : T % d = 0 := Nat.mod_eq_zero_of_dvd hd\n  simp [M5.Packing.packedSupport, M5.Packing.packedValue,\n    Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, ht]",
+  "queries": [
+    "Finset gcd divisibility insert erase",
+    "natural gcd divisibility sum"
+  ],
+  "guidance": "Use Nat.dvd_antisymm and characterize divisors using M5.Connectivity.support_gcd_dvd, Finset.dvd_gcd_iff, and packed_divisibility. No positivity required. Return tactic lines without a leading by; preserve exact target."
+}

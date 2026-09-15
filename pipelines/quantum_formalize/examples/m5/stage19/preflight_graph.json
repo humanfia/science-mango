@@ -1,0 +1,156 @@
+{
+  "title": "M5 stage19: literal occurrence packing to CRT repair hypotheses",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Section 5 arithmetic bridge only; finite support connectivity and original repair cutoff. No complete polynomial construction acceptance.",
+  "nodes": [
+    {
+      "id": "packed_divisibility",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalBridge.packed_divisibility",
+        "statement": "∀ (w T d : ℕ) (r : Fin w → Fin T), d ∣ T → ((∀ a ∈ M5.Packing.packedSupport r, d ∣ a) ↔ ∀ i, d ∣ (r i).val)",
+        "imports": [
+          "M5PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "Finset gcd divisibility insert erase",
+          "natural gcd divisibility sum"
+        ],
+        "guidance": "Unfold packedSupport membership and packedValue. Since d divides T it divides occurrenceTag*r period term; divisibility of a sum then equals divisibility of residue. Repeated residues and empty index types remain allowed. Return tactic lines without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT_REPAIR",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "packed_combined_gcd",
+      "dependencies": [
+        "packed_divisibility"
+      ],
+      "spec": {
+        "name": "M5.PhysicalBridge.packed_combined_gcd",
+        "statement": "∀ (w T : ℕ) (r s : Fin w → Fin T), M5.Connectivity.supportGcd T (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) = Nat.gcd T (Nat.gcd (Finset.univ.gcd (fun i : Fin w => (r i).val)) (Finset.univ.gcd (fun i : Fin w => (s i).val)))",
+        "imports": [
+          "M5PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "Finset gcd divisibility insert erase",
+          "natural gcd divisibility sum"
+        ],
+        "guidance": "Use Nat.dvd_antisymm and characterize divisors using M5.Connectivity.support_gcd_dvd, Finset.dvd_gcd_iff, and packed_divisibility. No positivity required. Return tactic lines without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT_REPAIR",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "positive_member",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalBridge.positive_member",
+        "statement": "∀ A : Finset ℕ, 2 ≤ A.card → 0 ∈ A → ∃ a ∈ A, 0 < a",
+        "imports": [
+          "M5PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "Finset gcd divisibility insert erase",
+          "natural gcd divisibility sum"
+        ],
+        "guidance": "If all members equal zero, A is a subset of singleton zero and card is at most one. The anchor hypothesis matches physical supports. Return tactic lines without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT_REPAIR",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "remaining_gcd_bounds",
+      "dependencies": [
+        "positive_member"
+      ],
+      "spec": {
+        "name": "M5.PhysicalBridge.remaining_gcd_bounds",
+        "statement": "∀ (A B : Finset ℕ) (e K : ℕ), 2 ≤ B.card → 0 ∈ B → (∀ b ∈ B, b < K) → 0 < M5.PhysicalBridge.remainingGcd A B e ∧ M5.PhysicalBridge.remainingGcd A B e < K",
+        "imports": [
+          "M5PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "Finset gcd divisibility insert erase",
+          "natural gcd divisibility sum"
+        ],
+        "guidance": "Take a positive member of B. remainingGcd divides this member through Nat.gcd_dvd_right and Finset.gcd_dvd. A divisor of a positive natural is positive and at most it. Zeros in the gcd are harmless. Return tactic lines without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT_REPAIR",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "remaining_gcd_feasible",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalBridge.remaining_gcd_feasible",
+        "statement": "∀ (T : ℕ) (A B : Finset ℕ) (e : ℕ), e ∈ A → M5.Connectivity.supportGcd T A B = 1 → Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd A B e)) e = 1",
+        "imports": [
+          "M5PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "Finset gcd divisibility insert erase",
+          "natural gcd divisibility sum"
+        ],
+        "guidance": "Use insert_erase for e in A and Finset.gcd_insert, then gcd associativity/commutativity. No positivity assumption is needed for this exact algebraic identity. Return tactic lines without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT_REPAIR",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "repaired_exponent_cutoff",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.PhysicalBridge.repaired_exponent_cutoff",
+        "statement": "∀ w T e δ k : ℕ, 0 < T → e < w * T → δ < w * T → k < w + δ → e + k * T < M5.packingCutoff w T",
+        "imports": [
+          "M5PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "Finset gcd divisibility insert erase",
+          "natural gcd divisibility sum"
+        ],
+        "guidance": "Unfold packingCutoff. Use strict integer bounds and multiplication monotonicity or nlinarith with product bounds. This is exactly the original repair upper cutoff, without imposing a stronger cutoff or positivity of delta. Return tactic lines without a leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 5,
+        "supports_obligation": "M5_CRT_REPAIR",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "title": "M5 stage17: finite factor exclusion identity",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Exact finite inclusion-exclusion algebra; identifying forbidden polynomial-divisibility events remains separate",
+  "nodes": [
+    {
+      "id": "filtered_powerset",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.FiniteExclusion.filtered_powerset",
+        "statement": "\u2200 (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial \u2192 Bool), S.powerset.filter (fun H => \u2200 p \u2208 H, bad p = true) = (S.filter (fun p => bad p = true)).powerset",
+        "imports": [
+          "M5FiniteExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "sum powerset negative one cardinality",
+          "finite inclusion exclusion"
+        ],
+        "guidance": "Extensionality, Finset.mem_filter, mem_powerset and subset_iff. Both sides describe subsets contained in the bad factor set. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLY_IE",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "alternating_subsets",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.FiniteExclusion.alternating_subsets",
+        "statement": "\u2200 S : Finset M5.BinaryPolynomial, (\u2211 H \u2208 S.powerset, (-1 : \u2124)^H.card) = if S = \u2205 then 1 else 0",
+        "imports": [
+          "M5FiniteExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "sum powerset negative one cardinality",
+          "finite inclusion exclusion"
+        ],
+        "guidance": "Use Finset.sum_powerset_neg_one_pow_card (actual library may place theorem in Nat namespace: inspect import). Empty set gives1 and nonempty gives0. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLY_IE",
+        "dependency_declarations": [],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "exclusion_indicator",
+      "dependencies": [
+        "filtered_powerset",
+        "alternating_subsets"
+      ],
+      "spec": {
+        "name": "M5.FiniteExclusion.exclusion_indicator",
+        "statement": "\u2200 (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial \u2192 Bool), M5.FiniteExclusion.exclusionSum S bad = if \u2200 p \u2208 S, bad p = false then 1 else 0",
+        "imports": [
+          "M5FiniteExclusion"
+        ],
+        "context": "",
+        "queries": [
+          "sum powerset negative one cardinality",
+          "finite inclusion exclusion"
+        ],
+        "guidance": "Turn multiplying indicator into if on the summand, then Finset.sum_filter. Use filtered_powerset and alternating_subsets. The bad-filter is empty iff every Bool value on S is false. No assumptions of factor irreducibility here; polynomial mapping is a separate layer. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": 3,
+        "supports_obligation": "M5_POLY_IE",
+        "dependency_declarations": [
+          "M5.FiniteExclusion.filtered_powerset",
+          "M5.FiniteExclusion.alternating_subsets"
+        ],
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

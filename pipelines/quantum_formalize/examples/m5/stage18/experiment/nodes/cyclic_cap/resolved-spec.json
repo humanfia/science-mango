@@ -1,0 +1,13 @@
+{
+  "name": "M5.FactorProduct.cyclic_cap",
+  "statement": "∀ (S : Finset M5.BinaryPolynomial) (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → S ⊆ M5.FactorProduct.residualFactors (M5.cyclicModulus N) F → F * (∏ p ∈ S, p) ∣ M5.cyclicModulus N",
+  "imports": [
+    "M5FactorProduct"
+  ],
+  "context": "theorem M5.FactorProduct.common_factor_dvd : ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F) := by\n  change ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F)\n  intro F H A hF hFA\n  constructor\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h\n  · rintro ⟨K, hK⟩\n    refine ⟨K, ?_⟩\n    calc\n      A = F * (A / F) := (EuclideanDomain.mul_div_cancel' hF hFA).symm\n      _ = F * (H * K) := congrArg (fun x => F * x) hK\n      _ = (F * H) * K := (mul_assoc F H K).symm\n\ntheorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩\n\ntheorem M5.FactorProduct.irreducible_product_dvd : ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A) := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)\n  intro S A hS\n  constructor\n  · intro h p hp\n    exact (Finset.dvd_prod_of_mem (fun q : M5.BinaryPolynomial => q) hp).trans h\n  · intro h\n    refine Finset.prod_dvd_of_coprime ?_ h\n    intro p hp q hq hpq\n    exact M5.FactorProduct.distinct_irreducibles_coprime p q\n      (hS p hp).1 (hS q hq).1 (hS p hp).2 (hS q hq).2 hpq",
+  "queries": [
+    "pairwise coprime product divides",
+    "polynomial irreducible associated monic"
+  ],
+  "guidance": "Membership in normalizedFactors gives irreducibility and divisibility of M_N/F. Each irreducible binary polynomial is monic using imported M5.Signature.binary_monic and irreducible.ne_zero. Apply irreducible_product_dvd and common_factor_dvd. Repeated cyclic factors are retained in F and quotient; S picks each distinct remaining prime at most once, without assuming squarefreeness of F or M_N. Return only tactic lines without a leading by. Preserve exact target."
+}

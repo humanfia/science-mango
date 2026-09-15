@@ -1,0 +1,60 @@
+{
+  "id": "remaining_gcd_feasible",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalBridge.remaining_gcd_feasible",
+    "spec_sha256": "962d4576aa4e5c929bee7ce578f3bba0ea7f00545cdd7fcfa034288b6deca3de",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-319e16ni/attempt-001/Candidate_f68532d614612e03.lean:6:2: error: Type mismatch: After simplification, term\n  h'\n has type\n  T.gcd ((B.gcd id).gcd (gcd e ((A.erase e).gcd id))) = 1\nbut is expected to have type\n  T.gcd (e.gcd ((B.gcd id).gcd ((A.erase e).gcd id))) = 1\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-319e16ni/attempt-002/Candidate_0ac98dcf5025a6bd.lean",
+        "target_path": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-319e16ni/attempt-002/FrozenTarget_0ac98dcf5025a6bd.lean",
+        "feedback": "",
+        "target_sha256": "a214277061056c9b491fe57fad4740f6dde27f92325e56dadf9c10d92c3a2cd8",
+        "target_olean_sha256": "707a70eb31439801efd479f35b8138dbd24cca4b4ed58d61848389bb8b2c7203",
+        "source_sha256": "eb8b69ec81dada0a8b8842963beec04314ad1687ee130123503b63c6d88be5db",
+        "olean_sha256": "0cb62b420619902f031343236172fd2c22efa5562044bb0afd74f8ceeedad228",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-15T07:44:58.056584+00:00",
+    "work": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-319e16ni",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-319e16ni/attempt-002/Candidate_0ac98dcf5025a6bd.lean",
+    "environment_sha256": "17d0d0998eceadf9af59655798e9ccd43d37574aa567f55ba451e9e68f7ce67d",
+    "artifacts": {
+      "remaining_gcd_feasible": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalBridge.remaining_gcd_feasible : ∀ (T : ℕ) (A B : Finset ℕ) (e : ℕ), e ∈ A → M5.Connectivity.supportGcd T A B = 1 → Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd A B e)) e = 1 := by\n  change ∀ (T : ℕ) (A B : Finset ℕ) (e : ℕ), e ∈ A → M5.Connectivity.supportGcd T A B = 1 → Nat.gcd (Nat.gcd T (M5.PhysicalBridge.remainingGcd A B e)) e = 1\n  intro T A B e he h\n  have hA : A.gcd id = Nat.gcd e ((A.erase e).gcd id) := by\n    calc\n      A.gcd id = (insert e (A.erase e)).gcd id :=\n        congrArg (fun s : Finset ℕ => s.gcd id) (Finset.insert_erase he).symm\n      _ = Nat.gcd e ((A.erase e).gcd id) := by\n        exact Finset.gcd_insert\n  unfold M5.Connectivity.supportGcd at h\n  unfold M5.PhysicalBridge.remainingGcd\n  rw [hA] at h\n  simpa only [Nat.gcd_assoc, Nat.gcd_comm, Nat.gcd_left_comm] using h",
+          "imports": [
+            "M5PhysicalBridge"
+          ],
+          "name": "M5.PhysicalBridge.remaining_gcd_feasible",
+          "ancestors": [],
+          "spec_sha256": "962d4576aa4e5c929bee7ce578f3bba0ea7f00545cdd7fcfa034288b6deca3de"
+        },
+        "sha256": "0fb01f8e8c0d4f7386adab982a2261206af86c1c762b3b489ac8230a096f17d9"
+      }
+    }
+  }
+}

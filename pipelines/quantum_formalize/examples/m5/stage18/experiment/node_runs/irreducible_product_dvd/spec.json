@@ -1,0 +1,13 @@
+{
+  "name": "M5.FactorProduct.irreducible_product_dvd",
+  "statement": "∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)",
+  "imports": [
+    "M5FactorProduct"
+  ],
+  "context": "theorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩",
+  "queries": [
+    "pairwise coprime product divides",
+    "polynomial irreducible associated monic"
+  ],
+  "guidance": "Forward each p divides the product via Finset.dvd_prod_of_mem. Reverse Finset.prod_dvd_of_coprime with pairwise coprimality obtained from distinct_irreducibles_coprime. Empty S and A=0 included. Return only tactic lines without a leading by. Preserve exact target."
+}

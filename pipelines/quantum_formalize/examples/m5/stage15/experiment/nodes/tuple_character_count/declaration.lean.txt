@@ -1,0 +1,18 @@
+theorem M5.TupleCharacter.tuple_character_count : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * ∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (2 : ℤ) ^ D * (M5.TupleCharacter.count k f z : ℤ) := by
+  classical
+  intro D n k f z
+  have hself : z + z = 0 := by
+    ext i
+    exact (show ∀ a : ZMod 2, a + a = 0 by decide) (z i)
+  have hz : ∀ u : M5.Character.BinaryVector D, z + u = 0 ↔ u = z := by
+    intro u
+    constructor
+    · intro h
+      apply add_left_cancel (a := z)
+      exact h.trans hself.symm
+    · rintro rfl
+      exact hself
+  simp only [Finset.mul_sum]
+  rw [Finset.sum_comm]
+  simp_rw [← M5.Character.character_add, M5.Character.character_orthogonality, hz]
+  simp [← Finset.sum_filter, M5.TupleCharacter.count, mul_comm]

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), M5.FiniteExclusion.exclusionSum S bad = if ∀ p ∈ S, bad p = false then 1 else 0\nintro S bad\nchange (∑ H ∈ S.powerset, (-1 : ℤ) ^ H.card * (if ∀ p ∈ H, bad p = true then 1 else 0)) = _\nsimp only [mul_ite, mul_one, mul_zero]\nrw [← Finset.sum_filter, M5.FiniteExclusion.filtered_powerset, M5.FiniteExclusion.alternating_subsets]\nhave h : S.filter (fun p => bad p = true) = ∅ ↔ ∀ p ∈ S, bad p = false := by\n  simp only [Finset.filter_eq_empty_iff]\n  constructor\n  · intro hn p hp\n    have hb := hn p hp\n    cases bad p <;> simp_all\n  · intro hf p hp\n    rw [hf p hp]\n    decide\nrw [h]",
+  "queries": []
+}

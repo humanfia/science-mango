@@ -1,0 +1,12 @@
+∀ (p q : M5.BinaryPolynomial),
+  Polynomial.Monic p → Polynomial.Monic q → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q : Prop
+∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial),
+  (∀ p ∈ S, Polynomial.Monic p ∧ Irreducible p) → (∏ p ∈ S, p ∣ A ↔ ∀ p ∈ S, p ∣ A) : Prop
+∀ (F H A : M5.BinaryPolynomial), F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F) : Prop
+∀ (S : Finset M5.BinaryPolynomial) (F A : M5.BinaryPolynomial),
+  F ≠ 0 → F ∣ A → (∀ p ∈ S, Polynomial.Monic p ∧ Irreducible p) → (F * ∏ p ∈ S, p ∣ A ↔ ∀ p ∈ S, F * p ∣ A) : Prop
+∀ (S : Finset M5.BinaryPolynomial) (F : M5.BinaryPolynomial) (N : ℕ),
+  0 < N →
+    Polynomial.Monic F →
+      F ∣ M5.cyclicModulus N →
+        S ⊆ M5.FactorProduct.residualFactors (M5.cyclicModulus N) F → F * ∏ p ∈ S, p ∣ M5.cyclicModulus N : Prop

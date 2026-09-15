@@ -1,0 +1,54 @@
+{
+  "id": "distinct_irreducibles_coprime",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.FactorProduct.distinct_irreducibles_coprime",
+    "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v/attempt-001/Candidate_b3b094af9f96b343.lean",
+        "target_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v/attempt-001/FrozenTarget_b3b094af9f96b343.lean",
+        "feedback": "",
+        "target_sha256": "f820cd580c3442506375f22e3b17a35a59b91d5e68ad1ad0a8f38fe8c851755f",
+        "target_olean_sha256": "a9307872e5ba6dd25552aae9cd5054591d940d498204dbf7f94fcf75b449e30f",
+        "source_sha256": "19868d03b88ec5987bb02bf7e98f1a23aa99d4c7d9d9cc5040f2f284ae543034",
+        "olean_sha256": "9644ca2a85232e655ee46dfdb7df5b463bb9e53e11dc951286e0f41cc54266c4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:41:23.823195+00:00",
+    "work": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v/attempt-001/Candidate_b3b094af9f96b343.lean",
+    "environment_sha256": "9fd8a8ee68ca202d5c67e86d987f00fc161f61dc3acd9ff01ddbfe6dcaa39ed1",
+    "artifacts": {
+      "distinct_irreducibles_coprime": {
+        "payload": {
+          "declaration": "theorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩",
+          "imports": [
+            "M5FactorProduct"
+          ],
+          "name": "M5.FactorProduct.distinct_irreducibles_coprime",
+          "ancestors": [],
+          "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873"
+        },
+        "sha256": "d3dd0500d7d7d93f695919fac861323895c326e3233b81f2815e50a0c0a6c202"
+      }
+    }
+  }
+}

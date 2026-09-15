@@ -1,0 +1,68 @@
+{
+  "id": "remaining_gcd_bounds",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.PhysicalBridge.remaining_gcd_bounds",
+    "spec_sha256": "120c926e701eb7068d6a852319215fbefa6ca5965384e369b8792570d5703adf",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-7j0eqw1u/attempt-001/Candidate_edd5d8ba6f1b277b.lean",
+        "target_path": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-7j0eqw1u/attempt-001/FrozenTarget_edd5d8ba6f1b277b.lean",
+        "feedback": "",
+        "target_sha256": "7e1a1637e8a70e0ad314458e54ccc585f9c31833e90491a9070ba887f3fd8a37",
+        "target_olean_sha256": "a64f98353ea664a283af78037c63916f014099c226cf2ac48ff8447c0fe5b227",
+        "source_sha256": "1845ac7649746eb93cb80e970b2b3b41cc4e2509c0daa869a1833609831ff6fb",
+        "olean_sha256": "2c3c5582f81766d5b4563803aae5d51d4c3e88bd94a881a1598c98c468793032",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:46:50.813763+00:00",
+    "work": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-7j0eqw1u",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-physical-bridge-formalization/.humanize-formal-runs/run-7j0eqw1u/attempt-001/Candidate_edd5d8ba6f1b277b.lean",
+    "environment_sha256": "17d0d0998eceadf9af59655798e9ccd43d37574aa567f55ba451e9e68f7ce67d",
+    "artifacts": {
+      "positive_member": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalBridge.positive_member : ∀ A : Finset ℕ, 2 ≤ A.card → 0 ∈ A → ∃ a ∈ A, 0 < a := by\n  change ∀ A : Finset ℕ, 2 ≤ A.card → 0 ∈ A → ∃ a ∈ A, 0 < a\n  intro A hcard hzero\n  by_contra h\n  have hsub : A ⊆ {0} := by\n    intro a ha\n    have haz : a = 0 := by\n      by_contra hne\n      exact h ⟨a, ha, Nat.pos_of_ne_zero hne⟩\n    simpa only [Finset.mem_singleton] using haz\n  have hle : A.card ≤ 1 := by\n    simpa using Finset.card_le_card hsub\n  omega",
+          "imports": [
+            "M5PhysicalBridge"
+          ],
+          "name": "M5.PhysicalBridge.positive_member",
+          "ancestors": [],
+          "spec_sha256": "8393acaa17bb983aa09816eec69cc338d1c92929bba3bb6c71bb4fce67c2817e"
+        },
+        "sha256": "2e5c6408475b324f878d203c8631b568223c6f8892dc32fcd73dbb1fd93cfb22"
+      },
+      "remaining_gcd_bounds": {
+        "payload": {
+          "declaration": "theorem M5.PhysicalBridge.remaining_gcd_bounds : ∀ (A B : Finset ℕ) (e K : ℕ), 2 ≤ B.card → 0 ∈ B → (∀ b ∈ B, b < K) → 0 < M5.PhysicalBridge.remainingGcd A B e ∧ M5.PhysicalBridge.remainingGcd A B e < K := by\n  change ∀ (A B : Finset ℕ) (e K : ℕ), 2 ≤ B.card → 0 ∈ B → (∀ b ∈ B, b < K) → 0 < M5.PhysicalBridge.remainingGcd A B e ∧ M5.PhysicalBridge.remainingGcd A B e < K\n  intro A B e K hcard hzero hbound\n  obtain ⟨b, hb, hbpos⟩ := M5.PhysicalBridge.positive_member B hcard hzero\n  have hd : M5.PhysicalBridge.remainingGcd A B e ∣ b := by\n    unfold M5.PhysicalBridge.remainingGcd\n    exact dvd_trans (Nat.gcd_dvd_right _ _) (Finset.gcd_dvd hb)\n  have hpos : 0 < M5.PhysicalBridge.remainingGcd A B e := by\n    by_contra h\n    have hz : M5.PhysicalBridge.remainingGcd A B e = 0 := by omega\n    rw [hz] at hd\n    simp only [zero_dvd_iff] at hd\n    omega\n  exact ⟨hpos, lt_of_le_of_lt (Nat.le_of_dvd hbpos hd) (hbound b hb)⟩",
+          "imports": [
+            "M5PhysicalBridge"
+          ],
+          "name": "M5.PhysicalBridge.remaining_gcd_bounds",
+          "ancestors": [
+            "positive_member"
+          ],
+          "spec_sha256": "efb7241d142872b7d7121e47b2b6fd16e34a71f4047c7029fdabe1099170c0c9"
+        },
+        "sha256": "f5dbe9b125eb837f0f1a6d77de538a3abcc6249f98d86fbb4aace7cc3e5a35d1"
+      }
+    }
+  }
+}

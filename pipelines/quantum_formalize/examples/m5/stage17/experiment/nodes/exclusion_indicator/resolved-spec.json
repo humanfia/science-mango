@@ -1,0 +1,13 @@
+{
+  "name": "M5.FiniteExclusion.exclusion_indicator",
+  "statement": "∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), M5.FiniteExclusion.exclusionSum S bad = if ∀ p ∈ S, bad p = false then 1 else 0",
+  "imports": [
+    "M5FiniteExclusion"
+  ],
+  "context": "theorem M5.FiniteExclusion.alternating_subsets : ∀ S : Finset M5.BinaryPolynomial, (∑ H ∈ S.powerset, (-1 : ℤ)^H.card) = if S = ∅ then 1 else 0 := by\n  classical\n  change ∀ S : Finset M5.BinaryPolynomial, (∑ H ∈ S.powerset, (-1 : ℤ) ^ H.card) = if S = ∅ then 1 else 0\n  intro S\n  first\n    | exact Finset.sum_powerset_neg_one_pow_card\n    | exact Nat.sum_powerset_neg_one_pow_card\n\ntheorem M5.FiniteExclusion.filtered_powerset : ∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), S.powerset.filter (fun H => ∀ p ∈ H, bad p = true) = (S.filter (fun p => bad p = true)).powerset := by\n  change ∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), S.powerset.filter (fun H => ∀ p ∈ H, bad p = true) = (S.filter (fun p => bad p = true)).powerset\n  intro S bad\n  classical\n  apply Finset.ext\n  intro H\n  simp only [Finset.mem_filter, Finset.mem_powerset]\n  constructor\n  · rintro ⟨hHS, hbad⟩\n    intro p hp\n    exact Finset.mem_filter.mpr ⟨hHS hp, hbad p hp⟩\n  · intro hH\n    constructor\n    · intro p hp\n      exact (Finset.mem_filter.mp (hH hp)).1\n    · intro p hp\n      exact (Finset.mem_filter.mp (hH hp)).2",
+  "queries": [
+    "sum powerset negative one cardinality",
+    "finite inclusion exclusion"
+  ],
+  "guidance": "Turn multiplying indicator into if on the summand, then Finset.sum_filter. Use filtered_powerset and alternating_subsets. The bad-filter is empty iff every Bool value on S is false. No assumptions of factor irreducibility here; polynomial mapping is a separate layer. Return only tactic lines without leading by; preserve exact target."
+}

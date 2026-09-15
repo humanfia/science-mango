@@ -1,0 +1,14 @@
+theorem M5.SubsetCharacter.character_subset_sum : ∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s) := by
+  change ∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s)
+  intro D U f lam
+  classical
+  unfold M5.SubsetCharacter.vectorSum
+  induction U using Finset.induction_on with
+  | empty =>
+      simp only [Finset.sum_empty, Finset.prod_empty, M5.SubsetCharacter.value_zero]
+  | @insert s U hs ih =>
+      rw [Finset.sum_insert hs, Finset.prod_insert hs]
+      first
+      | rw [M5.Character.character_add, ih]
+      | rw [M5.SubsetCharacter.character_add, ih]
+      | rw [M5.Character.value_add, ih]

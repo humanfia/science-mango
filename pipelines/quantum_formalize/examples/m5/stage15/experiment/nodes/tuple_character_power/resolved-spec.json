@@ -1,0 +1,13 @@
+{
+  "name": "M5.TupleCharacter.tuple_character_power",
+  "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (∑ a : Fin n, M5.Character.value lam (f a)) ^ k",
+  "imports": [
+    "M5TupleCharacter"
+  ],
+  "context": "theorem M5.TupleCharacter.value_zero : ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1 := by\n  change ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1\n  intro D lam\n  simp [M5.Character.value, M5.Character.bitSign]\n\ntheorem M5.TupleCharacter.character_tuple_sum : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i)) := by\n  change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i))\n  intro D n k f t lam\n  classical\n  have h : ∀ s : Finset (Fin k), M5.Character.value lam (∑ i ∈ s, f (t i)) = ∏ i ∈ s, M5.Character.value lam (f (t i)) := by\n    intro s\n    induction s using Finset.induction_on with\n    | empty =>\n        simpa only [Finset.sum_empty, Finset.prod_empty] using M5.TupleCharacter.value_zero D lam\n    | @insert a s ha ih =>\n        rw [Finset.sum_insert ha, Finset.prod_insert ha]\n        first\n        | rw [M5.TupleCharacter.character_add]\n        | rw [M5.Character.character_add]\n        rw [ih]\n  simpa [M5.TupleCharacter.vectorSum, Finset.sum_apply] using h Finset.univ",
+  "queries": [
+    "Fintype sum_pow",
+    "finite character orthogonality"
+  ],
+  "guidance": "Rewrite each tuple character with character_tuple_sum. Fintype.sum_pow (fun a : Fin n => M5.Character.value lam (f a)) k gives the result in reverse orientation. Source Mathlib.Algebra.BigOperators.Ring.Finset has this theorem, including empty alphabet and k=0. Return only tactic lines without a leading by. Preserve exact statements."
+}

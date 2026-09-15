@@ -1,0 +1,68 @@
+{
+  "id": "character_subset_sum",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.SubsetCharacter.character_subset_sum",
+    "spec_sha256": "bca76dec8142cd0f70cf79a413b8e851ccd9245d25a3eebc28bd8698466d4d51",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-9g59nu2s/attempt-001/Candidate_95c82432b72cc06a.lean",
+        "target_path": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-9g59nu2s/attempt-001/FrozenTarget_95c82432b72cc06a.lean",
+        "feedback": "",
+        "target_sha256": "252d89f814963d622829b3adea04027e1544890bb69a2036f36397293a50d34f",
+        "target_olean_sha256": "b03ad86a442fd8dc0177896d532e4e8e360d56a9e98087c8a188add76f83469f",
+        "source_sha256": "dd5097cf0a4a23f7810797ff449fac1a44ba7463da2fc806e783b66bbb9b3bca",
+        "olean_sha256": "f338e3cedee2762809803f3f9ecd594a474a7fd8aa2b1f40445f49b127689ab0",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:35:54.139846+00:00",
+    "work": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-9g59nu2s",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-subset-character-formalization/.humanize-formal-runs/run-9g59nu2s/attempt-001/Candidate_95c82432b72cc06a.lean",
+    "environment_sha256": "87da1a6e604adad59e69379087d0c08302238952085df45b985b8a01b77aefaa",
+    "artifacts": {
+      "value_zero": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.value_zero : ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1 := by\n  change ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1\n  intro D lam\n  simp [M5.Character.value, M5.Character.bitSign]",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.value_zero",
+          "ancestors": [],
+          "spec_sha256": "d175de815b9b9fe7e8fe14577f446b56934e2f2b500e385799c3b90212f517ee"
+        },
+        "sha256": "6844c3c0ff6c917670711cfacb77ecbca2b14cbd4d8fb5b3b39f2ee2bcab9ff4"
+      },
+      "character_subset_sum": {
+        "payload": {
+          "declaration": "theorem M5.SubsetCharacter.character_subset_sum : ∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s) := by\n  change ∀ (D : ℕ) (U : Finset ℕ) (f : ℕ → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.SubsetCharacter.vectorSum U f) = ∏ s ∈ U, M5.Character.value lam (f s)\n  intro D U f lam\n  classical\n  unfold M5.SubsetCharacter.vectorSum\n  induction U using Finset.induction_on with\n  | empty =>\n      simpa using M5.SubsetCharacter.value_zero D lam\n  | @insert s U hs ih =>\n      rw [Finset.sum_insert hs, Finset.prod_insert hs]\n      first\n      | rw [M5.Character.character_add, ih]\n      | rw [M5.SubsetCharacter.character_add, ih]",
+          "imports": [
+            "M5SubsetCharacter"
+          ],
+          "name": "M5.SubsetCharacter.character_subset_sum",
+          "ancestors": [
+            "value_zero"
+          ],
+          "spec_sha256": "24325851472a04103b7d545ee48131629f712eec0438fee56ab52788ef79eccf"
+        },
+        "sha256": "01d0eca6c1f8e5b9840ddccb2358014f08a7c6c9d7047a969c62910c47dd3c24"
+      }
+    }
+  }
+}

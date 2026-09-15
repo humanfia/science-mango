@@ -1,0 +1,29 @@
+import FrozenTarget_0b4928d0820c95dd
+theorem M5.SubsetCharacter.subset_character_count : QuantumHarnessFrozenTarget := by
+  change ∀ (D : ℕ) (S : Finset ℕ) (k : ℕ) (f : ℕ → M5.Character.BinaryVector D) (z : M5.Character.BinaryVector D), (∑ lam : M5.Character.BinaryVector D, M5.Character.value lam z * (M5.SubsetCharacter.signedProduct S (fun s => M5.Character.value lam (f s))).coeff k) = (2 : ℤ) ^ D * (M5.SubsetCharacter.count S k f z : ℤ)
+  intro D S k f z
+  classical
+  have hself (v : M5.Character.BinaryVector D) : v + v = 0 := by
+    funext i
+    change v i + v i = (0 : ZMod 2)
+    have htwo : (2 : ZMod 2) = 0 := by decide
+    rw [← two_mul, htwo, zero_mul]
+  have hzero (v : M5.Character.BinaryVector D) : z + v = 0 ↔ v = z := by
+    constructor
+    · intro h
+      have hh := congrArg (fun w : M5.Character.BinaryVector D => z + w) h
+      simpa only [← add_assoc, hself, zero_add, add_zero] using hh
+    · intro h
+      subst v
+      exact hself z
+  simp_rw [M5.SubsetCharacter.signed_product_coefficient, Finset.mul_sum]
+  rw [Finset.sum_comm]
+  first
+  | simp_rw [← M5.Character.character_add]
+  | simp_rw [← M5.SubsetCharacter.character_add]
+  first
+  | simp_rw [M5.Character.character_orthogonality]
+  | simp_rw [M5.SubsetCharacter.character_orthogonality]
+  simp_rw [hzero]
+  rw [← Finset.sum_filter]
+  simp [M5.SubsetCharacter.count, mul_comm]

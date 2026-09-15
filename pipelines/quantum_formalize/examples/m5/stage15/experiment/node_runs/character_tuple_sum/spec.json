@@ -1,0 +1,13 @@
+{
+  "name": "M5.TupleCharacter.character_tuple_sum",
+  "statement": "∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i))",
+  "imports": [
+    "M5TupleCharacter"
+  ],
+  "context": "theorem M5.TupleCharacter.value_zero : ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1 := by\n  change ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1\n  intro D lam\n  simp [M5.Character.value, M5.Character.bitSign]",
+  "queries": [
+    "Fintype sum_pow",
+    "finite character orthogonality"
+  ],
+  "guidance": "Prove a general Finset finite-sum-to-product helper locally by induction using accepted character_add and value_zero, then specialize to Finset.univ. Alternatively use induction on k and Fin.sum_univ_succ/Fin.prod_univ_succ. Tuple functions permit repeated values. Empty tuple must yield one. Return only tactic lines without a leading by. Preserve exact statements."
+}

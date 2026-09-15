@@ -1,0 +1,68 @@
+{
+  "id": "character_tuple_sum",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.TupleCharacter.character_tuple_sum",
+    "spec_sha256": "d0bce68bcd9c831db105263d8977c540caab73b47eb049038a69519058157822",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-nb1nxzqr/attempt-001/Candidate_e6c7c5ff580810bb.lean",
+        "target_path": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-nb1nxzqr/attempt-001/FrozenTarget_e6c7c5ff580810bb.lean",
+        "feedback": "",
+        "target_sha256": "aa429b147c2981c81e05ffff5c6083e6de4e6121342232a08cb22fdedf2a62a8",
+        "target_olean_sha256": "b0b26a2fe68720d8d97dfc21e4fd0d12f2ee9132df62dd4fbe0bb29eee5c056a",
+        "source_sha256": "37d4ecc6a3b0d0d4dc93b8aff91a3c4ee1239ebeb4e58fc62e612bc35488e672",
+        "olean_sha256": "cee37e19ebcdb334c391854803ef95830575b94419eb1eb3b40326c2dbb796a5",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:26:29.627626+00:00",
+    "work": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-nb1nxzqr",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-tuple-character-formalization/.humanize-formal-runs/run-nb1nxzqr/attempt-001/Candidate_e6c7c5ff580810bb.lean",
+    "environment_sha256": "a88bf8c7b87e405c703ad2ae810622acdf6c4c54f6545dd55e3e8b4929223ba5",
+    "artifacts": {
+      "value_zero": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.value_zero : ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1 := by\n  change ∀ (D : ℕ) (lam : M5.Character.BinaryVector D), M5.Character.value lam 0 = 1\n  intro D lam\n  simp [M5.Character.value, M5.Character.bitSign]",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.value_zero",
+          "ancestors": [],
+          "spec_sha256": "63c84d3f51b1b8d0fd00508f6ff66d35844275b1e887323718462c1086b4888b"
+        },
+        "sha256": "0f8464b2a78f083f55623d974973c4e41049fc7160e46ebf595d9b7c797dfa35"
+      },
+      "character_tuple_sum": {
+        "payload": {
+          "declaration": "theorem M5.TupleCharacter.character_tuple_sum : ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i)) := by\n  change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i))\n  intro D n k f t lam\n  classical\n  have h : ∀ s : Finset (Fin k), M5.Character.value lam (∑ i ∈ s, f (t i)) = ∏ i ∈ s, M5.Character.value lam (f (t i)) := by\n    intro s\n    induction s using Finset.induction_on with\n    | empty =>\n        simpa only [Finset.sum_empty, Finset.prod_empty] using M5.TupleCharacter.value_zero D lam\n    | @insert a s ha ih =>\n        rw [Finset.sum_insert ha, Finset.prod_insert ha]\n        first\n        | rw [M5.TupleCharacter.character_add]\n        | rw [M5.Character.character_add]\n        rw [ih]\n  simpa [M5.TupleCharacter.vectorSum, Finset.sum_apply] using h Finset.univ",
+          "imports": [
+            "M5TupleCharacter"
+          ],
+          "name": "M5.TupleCharacter.character_tuple_sum",
+          "ancestors": [
+            "value_zero"
+          ],
+          "spec_sha256": "5bbf15f0fe2592c694f6298d90e98c4ca3cde9e6085fa5d1ccb47aa06115a678"
+        },
+        "sha256": "cd7d31ce1f124aa48df1c8bf5e9ef9f1a7e1f17c6b3818ef8d6bf4c02b2f1a07"
+      }
+    }
+  }
+}

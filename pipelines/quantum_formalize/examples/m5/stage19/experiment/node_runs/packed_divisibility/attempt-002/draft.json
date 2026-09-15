@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (w T d : ℕ) (r : Fin w → Fin T), d ∣ T → ((∀ a ∈ M5.Packing.packedSupport r, d ∣ a) ↔ ∀ i, d ∣ (r i).val)\nintro w T d r hT\nhave hmul (n : ℕ) : d ∣ n * T := by\n  obtain ⟨k, hk⟩ := hT\n  refine ⟨n * k, ?_⟩\n  rw [hk]\n  ac_rfl\nsimp [M5.Packing.packedSupport, M5.Packing.packedValue]\nconstructor\n· intro h i\n  have hm := hmul (M5.Packing.occurrenceTag r i)\n  first\n  | exact (Nat.dvd_add_iff_left hm).mp (h i)\n  | exact (Nat.dvd_add_iff_right hm).mp (h i)\n· intro h i\n  exact dvd_add (h i) (hmul (M5.Packing.occurrenceTag r i))",
+  "queries": []
+}

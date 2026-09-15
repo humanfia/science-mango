@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (S : Finset M5.BinaryPolynomial) (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → S ⊆ M5.FactorProduct.residualFactors (M5.cyclicModulus N) F → F * (∏ p ∈ S, p) ∣ M5.cyclicModulus N\nintro S F N hN hF hFdvd hS\nhave hmem : ∀ p ∈ S, p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by\n  intro p hp\n  simpa [M5.FactorProduct.residualFactors] using hS hp\nhave hprops : ∀ p ∈ S, p.Monic ∧ Irreducible p := by\n  intro p hp\n  have hi := UniqueFactorizationMonoid.irreducible_of_normalized_factor p (hmem p hp)\n  refine ⟨?_, hi⟩\n  apply M5.Signature.binary_monic\n  exact hi.ne_zero\napply (M5.FactorProduct.common_factor_dvd F (∏ p ∈ S, p) (M5.cyclicModulus N) hF.ne_zero hFdvd).mpr\napply (M5.FactorProduct.irreducible_product_dvd S (M5.cyclicModulus N / F) hprops).mpr\nintro p hp\nexact UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors (hmem p hp)",
+  "queries": []
+}

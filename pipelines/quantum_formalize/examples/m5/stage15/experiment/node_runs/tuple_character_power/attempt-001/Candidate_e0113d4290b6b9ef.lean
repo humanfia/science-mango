@@ -1,0 +1,7 @@
+import FrozenTarget_e0113d4290b6b9ef
+theorem M5.TupleCharacter.tuple_character_power : QuantumHarnessFrozenTarget := by
+  change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (lam : M5.Character.BinaryVector D), (∑ t : Fin k → Fin n, M5.Character.value lam (M5.TupleCharacter.vectorSum f t)) = (∑ a : Fin n, M5.Character.value lam (f a)) ^ k
+  intro D n k f lam
+  classical
+  simp only [M5.TupleCharacter.character_tuple_sum]
+  exact (Fintype.sum_pow (fun a : Fin n => M5.Character.value lam (f a)) k).symm

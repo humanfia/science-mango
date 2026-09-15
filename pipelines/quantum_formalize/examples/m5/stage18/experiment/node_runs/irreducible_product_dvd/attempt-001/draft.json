@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)\nintro S A hS\nconstructor\n· intro h p hp\n  exact (Finset.dvd_prod_of_mem (fun q : M5.BinaryPolynomial => q) hp).trans h\n· intro h\n  refine Finset.prod_dvd_of_coprime ?_ h\n  intro p hp q hq hpq\n  exact M5.FactorProduct.distinct_irreducibles_coprime p q\n    (hS p hp).1 (hS q hq).1 (hS p hp).2 (hS q hq).2 hpq",
+  "queries": []
+}

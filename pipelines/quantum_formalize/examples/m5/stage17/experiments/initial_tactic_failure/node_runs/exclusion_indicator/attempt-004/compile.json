@@ -1,0 +1,15 @@
+{
+  "command": [
+    "lake",
+    "env",
+    "lean",
+    "-R",
+    "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-t59fcu_7/attempt-004",
+    "-o",
+    "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-t59fcu_7/attempt-004/Candidate_d137e4b94d4fdf02.olean",
+    "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-t59fcu_7/attempt-004/Candidate_d137e4b94d4fdf02.lean"
+  ],
+  "returncode": 1,
+  "timed_out": false,
+  "output": "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-t59fcu_7/attempt-004/Candidate_d137e4b94d4fdf02.lean:13:8: warning: Try `simp at hm` instead of `simpa using hm`\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-t59fcu_7/attempt-004/Candidate_d137e4b94d4fdf02.lean:30:10: error: Tactic `rewrite` failed: motive is not type correct:\n  fun _a => (if _a then 1 else 0) = if ∀ p ∈ S, bad p = false then 1 else 0\nError: Application type mismatch: The argument\n  {p ∈ S | bad p = true}.decidableEq ∅\nhas type\n  Decidable ({p ∈ S | bad p = true} = ∅)\nbut is expected to have type\n  Decidable _a\nin the application\n  @ite ℤ _a ({p ∈ S | bad p = true}.decidableEq ∅)\n\nExplanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.\n\nPossible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).\n\nS : Finset BinaryPolynomial\nbad : BinaryPolynomial → Bool\nhe : {p ∈ S | bad p = true} = ∅ ↔ ∀ p ∈ S, bad p = false\n⊢ (if {p ∈ S | bad p = true} = ∅ then 1 else 0) = if ∀ p ∈ S, bad p = false then 1 else 0\n"
+}

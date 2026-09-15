@@ -1,0 +1,54 @@
+{
+  "id": "filtered_powerset",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.FiniteExclusion.filtered_powerset",
+    "spec_sha256": "af4839241e1397f2861564207c2d57fdf77ee394a2eab786563da2a6dad5a899",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-bxpne5d9/attempt-001/Candidate_8660156a34b84847.lean",
+        "target_path": "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-bxpne5d9/attempt-001/FrozenTarget_8660156a34b84847.lean",
+        "feedback": "",
+        "target_sha256": "9b4961698a1fdbdb5b55013a9a62677e8f46e26bf99531efa809b3588481023b",
+        "target_olean_sha256": "dd9e71b22ecef322e186ba56386c3e5e607be4ca33b77ffb96b01f16883d5c37",
+        "source_sha256": "203210c3320a5c42db7affb8582af408a06b178af2d85d67d22da7c1095e03c4",
+        "olean_sha256": "41e84e6fb7da69d984730952b9b469515f1c70b44b1ecc2ea8cc6e3452507462",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T07:33:28.348316+00:00",
+    "work": "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-bxpne5d9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-finite-exclusion-formalization/.humanize-formal-runs/run-bxpne5d9/attempt-001/Candidate_8660156a34b84847.lean",
+    "environment_sha256": "619e09e49f41298158615d428565cca61e2a29d44b11e0fb752f38547139c717",
+    "artifacts": {
+      "filtered_powerset": {
+        "payload": {
+          "declaration": "theorem M5.FiniteExclusion.filtered_powerset : ∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), S.powerset.filter (fun H => ∀ p ∈ H, bad p = true) = (S.filter (fun p => bad p = true)).powerset := by\n  change ∀ (S : Finset M5.BinaryPolynomial) (bad : M5.BinaryPolynomial → Bool), S.powerset.filter (fun H => ∀ p ∈ H, bad p = true) = (S.filter (fun p => bad p = true)).powerset\n  intro S bad\n  classical\n  apply Finset.ext\n  intro H\n  simp only [Finset.mem_filter, Finset.mem_powerset]\n  constructor\n  · rintro ⟨hHS, hbad⟩\n    intro p hp\n    exact Finset.mem_filter.mpr ⟨hHS hp, hbad p hp⟩\n  · intro hH\n    constructor\n    · intro p hp\n      exact (Finset.mem_filter.mp (hH hp)).1\n    · intro p hp\n      exact (Finset.mem_filter.mp (hH hp)).2",
+          "imports": [
+            "M5FiniteExclusion"
+          ],
+          "name": "M5.FiniteExclusion.filtered_powerset",
+          "ancestors": [],
+          "spec_sha256": "af4839241e1397f2861564207c2d57fdf77ee394a2eab786563da2a6dad5a899"
+        },
+        "sha256": "063c643e427586e0dd396238b127b9788027726b9e85109e2ca9352145b0533c"
+      }
+    }
+  }
+}

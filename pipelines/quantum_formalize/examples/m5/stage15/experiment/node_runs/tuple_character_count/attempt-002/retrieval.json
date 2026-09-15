@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Character.character_add M5.Character.character_orthogonality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 67005,
+        "name": "AddChar",
+        "module": "Mathlib.Algebra.Group.AddChar",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/AddChar.lean#L64-L83",
+        "source_text": "/-- `AddChar A M` is the type of maps `A → M`, for `A` an additive monoid and `M` a multiplicative\nmonoid, which intertwine addition in `A` with multiplication in `M`.\n\nWe only put the typeclasses needed for the definition, although in practice we are usually\ninterested in much more specific cases (e.g. when `A` is a group and `M` a commutative ring).\n-/\nstructure AddChar where\n  /-- The underlying function.\n\n  Do not use this function directly. Instead use the coercion coming from the `FunLike`\n  instance. -/\n  toFun : A → M\n  /-- The function maps `0` to `1`.\n\n  Do not use this directly. Instead use `AddChar.map_zero_eq_one`. -/\n  map_zero_eq_one' : toFun 0 = 1\n  /-- The function maps addition in `A` to multiplication in `M`.\n\n  Do not use this directly. Instead use `AddChar.map_add_eq_mul`. -/\n  map_add_eq_mul' : ∀ a b : A, toFun (a + b) = toFun a * toFun b\n",
+        "docstring": "`AddChar A M` is the type of maps `A → M`, for `A` an additive monoid and `M` a multiplicative\nmonoid, which intertwine addition in `A` with multiplication in `M`.\n\nWe only put the typeclasses needed for the definition, although in practice we are usually\ninterested in much more specific cases (e.g. when `A` is a group and `M` a commutative ring).\n"
+      },
+      {
+        "id": 67055,
+        "name": "AddChar.instDecidableEq",
+        "module": "Mathlib.Algebra.Group.AddChar",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/AddChar.lean#L255-L255",
+        "source_text": "noncomputable instance : DecidableEq (AddChar A M) := Classical.decEq _\n",
+        "docstring": null
+      },
+      {
+        "id": 271858,
+        "name": "DirichletCharacter",
+        "module": "Mathlib.NumberTheory.DirichletCharacter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Basic.lean#L38-L40",
+        "source_text": "/-- The type of Dirichlet characters of level `n`. -/\n@[wikidata Q1063579]\nabbrev DirichletCharacter (R : Type*) [CommMonoidWithZero R] (n : ℕ) := MulChar (ZMod n) R\n",
+        "docstring": "The type of Dirichlet characters of level `n`. "
+      },
+      {
+        "id": 271677,
+        "name": "cyclotomicCharacter",
+        "module": "Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/Cyclotomic/CyclotomicCharacter.lean#L300-L321",
+        "source_text": "/--\nSuppose `L` is a domain containing all `pⁱ`-th primitive roots with `p` a (rational) prime.\nIf `g` is a ring automorphism of `L`, then `cyclotomicCharacter L p g` is the unique `j : ℤₚ` such\nthat `g(ζ) = ζ ^ (j mod pⁱ)` for all `pⁱ`-th roots of unity `ζ`.\n\nNote: This is the trivial character when `L` does not contain all `pⁱ`-th primitive roots.\n-/\nnoncomputable def cyclotomicCharacter (p : ℕ) [Fact p.Prime] :\n    (L ≃+* L) →* ℤ_[p]ˣ := .toHomUnits\n  { toFun g := cyclotomicCharacter.toFun p g\n    map_one' := by\n      by_cases H : ∀ (i : ℕ), ∃ ζ : L, IsPrimitiveRoot ζ (p ^ i)\n      · haveI _ (i) : HasEnoughRootsOfUnity L (p ^ i) := ⟨H i, rootsOfUnity.isCyclic _ _⟩\n        refine PadicInt.ext_of_toZModPow.mp fun n ↦ ?_\n        simp [cyclotomicCharacter.toZModPow_toFun]\n      · simp [cyclotomicCharacter.toFun, dif_neg H]\n    map_mul' f g := by\n      by_cases H : ∀ (i : ℕ), ∃ ζ : L, IsPrimitiveRoot ζ (p ^ i)\n      · haveI _ (i) : HasEnoughRootsOfUnity L (p ^ i) := ⟨H i, rootsOfUnity.isCyclic _ _⟩\n        refine PadicInt.ext_of_toZModPow.mp fun n ↦ ?_\n        simp [cyclotomicCharacter.toZModPow_toFun]\n      · simp [cyclotomicCharacter.toFun, dif_neg H] }\n",
+        "docstring": "Suppose `L` is a domain containing all `pⁱ`-th primitive roots with `p` a (rational) prime.\nIf `g` is a ring automorphism of `L`, then `cyclotomicCharacter L p g` is the unique `j : ℤₚ` such\nthat `g(ζ) = ζ ^ (j mod pⁱ)` for all `pⁱ`-th roots of unity `ζ`.\n\nNote: This is the trivial character when `L` does not contain all `pⁱ`-th primitive roots.\n"
+      },
+      {
+        "id": 271896,
+        "name": "DirichletCharacter.conductor",
+        "module": "Mathlib.NumberTheory.DirichletCharacter.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/NumberTheory/DirichletCharacter/Basic.lean#L245-L246",
+        "source_text": "/-- The minimum natural number level `n` through which `χ` factors. -/\nnoncomputable def conductor : ℕ := sInf (conductorSet χ)\n",
+        "docstring": "The minimum natural number level `n` through which `χ` factors. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Character.character_add M5.Character.character_orthogonality",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392354,
+        "name": "Lorentz.Vector.CausalCharacter",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L25-L31",
+        "source_text": "/-- Classification of lorentz vectors based on their causal character. -/\ninductive CausalCharacter\n  | timeLike\n  | lightLike\n  | spaceLike\n\nderiving DecidableEq\n",
+        "docstring": "Classification of lorentz vectors based on their causal character. "
+      },
+      {
+        "id": 392377,
+        "name": "Lorentz.Vector.causalCharacter_zero",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.LightLike",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/LightLike.lean#L31-L34",
+        "source_text": "@[simp]\nlemma causalCharacter_zero {d : ℕ} : causalCharacter (0 : Vector d) =\n    CausalCharacter.lightLike := by\n  simp [causalCharacter]",
+        "docstring": null
+      },
+      {
+        "id": 392359,
+        "name": "Lorentz.Vector.causalCharacter",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L33-L43",
+        "source_text": "/-- A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n-/\ndef causalCharacter {d : ℕ} (p : Vector d) : CausalCharacter :=\n  let v0 := ⟪p, p⟫ₘ\n  if v0 = 0 then CausalCharacter.lightLike\n  else if 0 < v0 then CausalCharacter.timeLike\n  else CausalCharacter.spaceLike\n",
+        "docstring": "A Lorentz vector `p` is\n- `lightLike` if `⟪p, p⟫ₘ = 0`.\n- `timeLike` if `0 < ⟪p, p⟫ₘ`.\n- `spaceLike` if `⟪p, p⟫ₘ < 0`.\nNote that `⟪p, p⟫ₘ` is defined in the +--- convention.\n"
+      },
+      {
+        "id": 392356,
+        "name": "Lorentz.Vector.CausalCharacter.lightLike",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Causality.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Causality/Basic.lean#L28-L28",
+        "source_text": "  | lightLike\n",
+        "docstring": null
+      },
+      {
+        "id": 392497,
+        "name": "Lorentz.«term_*ᵥ_»",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Pre.Modules",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Pre/Modules.lean#L139-L140",
+        "source_text": "/-- Multiplication of a matrix with a vector in `ContrMod`. -/\nscoped[Lorentz] infixr:73 \" *ᵥ \" => ContrMod.mulVec\n",
+        "docstring": "Multiplication of a matrix with a vector in `ContrMod`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.TupleCharacter.count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 210496,
+        "name": "Multiset.count",
+        "module": "Mathlib.Data.Multiset.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Count.lean#L122-L124",
+        "source_text": "/-- `count a s` is the multiplicity of `a` in `s`. -/\ndef count (a : α) : Multiset α → ℕ :=\n  countP (a = ·)\n",
+        "docstring": "`count a s` is the multiplicity of `a` in `s`. "
+      },
+      {
+        "id": 201707,
+        "name": "Tuple.sort",
+        "module": "Mathlib.Data.Fin.Tuple.Sort",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Sort.lean#L77-L79",
+        "source_text": "/-- `sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. -/\ndef sort (f : Fin n → α) : Equiv.Perm (Fin n) :=\n  (graphEquiv₂ f).toEquiv.trans (graphEquiv₁ f).symm\n",
+        "docstring": "`sort f` is the permutation that orders `Fin n` according to the order of the outputs of `f`. "
+      },
+      {
+        "id": 271043,
+        "name": "FirstOrder.Language.Theory.typeOf",
+        "module": "Mathlib.ModelTheory.Types",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/ModelTheory/Types.lean#L174-L179",
+        "source_text": "/-- The set of all formulas true at a tuple in a structure forms a complete type. -/\ndef typeOf (v : α → M) : T.CompleteType α :=\n  haveI : (constantsOn α).Structure M := constantsOn.structure v\n  { toTheory := L[[α]].completeTheory M\n    subset' := model_iff_subset_completeTheory.1 ((LHom.onTheory_model _ T).2 inferInstance)\n    isMaximal' := completeTheory.isMaximal _ _ }\n",
+        "docstring": "The set of all formulas true at a tuple in a structure forms a complete type. "
+      },
+      {
+        "id": 201701,
+        "name": "Tuple.graph",
+        "module": "Mathlib.Data.Fin.Tuple.Sort",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fin/Tuple/Sort.lean#L38-L42",
+        "source_text": "/-- `graph f` produces the finset of pairs `(f i, i)`\nequipped with the lexicographic order.\n-/\ndef graph (f : Fin n → α) : Finset (α ×ₗ Fin n) :=\n  Finset.univ.image fun i => (f i, i)\n",
+        "docstring": "`graph f` produces the finset of pairs `(f i, i)`\nequipped with the lexicographic order.\n"
+      },
+      {
+        "id": 217022,
+        "name": "Function.tupleGraph",
+        "module": "Mathlib.Data.Rel",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Rel.lean#L571-L573",
+        "source_text": "/-- The higher-arity graph of a function. Describes α-argument functions from β to β. -/\ndef tupleGraph (f : (α → β) → β) : Set (Option α → β) :=\n  { v | f (v ∘ some) = v none }\n",
+        "docstring": "The higher-arity graph of a function. Describes α-argument functions from β to β. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.TupleCharacter.count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392639,
+        "name": "TensorSpecies.Tensorial.numIndices",
+        "module": "Physlib.Relativity.Tensors.Tensorial",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Tensorial.lean#L121-L123",
+        "source_text": "/-- The number of indices of a elements `t : M` where `M` carries a tensorial instance. -/\nnoncomputable def numIndices (t : M) [Tensorial S c M] : ℕ :=\n  TensorSpecies.numIndices (S := S) (toTensor t)\n",
+        "docstring": "The number of indices of a elements `t : M` where `M` carries a tensorial instance. "
+      },
+      {
+        "id": 387051,
+        "name": "Physlib.noLemmas",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L185-L189",
+        "source_text": "/-- Number of definitions. -/\ndef noLemmas : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c => return !c.isDef && (← c.name.hasPos)\n",
+        "docstring": "Number of definitions. "
+      },
+      {
+        "id": 392014,
+        "name": "TensorSpecies.Tensor.getNumIndicesExact",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L335-L347",
+        "source_text": "/-- For syntax of the form `T` where `T` is `Tensor S c` this returns\n  the value of `TensorSpecies.numIndices T`. That is, the exact number of indices\n  associated with that tensor. -/\ndef getNumIndicesExact (stx : Syntax) : TermElabM ℕ := do\n  match stx with\n  | `($t:term) =>\n    let a ← elabTerm (← `(Tensorial.numIndices $t)) (some (mkConst ``Nat))\n    let a' ← whnf a\n    match a' with\n    | Expr.lit (Literal.natVal n) =>\n      return n\n    |_ => throwError s!\"Could not extract number of indices from tensor\n      {stx} (getNoIndicesExact). \"\n",
+        "docstring": "For syntax of the form `T` where `T` is `Tensor S c` this returns\nthe value of `TensorSpecies.numIndices T`. That is, the exact number of indices\nassociated with that tensor. "
+      },
+      {
+        "id": 387053,
+        "name": "Physlib.noDefsNoDocString",
+        "module": "Physlib.Meta.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Basic.lean#L199-L204",
+        "source_text": "/-- Number of definitions without a doc-string. -/\ndef noDefsNoDocString : CoreM Nat := do\n  let imports ← Physlib.allImports\n  let x ← imports.mapM Physlib.Imports.getUserConsts\n  x.flatFilterSizeM fun c =>\n    return c.isDef && (← c.name.hasPos) && !(← c.name.hasDocString)\n",
+        "docstring": "Number of definitions without a doc-string. "
+      },
+      {
+        "id": 394280,
+        "name": "dim",
+        "module": "Physlib.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Basic.lean#L284-L284",
+        "source_text": "alias dim := HasDim.d\n",
+        "docstring": "**Alias** of `HasDim.d`.\n\n---\n\nThe dimension associated with a type `M`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M5.Character.finite_fibre_count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 295561,
+        "name": "Order.IsOfFiniteCharacter",
+        "module": "Mathlib.Order.TeichmullerTukey",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/TeichmullerTukey.lean#L41-L43",
+        "source_text": "/-- A family of sets $F$ is of finite character iff for every set $X$, $X ∈ F$ iff every finite\nsubset of $X$ is in $F$ -/\ndef IsOfFiniteCharacter := ∀ x, x ∈ F ↔ ∀ y ⊆ x, y.Finite → y ∈ F\n",
+        "docstring": "A family of sets $F$ is of finite character iff for every set $X$, $X ∈ F$ iff every finite\nsubset of $X$ is in $F$ "
+      },
+      {
+        "id": 210496,
+        "name": "Multiset.count",
+        "module": "Mathlib.Data.Multiset.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Multiset/Count.lean#L122-L124",
+        "source_text": "/-- `count a s` is the multiplicity of `a` in `s`. -/\ndef count (a : α) : Multiset α → ℕ :=\n  countP (a = ·)\n",
+        "docstring": "`count a s` is the multiplicity of `a` in `s`. "
+      },
+      {
+        "id": 265059,
+        "name": "MeasureTheory.Measure.count_apply_finite'",
+        "module": "Mathlib.MeasureTheory.Measure.Count",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/Count.lean#L55-L58",
+        "source_text": "theorem count_apply_finite' {s : Set α} (s_fin : s.Finite) (s_mble : MeasurableSet s) :\n    count s = #s_fin.toFinset := by\n  simp [←\n    @count_apply_finset' _ _ s_fin.toFinset (by simpa only [Finite.coe_toFinset] using s_mble)]\n",
+        "docstring": null
+      },
+      {
+        "id": 65251,
+        "name": "Multiset.hasFiniteSupport_count",
+        "module": "Mathlib.Algebra.FiniteSupport.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/FiniteSupport/Basic.lean#L212-L215",
+        "source_text": "@[fun_prop]\nlemma Multiset.hasFiniteSupport_count {α : Type*} [DecidableEq α] (s : Multiset α) :\n    (count · s).HasFiniteSupport :=\n  s.toFinset.finite_toSet.subset <| by simp",
+        "docstring": null
+      },
+      {
+        "id": 190868,
+        "name": "Matroid.finite_setOf_isRestriction",
+        "module": "Mathlib.Combinatorics.Matroid.Minor.Restrict",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Minor/Restrict.lean#L354-L356",
+        "source_text": "theorem finite_setOf_isRestriction (M : Matroid α) [M.Finite] : {N | N ≤r M}.Finite :=\n  (M.ground_finite.finite_subsets.image (fun R ↦ M ↾ R)).subset <|\n    by rintro _ ⟨R, hR, rfl⟩; exact ⟨_, hR, rfl⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M5.Character.finite_fibre_count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393911,
+        "name": "microHamiltonianFintype",
+        "module": "Physlib.StatisticalMechanics.MicroCanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/MicroCanonicalEnsemble/Basic.lean#L40-L42",
+        "source_text": "/-- The dim_fin to the instance cache is added so that things like the measure can be synthesized -/\ninstance microHamiltonianFintype {D} (H : MicroHamiltonian D) (d : D) : Fintype (H.dim d) :=\n  H.dim_fin d\n",
+        "docstring": "The dim_fin to the instance cache is added so that things like the measure can be synthesized "
+      },
+      {
+        "id": 388429,
+        "name": "SuperSymmetry.SU5.ChargeSpectrum.ofFinset_card_eq_ofFinsetCard",
+        "module": "Physlib.Particles.SuperSymmetry.SU5.ChargeSpectrum.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/SU5/ChargeSpectrum/Basic.lean#L404-L407",
+        "source_text": "lemma ofFinset_card_eq_ofFinsetCard (S5 S10 : Finset 𝓩) :\n    (ofFinset S5 S10).card = ofFinsetCard S5 S10 := by\n  simp [ofFinset, Finset.card_map, Finset.card_product, Finset.card_powerset, ofFinsetCard]\n  grind\n",
+        "docstring": null
+      },
+      {
+        "id": 393996,
+        "name": "FTheory.SU5.FluxesFive.numChiralL_eq_sum_sub_numAntiChiralL",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/Basic.lean#L338-L341",
+        "source_text": "lemma numChiralL_eq_sum_sub_numAntiChiralL (F : FluxesFive) :\n    F.numChiralL = (chiralIndicesOfL F).sum - F.numAntiChiralL := by\n  simpa only [numChiralL, numAntiChiralL, not_le, eq_sub_iff_add_eq] using\n    Multiset.sum_filter_add_sum_filter_not (s := chiralIndicesOfL F) (fun x => 0 ≤ x)\n",
+        "docstring": null
+      },
+      {
+        "id": 394045,
+        "name": "FTheory.SU5.FluxesFive.card_le_six_of_noExotics",
+        "module": "Physlib.StringTheory.FTheory.SU5.Fluxes.NoExotics.Completeness",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Fluxes/NoExotics/Completeness.lean#L223-L236",
+        "source_text": "lemma card_le_six_of_noExotics {F : FluxesFive} (hF : F.NoExotics) (hnZ : F.HasNoZero) :\n    F.card ≤ 6 := by\n  have hx := subset_of_fluxesFive_mem_noExoticsSubsets_of_noExotics hF hnZ F\n    (Preorder.le_refl F)\n  generalize F.card = n at *\n  match n with\n  | 0 => simp\n  | 1 => simp\n  | 2 => simp\n  | 3 => simp\n  | 4 => simp\n  | 5 => simp\n  | 6 => simp\n  | _ + 7 => simp [noExoticsSubsets] at hx\n",
+        "docstring": null
+      },
+      {
+        "id": 394093,
+        "name": "FTheory.SU5.FiveQuanta",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L97-L99",
+        "source_text": "/-- The quanta of 5-bar representations corresponding to a multiset of\n  `(q, M, N)` for each particle. `(M, N)` are defined in the `FluxesFive` module. -/\nabbrev FiveQuanta (𝓩 : Type := ℤ) : Type := Multiset (𝓩 × Fluxes)\n",
+        "docstring": "The quanta of 5-bar representations corresponding to a multiset of\n`(q, M, N)` for each particle. `(M, N)` are defined in the `FluxesFive` module. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

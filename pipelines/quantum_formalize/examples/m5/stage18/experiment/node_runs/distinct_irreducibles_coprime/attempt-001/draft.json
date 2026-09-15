@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\nintro p q hpm hqm hp hq hpq\napply hp.coprime_iff_not_dvd.mpr\nrintro ⟨r, hr⟩\nrcases hq.isUnit_or_isUnit hr with hpu | hru\n· exact hp.not_isUnit hpu\n· rcases hru with ⟨u, hu⟩\n  apply hpq\n  apply Polynomial.eq_of_monic_of_associated hpm hqm\n  exact ⟨u, by simpa only [hu] using hr.symm⟩",
+  "queries": [
+    "Irreducible.coprime_iff_not_dvd",
+    "Polynomial.eq_of_monic_of_associated"
+  ]
+}

@@ -1,0 +1,3 @@
+import Candidate_b3b094af9f96b343
+example : QuantumHarnessFrozenTarget := M5.FactorProduct.distinct_irreducibles_coprime
+#print axioms M5.FactorProduct.distinct_irreducibles_coprime

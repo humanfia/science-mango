@@ -1,0 +1,3 @@
+import Candidate_fc8af14b42b48ce6
+example : QuantumHarnessFrozenTarget := M5.SubsetCharacter.signed_product_coefficient
+#print axioms M5.SubsetCharacter.signed_product_coefficient

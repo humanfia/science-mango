@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (D n k : ℕ) (f : Fin n → M5.Character.BinaryVector D) (t : Fin k → Fin n) (lam : M5.Character.BinaryVector D), M5.Character.value lam (M5.TupleCharacter.vectorSum f t) = ∏ i : Fin k, M5.Character.value lam (f (t i))\nintro D n k f t lam\nclassical\nhave h : ∀ s : Finset (Fin k), M5.Character.value lam (∑ i ∈ s, f (t i)) = ∏ i ∈ s, M5.Character.value lam (f (t i)) := by\n  intro s\n  induction s using Finset.induction_on with\n  | empty =>\n      simpa only [Finset.sum_empty, Finset.prod_empty] using M5.TupleCharacter.value_zero D lam\n  | @insert a s ha ih =>\n      rw [Finset.sum_insert ha, Finset.prod_insert ha]\n      first\n      | rw [M5.TupleCharacter.character_add]\n      | rw [M5.Character.character_add]\n      rw [ih]\nsimpa [M5.TupleCharacter.vectorSum, Finset.sum_apply] using h Finset.univ",
+  "queries": []
+}

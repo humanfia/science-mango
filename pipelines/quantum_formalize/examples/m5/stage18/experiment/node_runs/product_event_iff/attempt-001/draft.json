@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nchange ∀ (S : Finset M5.BinaryPolynomial) (F A : M5.BinaryPolynomial), F ≠ 0 → F ∣ A → (∀ p ∈ S, p.Monic ∧ Irreducible p) → (F * (∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, F * p ∣ A)\nintro S F A hF hFA hS\nrw [M5.FactorProduct.common_factor_dvd F (∏ p ∈ S, p) A hF hFA,\n  M5.FactorProduct.irreducible_product_dvd S (A / F) hS]\nconstructor\n· intro h p hp\n  exact (M5.FactorProduct.common_factor_dvd F p A hF hFA).mpr (h p hp)\n· intro h p hp\n  exact (M5.FactorProduct.common_factor_dvd F p A hF hFA).mp (h p hp)",
+  "queries": []
+}

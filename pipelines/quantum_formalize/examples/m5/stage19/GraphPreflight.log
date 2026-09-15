@@ -1,0 +1,13 @@
+∀ (w T d : ℕ) (r : Fin w → Fin T),
+  d ∣ T → ((∀ a ∈ M5.Packing.packedSupport r, d ∣ a) ↔ ∀ (i : Fin w), d ∣ ↑(r i)) : Prop
+∀ (w T : ℕ) (r s : Fin w → Fin T),
+  M5.Connectivity.supportGcd T (M5.Packing.packedSupport r) (M5.Packing.packedSupport s) =
+    T.gcd ((Finset.univ.gcd fun i => ↑(r i)).gcd (Finset.univ.gcd fun i => ↑(s i))) : Prop
+∀ (A : Finset ℕ), 2 ≤ A.card → 0 ∈ A → ∃ a ∈ A, 0 < a : Prop
+∀ (A B : Finset ℕ) (e K : ℕ),
+  2 ≤ B.card →
+    0 ∈ B →
+      (∀ b ∈ B, b < K) → 0 < M5.PhysicalBridge.remainingGcd A B e ∧ M5.PhysicalBridge.remainingGcd A B e < K : Prop
+∀ (T : ℕ) (A B : Finset ℕ),
+  ∀ e ∈ A, M5.Connectivity.supportGcd T A B = 1 → (T.gcd (M5.PhysicalBridge.remainingGcd A B e)).gcd e = 1 : Prop
+∀ (w T e δ k : ℕ), 0 < T → e < w * T → δ < w * T → k < w + δ → e + k * T < M5.packingCutoff w T : Prop

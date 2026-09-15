@@ -1,0 +1,529 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T07:47:41.820973+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "M5_DEFS": {
+      "id": "M5_DEFS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CHAR_ORTHO": {
+      "id": "M5_CHAR_ORTHO",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_INT_IE": {
+      "id": "M5_INT_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PACK": {
+      "id": "M5_PACK",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_CRT_REPAIR": {
+      "id": "M5_CRT_REPAIR",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GCD_DEGREE": {
+      "id": "M5_GCD_DEGREE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD": {
+      "id": "M5_PERIOD",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LOWER_ORDERS": {
+      "id": "M5_LOWER_ORDERS",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_PERIOD_BOUND": {
+      "id": "M5_PERIOD_BOUND",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LIFT": {
+      "id": "M5_LIFT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_SUBSET_COUNT": {
+      "id": "M5_SUBSET_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BINOM_EVAL": {
+      "id": "M5_BINOM_EVAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TRANSLATE": {
+      "id": "M5_TRANSLATE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_TUPLE_COUNT": {
+      "id": "M5_TUPLE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_WEIGHT_ONE": {
+      "id": "M5_WEIGHT_ONE",
+      "status": "planned",
+      "accepted": false
+    },
+    "common_factor_dvd": {
+      "id": "common_factor_dvd",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.FactorProduct.common_factor_dvd",
+        "spec_sha256": "847344727185d287f7adef9e5f20e7a8f1c716e13877d68d81f2e555452ea057",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-n4xjn4fp/attempt-001/Candidate_78d81fecc835dab9.lean:12:58: error: Application type mismatch: The argument\n  hFA\nhas type\n  F ∣ A\nbut is expected to have type\n  ?m.66 ≠ 0\nin the application\n  EuclideanDomain.mul_div_cancel' hFA\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-n4xjn4fp/attempt-002/Candidate_0793beded1a4f4a4.lean",
+            "target_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-n4xjn4fp/attempt-002/FrozenTarget_0793beded1a4f4a4.lean",
+            "feedback": "",
+            "target_sha256": "c2fe747c014492ff71d616298fe715a372a28d328594584c3f75f6b2c4d22793",
+            "target_olean_sha256": "8217ddc2b2c4260bdcec25f23a750be136befc1e4bb4ebf9f496b76d3c938be6",
+            "source_sha256": "c10bb6f976e088b389bb8270ca0755ddfa15acd24c3fb17bb08e150709d83b14",
+            "olean_sha256": "c1efff43adae1a10b0350bd453c187d5db1718de19060839e9f137792c583b87",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T07:41:23.804718+00:00",
+        "work": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-n4xjn4fp",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-n4xjn4fp/attempt-002/Candidate_0793beded1a4f4a4.lean",
+        "environment_sha256": "9fd8a8ee68ca202d5c67e86d987f00fc161f61dc3acd9ff01ddbfe6dcaa39ed1",
+        "artifacts": {
+          "common_factor_dvd": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.common_factor_dvd : ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F) := by\n  change ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F)\n  intro F H A hF hFA\n  constructor\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h\n  · rintro ⟨K, hK⟩\n    refine ⟨K, ?_⟩\n    calc\n      A = F * (A / F) := (EuclideanDomain.mul_div_cancel' hF hFA).symm\n      _ = F * (H * K) := congrArg (fun x => F * x) hK\n      _ = (F * H) * K := (mul_assoc F H K).symm",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.common_factor_dvd",
+              "ancestors": [],
+              "spec_sha256": "847344727185d287f7adef9e5f20e7a8f1c716e13877d68d81f2e555452ea057"
+            },
+            "sha256": "2c8fc1c81ebb1199dc279d6b0b892c3e3186d0cd693c99f49c107b4a7a067712"
+          }
+        }
+      }
+    },
+    "distinct_irreducibles_coprime": {
+      "id": "distinct_irreducibles_coprime",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.FactorProduct.distinct_irreducibles_coprime",
+        "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v/attempt-001/Candidate_b3b094af9f96b343.lean",
+            "target_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v/attempt-001/FrozenTarget_b3b094af9f96b343.lean",
+            "feedback": "",
+            "target_sha256": "f820cd580c3442506375f22e3b17a35a59b91d5e68ad1ad0a8f38fe8c851755f",
+            "target_olean_sha256": "a9307872e5ba6dd25552aae9cd5054591d940d498204dbf7f94fcf75b449e30f",
+            "source_sha256": "19868d03b88ec5987bb02bf7e98f1a23aa99d4c7d9d9cc5040f2f284ae543034",
+            "olean_sha256": "9644ca2a85232e655ee46dfdb7df5b463bb9e53e11dc951286e0f41cc54266c4",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:41:23.823195+00:00",
+        "work": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ff5gj76v/attempt-001/Candidate_b3b094af9f96b343.lean",
+        "environment_sha256": "9fd8a8ee68ca202d5c67e86d987f00fc161f61dc3acd9ff01ddbfe6dcaa39ed1",
+        "artifacts": {
+          "distinct_irreducibles_coprime": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.distinct_irreducibles_coprime",
+              "ancestors": [],
+              "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873"
+            },
+            "sha256": "d3dd0500d7d7d93f695919fac861323895c326e3233b81f2815e50a0c0a6c202"
+          }
+        }
+      }
+    },
+    "irreducible_product_dvd": {
+      "id": "irreducible_product_dvd",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.FactorProduct.irreducible_product_dvd",
+        "spec_sha256": "f41ae63e51cbd849aafe9b054afa78891bbba51510b32320864a9b70640337c9",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ptgvw3qq/attempt-001/Candidate_a2249828ffe9b1cc.lean",
+            "target_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ptgvw3qq/attempt-001/FrozenTarget_a2249828ffe9b1cc.lean",
+            "feedback": "",
+            "target_sha256": "a12b4f0faba1ea8325067780eeb154b36e79dbafd3093c32ee89505f152f44a3",
+            "target_olean_sha256": "e1ba3917e163e83b0fb8bc1d8163f3eb95bf3eaa59b59c290c102c407db700f5",
+            "source_sha256": "076606b6d6fc5067b4c7123ca4c35cbdf709692f6f4155828393c3094a52a2b1",
+            "olean_sha256": "080627452211d536b6162fbdb8fa7fef01c63fd7bda34b14d050c3c64a3df35e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:42:54.549065+00:00",
+        "work": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ptgvw3qq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-ptgvw3qq/attempt-001/Candidate_a2249828ffe9b1cc.lean",
+        "environment_sha256": "9fd8a8ee68ca202d5c67e86d987f00fc161f61dc3acd9ff01ddbfe6dcaa39ed1",
+        "artifacts": {
+          "distinct_irreducibles_coprime": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.distinct_irreducibles_coprime",
+              "ancestors": [],
+              "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873"
+            },
+            "sha256": "d3dd0500d7d7d93f695919fac861323895c326e3233b81f2815e50a0c0a6c202"
+          },
+          "irreducible_product_dvd": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.irreducible_product_dvd : ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A) := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)\n  intro S A hS\n  constructor\n  · intro h p hp\n    exact (Finset.dvd_prod_of_mem (fun q : M5.BinaryPolynomial => q) hp).trans h\n  · intro h\n    refine Finset.prod_dvd_of_coprime ?_ h\n    intro p hp q hq hpq\n    exact M5.FactorProduct.distinct_irreducibles_coprime p q\n      (hS p hp).1 (hS q hq).1 (hS p hp).2 (hS q hq).2 hpq",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.irreducible_product_dvd",
+              "ancestors": [
+                "distinct_irreducibles_coprime"
+              ],
+              "spec_sha256": "02822089f1edc8522ff726cf924dc09f257c17e5182286959286094e99b079d5"
+            },
+            "sha256": "cc2d98dd9536f1e9dad19eddc6408a739c91e6cb077ddd74650f75006c96f7ef"
+          }
+        }
+      }
+    },
+    "cyclic_cap": {
+      "id": "cyclic_cap",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.FactorProduct.cyclic_cap",
+        "spec_sha256": "027ccb092faecd045b563d6d49a1619e1312207684c6badfe3ab34b431976a62",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-s34v48x5/attempt-001/Candidate_31eae788c998edf2.lean:11:17: error(lean.unknownIdentifier): Unknown constant `UniqueFactorizationMonoid.irreducible_of_mem_normalizedFactors`\n/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-s34v48x5/attempt-001/Candidate_31eae788c998edf2.lean:18:4: error: Type mismatch\n  UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors hp'\nhas type\n  p ∣ cyclicModulus N / F\nbut is expected to have type\n  Polynomial.Monic p ∧ Irreducible p\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-s34v48x5/attempt-002/Candidate_220253704c529631.lean",
+            "target_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-s34v48x5/attempt-002/FrozenTarget_220253704c529631.lean",
+            "feedback": "",
+            "target_sha256": "8e7ae38cb05f15490ae0639cdc03ba896326cd598831aa384aa88e6559824af3",
+            "target_olean_sha256": "896b94e9f8102e9b34ac40fd22dfecbdab4e68b9ef550ccaa676198822098ca9",
+            "source_sha256": "c0f7440572f195caf784cc754d4b6353012f88f9f75f46aa6be47dca7395f9a6",
+            "olean_sha256": "f0b3169b7c4206f57fa7b0a5ba8367f2809605eaef079ca1ed26c9ef4b9e9fd9",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-15T07:44:30.569978+00:00",
+        "work": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-s34v48x5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-s34v48x5/attempt-002/Candidate_220253704c529631.lean",
+        "environment_sha256": "9fd8a8ee68ca202d5c67e86d987f00fc161f61dc3acd9ff01ddbfe6dcaa39ed1",
+        "artifacts": {
+          "distinct_irreducibles_coprime": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.distinct_irreducibles_coprime",
+              "ancestors": [],
+              "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873"
+            },
+            "sha256": "d3dd0500d7d7d93f695919fac861323895c326e3233b81f2815e50a0c0a6c202"
+          },
+          "irreducible_product_dvd": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.irreducible_product_dvd : ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A) := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)\n  intro S A hS\n  constructor\n  · intro h p hp\n    exact (Finset.dvd_prod_of_mem (fun q : M5.BinaryPolynomial => q) hp).trans h\n  · intro h\n    refine Finset.prod_dvd_of_coprime ?_ h\n    intro p hp q hq hpq\n    exact M5.FactorProduct.distinct_irreducibles_coprime p q\n      (hS p hp).1 (hS q hq).1 (hS p hp).2 (hS q hq).2 hpq",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.irreducible_product_dvd",
+              "ancestors": [
+                "distinct_irreducibles_coprime"
+              ],
+              "spec_sha256": "02822089f1edc8522ff726cf924dc09f257c17e5182286959286094e99b079d5"
+            },
+            "sha256": "cc2d98dd9536f1e9dad19eddc6408a739c91e6cb077ddd74650f75006c96f7ef"
+          },
+          "common_factor_dvd": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.common_factor_dvd : ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F) := by\n  change ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F)\n  intro F H A hF hFA\n  constructor\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h\n  · rintro ⟨K, hK⟩\n    refine ⟨K, ?_⟩\n    calc\n      A = F * (A / F) := (EuclideanDomain.mul_div_cancel' hF hFA).symm\n      _ = F * (H * K) := congrArg (fun x => F * x) hK\n      _ = (F * H) * K := (mul_assoc F H K).symm",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.common_factor_dvd",
+              "ancestors": [],
+              "spec_sha256": "847344727185d287f7adef9e5f20e7a8f1c716e13877d68d81f2e555452ea057"
+            },
+            "sha256": "2c8fc1c81ebb1199dc279d6b0b892c3e3186d0cd693c99f49c107b4a7a067712"
+          },
+          "cyclic_cap": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.cyclic_cap : ∀ (S : Finset M5.BinaryPolynomial) (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → S ⊆ M5.FactorProduct.residualFactors (M5.cyclicModulus N) F → F * (∏ p ∈ S, p) ∣ M5.cyclicModulus N := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (F : M5.BinaryPolynomial) (N : ℕ), 0 < N → F.Monic → F ∣ M5.cyclicModulus N → S ⊆ M5.FactorProduct.residualFactors (M5.cyclicModulus N) F → F * (∏ p ∈ S, p) ∣ M5.cyclicModulus N\n  intro S F N hN hF hFdvd hS\n  have hmem : ∀ p ∈ S, p ∈ UniqueFactorizationMonoid.normalizedFactors (M5.cyclicModulus N / F) := by\n    intro p hp\n    simpa [M5.FactorProduct.residualFactors] using hS hp\n  have hprops : ∀ p ∈ S, p.Monic ∧ Irreducible p := by\n    intro p hp\n    have hi := UniqueFactorizationMonoid.irreducible_of_normalized_factor p (hmem p hp)\n    refine ⟨?_, hi⟩\n    apply M5.Signature.binary_monic\n    exact hi.ne_zero\n  apply (M5.FactorProduct.common_factor_dvd F (∏ p ∈ S, p) (M5.cyclicModulus N) hF.ne_zero hFdvd).mpr\n  apply (M5.FactorProduct.irreducible_product_dvd S (M5.cyclicModulus N / F) hprops).mpr\n  intro p hp\n  exact UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors (hmem p hp)",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.cyclic_cap",
+              "ancestors": [
+                "common_factor_dvd",
+                "distinct_irreducibles_coprime",
+                "irreducible_product_dvd"
+              ],
+              "spec_sha256": "210b60a1694aa363a4f40e9c7d9423b60a28b4d90e2c9e249bcd586869fcaf4c"
+            },
+            "sha256": "6eaa0d650033bc0e6c843d98b96028965156360c517c8374e75a7a5dd1678e56"
+          }
+        }
+      }
+    },
+    "product_event_iff": {
+      "id": "product_event_iff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.FactorProduct.product_event_iff",
+        "spec_sha256": "ef09d6f931e03c6b37e3e69180c398e5c5eb4401bd779ebd456921ecefa5ee61",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-cb6npum5/attempt-001/Candidate_55ea3c1306786aed.lean",
+            "target_path": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-cb6npum5/attempt-001/FrozenTarget_55ea3c1306786aed.lean",
+            "feedback": "",
+            "target_sha256": "c65dd92b57223ace9119f18afdcb321c4f2f381da281ffefccc4812a225a7dd5",
+            "target_olean_sha256": "1ac77e4bf0f3e6f0a4c43fee0721aeef4e35cae5c8e08f952ddf26abc54a3515",
+            "source_sha256": "89674e9401c181b942a361bbc8657b71ae6e5e08fab14f8b30e5546cf3068b58",
+            "olean_sha256": "eb79a54fa31c1760685336504961f1e0df6cf944313d1d4845e9537fe4c6493b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T07:44:30.582224+00:00",
+        "work": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-cb6npum5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-factor-product-formalization/.humanize-formal-runs/run-cb6npum5/attempt-001/Candidate_55ea3c1306786aed.lean",
+        "environment_sha256": "9fd8a8ee68ca202d5c67e86d987f00fc161f61dc3acd9ff01ddbfe6dcaa39ed1",
+        "artifacts": {
+          "distinct_irreducibles_coprime": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.distinct_irreducibles_coprime : ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q := by\n  change ∀ p q : M5.BinaryPolynomial, p.Monic → q.Monic → Irreducible p → Irreducible q → p ≠ q → IsCoprime p q\n  intro p q hpm hqm hp hq hpq\n  apply hp.coprime_iff_not_dvd.mpr\n  rintro ⟨r, hr⟩\n  rcases hq.isUnit_or_isUnit hr with hpu | hru\n  · exact hp.not_isUnit hpu\n  · rcases hru with ⟨u, hu⟩\n    apply hpq\n    apply Polynomial.eq_of_monic_of_associated hpm hqm\n    exact ⟨u, by simpa only [hu] using hr.symm⟩",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.distinct_irreducibles_coprime",
+              "ancestors": [],
+              "spec_sha256": "190d47eb4ae0398c7206877f8cdfb123620ee615e84d25d1820724490a776873"
+            },
+            "sha256": "d3dd0500d7d7d93f695919fac861323895c326e3233b81f2815e50a0c0a6c202"
+          },
+          "irreducible_product_dvd": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.irreducible_product_dvd : ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A) := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (A : M5.BinaryPolynomial), (∀ p ∈ S, p.Monic ∧ Irreducible p) → ((∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, p ∣ A)\n  intro S A hS\n  constructor\n  · intro h p hp\n    exact (Finset.dvd_prod_of_mem (fun q : M5.BinaryPolynomial => q) hp).trans h\n  · intro h\n    refine Finset.prod_dvd_of_coprime ?_ h\n    intro p hp q hq hpq\n    exact M5.FactorProduct.distinct_irreducibles_coprime p q\n      (hS p hp).1 (hS q hq).1 (hS p hp).2 (hS q hq).2 hpq",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.irreducible_product_dvd",
+              "ancestors": [
+                "distinct_irreducibles_coprime"
+              ],
+              "spec_sha256": "02822089f1edc8522ff726cf924dc09f257c17e5182286959286094e99b079d5"
+            },
+            "sha256": "cc2d98dd9536f1e9dad19eddc6408a739c91e6cb077ddd74650f75006c96f7ef"
+          },
+          "common_factor_dvd": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.common_factor_dvd : ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F) := by\n  change ∀ F H A : M5.BinaryPolynomial, F ≠ 0 → F ∣ A → (F * H ∣ A ↔ H ∣ A / F)\n  intro F H A hF hFA\n  constructor\n  · intro h\n    exact EuclideanDomain.dvd_div_of_mul_dvd h\n  · rintro ⟨K, hK⟩\n    refine ⟨K, ?_⟩\n    calc\n      A = F * (A / F) := (EuclideanDomain.mul_div_cancel' hF hFA).symm\n      _ = F * (H * K) := congrArg (fun x => F * x) hK\n      _ = (F * H) * K := (mul_assoc F H K).symm",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.common_factor_dvd",
+              "ancestors": [],
+              "spec_sha256": "847344727185d287f7adef9e5f20e7a8f1c716e13877d68d81f2e555452ea057"
+            },
+            "sha256": "2c8fc1c81ebb1199dc279d6b0b892c3e3186d0cd693c99f49c107b4a7a067712"
+          },
+          "product_event_iff": {
+            "payload": {
+              "declaration": "theorem M5.FactorProduct.product_event_iff : ∀ (S : Finset M5.BinaryPolynomial) (F A : M5.BinaryPolynomial), F ≠ 0 → F ∣ A → (∀ p ∈ S, p.Monic ∧ Irreducible p) → (F * (∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, F * p ∣ A) := by\n  classical\n  change ∀ (S : Finset M5.BinaryPolynomial) (F A : M5.BinaryPolynomial), F ≠ 0 → F ∣ A → (∀ p ∈ S, p.Monic ∧ Irreducible p) → (F * (∏ p ∈ S, p) ∣ A ↔ ∀ p ∈ S, F * p ∣ A)\n  intro S F A hF hFA hS\n  rw [M5.FactorProduct.common_factor_dvd F (∏ p ∈ S, p) A hF hFA,\n    M5.FactorProduct.irreducible_product_dvd S (A / F) hS]\n  constructor\n  · intro h p hp\n    exact (M5.FactorProduct.common_factor_dvd F p A hF hFA).mpr (h p hp)\n  · intro h p hp\n    exact (M5.FactorProduct.common_factor_dvd F p A hF hFA).mp (h p hp)",
+              "imports": [
+                "M5FactorProduct"
+              ],
+              "name": "M5.FactorProduct.product_event_iff",
+              "ancestors": [
+                "common_factor_dvd",
+                "distinct_irreducibles_coprime",
+                "irreducible_product_dvd"
+              ],
+              "spec_sha256": "6b8a6d0f4357480c157effc135ca902e4f913d76fee23d26f009ba446bcf9347"
+            },
+            "sha256": "023717c00f89992b9ebf6cc6f726c2392424036733f30d312404da829cbf79f8"
+          }
+        }
+      }
+    },
+    "M5_POLY_IE": {
+      "id": "M5_POLY_IE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_COUNT": {
+      "id": "M5_ORDER_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_CONDITIONAL": {
+      "id": "M5_ORDER_CONDITIONAL",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ORDER_RECOVER": {
+      "id": "M5_ORDER_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_LATER": {
+      "id": "M5_LATER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_COUNT": {
+      "id": "M5_RESIDUE_COUNT",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_NECESSITY": {
+      "id": "M5_RESIDUE_NECESSITY",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_RESIDUE_RECOVER": {
+      "id": "M5_RESIDUE_RECOVER",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BOUNDED_SOURCE": {
+      "id": "M5_BOUNDED_SOURCE",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_BIRTH": {
+      "id": "M5_BIRTH",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_ARITHMETIC": {
+      "id": "M5_ARITHMETIC",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_GLOBAL_IFF": {
+      "id": "M5_GLOBAL_IFF",
+      "status": "planned",
+      "accepted": false
+    },
+    "M5_COMPLETE": {
+      "id": "M5_COMPLETE",
+      "status": "planned",
+      "accepted": false
+    }
+  }
+}
