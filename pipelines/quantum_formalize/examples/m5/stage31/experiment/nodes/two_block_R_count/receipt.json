@@ -1,0 +1,55 @@
+{
+  "id": "two_block_R_count",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueCount.two_block_R_count",
+    "spec_sha256": "ecbfb8e42d17ff781c2d6972bd47d4fb7229a09e85b558189049a1ed8a520f28",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-8vuk0kmi/attempt-001/Candidate_8168ef5a7458bb6b.lean",
+        "target_path": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-8vuk0kmi/attempt-001/FrozenTarget_8168ef5a7458bb6b.lean",
+        "feedback": "",
+        "target_sha256": "e1570449dad18ac0f9fa9ce0bdd14253ec12db3b804a334f7cd8a1db6354d32b",
+        "target_olean_sha256": "0e42a3448d0f2c8cd1218d23a0d7a717f98669af95c40d18b1be3a510cc6dddf",
+        "source_sha256": "1fdcae2898fd688719ea7ceac37ac7bf96ca0f2a33f5e4fde359119a0d13e6ba",
+        "olean_sha256": "c7a452edb37f3f646ecea907d358007ea5dd7514537469f177c8dcbcae8ecd6a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T08:48:24.872328+00:00",
+    "work": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-8vuk0kmi",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "66198694a51de0d61f66f5a22bac040b4235c1888fc133341824a8163420f41a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-8vuk0kmi/attempt-001/Candidate_8168ef5a7458bb6b.lean",
+    "environment_sha256": "14f2bd9e5a2bea0e2eae01bb357933d896f7110c307bf5e636b42e346003ee47",
+    "artifacts": {
+      "two_block_R_count": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.two_block_R_count : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ), P.Monic → 0 < T → d ∣ T → M5.ResidueCount.ROne P T d k ^ 2 = ∑ a : Fin k → Fin T, ∑ b : Fin k → Fin T, (@ite ℤ (((∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial a) ∧ ((∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial b)) (Classical.propDecidable _) 1 0) := by\n  classical\n  intro P T d k hP hT hd\n  simp only [M5.ResidueCount.ROne, dif_pos hP]\n  rw [M5.AnchoredTupleCount.restricted_R_count P hP T d k hT hd]\n  unfold M5.AnchoredTupleCount.restrictedCount\n  simp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n  rw [Finset.sum_mul]\n  simp_rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  by_cases hqa : (∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (a i).val\n  <;> by_cases hqb : (∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (b i).val\n  <;> simp [M5.ResidueCount.tailPolynomial, hqa, hqb]",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.two_block_R_count",
+          "ancestors": [],
+          "spec_sha256": "ecbfb8e42d17ff781c2d6972bd47d4fb7229a09e85b558189049a1ed8a520f28"
+        },
+        "sha256": "1dcca9eced9b8d7d959362e116ce6308895e30c17fe55ff0dfc9789673695223"
+      }
+    }
+  }
+}

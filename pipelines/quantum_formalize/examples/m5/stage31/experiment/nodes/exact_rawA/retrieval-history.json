@@ -1,0 +1,591 @@
+[
+  {
+    "queries": [
+      "finite sum product indicator cardinality",
+      "Finset gcd image divisibility moebius"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum product indicator cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205803,
+            "name": "Fintype.card_piFinset",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L123-L124",
+            "source_text": "@[simp] lemma card_piFinset (s : ∀ i, Finset (α i)) :\n    #(piFinset s) = ∏ i, #(s i) := by simp [piFinset, card_map]",
+            "docstring": null
+          },
+          {
+            "id": 58452,
+            "name": "Finset.indicator_sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Indicator",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Indicator.lean#L62-L62",
+            "source_text": "@[to_additive]\nlemma mulIndicator_prod (s : Finset ι) (t : Set κ) (f : ι → κ → β) :\n    mulIndicator t (∏ i ∈ s, f i) = ∏ i ∈ s, mulIndicator t (f i) :=",
+            "docstring": null
+          },
+          {
+            "id": 59050,
+            "name": "Finset.card_eq_sum_ite",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L48-L49",
+            "source_text": "lemma card_eq_sum_ite {s t : Finset ι} [DecidablePred (· ∈ s)] (hst : s ⊆ t) :\n    s.card = ∑ i ∈ t, if i ∈ s then 1 else 0 := by simp [hst]\n",
+            "docstring": null
+          },
+          {
+            "id": 91427,
+            "name": "Set.indicator",
+            "module": "Mathlib.Algebra.Notation.Indicator",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+            "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+            "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+          },
+          {
+            "id": 205802,
+            "name": "Finset.card_pi",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L116-L117",
+            "source_text": "@[simp] lemma Finset.card_pi (s : Finset ι) (t : ∀ i, Finset (α i)) :\n    #(s.pi t) = ∏ i ∈ s, #(t i) := Multiset.card_pi _ _",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset gcd image divisibility moebius",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66034,
+            "name": "Finset.gcd_dvd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L141-L142",
+            "source_text": "theorem gcd_dvd {b : β} (hb : b ∈ s) : s.gcd f ∣ f b :=\n  dvd_gcd_iff.1 dvd_rfl _ hb\n",
+            "docstring": null
+          },
+          {
+            "id": 66045,
+            "name": "Finset.gcd_eq_gcd_image",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L185-L186",
+            "source_text": "theorem gcd_eq_gcd_image [DecidableEq α] : s.gcd f = (s.image f).gcd id :=\n  Eq.symm <| gcd_image _\n",
+            "docstring": null
+          },
+          {
+            "id": 66044,
+            "name": "Finset.gcd_image",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L181-L183",
+            "source_text": "theorem gcd_image [DecidableEq β] {g : γ → β} (s : Finset γ) :\n    (s.image g).gcd f = s.gcd (f ∘ g) := by\n  classical induction s using Finset.induction <;> simp [*]\n",
+            "docstring": null
+          },
+          {
+            "id": 66033,
+            "name": "Finset.dvd_gcd_iff",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L136-L139",
+            "source_text": "theorem dvd_gcd_iff {a : α} : a ∣ s.gcd f ↔ ∀ b ∈ s, a ∣ f b := by\n  apply Iff.trans Multiset.dvd_gcd\n  simp only [Multiset.mem_map, and_imp, exists_imp]\n  exact ⟨fun k b hb ↦ k _ _ hb rfl, fun k a' b hb h ↦ h ▸ k _ hb⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 202909,
+            "name": "Finset.image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+            "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+            "docstring": "`image f s` is the forward image of `s` under `f`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "pair_indicator_exact",
+    "receipts_sha256": "1cbf36ab48f595fab87e7429d39850d6f266cd971ba6bad2acac4d309623c71a"
+  },
+  {
+    "queries": [
+      "Fintype.sum_prod_type",
+      "Finset.card_eq_sum_ones",
+      "Finset.sum_filter"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Fintype.sum_prod_type",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205831,
+            "name": "Fintype.sum_prod_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L271-L272",
+            "source_text": "@[to_additive Fintype.sum_prod_type /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. -/]\ntheorem Fintype.prod_prod_type [CommMonoid γ] (f : α₁ × α₂ → γ) :\n    ∏ x, f x = ∏ x, ∏ y, f (x, y) :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type'`. "
+          },
+          {
+            "id": 205833,
+            "name": "Fintype.sum_prod_type'",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L279-L280",
+            "source_text": "@[to_additive Fintype.sum_prod_type' /-- The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. -/]\ntheorem Fintype.prod_prod_type' [CommMonoid γ] (f : α₁ → α₂ → γ) :\n    ∏ x : α₁ × α₂, f x.1 x.2 = ∏ x, ∏ y, f x y :=",
+            "docstring": "The sum over a product type equals the sum of fiberwise\nsums. For rewriting in the reverse direction, use `Fintype.sum_prod_type`. "
+          },
+          {
+            "id": 205828,
+            "name": "Fintype.prod_sum_type",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L264-L267",
+            "source_text": "@[to_additive (attr := simp)]\ntheorem Fintype.prod_sum_type (f : α₁ ⊕ α₂ → M) :\n    ∏ x, f x = (∏ a₁, f (Sum.inl a₁)) * ∏ a₂, f (Sum.inr a₂) :=\n  prod_disjSum _ _ _",
+            "docstring": null
+          },
+          {
+            "id": 201931,
+            "name": "Finite.instPProd",
+            "module": "Mathlib.Data.Finite.Prod",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finite/Prod.lean#L32-L33",
+            "source_text": "instance {α β : Sort*} [Finite α] [Finite β] : Finite (PProd α β) :=\n  of_equiv _ Equiv.pprodEquivProdPLift.symm\n",
+            "docstring": null
+          },
+          {
+            "id": 332683,
+            "name": "Summable.tsum_sigma",
+            "module": "Mathlib.Topology.Algebra.InfiniteSum.Constructions",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/InfiniteSum/Constructions.lean#L249-L249",
+            "source_text": "@[to_additive]\nprotected theorem Multipliable.tprod_sigma {γ : β → Type*} {f : (Σ b : β, γ b) → α}",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Fintype.sum_prod_type",
+        "status": "ok",
+        "results": [
+          {
+            "id": 388883,
+            "name": "FieldSpecification.instFintypeFieldOpToCrAnType",
+            "module": "Physlib.QFT.PerturbationTheory.FieldSpecification.CrAnFieldOp",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/PerturbationTheory/FieldSpecification/CrAnFieldOp.lean#L49-L54",
+            "source_text": "/-- The instance of a finite type on `𝓕.fieldOpToCreateAnnihilateType i`. -/\ninstance : ∀ i, Fintype (𝓕.fieldOpToCrAnType i) := fun i =>\n  match i with\n  | FieldOp.inAsymp _ => inferInstanceAs (Fintype Unit)\n  | FieldOp.position _ => inferInstanceAs (Fintype CreateAnnihilate)\n  | FieldOp.outAsymp _ => inferInstanceAs (Fintype Unit)\n",
+            "docstring": "The instance of a finite type on `𝓕.fieldOpToCreateAnnihilateType i`. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.card_eq_sum_ones",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58250,
+            "name": "Finset.card_eq_sum_ones",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L952-L952",
+            "source_text": "lemma card_eq_sum_ones (s : Finset ι) : #s = ∑ _ ∈ s, 1 := by simp\n",
+            "docstring": null
+          },
+          {
+            "id": 205785,
+            "name": "Fintype.card_eq_sum_ones",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L45-L46",
+            "source_text": "theorem card_eq_sum_ones {α} [Fintype α] : Fintype.card α = ∑ _a : α, 1 :=\n  Finset.card_eq_sum_ones _\n",
+            "docstring": null
+          },
+          {
+            "id": 202306,
+            "name": "Finset.card",
+            "module": "Mathlib.Data.Finset.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Card.lean#L44-L48",
+            "source_text": "/-- `s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. -/\ndef card (s : Finset α) : ℕ :=\n  Multiset.card s.1\n",
+            "docstring": "`s.card` is the number of elements of `s`, aka its cardinality.\n\nThe notation `#s` can be accessed in the `Finset` locale. "
+          },
+          {
+            "id": 205861,
+            "name": "Finset.card_compl_add_card",
+            "module": "Mathlib.Data.Fintype.Card",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/Card.lean#L143-L146",
+            "source_text": "@[simp]\ntheorem Finset.card_compl_add_card [DecidableEq α] [Fintype α] (s : Finset α) :\n    #sᶜ + #s = Fintype.card α := by\n  rw [Nat.add_comm, card_add_card_compl]",
+            "docstring": null
+          },
+          {
+            "id": 58198,
+            "name": "Finset.eq_of_card_le_one_of_sum_eq",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L722-L723",
+            "source_text": "@[to_additive eq_of_card_le_one_of_sum_eq /-- If a sum of a `Finset` of size at most 1 has a given\nvalue, so do the terms in that sum. -/]\ntheorem eq_of_card_le_one_of_prod_eq {s : Finset ι} (hc : #s ≤ 1) {f : ι → M} {b : M}\n    (h : ∏ x ∈ s, f x = b) : ∀ x ∈ s, f x = b := by",
+            "docstring": "If a sum of a `Finset` of size at most 1 has a given\nvalue, so do the terms in that sum. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.card_eq_sum_ones",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset.sum_filter",
+        "status": "ok",
+        "results": [
+          {
+            "id": 58104,
+            "name": "Finset.sum_filter",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L324-L324",
+            "source_text": "@[to_additive]\ntheorem prod_filter (p : ι → Prop) [DecidablePred p] (f : ι → M) :\n    ∏ a ∈ s with p a, f a = ∏ a ∈ s, if p a then f a else 1 :=",
+            "docstring": null
+          },
+          {
+            "id": 202717,
+            "name": "Finset.filter",
+            "module": "Mathlib.Data.Finset.Filter",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Filter.lean#L48-L53",
+            "source_text": "/-- `Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). -/\ndef filter (s : Finset α) : Finset α :=\n  ⟨_, s.2.filter p⟩\n",
+            "docstring": "`Finset.filter p s` is the set of elements of `s` that satisfy `p`.\n\nFor example, one can use `s.filter (· ∈ t)` to get the intersection of `s` with `t : Set α`\nas a `Finset α` (when a `DecidablePred (· ∈ t)` instance is available). "
+          },
+          {
+            "id": 58056,
+            "name": "Finset.sum_filter_xor",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L156-L156",
+            "source_text": "@[to_additive]\ntheorem prod_filter_xor (p q : ι → Prop) [DecidablePred p] [DecidablePred q] :\n    (∏ x ∈ s with (Xor (p x) (q x)), f x) =\n      (∏ x ∈ s with (p x ∧ ¬ q x), f x) * (∏ x ∈ s with (q x ∧ ¬ p x), f x) := by",
+            "docstring": null
+          },
+          {
+            "id": 204304,
+            "name": "Finset.filter_sigma'",
+            "module": "Mathlib.Data.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sigma.lean#L99-L102",
+            "source_text": "lemma filter_sigma' (s : Finset ι) (t : ∀ i, Finset (α i)) (p : (i : ι) → α i → Prop)\n    [∀ i, DecidablePred (p i)] :\n    (s.sigma t).filter (fun x ↦ p x.fst x.snd) = s.sigma fun i ↦ (t i).filter (p i)  := by\n  simp [filter_sigma]\n",
+            "docstring": null
+          },
+          {
+            "id": 204303,
+            "name": "Finset.filter_sigma",
+            "module": "Mathlib.Data.Finset.Sigma",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sigma.lean#L94-L97",
+            "source_text": "lemma filter_sigma (s : Finset ι) (t : ∀ i, Finset (α i)) (p : (i : ι) × α i → Prop)\n    [DecidablePred p] : (s.sigma t).filter p = s.sigma fun i ↦ (t i).filter fun x => p ⟨i, x⟩ := by\n  ext ⟨i, a⟩\n  simp [Finset.mem_filter, Finset.mem_sigma, and_assoc]\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Finset.sum_filter",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ]
+  },
+  {
+    "queries": [
+      "addition commutativity"
+    ],
+    "fallback_for": [
+      "Fintype.sum_prod_type",
+      "Finset.card_eq_sum_ones",
+      "Finset.sum_filter"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 67970,
+            "name": "add_comm",
+            "module": "Mathlib.Algebra.Group.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L259-L259",
+            "source_text": "@[to_additive]\ntheorem mul_comm : ∀ a b : G, a * b = b * a := CommMagma.mul_comm",
+            "docstring": null
+          },
+          {
+            "id": 309165,
+            "name": "HahnSeries.instNonUnitalSemiring",
+            "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L607-L608",
+            "source_text": "instance [NonUnitalSemiring R] : NonUnitalSemiring R⟦Γ⟧ where\n  mul_assoc := mul_assoc'\n",
+            "docstring": null
+          },
+          {
+            "id": 179274,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_left_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L119-L121",
+            "source_text": "theorem add_eq_left_addition (f g : X ⟶ Y) : f + g = biprod.lift f g ≫ biprod.desc (𝟙 Y) (𝟙 Y) :=\n  congr_fun₂ (EckmannHilton.mul (isUnital_leftAdd X Y) (isUnital_rightAdd X Y) (distrib X Y)).symm f\n    g\n",
+            "docstring": null
+          },
+          {
+            "id": 308875,
+            "name": "HahnSeries",
+            "module": "Mathlib.RingTheory.HahnSeries.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L50-L56",
+            "source_text": "/-- If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\n  formal series over `Γ` with coefficients in `R`, whose supports are well-founded. -/\n@[ext]\nstructure HahnSeries (Γ : Type*) (R : Type*) [PartialOrder Γ] [Zero R] where\n  /-- The coefficient function of a Hahn Series. -/\n  coeff : Γ → R\n  isPWO_support' : (Function.support coeff).IsPWO\n",
+            "docstring": "If `Γ` is linearly ordered and `R` has zero, then `R⟦Γ⟧` consists of\nformal series over `Γ` with coefficients in `R`, whose supports are well-founded. "
+          },
+          {
+            "id": 179273,
+            "name": "CategoryTheory.SemiadditiveOfBinaryBiproducts.add_eq_right_addition",
+            "module": "Mathlib.CategoryTheory.Preadditive.OfBiproducts",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Preadditive/OfBiproducts.lean#L116-L117",
+            "source_text": "theorem add_eq_right_addition (f g : X ⟶ Y) : f + g = biprod.lift (𝟙 X) (𝟙 X) ≫ biprod.desc f g :=\n  rfl\n",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  },
+  {
+    "queries": [
+      "finite sum product indicator cardinality",
+      "Finset gcd image divisibility moebius"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "finite sum product indicator cardinality",
+        "status": "ok",
+        "results": [
+          {
+            "id": 205803,
+            "name": "Fintype.card_piFinset",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L123-L124",
+            "source_text": "@[simp] lemma card_piFinset (s : ∀ i, Finset (α i)) :\n    #(piFinset s) = ∏ i, #(s i) := by simp [piFinset, card_map]",
+            "docstring": null
+          },
+          {
+            "id": 58452,
+            "name": "Finset.indicator_sum",
+            "module": "Mathlib.Algebra.BigOperators.Group.Finset.Indicator",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Indicator.lean#L62-L62",
+            "source_text": "@[to_additive]\nlemma mulIndicator_prod (s : Finset ι) (t : Set κ) (f : ι → κ → β) :\n    mulIndicator t (∏ i ∈ s, f i) = ∏ i ∈ s, mulIndicator t (f i) :=",
+            "docstring": null
+          },
+          {
+            "id": 59050,
+            "name": "Finset.card_eq_sum_ite",
+            "module": "Mathlib.Algebra.BigOperators.Ring.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Ring/Finset.lean#L48-L49",
+            "source_text": "lemma card_eq_sum_ite {s t : Finset ι} [DecidablePred (· ∈ s)] (hst : s ⊆ t) :\n    s.card = ∑ i ∈ t, if i ∈ s then 1 else 0 := by simp [hst]\n",
+            "docstring": null
+          },
+          {
+            "id": 91427,
+            "name": "Set.indicator",
+            "module": "Mathlib.Algebra.Notation.Indicator",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Indicator.lean#L51-L51",
+            "source_text": "@[to_additive /-- `Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. -/]\nnoncomputable def mulIndicator (s : Set α) (f : α → M) (x : α) : M :=",
+            "docstring": "`Set.indicator s f a` is `f a` if `a ∈ s`, `0` otherwise. "
+          },
+          {
+            "id": 205802,
+            "name": "Finset.card_pi",
+            "module": "Mathlib.Data.Fintype.BigOperators",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Fintype/BigOperators.lean#L116-L117",
+            "source_text": "@[simp] lemma Finset.card_pi (s : Finset ι) (t : ∀ i, Finset (α i)) :\n    #(s.pi t) = ∏ i ∈ s, #(t i) := Multiset.card_pi _ _",
+            "docstring": null
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "Finset gcd image divisibility moebius",
+        "status": "ok",
+        "results": [
+          {
+            "id": 66034,
+            "name": "Finset.gcd_dvd",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L141-L142",
+            "source_text": "theorem gcd_dvd {b : β} (hb : b ∈ s) : s.gcd f ∣ f b :=\n  dvd_gcd_iff.1 dvd_rfl _ hb\n",
+            "docstring": null
+          },
+          {
+            "id": 66045,
+            "name": "Finset.gcd_eq_gcd_image",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L185-L186",
+            "source_text": "theorem gcd_eq_gcd_image [DecidableEq α] : s.gcd f = (s.image f).gcd id :=\n  Eq.symm <| gcd_image _\n",
+            "docstring": null
+          },
+          {
+            "id": 66044,
+            "name": "Finset.gcd_image",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L181-L183",
+            "source_text": "theorem gcd_image [DecidableEq β] {g : γ → β} (s : Finset γ) :\n    (s.image g).gcd f = s.gcd (f ∘ g) := by\n  classical induction s using Finset.induction <;> simp [*]\n",
+            "docstring": null
+          },
+          {
+            "id": 66033,
+            "name": "Finset.dvd_gcd_iff",
+            "module": "Mathlib.Algebra.GCDMonoid.Finset",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GCDMonoid/Finset.lean#L136-L139",
+            "source_text": "theorem dvd_gcd_iff {a : α} : a ∣ s.gcd f ↔ ∀ b ∈ s, a ∣ f b := by\n  apply Iff.trans Multiset.dvd_gcd\n  simp only [Multiset.mem_map, and_imp, exists_imp]\n  exact ⟨fun k b hb ↦ k _ _ hb rfl, fun k a' b hb h ↦ h ▸ k _ hb⟩\n",
+            "docstring": null
+          },
+          {
+            "id": 202909,
+            "name": "Finset.image",
+            "module": "Mathlib.Data.Finset.Image",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Image.lean#L277-L279",
+            "source_text": "/-- `image f s` is the forward image of `s` under `f`. -/\ndef image (f : α → β) (s : Finset α) : Finset β :=\n  (s.1.map f).toFinset\n",
+            "docstring": "`image f s` is the forward image of `s` under `f`. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "addition commutativity",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394440,
+            "name": "WithDim.instAddCommSemigroup",
+            "module": "Physlib.Units.WithDim.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L82-L86",
+            "source_text": "instance (d : Dimension) (M : Type) [AddCommSemigroup M] :\n    AddCommSemigroup (WithDim d M) where\n  add_comm m1 m2 := by\n    ext\n    simp [add_comm]\n",
+            "docstring": null
+          },
+          {
+            "id": 388632,
+            "name": "ACCSystemCharges.chargesAddCommMonoid_add",
+            "module": "Physlib.QFT.AnomalyCancellation.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/AnomalyCancellation/Basic.lean#L132-L132",
+            "source_text": "@[simps!]\ninstance chargesAddCommMonoid (χ : ACCSystemCharges) : AddCommMonoid χ.Charges :=",
+            "docstring": null
+          },
+          {
+            "id": 386758,
+            "name": "Physlib.PiTensorProduct.instAddCommMonoidElim_physlib",
+            "module": "Physlib.Mathematics.PiTensorProduct",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/PiTensorProduct.lean#L83-L88",
+            "source_text": "/-- Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\n  monoid, the target of the sum of these two maps also carry an instance thereof. -/\ninstance : (i : ι1 ⊕ ι2) → AddCommMonoid ((fun i => Sum.elim s1 s2 i) i) := fun i =>\n  match i with\n  | Sum.inl i => inst1 i\n  | Sum.inr i => inst2 i\n",
+            "docstring": "Given two maps `s1` and `s2` whose targets carry an instance of an additive commutative\nmonoid, the target of the sum of these two maps also carry an instance thereof. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ],
+    "cached_from_node": "pair_indicator_exact",
+    "receipts_sha256": "1cbf36ab48f595fab87e7429d39850d6f266cd971ba6bad2acac4d309623c71a"
+  }
+]

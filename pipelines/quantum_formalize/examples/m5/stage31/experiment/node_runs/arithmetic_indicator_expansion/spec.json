@@ -1,0 +1,13 @@
+{
+  "name": "M5.ResidueCount.arithmetic_indicator_expansion",
+  "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.rawA T w F = ∑ a : Fin (w-1) → Fin T, ∑ b : Fin (w-1) → Fin T, M5.ResidueCount.pairIndicator F a b",
+  "imports": [
+    "M5ResidueCount"
+  ],
+  "context": "theorem M5.ResidueCount.two_block_R_count : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ), P.Monic → 0 < T → d ∣ T → M5.ResidueCount.ROne P T d k ^ 2 = ∑ a : Fin k → Fin T, ∑ b : Fin k → Fin T, (@ite ℤ (((∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial a) ∧ ((∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial b)) (Classical.propDecidable _) 1 0) := by\n  classical\n  intro P T d k hP hT hd\n  simp only [M5.ResidueCount.ROne, dif_pos hP]\n  rw [M5.AnchoredTupleCount.restricted_R_count P hP T d k hT hd]\n  unfold M5.AnchoredTupleCount.restrictedCount\n  simp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n  rw [Finset.sum_mul]\n  simp_rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  by_cases hqa : (∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (a i).val\n  <;> by_cases hqb : (∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (b i).val\n  <;> simp [M5.ResidueCount.tailPolynomial, hqa, hqb]",
+  "queries": [
+    "finite sum product indicator cardinality",
+    "Finset gcd image divisibility moebius"
+  ],
+  "guidance": "Unfold rawA and use two_block_R_count. A divisor of positive T is positive. Each residual factor is monic by accepted stage23 residual_factors_regular; hence F times its subset product is monic. Swap the finite d,S,a,b sums and factor independent indicator terms to recover pairIndicator. Only finite factor and character arithmetic defines rawA; tuple sums occur on the semantic theorem RHS. Return tactic lines only without leading by; preserve exact target."
+}

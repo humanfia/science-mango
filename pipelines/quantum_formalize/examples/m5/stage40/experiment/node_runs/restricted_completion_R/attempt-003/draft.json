@@ -1,0 +1,8 @@
+{
+  "proof": "intro P hP Z T d k hT hd\nclassical\nrw [M5.TupleCompletion.completion_R_count]\nobtain ⟨e, he⟩ := M5.AnchoredTupleCount.multiples_equivalence T d hT hd\nlet f : (Fin k → Fin (T / d)) → (Fin k → Fin T) := fun t i => (e (t i)).val\nhave hfpoly (t : Fin k → Fin (T / d)) :\n    M5.ArithmeticTuple.tuplePolynomial T d k t =\n      ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (f t i).val := by\n  unfold M5.ArithmeticTuple.tuplePolynomial\n  apply Finset.sum_congr rfl\n  intro i hi\n  change (Polynomial.X : M5.BinaryPolynomial) ^ (d * (t i).val) =\n    Polynomial.X ^ (e (t i)).val.val\n  rw [he]\napply congrArg (fun n : ℕ => (n : ℤ))\nunfold M5.TupleCompletion.count M5.TupleCompletion.restrictedCount\napply Finset.card_bij (fun t _ => f t)\n· intro t ht\n  have hp := (Finset.mem_filter.mp ht).2\n  have hdiv : ∀ i, d ∣ (f t i).val := fun i => (e (t i)).property\n  rw [hfpoly t] at hp\n  simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using And.intro hdiv hp\n· intro t ht u hu htu\n  funext i\n  apply e.injective\n  apply Subtype.ext\n  exact congrFun htu i\n· intro r hr\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hr\n  obtain ⟨hdiv, hp⟩ := hr\n  let t : Fin k → Fin (T / d) := fun i => e.symm ⟨r i, hdiv i⟩\n  have hft : f t = r := by\n    funext i\n    change (e (e.symm ⟨r i, hdiv i⟩)).val = r i\n    simp only [Equiv.apply_symm_apply]\n  refine ⟨t, ?_, hft⟩\n  simp only [Finset.mem_filter, Finset.mem_univ, true_and]\n  rw [hfpoly t, hft]\n  exact hp",
+  "queries": [
+    "Finset.card_bij",
+    "M5.TupleCompletion.restrictedCount",
+    "M5.ArithmeticTuple.tuplePolynomial"
+  ]
+}

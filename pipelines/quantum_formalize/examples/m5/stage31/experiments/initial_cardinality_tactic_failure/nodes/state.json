@@ -1,0 +1,149 @@
+{
+  "status": "finished",
+  "max_concurrency": 16,
+  "updated_at": "2026-09-15T08:46:14.680001+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "pair_indicator_exact": {
+      "id": "pair_indicator_exact",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M5.ResidueCount.pair_indicator_exact",
+        "spec_sha256": "9bb347d77d70cd9c672357a92525b495a881c494b123aceda7bc4caceafbf109",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-33og3t6k/attempt-001/Candidate_f50003cbe5fba359.lean",
+            "target_path": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-33og3t6k/attempt-001/FrozenTarget_f50003cbe5fba359.lean",
+            "feedback": "",
+            "target_sha256": "a79f484a718828b24209d2897092dbd94d57c0f0f5c7de15d7057464fd5ae143",
+            "target_olean_sha256": "f47d51871165f8a834e31bd8c8488a3f56c439014cd91d3f2fe316a0df6de450",
+            "source_sha256": "20384113657414693a565e51bb48013d1b3c84e6bbccc8c058b64c40f58e6f00",
+            "olean_sha256": "a674fa16e717e32f7b4e3412f1524ec39d32e8f51094e8aa4ac222f299aeec3e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-15T08:39:07.497243+00:00",
+        "work": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-33og3t6k",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "66198694a51de0d61f66f5a22bac040b4235c1888fc133341824a8163420f41a",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-33og3t6k/attempt-001/Candidate_f50003cbe5fba359.lean",
+        "environment_sha256": "14f2bd9e5a2bea0e2eae01bb357933d896f7110c307bf5e636b42e346003ee47",
+        "artifacts": {
+          "pair_indicator_exact": {
+            "payload": {
+              "declaration": "theorem M5.ResidueCount.pair_indicator_exact : ∀ (T k : ℕ) (F : M5.BinaryPolynomial) (a b : Fin k → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.pairIndicator F a b = (@ite ℤ (M5.ResidueCount.feasible F a b) (Classical.propDecidable _) 1 0) := by\n  classical\n  intro T k F a b hT hF hFT\n  have hc := M5.Connectivity.connected_indicator T\n    (M5.ResidueCount.residueSupport a)\n    (M5.ResidueCount.residueSupport b) hT\n  have hp := M5.PolynomialIndicator.exact_signature_indicator\n    (M5.ResidueCount.tailPolynomial a)\n    (M5.ResidueCount.tailPolynomial b) F T hT hF hFT\n  simp [M5.ResidueCount.residueSupport, M5.Connectivity.supportGcd,\n    Finset.gcd_image, Function.comp_def] at hc\n  unfold M5.ResidueCount.pairIndicator M5.ResidueCount.feasible\n  simp only [hp]\n  simp_all [M5.ResidueCount.residueSupport, M5.Connectivity.supportGcd,\n    Finset.gcd_image, Function.comp_def, ← Finset.sum_mul, ← Finset.mul_sum,\n    ite_mul, mul_ite, and_assoc, and_comm, and_left_comm]\n  <;> split_ifs at * <;> simp_all",
+              "imports": [
+                "M5ResidueCount"
+              ],
+              "name": "M5.ResidueCount.pair_indicator_exact",
+              "ancestors": [],
+              "spec_sha256": "9bb347d77d70cd9c672357a92525b495a881c494b123aceda7bc4caceafbf109"
+            },
+            "sha256": "4a841ae06954d76dbf363740005fbe68f2fe00ee781fbf660a99c8806672e6b8"
+          }
+        }
+      }
+    },
+    "two_block_R_count": {
+      "id": "two_block_R_count",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M5.ResidueCount.two_block_R_count",
+        "spec_sha256": "ecbfb8e42d17ff781c2d6972bd47d4fb7229a09e85b558189049a1ed8a520f28",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-001/Candidate_fa8fa3afeaee101b.lean:7:38: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-001/Candidate_fa8fa3afeaee101b.lean:12:31: error: unsolved goals\nP : BinaryPolynomial\nT d k : ℕ\nhP : Polynomial.Monic P\nhT : 0 < T\nhd : d ∣ T\nhR : ROne P T d k = ↑(AnchoredTupleCount.restrictedCount P T d k)\n⊢ ↑{t | (∀ (i : Fin k), d ∣ ↑(t i)) ∧ P ∣ 1 + ∑ i, Polynomial.X ^ ↑(t i)}.card =\n    ∑ a, if (∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ 1 + ∑ i, Polynomial.X ^ ↑(a i) then 1 else 0\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-001/Candidate_fa8fa3afeaee101b.lean:14:38: warning: This simp argument is unused:\n  ← Finset.sum_filter\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.AnchoredTupleCount.restrictedCount, M5.ResidueCount.tailPolynomial]\n\nNote: Simp arguments with `←` have the additional effect of removing the other direction from the simp set, even if the simp argument itself is unused. If the hint above does not work, try replacing `←` with `-` to only get that effect and silence this warning.\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-002/Candidate_9709c51dd0113f04.lean:7:38: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-002/Candidate_9709c51dd0113f04.lean:21:2: error: 'change' tactic failed, pattern\n  (∑ a, ∑ b, (if q a then 1 else 0) * if q b then 1 else 0) = ∑ a, ∑ b, @ite ℤ (q a ∧ q b) instDecidableAnd 1 0\nis not definitionally equal to target\n  (∑ x, ∑ i, (if q x then 1 else 0) * if q i then 1 else 0) =\n    ∑ a,\n      ∑ b,\n        @ite ℤ\n          (((∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ tailPolynomial a) ∧ (∀ (i : Fin k), d ∣ ↑(b i)) ∧ P ∣ tailPolynomial b)\n          (Classical.propDecidable\n            (((∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ tailPolynomial a) ∧ (∀ (i : Fin k), d ∣ ↑(b i)) ∧ P ∣ tailPolynomial b))\n          1 0\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-003/Candidate_eed1a1d8c620d4ba.lean:7:38: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-003/Candidate_eed1a1d8c620d4ba.lean:12:57: error: unsolved goals\nP : BinaryPolynomial\nT d k : ℕ\nhP : Polynomial.Monic P\nhT : 0 < T\nhd : d ∣ T\nhR : ROne P T d k = ↑(AnchoredTupleCount.restrictedCount P T d k)\nq : (Fin k → Fin T) → Prop := fun a => (∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ tailPolynomial a\n⊢ {t | (∀ (i : Fin k), d ∣ ↑(t i)) ∧ P ∣ 1 + ∑ i, Polynomial.X ^ ↑(t i)}.card =\n    {a | (∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ 1 + ∑ i, Polynomial.X ^ ↑(a i)}.card\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-004/Candidate_1d098fb026b0f52f.lean:7:38: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-004/Candidate_1d098fb026b0f52f.lean:15:4: error: `simp` made no progress\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-004/Candidate_1d098fb026b0f52f.lean:16:2: error: 'change' tactic failed, pattern\n  ROne P T d k ^ 2 = ∑ a, ∑ b, @ite ℤ (q a ∧ q b) instDecidableAnd 1 0\nis not definitionally equal to target\n  ROne P T d k ^ 2 =\n    ∑ a,\n      ∑ b,\n        @ite ℤ\n          (((∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ tailPolynomial a) ∧ (∀ (i : Fin k), d ∣ ↑(b i)) ∧ P ∣ tailPolynomial b)\n          (Classical.propDecidable\n            (((∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ tailPolynomial a) ∧ (∀ (i : Fin k), d ∣ ↑(b i)) ∧ P ∣ tailPolynomial b))\n          1 0\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-005/Candidate_23cef4232ca2697e.lean:9:37: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-005/Candidate_23cef4232ca2697e.lean:8:73: error: unsolved goals\nP : BinaryPolynomial\nT d k : ℕ\nhP : Polynomial.Monic P\nhT : 0 < T\nhd : d ∣ T\n⊢ ↑{t | (∀ (i : Fin k), d ∣ ↑(t i)) ∧ P ∣ 1 + ∑ i, Polynomial.X ^ ↑(t i)}.card =\n    ∑ a, if (∀ (i : Fin k), d ∣ ↑(a i)) ∧ P ∣ 1 + ∑ i, Polynomial.X ^ ↑(a i) then 1 else 0\n/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r/attempt-005/Candidate_23cef4232ca2697e.lean:12:38: warning: This simp argument is unused:\n  Finset.sum_ite\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M5.AnchoredTupleCount.restrictedCount, M5.ResidueCount.tailPolynomial]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-15T08:39:07.564066+00:00",
+        "work": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-m17vpy3r",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "66198694a51de0d61f66f5a22bac040b4235c1888fc133341824a8163420f41a",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "arithmetic_indicator_expansion": {
+      "id": "arithmetic_indicator_expansion",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "two_block_R_count"
+      ]
+    },
+    "exact_rawA": {
+      "id": "exact_rawA",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "arithmetic_indicator_expansion"
+      ]
+    },
+    "rawA_nonnegative_and_positive": {
+      "id": "rawA_nonnegative_and_positive",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "exact_rawA"
+      ]
+    },
+    "period_A_exact": {
+      "id": "period_A_exact",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "exact_rawA",
+        "rawA_nonnegative_and_positive"
+      ]
+    }
+  }
+}

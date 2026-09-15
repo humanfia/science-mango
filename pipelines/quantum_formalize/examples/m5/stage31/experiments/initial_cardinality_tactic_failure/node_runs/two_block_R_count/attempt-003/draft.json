@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro P T d k hP hT hd\nhave hR : M5.ResidueCount.ROne P T d k =\n    (M5.AnchoredTupleCount.restrictedCount P T d k : ℤ) := by\n  simpa only [M5.ResidueCount.ROne, dif_pos hP] using\n    M5.AnchoredTupleCount.restricted_R_count P hP T d k hT hd\nlet q : (Fin k → Fin T) → Prop := fun a =>\n  (∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial a\nhave hc : (M5.AnchoredTupleCount.restrictedCount P T d k : ℤ) =\n    ∑ a : Fin k → Fin T, if q a then (1 : ℤ) else 0 := by\n  rw [← Finset.sum_filter]\n  simp [M5.AnchoredTupleCount.restrictedCount, q,\n    M5.ResidueCount.tailPolynomial]\nrw [hR, hc, pow_two, Finset.sum_mul]\nsimp_rw [Finset.mul_sum]\napply Finset.sum_congr rfl\nintro a ha_mem\napply Finset.sum_congr rfl\nintro b hb_mem\nby_cases ha : q a <;> by_cases hb : q b\nall_goals\n  dsimp only [q] at ha hb ⊢\n  simp [ha, hb]",
+  "queries": []
+}

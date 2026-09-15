@@ -1,0 +1,8 @@
+{
+  "proof": "intro P hP Z T d k hT hdT\nclassical\nrw [M5.TupleCompletion.completion_R_count]\napply congrArg (fun n : ℕ => (n : ℤ))\nobtain ⟨e, he⟩ := M5.AnchoredTupleCount.multiples_equivalence T d hT hdT\nlet f : (Fin k → Fin (T / d)) → (Fin k → Fin T) :=\n  fun t i => (e (t i)).val\nunfold M5.TupleCompletion.count M5.TupleCompletion.restrictedCount\napply Finset.card_bij (fun t _ => f t)\n· intro t ht\n  simpa [Finset.mem_filter, f, he, M5.ArithmeticTuple.tuplePolynomial,\n    M5.SupportPolynomial.ofResidueTuple] using ht\n· intro t ht u hu h\n  funext i\n  apply e.injective\n  apply Subtype.ext\n  exact congrFun h i\n· intro r hr\n  have hdr : ∀ i, d ∣ (r i).val := by\n    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hr\n    first | exact hr.1 | exact hr.2\n  let t : Fin k → Fin (T / d) := fun i => e.symm ⟨r i, hdr i⟩\n  have htr : f t = r := by\n    funext i\n    exact congrArg Subtype.val (e.apply_symm_apply ⟨r i, hdr i⟩)\n  refine ⟨t, ?_, htr⟩\n  rw [← htr] at hr\n  simpa [Finset.mem_filter, f, he, M5.ArithmeticTuple.tuplePolynomial,\n    M5.SupportPolynomial.ofResidueTuple] using hr",
+  "queries": [
+    "Finset.card_bij",
+    "M5.TupleCompletion.restrictedCount",
+    "M5.SupportPolynomial.ofResidueTuple"
+  ]
+}

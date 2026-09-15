@@ -1,0 +1,13 @@
+{
+  "name": "M5.TupleCompletion.restricted_completion_R",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), 0 < T → d ∣ T → M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.restrictedCount P Z T d k : ℤ)",
+  "imports": [
+    "M5TupleCompletion"
+  ],
+  "context": "theorem M5.TupleCompletion.divisibility_sum : ∀ (P Z : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ Z + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = AdjoinRoot.mk P Z) := by\n  intro P Z T d k t\n  have hneg : -Z = Z := by\n    ext n\n    simp only [Polynomial.coeff_neg]\n    have h : ∀ a : ZMod 2, -a = a := by decide\n    exact h (Z.coeff n)\n  rw [AdjoinRoot.mk_eq_mk, sub_eq_add_neg, hneg, add_comm]\n\ntheorem M5.TupleCompletion.completion_R_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.count P Z T d k : ℤ) := by\n  intro P hP Z T d k\n  classical\n  rw [M5.ArithmeticTuple.R_exact]\n  simp only [M5.TupleCompletion.count, M5.TupleCompletion.divisibility_sum]",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "finite set cardinality bijection natural division"
+  ],
+  "guidance": "Use completion_R_count plus accepted M5.AnchoredTupleCount.multiples_equivalence to transfer tuples pointwise j -> d*j. Finset.card_bij with this map matches divisibility polynomial exactly; inverse coordinates r/d are unique. Same finite-domain transport as restricted_R_count but Z is arbitrary. Avoid assuming definitional equality of different Decidable instances: prove predicate equivalence by simp/cases if needed. Return only tactic lines without leading by; preserve exact target."
+}

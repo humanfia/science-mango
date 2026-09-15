@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro P T d k hP hT hd\nsimp only [M5.ResidueCount.ROne, dif_pos hP]\nrw [M5.AnchoredTupleCount.restricted_R_count P hP T d k hT hd]\nunfold M5.AnchoredTupleCount.restrictedCount\nsimp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\nrw [Finset.sum_mul]\nsimp_rw [Finset.mul_sum]\napply Finset.sum_congr rfl\nintro a ha\napply Finset.sum_congr rfl\nintro b hb\nby_cases hqa : (∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (a i).val\n<;> by_cases hqb : (∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (b i).val\n<;> simp [M5.ResidueCount.tailPolynomial, hqa, hqb]",
+  "queries": []
+}

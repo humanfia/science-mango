@@ -1,0 +1,81 @@
+{
+  "title": "M5 stage40: exact arithmetic tuple completion block",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "R at the selected polynomial residue counts ordered residual completions, including divisor-restricted original residue domain. Conditional A and actual recovery instantiation remain separate.",
+  "nodes": [
+    {
+      "id": "divisibility_sum",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.TupleCompletion.divisibility_sum",
+        "statement": "∀ (P Z : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ Z + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = AdjoinRoot.mk P Z)",
+        "imports": [
+          "M5TupleCompletion"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk eq zero",
+          "finite set cardinality bijection natural division"
+        ],
+        "guidance": "Use AdjoinRoot.mk_eq_zero and map_add. Binary quotient has x+x=0, so x+y=0 iff y=x. No nonzero selected residue or irreducibility premise. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "4 conditional recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "completion_R_count",
+      "dependencies": [
+        "divisibility_sum"
+      ],
+      "spec": {
+        "name": "M5.TupleCompletion.completion_R_count",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.count P Z T d k : ℤ)",
+        "imports": [
+          "M5TupleCompletion"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk eq zero",
+          "finite set cardinality bijection natural division"
+        ],
+        "guidance": "Rewrite M5.ArithmeticTuple.R_exact, unfold TupleCompletion.count and equate filtered-cardinality predicates by divisibility_sum. This is the arbitrary selected-polynomial residue version of anchored_R_count. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "4 conditional recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "restricted_completion_R",
+      "dependencies": [
+        "completion_R_count"
+      ],
+      "spec": {
+        "name": "M5.TupleCompletion.restricted_completion_R",
+        "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), 0 < T → d ∣ T → M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.restrictedCount P Z T d k : ℤ)",
+        "imports": [
+          "M5TupleCompletion"
+        ],
+        "context": "",
+        "queries": [
+          "AdjoinRoot mk eq zero",
+          "finite set cardinality bijection natural division"
+        ],
+        "guidance": "Use completion_R_count plus accepted M5.AnchoredTupleCount.multiples_equivalence to transfer tuples pointwise j -> d*j. Finset.card_bij with this map matches divisibility polynomial exactly; inverse coordinates r/d are unique. Same finite-domain transport as restricted_R_count but Z is arbitrary. Avoid assuming definitional equality of different Decidable instances: prove predicate equivalence by simp/cases if needed. Return only tactic lines without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "4 conditional recovery",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

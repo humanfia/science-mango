@@ -1,0 +1,3 @@
+import Candidate_426d4bf2d692d4fd
+example : QuantumHarnessFrozenTarget := M5.ResidueCount.rawA_nonnegative_and_positive
+#print axioms M5.ResidueCount.rawA_nonnegative_and_positive

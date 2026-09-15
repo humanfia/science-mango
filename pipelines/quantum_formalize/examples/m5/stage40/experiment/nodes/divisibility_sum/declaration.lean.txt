@@ -1,0 +1,8 @@
+theorem M5.TupleCompletion.divisibility_sum : ∀ (P Z : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ Z + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = AdjoinRoot.mk P Z) := by
+  intro P Z T d k t
+  have hneg : -Z = Z := by
+    ext n
+    simp only [Polynomial.coeff_neg]
+    have h : ∀ a : ZMod 2, -a = a := by decide
+    exact h (Z.coeff n)
+  rw [AdjoinRoot.mk_eq_mk, sub_eq_add_neg, hneg, add_comm]

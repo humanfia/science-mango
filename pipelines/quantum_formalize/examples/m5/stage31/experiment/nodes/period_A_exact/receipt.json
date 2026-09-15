@@ -1,0 +1,132 @@
+{
+  "id": "period_A_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M5.ResidueCount.period_A_exact",
+    "spec_sha256": "b4d6286fd973c86fff146af987427ab2a90e8bca7d63cad820e34afc136ff0b2",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-jut610l5/attempt-001/Candidate_1b00ab2af1132a2c.lean",
+        "target_path": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-jut610l5/attempt-001/FrozenTarget_1b00ab2af1132a2c.lean",
+        "feedback": "",
+        "target_sha256": "a931668e64b205f3462336c33c2d044b4f3cc97b6b9c2bb9b134748c2c942a52",
+        "target_olean_sha256": "27c71eff075cba26c17a0f38b67dc99fdd7847a7a2d396b32c401e5f8e7d7d0e",
+        "source_sha256": "d329cc4fc0d3a6908b415d6a89229c6e94c8cc64be6b69bf9ac4fdcfea6ec323",
+        "olean_sha256": "14bf3cd8db87115199fa3d7cb4763be6bc3cc022a8102384d557fcad9704ed66",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-15T09:04:01.580248+00:00",
+    "work": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-jut610l5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "66198694a51de0d61f66f5a22bac040b4235c1888fc133341824a8163420f41a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m5-lean-residue-count-formalization/.humanize-formal-runs/run-jut610l5/attempt-001/Candidate_1b00ab2af1132a2c.lean",
+    "environment_sha256": "14f2bd9e5a2bea0e2eae01bb357933d896f7110c307bf5e636b42e346003ee47",
+    "artifacts": {
+      "two_block_R_count": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.two_block_R_count : ∀ (P : M5.BinaryPolynomial) (T d k : ℕ), P.Monic → 0 < T → d ∣ T → M5.ResidueCount.ROne P T d k ^ 2 = ∑ a : Fin k → Fin T, ∑ b : Fin k → Fin T, (@ite ℤ (((∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial a) ∧ ((∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial b)) (Classical.propDecidable _) 1 0) := by\n  classical\n  intro P T d k hP hT hd\n  simp only [M5.ResidueCount.ROne, dif_pos hP]\n  rw [M5.AnchoredTupleCount.restricted_R_count P hP T d k hT hd]\n  unfold M5.AnchoredTupleCount.restrictedCount\n  simp only [pow_two, Finset.card_eq_sum_ones, Nat.cast_sum, Nat.cast_one, Finset.sum_filter]\n  rw [Finset.sum_mul]\n  simp_rw [Finset.mul_sum]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  by_cases hqa : (∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (a i).val\n  <;> by_cases hqb : (∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ 1 + ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (b i).val\n  <;> simp [M5.ResidueCount.tailPolynomial, hqa, hqb]",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.two_block_R_count",
+          "ancestors": [],
+          "spec_sha256": "ecbfb8e42d17ff781c2d6972bd47d4fb7229a09e85b558189049a1ed8a520f28"
+        },
+        "sha256": "1dcca9eced9b8d7d959362e116ce6308895e30c17fe55ff0dfc9789673695223"
+      },
+      "arithmetic_indicator_expansion": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.arithmetic_indicator_expansion : ∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.rawA T w F = ∑ a : Fin (w-1) → Fin T, ∑ b : Fin (w-1) → Fin T, M5.ResidueCount.pairIndicator F a b := by\n  classical\n  intro T w F hT hw hF hFT\n  have hmonic : ∀ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus T) F).powerset,\n      (F * ∏ p ∈ S, p).Monic := by\n    intro S hS\n    apply hF.mul\n    apply Polynomial.monic_prod_of_monic\n    intro p hp\n    exact (M5.PolynomialIndicator.residual_factors_regular F T hT hF hFT p\n      ((Finset.mem_powerset.mp hS) hp)).1\n  have hR : ∀ d ∈ T.divisors,\n      ∀ S ∈ (M5.PolynomialExclusion.residualFactors (M5.cyclicModulus T) F).powerset,\n      M5.ResidueCount.ROne (F * ∏ p ∈ S, p) T d (w - 1) ^ 2 =\n        ∑ a : Fin (w - 1) → Fin T, ∑ b : Fin (w - 1) → Fin T,\n          (if (((∀ i, d ∣ (a i).val) ∧ (F * ∏ p ∈ S, p) ∣ M5.ResidueCount.tailPolynomial a) ∧\n            ((∀ i, d ∣ (b i).val) ∧ (F * ∏ p ∈ S, p) ∣ M5.ResidueCount.tailPolynomial b))\n          then (1 : ℤ) else 0) := by\n    intro d hd S hS\n    refine (M5.ResidueCount.two_block_R_count (F * ∏ p ∈ S, p) T d (w - 1)\n      (hmonic S hS) hT (Nat.mem_divisors.mp hd).1).trans ?_\n    apply Finset.sum_congr rfl\n    intro a ha\n    apply Finset.sum_congr rfl\n    intro b hb\n    by_cases h : (((∀ i, d ∣ (a i).val) ∧ (F * ∏ p ∈ S, p) ∣ M5.ResidueCount.tailPolynomial a) ∧\n      ((∀ i, d ∣ (b i).val) ∧ (F * ∏ p ∈ S, p) ∣ M5.ResidueCount.tailPolynomial b))\n    <;> simp [h]\n  have hmove : ∀ {α β γ : Type} (s : Finset α) (t : Finset β) (u : Finset γ)\n      (f : α → β → γ → ℤ),\n      (∑ x ∈ s, ∑ y ∈ t, ∑ z ∈ u, f x y z) =\n        ∑ y ∈ t, ∑ z ∈ u, ∑ x ∈ s, f x y z := by\n    intro α β γ s t u f\n    rw [Finset.sum_comm]\n    apply Finset.sum_congr rfl\n    intro y hy\n    rw [Finset.sum_comm]\n  have hshuffle : ∀ {α β γ δ : Type} (s : Finset α) (t : Finset β)\n      (u : Finset γ) (v : Finset δ) (f : α → β → γ → δ → ℤ),\n      (∑ x ∈ s, ∑ y ∈ t, ∑ a ∈ u, ∑ b ∈ v, f x y a b) =\n        ∑ a ∈ u, ∑ b ∈ v, ∑ x ∈ s, ∑ y ∈ t, f x y a b := by\n    intro α β γ δ s t u v f\n    calc\n      _ = ∑ x ∈ s, ∑ a ∈ u, ∑ b ∈ v, ∑ y ∈ t, f x y a b := by\n        apply Finset.sum_congr rfl\n        intro x hx\n        exact hmove t u v (fun y a b => f x y a b)\n      _ = _ := hmove s u v (fun x a b => ∑ y ∈ t, f x y a b)\n  unfold M5.ResidueCount.rawA\n  simp (disch := assumption) only [hR]\n  simp only [Finset.mul_sum]\n  rw [hshuffle]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  simp only [M5.ResidueCount.pairIndicator, M5.PolynomialIndicator.factorExclusionSum,\n    Finset.sum_mul, Finset.mul_sum]\n  rw [Finset.sum_comm]\n  apply Finset.sum_congr rfl\n  intro S hS\n  apply Finset.sum_congr rfl\n  intro d hd\n  by_cases hda : ∀ i, d ∣ (a i).val\n  <;> by_cases hdb : ∀ i, d ∣ (b i).val\n  <;> by_cases hpa : (F * ∏ p ∈ S, p) ∣ M5.ResidueCount.tailPolynomial a\n  <;> by_cases hpb : (F * ∏ p ∈ S, p) ∣ M5.ResidueCount.tailPolynomial b\n  <;> simp [hda, hdb, hpa, hpb, mul_assoc]",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.arithmetic_indicator_expansion",
+          "ancestors": [
+            "two_block_R_count"
+          ],
+          "spec_sha256": "c6e5e16d0b0afe5a2d446d4318583fa762589bac19234d6d1959387e3e1a3108"
+        },
+        "sha256": "1e4762c94bb6846f2eba8bcd9363b75d95946e910ea8642544adee24bd535289"
+      },
+      "pair_indicator_exact": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.pair_indicator_exact : ∀ (T k : ℕ) (F : M5.BinaryPolynomial) (a b : Fin k → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.pairIndicator F a b = (@ite ℤ (M5.ResidueCount.feasible F a b) (Classical.propDecidable _) 1 0) := by\n  classical\n  intro T k F a b hT hF hFT\n  have hc := M5.Connectivity.connected_indicator T\n    (M5.ResidueCount.residueSupport a)\n    (M5.ResidueCount.residueSupport b) hT\n  have hp := M5.PolynomialIndicator.exact_signature_indicator\n    (M5.ResidueCount.tailPolynomial a)\n    (M5.ResidueCount.tailPolynomial b) F T hT hF hFT\n  simp [M5.ResidueCount.residueSupport, M5.Connectivity.supportGcd,\n    Finset.gcd_image, Function.comp_def] at hc\n  unfold M5.ResidueCount.pairIndicator M5.ResidueCount.feasible\n  simp only [hp]\n  simp_all [M5.ResidueCount.residueSupport, M5.Connectivity.supportGcd,\n    Finset.gcd_image, Function.comp_def, ← Finset.sum_mul, ← Finset.mul_sum,\n    ite_mul, mul_ite, and_assoc, and_comm, and_left_comm]\n  <;> split_ifs at * <;> simp_all",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.pair_indicator_exact",
+          "ancestors": [],
+          "spec_sha256": "9bb347d77d70cd9c672357a92525b495a881c494b123aceda7bc4caceafbf109"
+        },
+        "sha256": "4a841ae06954d76dbf363740005fbe68f2fe00ee781fbf660a99c8806672e6b8"
+      },
+      "exact_rawA": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.exact_rawA : ∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.rawA T w F = (M5.ResidueCount.validTailPairs T w F).card := by\n  classical\n  intro T w F hT hw hF hFT\n  rw [M5.ResidueCount.arithmetic_indicator_expansion T w F hT hw hF hFT]\n  simp_rw [M5.ResidueCount.pair_indicator_exact T (w - 1) F _ _ hT hF hFT]\n  simp only [M5.ResidueCount.validTailPairs, Finset.card_eq_sum_ones,\n    Nat.cast_sum, Finset.sum_filter, Fintype.sum_prod_type]\n  apply Finset.sum_congr rfl\n  intro a ha\n  apply Finset.sum_congr rfl\n  intro b hb\n  by_cases h : M5.ResidueCount.feasible F a b <;> simp [h]",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.exact_rawA",
+          "ancestors": [
+            "arithmetic_indicator_expansion",
+            "pair_indicator_exact",
+            "two_block_R_count"
+          ],
+          "spec_sha256": "4f00550ceaedb15f288131e6106f988be6fe0e980c7f0e6c39263d58d19d64b3"
+        },
+        "sha256": "88f48beed400c232313f79722d20749d8617aa4b8e467fdba895c18bafb802db"
+      },
+      "rawA_nonnegative_and_positive": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.rawA_nonnegative_and_positive : ∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → (0 ≤ M5.ResidueCount.rawA T w F ∧ (0 < M5.ResidueCount.rawA T w F ↔ ∃ a b : Fin (w-1) → Fin T, M5.ResidueCount.feasible F a b)) := by\n  classical\n  intro T w F hT hw hF hFT\n  rw [M5.ResidueCount.exact_rawA T w F hT hw hF hFT]\n  constructor\n  · positivity\n  · rw [Int.natCast_pos, Finset.card_pos]\n    constructor\n    · rintro ⟨⟨a, b⟩, hab⟩\n      exact ⟨a, b, by simpa [M5.ResidueCount.validTailPairs] using hab⟩\n    · rintro ⟨a, b, hab⟩\n      exact ⟨(a, b), by simpa [M5.ResidueCount.validTailPairs] using hab⟩",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.rawA_nonnegative_and_positive",
+          "ancestors": [
+            "arithmetic_indicator_expansion",
+            "exact_rawA",
+            "pair_indicator_exact",
+            "two_block_R_count"
+          ],
+          "spec_sha256": "899dd8b0b97bbc923828edfc824637df9f5dd1bb793e969f337ee7117361b019"
+        },
+        "sha256": "71ed7220757ca4d9eb9f679bbb54f7b85c85a03fbd581cd60930562555496abf"
+      },
+      "period_A_exact": {
+        "payload": {
+          "declaration": "theorem M5.ResidueCount.period_A_exact : ∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.ResidueCount.A w F = (M5.ResidueCount.validTailPairs (M5.signaturePeriod F) w F).card ∧ 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ a b : Fin (w-1) → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b) := by\n  intro w F hw hF hF0\n  obtain ⟨hT, hperiod⟩ := M5.Period.period_law F hF hF0\n  have hFT : F ∣ M5.cyclicModulus (M5.signaturePeriod F) :=\n    (hperiod (M5.signaturePeriod F)).2 (dvd_refl _)\n  unfold M5.ResidueCount.A\n  exact ⟨M5.ResidueCount.exact_rawA (M5.signaturePeriod F) w F hT hw hF hFT,\n    M5.ResidueCount.rawA_nonnegative_and_positive (M5.signaturePeriod F) w F hT hw hF hFT⟩",
+          "imports": [
+            "M5ResidueCount"
+          ],
+          "name": "M5.ResidueCount.period_A_exact",
+          "ancestors": [
+            "arithmetic_indicator_expansion",
+            "exact_rawA",
+            "pair_indicator_exact",
+            "rawA_nonnegative_and_positive",
+            "two_block_R_count"
+          ],
+          "spec_sha256": "ea4f90ef65c59f80e9000fbc5a26686dc68650bfb8ae3600c4c0c8f94f199d0c"
+        },
+        "sha256": "e8de454a9ab093c469683b425c1ddf793d91db9198999217204a3f622989f002"
+      }
+    }
+  }
+}

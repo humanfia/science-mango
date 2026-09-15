@@ -1,0 +1,162 @@
+{
+  "title": "M5 stage31: original arithmetic residue occurrence count A",
+  "source": "research/quantum_m5/research_checkpoints/period_residue_arithmetic_law_reviewed/PROOF.md",
+  "source_sha256": "a7c0e2ae5f555864340f4b3e6d6674e5b2e74abf382ca5de4d3e5d68da6951a3",
+  "scope": "Exact finite d-divisor and residual-factor-subset arithmetic A equals feasible anchored tail-pair count; no tuple enumeration in arithmetic definition. Stage29 exact accepted proof closure imported and audited.",
+  "nodes": [
+    {
+      "id": "two_block_R_count",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ResidueCount.two_block_R_count",
+        "statement": "∀ (P : M5.BinaryPolynomial) (T d k : ℕ), P.Monic → 0 < T → d ∣ T → M5.ResidueCount.ROne P T d k ^ 2 = ∑ a : Fin k → Fin T, ∑ b : Fin k → Fin T, (@ite ℤ (((∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial a) ∧ ((∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial b)) (Classical.propDecidable _) 1 0)",
+        "imports": [
+          "M5ResidueCount"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product indicator cardinality",
+          "Finset gcd image divisibility moebius"
+        ],
+        "guidance": "Use the imported receipt-verified accepted stage29 restricted_R_count. Unfold total monicity wrapper; rewrite R as restrictedCount. Expand the square of a filtered cardinality into the double sum of product indicators. Definitions tailPolynomial and restrictedCount agree literally. Preserve empty tails and all repeated/cancelled residues. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§4",
+        "supports_obligation": "M5.RESIDUE_COUNT / M5.OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "pair_indicator_exact",
+      "dependencies": [],
+      "spec": {
+        "name": "M5.ResidueCount.pair_indicator_exact",
+        "statement": "∀ (T k : ℕ) (F : M5.BinaryPolynomial) (a b : Fin k → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.pairIndicator F a b = (@ite ℤ (M5.ResidueCount.feasible F a b) (Classical.propDecidable _) 1 0)",
+        "imports": [
+          "M5ResidueCount"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product indicator cardinality",
+          "Finset gcd image divisibility moebius"
+        ],
+        "guidance": "Combine accepted stage23 exact_signature_indicator with stage9 connected_indicator/support_divisor_filter. For integer gcd one may use residueSupport=insert0(image tuple values), gcd_image and gcd_insert, or prove divisor equivalence directly by Finset.dvd_gcd_iff. Repetition changes neither gcd nor divisibility; polynomial cancellations must not alter the raw-coordinate gcd. Do not use the polynomial support as the integer gcd domain. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§4",
+        "supports_obligation": "M5.RESIDUE_COUNT / M5.OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "arithmetic_indicator_expansion",
+      "dependencies": [
+        "two_block_R_count"
+      ],
+      "spec": {
+        "name": "M5.ResidueCount.arithmetic_indicator_expansion",
+        "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.rawA T w F = ∑ a : Fin (w-1) → Fin T, ∑ b : Fin (w-1) → Fin T, M5.ResidueCount.pairIndicator F a b",
+        "imports": [
+          "M5ResidueCount"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product indicator cardinality",
+          "Finset gcd image divisibility moebius"
+        ],
+        "guidance": "Unfold rawA and use two_block_R_count. A divisor of positive T is positive. Each residual factor is monic by accepted stage23 residual_factors_regular; hence F times its subset product is monic. Swap the finite d,S,a,b sums and factor independent indicator terms to recover pairIndicator. Only finite factor and character arithmetic defines rawA; tuple sums occur on the semantic theorem RHS. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§4",
+        "supports_obligation": "M5.RESIDUE_COUNT / M5.OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "exact_rawA",
+      "dependencies": [
+        "arithmetic_indicator_expansion",
+        "pair_indicator_exact"
+      ],
+      "spec": {
+        "name": "M5.ResidueCount.exact_rawA",
+        "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.rawA T w F = (M5.ResidueCount.validTailPairs T w F).card",
+        "imports": [
+          "M5ResidueCount"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product indicator cardinality",
+          "Finset gcd image divisibility moebius"
+        ],
+        "guidance": "Rewrite the arithmetic indicator expansion and every pair_indicator_exact. Finset product/univ and card_filter turn the indicator double sum into validTailPairs.card cast to integers. Do not impose distinctness or require nonzero block polynomials. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§4",
+        "supports_obligation": "M5.RESIDUE_COUNT / M5.OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "rawA_nonnegative_and_positive",
+      "dependencies": [
+        "exact_rawA"
+      ],
+      "spec": {
+        "name": "M5.ResidueCount.rawA_nonnegative_and_positive",
+        "statement": "∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → (0 ≤ M5.ResidueCount.rawA T w F ∧ (0 < M5.ResidueCount.rawA T w F ↔ ∃ a b : Fin (w-1) → Fin T, M5.ResidueCount.feasible F a b))",
+        "imports": [
+          "M5ResidueCount"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product indicator cardinality",
+          "Finset gcd image divisibility moebius"
+        ],
+        "guidance": "Use exact_rawA: a natural-cardinality cast is nonnegative and is positive iff its filtered finite set is nonempty. Unpack pair membership to two tails. Preserve k=0 (w=1), F=1 and all cancellations. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§4",
+        "supports_obligation": "M5.RESIDUE_COUNT / M5.OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    },
+    {
+      "id": "period_A_exact",
+      "dependencies": [
+        "exact_rawA",
+        "rawA_nonnegative_and_positive"
+      ],
+      "spec": {
+        "name": "M5.ResidueCount.period_A_exact",
+        "statement": "∀ (w : ℕ) (F : M5.BinaryPolynomial), 0 < w → F.Monic → F.coeff 0 = 1 → M5.ResidueCount.A w F = (M5.ResidueCount.validTailPairs (M5.signaturePeriod F) w F).card ∧ 0 ≤ M5.ResidueCount.A w F ∧ (0 < M5.ResidueCount.A w F ↔ ∃ a b : Fin (w-1) → Fin (M5.signaturePeriod F), M5.ResidueCount.feasible F a b)",
+        "imports": [
+          "M5ResidueCount"
+        ],
+        "context": "",
+        "queries": [
+          "finite sum product indicator cardinality",
+          "Finset gcd image divisibility moebius"
+        ],
+        "guidance": "Use accepted period_law to obtain T>0 and F|M_T at T=signaturePeriod F; then unfold A and instantiate exact_rawA and rawA_nonnegative_and_positive. No additional period-size, squarefree, nonzero-block or weight-upper-bound assumption is allowed. Return tactic lines only without leading by; preserve exact target."
+      },
+      "metadata": {
+        "source_section": "§4",
+        "supports_obligation": "M5.RESIDUE_COUNT / M5.OCCURRENCE",
+        "fallback_queries": [
+          "addition commutativity"
+        ]
+      }
+    }
+  ]
+}

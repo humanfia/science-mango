@@ -1,0 +1,13 @@
+{
+  "name": "M5.TupleCompletion.completion_R_count",
+  "statement": "∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.count P Z T d k : ℤ)",
+  "imports": [
+    "M5TupleCompletion"
+  ],
+  "context": "theorem M5.TupleCompletion.divisibility_sum : ∀ (P Z : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ Z + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = AdjoinRoot.mk P Z) := by\n  intro P Z T d k t\n  have hneg : -Z = Z := by\n    ext n\n    simp only [Polynomial.coeff_neg]\n    have h : ∀ a : ZMod 2, -a = a := by decide\n    exact h (Z.coeff n)\n  rw [AdjoinRoot.mk_eq_mk, sub_eq_add_neg, hneg, add_comm]",
+  "queries": [
+    "AdjoinRoot mk eq zero",
+    "finite set cardinality bijection natural division"
+  ],
+  "guidance": "Rewrite M5.ArithmeticTuple.R_exact, unfold TupleCompletion.count and equate filtered-cardinality predicates by divisibility_sum. This is the arbitrary selected-polynomial residue version of anchored_R_count. Return only tactic lines without leading by; preserve exact target."
+}

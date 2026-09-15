@@ -10,17 +10,17 @@ This is a status map of the original reviewed proof, not a strengthened theorem 
 | §3 integer connectivity indicator | Accepted | [stage9](stage9/RESULTS.md) |
 | §3 polynomial exact-signature exclusion | Finite Boolean exclusion and factor products accepted; Exact finite factor-subset signature indicator accepted | [stage17](stage17/RESULTS.md), [stage18](stage18/RESULTS.md), [stage16](stage16/RESULTS.md) → stage23 |
 | §3 anchored C and conditional recovery | Open; anchoring n to divisibility accepted; C experiment running | stage20 → stage26, then polynomial/integer indicator assembly |
-| §4 feasible-pattern A, necessity and recovery | Necessity accepted; A and recovery still open | stage24 plus polynomial/integer indicators, tuple recovery and reduction |
+| §4 feasible-pattern A, necessity and recovery | Exact arithmetic A and necessity accepted; conditional recovery open | [stage31](stage31/RESULTS.md), [stage35](stage35/RESULTS.md); generic recovery [stage37](stage37/RESULTS.md) |
 | §5 packing and signature preservation | Accepted components | [stage6](stage6/RESULTS.md), [stage8](stage8/RESULTS.md), [stage21](stage21/RESULTS.md) |
 | §5 actual bounded connected support construction | Accepted | stage19 + stage21 → stage22 |
 | §5 literal-support progression and bounded physical order | Accepted | stage12 + earlier bounded progression → stage25; combine with stage22 |
-| §6 bounded exact birth and all later-order decisions | Open | C/A and recovery, bounded construction, necessary lower bounds |
+| §6 bounded exact birth and all later-order decisions | Generic search accepted; actual formula integration open | C/A and recovery, bounded construction, necessary lower bounds |
 | §1 weight-one boundary and final arithmetic procedure | Weight-one accepted; final procedure integration open | Boundary theorem and full correctness/termination integration |
 
 ```mermaid
 flowchart TD
   n[stage20: exact n — accepted] --> anchor[stage26: anchored block count — accepted]
-  R[stage24: exact R — accepted] --> A[A and conditional tuple recovery — open]
+  R[stage24: exact R — accepted] --> A[stage31: exact A — accepted; recovery open]
   int[stage9: integer indicator — accepted] --> C[C and conditional support recovery — open]
   crit[stage16: polynomial criterion — accepted] --> pie[stage23: exact polynomial indicator — accepted]
   finite[stage17 + 18: finite exclusion / products — accepted] --> pie

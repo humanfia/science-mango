@@ -1,0 +1,12 @@
+theorem M5.ResidueCount.exact_rawA : ∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.rawA T w F = (M5.ResidueCount.validTailPairs T w F).card := by
+  classical
+  intro T w F hT hw hF hFT
+  rw [M5.ResidueCount.arithmetic_indicator_expansion T w F hT hw hF hFT]
+  simp_rw [M5.ResidueCount.pair_indicator_exact T (w - 1) F _ _ hT hF hFT]
+  simp only [M5.ResidueCount.validTailPairs, Finset.card_eq_sum_ones,
+    Nat.cast_sum, Finset.sum_filter, Fintype.sum_prod_type]
+  apply Finset.sum_congr rfl
+  intro a ha
+  apply Finset.sum_congr rfl
+  intro b hb
+  by_cases h : M5.ResidueCount.feasible F a b <;> simp [h]

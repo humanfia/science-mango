@@ -1,0 +1,60 @@
+import M5TupleCompletion
+
+theorem M5.TupleCompletion.divisibility_sum : ∀ (P Z : M5.BinaryPolynomial) (T d k : ℕ) (t : Fin k → Fin (T / d)), (P ∣ Z + M5.ArithmeticTuple.tuplePolynomial T d k t ↔ AdjoinRoot.mk P (M5.ArithmeticTuple.tuplePolynomial T d k t) = AdjoinRoot.mk P Z) := by
+  intro P Z T d k t
+  have hneg : -Z = Z := by
+    ext n
+    simp only [Polynomial.coeff_neg]
+    have h : ∀ a : ZMod 2, -a = a := by decide
+    exact h (Z.coeff n)
+  rw [AdjoinRoot.mk_eq_mk, sub_eq_add_neg, hneg, add_comm]
+
+theorem M5.TupleCompletion.completion_R_count : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.count P Z T d k : ℤ) := by
+  intro P hP Z T d k
+  classical
+  rw [M5.ArithmeticTuple.R_exact]
+  simp only [M5.TupleCompletion.count, M5.TupleCompletion.divisibility_sum]
+
+theorem M5.TupleCompletion.restricted_completion_R : ∀ (P : M5.BinaryPolynomial) (hP : P.Monic) (Z : M5.BinaryPolynomial) (T d k : ℕ), 0 < T → d ∣ T → M5.ArithmeticTuple.R P hP T d k (AdjoinRoot.mk P Z) = (M5.TupleCompletion.restrictedCount P Z T d k : ℤ) := by
+  intro P hP Z T d k hT hd
+  classical
+  rw [M5.TupleCompletion.completion_R_count]
+  obtain ⟨e, he⟩ := M5.AnchoredTupleCount.multiples_equivalence T d hT hd
+  let f : (Fin k → Fin (T / d)) → (Fin k → Fin T) := fun t i => (e (t i)).val
+  have hfpoly (t : Fin k → Fin (T / d)) :
+      M5.ArithmeticTuple.tuplePolynomial T d k t =
+        ∑ i : Fin k, (Polynomial.X : M5.BinaryPolynomial) ^ (f t i).val := by
+    unfold M5.ArithmeticTuple.tuplePolynomial
+    apply Finset.sum_congr rfl
+    intro i hi
+    change (Polynomial.X : M5.BinaryPolynomial) ^ (d * (t i).val) =
+      Polynomial.X ^ (e (t i)).val.val
+    rw [he]
+  apply congrArg (fun n : ℕ => (n : ℤ))
+  unfold M5.TupleCompletion.count M5.TupleCompletion.restrictedCount
+  apply Finset.card_bij (fun t _ => f t)
+  · intro t ht
+    have hp := (Finset.mem_filter.mp ht).2
+    have hdiv : ∀ i, d ∣ (f t i).val := fun i => (e (t i)).property
+    rw [hfpoly t] at hp
+    simpa only [Finset.mem_filter, Finset.mem_univ, true_and] using And.intro hdiv hp
+  · intro t ht u hu htu
+    funext i
+    apply e.injective
+    apply Subtype.ext
+    exact congrFun htu i
+  · intro r hr
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hr
+    obtain ⟨hdiv, hp⟩ := hr
+    let t : Fin k → Fin (T / d) := fun i => e.symm ⟨r i, hdiv i⟩
+    have hft : f t = r := by
+      funext i
+      change (e (e.symm ⟨r i, hdiv i⟩)).val = r i
+      simp only [Equiv.apply_symm_apply]
+    refine ⟨t, ?_, hft⟩
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    rw [hfpoly t, hft]
+    exact hp
+#print axioms M5.TupleCompletion.divisibility_sum
+#print axioms M5.TupleCompletion.completion_R_count
+#print axioms M5.TupleCompletion.restricted_completion_R

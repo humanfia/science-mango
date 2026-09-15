@@ -1,0 +1,12 @@
+theorem M5.ResidueCount.rawA_nonnegative_and_positive : ∀ (T w : ℕ) (F : M5.BinaryPolynomial), 0 < T → 0 < w → F.Monic → F ∣ M5.cyclicModulus T → (0 ≤ M5.ResidueCount.rawA T w F ∧ (0 < M5.ResidueCount.rawA T w F ↔ ∃ a b : Fin (w-1) → Fin T, M5.ResidueCount.feasible F a b)) := by
+  classical
+  intro T w F hT hw hF hFT
+  rw [M5.ResidueCount.exact_rawA T w F hT hw hF hFT]
+  constructor
+  · positivity
+  · rw [Int.natCast_pos, Finset.card_pos]
+    constructor
+    · rintro ⟨⟨a, b⟩, hab⟩
+      exact ⟨a, b, by simpa [M5.ResidueCount.validTailPairs] using hab⟩
+    · rintro ⟨a, b, hab⟩
+      exact ⟨(a, b), by simpa [M5.ResidueCount.validTailPairs] using hab⟩

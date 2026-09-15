@@ -1,0 +1,13 @@
+{
+  "name": "M5.ResidueCount.pair_indicator_exact",
+  "statement": "∀ (T k : ℕ) (F : M5.BinaryPolynomial) (a b : Fin k → Fin T), 0 < T → F.Monic → F ∣ M5.cyclicModulus T → M5.ResidueCount.pairIndicator F a b = (@ite ℤ (M5.ResidueCount.feasible F a b) (Classical.propDecidable _) 1 0)",
+  "imports": [
+    "M5ResidueCount"
+  ],
+  "context": "",
+  "queries": [
+    "finite sum product indicator cardinality",
+    "Finset gcd image divisibility moebius"
+  ],
+  "guidance": "Combine accepted stage23 exact_signature_indicator with stage9 connected_indicator/support_divisor_filter. For integer gcd one may use residueSupport=insert0(image tuple values), gcd_image and gcd_insert, or prove divisor equivalence directly by Finset.dvd_gcd_iff. Repetition changes neither gcd nor divisibility; polynomial cancellations must not alter the raw-coordinate gcd. Do not use the polynomial support as the integer gcd domain. Return tactic lines only without leading by; preserve exact target."
+}

@@ -1,0 +1,3 @@
+import Candidate_4dd7f09ef2a88a24
+example : QuantumHarnessFrozenTarget := M5.ResidueCount.arithmetic_indicator_expansion
+#print axioms M5.ResidueCount.arithmetic_indicator_expansion

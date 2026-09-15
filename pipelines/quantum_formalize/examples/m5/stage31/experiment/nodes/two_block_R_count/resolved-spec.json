@@ -1,0 +1,13 @@
+{
+  "name": "M5.ResidueCount.two_block_R_count",
+  "statement": "∀ (P : M5.BinaryPolynomial) (T d k : ℕ), P.Monic → 0 < T → d ∣ T → M5.ResidueCount.ROne P T d k ^ 2 = ∑ a : Fin k → Fin T, ∑ b : Fin k → Fin T, (@ite ℤ (((∀ i : Fin k, d ∣ (a i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial a) ∧ ((∀ i : Fin k, d ∣ (b i).val) ∧ P ∣ M5.ResidueCount.tailPolynomial b)) (Classical.propDecidable _) 1 0)",
+  "imports": [
+    "M5ResidueCount"
+  ],
+  "context": "",
+  "queries": [
+    "finite sum product indicator cardinality",
+    "Finset gcd image divisibility moebius"
+  ],
+  "guidance": "Use the imported receipt-verified accepted stage29 restricted_R_count. Unfold total monicity wrapper; rewrite R as restrictedCount. Expand the square of a filtered cardinality into the double sum of product indicators. Definitions tailPolynomial and restrictedCount agree literally. Preserve empty tails and all repeated/cancelled residues. Return tactic lines only without leading by; preserve exact target."
+}
