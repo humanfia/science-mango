@@ -1,0 +1,35 @@
+import M8DiscoveryResources
+
+theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by
+  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2
+  intro N inst A
+  have hcard : A.card ≤ N := by
+    simpa only [ZMod.card] using Finset.card_le_univ A
+  constructor
+  · calc
+      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by
+        simp [M8.DiscoveryResources.memberCharge]
+      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard
+      _ = 4 * N * (N + 1) := by ring
+  · calc
+      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by
+        simp [M8.DiscoveryResources.spanCharge]
+      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard
+      _ = 16 * N * (N + 1)^2 := by ring
+
+theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by
+  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3
+  intro N inst c k
+  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)
+  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)
+  have htotal :
+      64 * (N + 1)^2 +
+        (4 * N * (N + 1) +
+          (4 * N * (N + 1) +
+            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤
+        128 * (N + 1)^3 := by
+    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]
+  unfold M8.DiscoveryResources.leafCharge
+  split_ifs <;> omega
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136*(N+1)^4

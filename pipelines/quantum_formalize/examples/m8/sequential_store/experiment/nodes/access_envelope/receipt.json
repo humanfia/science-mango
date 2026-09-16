@@ -1,0 +1,55 @@
+{
+  "id": "access_envelope",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.SequentialStore.access_envelope",
+    "spec_sha256": "10e7a3b513e458e3db762778345180f79562f28b77224ee78bc84d83b9cfee80",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-n8y4szc1/attempt-001/Candidate_5bce3b6484378b03.lean",
+        "target_path": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-n8y4szc1/attempt-001/FrozenTarget_5bce3b6484378b03.lean",
+        "feedback": "",
+        "target_sha256": "6e16a1244073594c74b52c11c757b637b5668112160fda9b8da8fdf826dc9231",
+        "target_olean_sha256": "5bc98c9d13dfcf354102551708e7367749ceb496c6ec341f8b4e9d1e5d7fe53f",
+        "source_sha256": "62ecea7de9ed10526d5993f9b6f22914335da79f69e4fc7ad71748956cfdadc2",
+        "olean_sha256": "4c6d43737ca5a47cf91d5705b7d55d6bb9d177bf95895236d3dacecef9dafa7a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:57:29.472547+00:00",
+    "work": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-n8y4szc1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d07f74f3687c237624fdd8ad2c8e9dce7073a186d74c37e5bf98867ceb5a555a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-n8y4szc1/attempt-001/Candidate_5bce3b6484378b03.lean",
+    "environment_sha256": "e41cd331f5484e3e634e4ddc84c589e3eb686fe51299d9d62822f1943dc9d429",
+    "artifacts": {
+      "access_envelope": {
+        "payload": {
+          "declaration": "theorem M8.SequentialStore.access_envelope : ∀ (N : ℕ) [NeZero N], M8.SequentialStore.accessCharge N ≤ 3000000*(N+1)^6 := by\n  change ∀ (N : ℕ) [NeZero N], M8.SequentialStore.accessCharge N ≤ 3000000 * (N + 1)^6\n  intro N _\n  let n := N + 1\n  have hn : 0 < n := by dsimp [n]; omega\n  have hs : M8.SequentialStore.slots N ≤ 20000 * n^3 := by\n    exact M8.BankLayout.payload_bound N\n  have hb : M8.SequentialStore.addressBits N ≤ 32 * n := by\n    exact M8.BankLayout.address_bits_bound N\n  have hf : 4 * (M8.SequentialStore.addressBits N + 1) ≤ 132 * n := by\n    omega\n  have h2 : 1 ≤ n^2 := by\n    have h := pow_pos hn 2\n    omega\n  have h4 : 1 ≤ n^4 := by\n    have h := pow_pos hn 4\n    omega\n  have h46 : n^4 ≤ n^6 := by\n    calc\n      n^4 = n^4 * 1 := by simp\n      _ ≤ n^4 * n^2 := Nat.mul_le_mul_left _ h2\n      _ = n^6 := by ring\n  change M8.SequentialStore.slots N * (4 * (M8.SequentialStore.addressBits N + 1)) + 1 ≤ 3000000 * n^6\n  calc\n    M8.SequentialStore.slots N * (4 * (M8.SequentialStore.addressBits N + 1)) + 1\n        ≤ (20000 * n^3) * (132 * n) + 1 :=\n      Nat.add_le_add_right (Nat.mul_le_mul hs hf) 1\n    _ = 2640000 * n^4 + 1 := by ring\n    _ ≤ 3000000 * n^6 := by omega",
+          "imports": [
+            "M8SequentialStore"
+          ],
+          "name": "M8.SequentialStore.access_envelope",
+          "ancestors": [],
+          "spec_sha256": "10e7a3b513e458e3db762778345180f79562f28b77224ee78bc84d83b9cfee80"
+        },
+        "sha256": "ef3595da0821d82cac0579cc2ef16c1c7985786d638ace1fd455a8cdcb62c52f"
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "id": "valid",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P3Family.valid",
+    "spec_sha256": "1b00ba91f15eb953158f9c8d4a9765d2c5a819df2efa467e0337cf43a751dcdd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m/attempt-001/Candidate_0c0f9990120d2d00.lean",
+        "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m/attempt-001/FrozenTarget_0c0f9990120d2d00.lean",
+        "feedback": "",
+        "target_sha256": "3e84893b90a2b55d6e7077b4c5208b897dc54ea0e48c51c0a4533a747581a0e0",
+        "target_olean_sha256": "e8fe43eb2a6e3751dba405e69b83e3a5f215c5d0ffc9bb4784ddda395a79082c",
+        "source_sha256": "b135f3e62d4246b7446d1ef4a8c475b654a02115ad95f4c6e72a81ada47bce34",
+        "olean_sha256": "d61cbd38d3f2941e4cbf6b860154810b03a274db2c7b3629ab757a1acb715870",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:52:11.016079+00:00",
+    "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m/attempt-001/Candidate_0c0f9990120d2d00.lean",
+    "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+    "artifacts": {
+      "support_data": {
+        "payload": {
+          "declaration": "theorem M8.P3Family.support_data : ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N\n  intro N inst hN\n  classical\n  have hinj (a b : ℕ) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n    have hv := congrArg (fun x : ZMod N => x.val) h\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n    omega\n  simp [M8.P3Family.support, h01, h02, h12]",
+          "imports": [
+            "M8P3Family"
+          ],
+          "name": "M8.P3Family.support_data",
+          "ancestors": [],
+          "spec_sha256": "4cf751bd5196e683aec90bfd6be75a1e002714c2332c4579ccbc060e1463df07"
+        },
+        "sha256": "df8e134ff02cd89dc2f1189065d127d9e946ae9be8f7806ea01b5b46ffee5f1e"
+      },
+      "full_direction": {
+        "payload": {
+          "declaration": "theorem M8.P3Family.full_direction : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N) := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N)\n  intro N inst hN\n  apply M8.CoverageFoundation.consecutive_full N (M8.P3Family.support N) 0\n  · exact (M8.P3Family.support_data N hN).2.1\n  · simpa only [zero_add] using (M8.P3Family.support_data N hN).2.2",
+          "imports": [
+            "M8P3Family"
+          ],
+          "name": "M8.P3Family.full_direction",
+          "ancestors": [
+            "support_data"
+          ],
+          "spec_sha256": "e2609dc3a210fe379ca749ea751192214a8c8d91f6a9a1307bd2ef4b8f008de8"
+        },
+        "sha256": "23aafe92adc1ad07b5a2d763bd22dcd069e058f1a20c2f88078c7e2cf6fc8405"
+      },
+      "valid": {
+        "payload": {
+          "declaration": "theorem M8.P3Family.valid : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.PhysicalBridge.Valid 3 (M8.P3Family.recipe N) := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.PhysicalBridge.Valid 3 (M8.P3Family.recipe N)\n  intro N inst hN\n  classical\n  have hs := M8.P3Family.support_data N hN\n  have hf := M8.P3Family.full_direction N hN\n  have hc : M7.Connectivity.connected (M8.P3Family.support N, M8.P3Family.support N) := by\n    simpa only [M7.Connectivity.connected, Set.union_self,\n      M8.CoverageFoundation.FullDirection, M8.CoverageFoundation.direction] using hf\n  simp_all [M8.PhysicalBridge.Valid, M8.P3Family.recipe]",
+          "imports": [
+            "M8P3Family"
+          ],
+          "name": "M8.P3Family.valid",
+          "ancestors": [
+            "full_direction",
+            "support_data"
+          ],
+          "spec_sha256": "c26707939fc533500db1af4f071662319f1cad0533d961a81c4673dbc4d74a6a"
+        },
+        "sha256": "2b1daa3e64779adcf349838dfe260a08bdbb71050030d7ae963d315e27f953cf"
+      }
+    }
+  }
+}

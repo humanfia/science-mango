@@ -1,0 +1,779 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-16T13:32:42.008106+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "good_presentations": {
+      "id": "good_presentations",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.good_presentations",
+        "spec_sha256": "24387e18ec3a5087454dac41a991cf3381b01b6bdd571c9486d79d9eb0341ee7",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-astsi6fr/attempt-001/Candidate_1de179adb130097b.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-astsi6fr/attempt-001/FrozenTarget_1de179adb130097b.lean",
+            "feedback": "",
+            "target_sha256": "5f6eb48e574b73e283b2c5e05bf62a2586fa0be28dfe17356716b419afde6dde",
+            "target_olean_sha256": "23662233f6c474a400b3f31d90b9acfb5f5ba9e1fe352b675a54a02089c3bacf",
+            "source_sha256": "9dc14428ae0670985d3ddcdb2323293c4b771efc3e299a97911dcb71b1cab007",
+            "olean_sha256": "546adbd69e597ec0c8b157c0f367106da15f396d4ab0574074de145e12016231",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:06:44.692612+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-astsi6fr",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-astsi6fr/attempt-001/Candidate_1de179adb130097b.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "good_presentations": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.good_presentations : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (∃ k : M8.Discovery.Choice N, M8.Discovery.Good c k) ↔ ∃ (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b ∧ M8.Anchor.span (M8.Anchor.trial c e u a b) ≤ M8.Cutoff.limit N := by\n  classical\n  intro N inst c\n  constructor\n  · rintro ⟨k, hk, he, hs⟩\n    exact ⟨k.exchange, M8.Discovery.unit k,\n      (k.leftAnchor.val : ZMod N), (k.rightAnchor.val : ZMod N), he, hs⟩\n  · rintro ⟨e, u, a, b, he, hs⟩\n    let k : M8.Discovery.Choice N :=\n      ⟨e, ⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩,\n        ⟨a.val, ZMod.val_lt a⟩, ⟨b.val, ZMod.val_lt b⟩⟩\n    have ht : (k.unitIndex.val : ZMod N) = (u : ZMod N) := by\n      exact ZMod.natCast_zmod_val (u : ZMod N)\n    have ha : (k.leftAnchor.val : ZMod N) = a := by\n      exact ZMod.natCast_zmod_val a\n    have hb : (k.rightAnchor.val : ZMod N) = b := by\n      exact ZMod.natCast_zmod_val b\n    have hi : IsUnit (k.unitIndex.val : ZMod N) := by\n      rw [ht]\n      exact u.isUnit\n    have hu : M8.Discovery.unit k = u := by\n      unfold M8.Discovery.unit\n      rw [dif_pos hi]\n      apply Units.ext\n      exact hi.unit_spec.trans ht\n    refine ⟨k, hi, ?_, ?_⟩\n    · change M8.Anchor.Eligible c e (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)\n      rw [ha, hb]\n      exact he\n    · change M8.Anchor.span (M8.Anchor.trial c e (M8.Discovery.unit k)\n        (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)) ≤ M8.Cutoff.limit N\n      rw [hu, ha, hb]\n      exact hs",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.good_presentations",
+              "ancestors": [],
+              "spec_sha256": "24387e18ec3a5087454dac41a991cf3381b01b6bdd571c9486d79d9eb0341ee7"
+            },
+            "sha256": "e13894162bfa1a3270e7e5c763c6fce926b6735ef5c5fdd66961fec483b4e764"
+          }
+        }
+      }
+    },
+    "inverse": {
+      "id": "inverse",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.inverse",
+        "spec_sha256": "4a4b75b47602e95680b8aeceaa4d763e64af9a44633bce052123f83d2cd0a95f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-pvfly00d/attempt-001/Candidate_34ea94becd8c28e9.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-pvfly00d/attempt-001/FrozenTarget_34ea94becd8c28e9.lean",
+            "feedback": "",
+            "target_sha256": "ec6b7e7772e04f585623bbff944377ab05538e6277b433100d370a1c1a3f353b",
+            "target_olean_sha256": "373b61dcb889bc10717c274033d226c5691a360384b5bcb59c5cdf3d10934fb3",
+            "source_sha256": "6b18db94bebe597bb783a037de1f95421790ffd0d7c001fdc0c2975b664dc69c",
+            "olean_sha256": "d40e83eb40f1270f1474d966c12429b503b46f217e33990d0a480f013b30ab84",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:06:44.716712+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-pvfly00d",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-pvfly00d/attempt-001/Candidate_34ea94becd8c28e9.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "inverse": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.inverse : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M7.Action.act (M7.Action.inverse (M8.Discovery.action k)) (M8.Discovery.transformed c k) = c := by\n  intro N inst c k\n  change M7.Action.act (M7.Action.inverse (M8.Discovery.action k)) (M7.Action.act (M8.Discovery.action k) c) = c\n  exact M7.Action.act_inverse N (M8.Discovery.action k) c",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.inverse",
+              "ancestors": [],
+              "spec_sha256": "4a4b75b47602e95680b8aeceaa4d763e64af9a44633bce052123f83d2cd0a95f"
+            },
+            "sha256": "3673cb94a96d6ef3c9d25ee1af23ac7596595dda021cacf9f0431553241cc63f"
+          }
+        }
+      }
+    },
+    "test_spec": {
+      "id": "test_spec",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.test_spec",
+        "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5/attempt-001/Candidate_7b26eeca4e5862b5.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5/attempt-001/FrozenTarget_7b26eeca4e5862b5.lean",
+            "feedback": "",
+            "target_sha256": "a23e3dfc3f45745c93a977b3a08f35397f6d38a83439bed1d27e82ce1e661193",
+            "target_olean_sha256": "8267f99a39a8d9afbd7249596b7f214a771e48c87a89dc55f242d89e2653e56e",
+            "source_sha256": "7e666ac5a30b73a314b77de32836ca07ecd2f2ba310bac43aa894fbe97a35808",
+            "olean_sha256": "1121ce9807b55be268ad7bb6bb681fbaaaaba94cbc2ca4af1feea2aada9a54f4",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:08:37.562625+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5/attempt-001/Candidate_7b26eeca4e5862b5.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          }
+        }
+      }
+    },
+    "right_none": {
+      "id": "right_none",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.right_none",
+        "spec_sha256": "1001fd7ee1321c17677139f8b10757c759f8c1448765534bae17d00355b50dfb",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-43tkiacm/attempt-001/Candidate_f617b36a126b1ee4.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-43tkiacm/attempt-001/FrozenTarget_f617b36a126b1ee4.lean",
+            "feedback": "",
+            "target_sha256": "9c260548ed6773b7e015ab0b85696c821c976fc555773eff21d5e071ec2c7515",
+            "target_olean_sha256": "dc3639c1cf001661cf307662ab21b4349a24b0656104c10e0619cf9c7abb488d",
+            "source_sha256": "2b7aa8a07f0a307b98b8eb872927967120dca365ab4a715a852c1bcb3efcd319",
+            "olean_sha256": "39edbbd1da7a4ae16a41acb375dfd67dbad2ccd643408aa66e7d475f61717a9e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:10:11.379240+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-43tkiacm",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-43tkiacm/attempt-001/Candidate_f617b36a126b1ee4.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "right_none": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.right_none : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.Discovery.atRight c e t a = none ↔ ∀ b : Fin N, ¬ M8.Discovery.Good c ⟨e,t,a,b⟩ := by\n  classical\n  intro N _ c e t a\n  have hm (o : Option (Fin N × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  rw [M8.Discovery.atRight, hm, M8.FiniteSearch.find_none]\n  simp [M8.Discovery.test_spec]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.right_none",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "6a410a5d04702afa680b02835d0b4a675646e680f1ba9b56b69540290581d768"
+            },
+            "sha256": "47f70f194809af82cd18f3f96118d7b8238d282d1c8fb5f6f44b6bbdc1ff2b4c"
+          }
+        }
+      }
+    },
+    "none_iff": {
+      "id": "none_iff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.none_iff",
+        "spec_sha256": "e0ebc2d7e3f348275a3de72fde7f7d5328b4725fab864ffbc0da65ffcf165b9a",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1/attempt-001/Candidate_ff1e50bd2fc1c35a.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1/attempt-001/FrozenTarget_ff1e50bd2fc1c35a.lean",
+            "feedback": "",
+            "target_sha256": "b4d10e5132f647c254e53cb30e7f889daacd5cebdb57040d9e5add341f056859",
+            "target_olean_sha256": "8b180abf091a884808aa789f1b8035b6a2bc47d378629e2a65bd00fb7bf1cfe6",
+            "source_sha256": "d1355b6a08d8f265dc99bfc36acbd696961f8ac82236f3a1498775bb9b96b701",
+            "olean_sha256": "c90633ec7342d2d64229f047e454dd9c087c95fd7ba3ee37f814199f47602d01",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:14:15.573757+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1/attempt-001/Candidate_ff1e50bd2fc1c35a.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "right_none": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.right_none : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.Discovery.atRight c e t a = none ↔ ∀ b : Fin N, ¬ M8.Discovery.Good c ⟨e,t,a,b⟩ := by\n  classical\n  intro N _ c e t a\n  have hm (o : Option (Fin N × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  rw [M8.Discovery.atRight, hm, M8.FiniteSearch.find_none]\n  simp [M8.Discovery.test_spec]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.right_none",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "6a410a5d04702afa680b02835d0b4a675646e680f1ba9b56b69540290581d768"
+            },
+            "sha256": "47f70f194809af82cd18f3f96118d7b8238d282d1c8fb5f6f44b6bbdc1ff2b4c"
+          },
+          "none_iff": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.none_iff : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Discovery.discover c = none ↔ ∀ k : M8.Discovery.Choice N, ¬ M8.Discovery.Good c k := by\n  classical\n  intro N _ c\n  have hm {m : ℕ} (o : Option (Fin m × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  simp only [M8.Discovery.discover, M8.Discovery.atUnit,\n    M8.Discovery.atLeft, hm, M8.FiniteSearch.find_none,\n    M8.Discovery.right_none]\n  constructor\n  · intro h k\n    rcases k with ⟨e, t, a, b⟩\n    cases e\n    · simpa using h (0 : Fin 2) t a b\n    · simpa using h (1 : Fin 2) t a b\n  · intro h e t a b\n    exact h ⟨decide (e.val = 1), t, a, b⟩",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.none_iff",
+              "ancestors": [
+                "right_none",
+                "test_spec"
+              ],
+              "spec_sha256": "3df4c808a5ef96f2156952c9ded28e0425d275dcba9f53822f8fd75b1d77da02"
+            },
+            "sha256": "41ce7a01ff30cb3a191469ad214dbadc714bac68857e4dfaed65cb452661be9d"
+          }
+        }
+      }
+    },
+    "complete": {
+      "id": "complete",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.complete",
+        "spec_sha256": "5f894595776a1a17bd1cfc0ef6841f74d30d767b75df9152316a739f77a10f08",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-a89pj8og/attempt-001/Candidate_4d3fe69b6ab03774.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-a89pj8og/attempt-001/FrozenTarget_4d3fe69b6ab03774.lean",
+            "feedback": "",
+            "target_sha256": "5ce5df660bfd1d974a7b6dbee7cdd5caba8d27fc4d5616f9ceb7522a8e6694ff",
+            "target_olean_sha256": "4746a8a70b62a88cfa8eb016054e1738f0848c50d7feb415571025be5ca702f6",
+            "source_sha256": "bb7e5cbd4e96baae00464d0345d82522bc330fb0fc8ce70fd9d40deb6b604afa",
+            "olean_sha256": "4d99069469a1b68a73579dd35c6e80cace6deb0769e75793bc3ddb9f5e17893f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:17:00.772035+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-a89pj8og",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-a89pj8og/attempt-001/Candidate_4d3fe69b6ab03774.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "right_none": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.right_none : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.Discovery.atRight c e t a = none ↔ ∀ b : Fin N, ¬ M8.Discovery.Good c ⟨e,t,a,b⟩ := by\n  classical\n  intro N _ c e t a\n  have hm (o : Option (Fin N × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  rw [M8.Discovery.atRight, hm, M8.FiniteSearch.find_none]\n  simp [M8.Discovery.test_spec]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.right_none",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "6a410a5d04702afa680b02835d0b4a675646e680f1ba9b56b69540290581d768"
+            },
+            "sha256": "47f70f194809af82cd18f3f96118d7b8238d282d1c8fb5f6f44b6bbdc1ff2b4c"
+          },
+          "none_iff": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.none_iff : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Discovery.discover c = none ↔ ∀ k : M8.Discovery.Choice N, ¬ M8.Discovery.Good c k := by\n  classical\n  intro N _ c\n  have hm {m : ℕ} (o : Option (Fin m × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  simp only [M8.Discovery.discover, M8.Discovery.atUnit,\n    M8.Discovery.atLeft, hm, M8.FiniteSearch.find_none,\n    M8.Discovery.right_none]\n  constructor\n  · intro h k\n    rcases k with ⟨e, t, a, b⟩\n    cases e\n    · simpa using h (0 : Fin 2) t a b\n    · simpa using h (1 : Fin 2) t a b\n  · intro h e t a b\n    exact h ⟨decide (e.val = 1), t, a, b⟩",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.none_iff",
+              "ancestors": [
+                "right_none",
+                "test_spec"
+              ],
+              "spec_sha256": "3df4c808a5ef96f2156952c9ded28e0425d275dcba9f53822f8fd75b1d77da02"
+            },
+            "sha256": "41ce7a01ff30cb3a191469ad214dbadc714bac68857e4dfaed65cb452661be9d"
+          },
+          "good_presentations": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.good_presentations : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (∃ k : M8.Discovery.Choice N, M8.Discovery.Good c k) ↔ ∃ (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b ∧ M8.Anchor.span (M8.Anchor.trial c e u a b) ≤ M8.Cutoff.limit N := by\n  classical\n  intro N inst c\n  constructor\n  · rintro ⟨k, hk, he, hs⟩\n    exact ⟨k.exchange, M8.Discovery.unit k,\n      (k.leftAnchor.val : ZMod N), (k.rightAnchor.val : ZMod N), he, hs⟩\n  · rintro ⟨e, u, a, b, he, hs⟩\n    let k : M8.Discovery.Choice N :=\n      ⟨e, ⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩,\n        ⟨a.val, ZMod.val_lt a⟩, ⟨b.val, ZMod.val_lt b⟩⟩\n    have ht : (k.unitIndex.val : ZMod N) = (u : ZMod N) := by\n      exact ZMod.natCast_zmod_val (u : ZMod N)\n    have ha : (k.leftAnchor.val : ZMod N) = a := by\n      exact ZMod.natCast_zmod_val a\n    have hb : (k.rightAnchor.val : ZMod N) = b := by\n      exact ZMod.natCast_zmod_val b\n    have hi : IsUnit (k.unitIndex.val : ZMod N) := by\n      rw [ht]\n      exact u.isUnit\n    have hu : M8.Discovery.unit k = u := by\n      unfold M8.Discovery.unit\n      rw [dif_pos hi]\n      apply Units.ext\n      exact hi.unit_spec.trans ht\n    refine ⟨k, hi, ?_, ?_⟩\n    · change M8.Anchor.Eligible c e (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)\n      rw [ha, hb]\n      exact he\n    · change M8.Anchor.span (M8.Anchor.trial c e (M8.Discovery.unit k)\n        (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)) ≤ M8.Cutoff.limit N\n      rw [hu, ha, hb]\n      exact hs",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.good_presentations",
+              "ancestors": [],
+              "spec_sha256": "24387e18ec3a5087454dac41a991cf3381b01b6bdd571c9486d79d9eb0341ee7"
+            },
+            "sha256": "e13894162bfa1a3270e7e5c763c6fce926b6735ef5c5fdd66961fec483b4e764"
+          },
+          "complete": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.complete : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Discovery.discover c ≠ none ↔ ∃ g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) ∧ M8.Anchor.span (M7.Action.act g c) ≤ M8.Cutoff.limit N := by\n  classical\n  intro N inst c\n  change (¬ M8.Discovery.discover c = none) ↔ _\n  rw [M8.Discovery.none_iff N c]\n  simp only [not_forall, not_not]\n  exact (M8.Discovery.good_presentations N c).trans\n    (M8.Anchor.passing_presentations N c (M8.Cutoff.limit N))",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.complete",
+              "ancestors": [
+                "good_presentations",
+                "none_iff",
+                "right_none",
+                "test_spec"
+              ],
+              "spec_sha256": "33c8e7cb8e568c100870c6057efcd276c999c88ac91ddaf7e30a527fc8f9c4cd"
+            },
+            "sha256": "0dc97b3c8ea85939b3b08659c7ceee7bd7443a229954fd7bd42d50477b715872"
+          }
+        }
+      }
+    },
+    "sound": {
+      "id": "sound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.sound",
+        "spec_sha256": "6d8c29657573536ba9ffef54c1294b2ff8bd2677267d521ff3d36514d3eac68e",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-dfiuv_bh/attempt-001/Candidate_0ccff58f802278bb.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-dfiuv_bh/attempt-001/FrozenTarget_0ccff58f802278bb.lean",
+            "feedback": "",
+            "target_sha256": "e4bbb3b540fde9aa6fdad87f757f7b99c2382847a74e6491f208f1eaa07920e8",
+            "target_olean_sha256": "03070991e68e13d21dcc22af89ad93056e86e08997b60dfe0f657eac3b88a403",
+            "source_sha256": "629dcee2f40d78af6802c9409f37b92436ff6e28ea24690e7a8ab40eb14d0dcc",
+            "olean_sha256": "febf76e9585c6bad912a94cad4c7aaf4e64d8996d31ff27319a0872e97500927",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:10:11.406906+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-dfiuv_bh",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-dfiuv_bh/attempt-001/Candidate_0ccff58f802278bb.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "sound": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.sound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → M8.Discovery.Good c k := by\n  classical\n  intro N _ c k h\n  have step (n : ℕ) (f : Fin n → Option (M8.Discovery.Choice N))\n      (hs : (M8.FiniteSearch.find f).1.map Prod.snd = some k) :\n      ∃ i, f i = some k := by\n    cases hf : (M8.FiniteSearch.find f).1 with\n    | none => simp [hf] at hs\n    | some p =>\n      rcases p with ⟨i, v⟩\n      have hv : v = k := by simpa [hf] using hs\n      subst v\n      exact ⟨i, ((M8.FiniteSearch.find_some n (M8.Discovery.Choice N) f i k).mp hf).1⟩\n  unfold M8.Discovery.discover at h\n  obtain ⟨e, he⟩ := step 2 _ h\n  unfold M8.Discovery.atUnit at he\n  obtain ⟨t, ht⟩ := step N _ he\n  unfold M8.Discovery.atLeft at ht\n  obtain ⟨a, ha⟩ := step N _ ht\n  unfold M8.Discovery.atRight at ha\n  obtain ⟨b, hb⟩ := step N _ ha\n  change (if M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true then\n    some ⟨decide (e.val = 1), t, a, b⟩ else none) = some k at hb\n  by_cases hp : M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true\n  · rw [if_pos hp] at hb\n    have hk := Option.some.inj hb\n    rw [hk] at hp\n    exact (M8.Discovery.test_spec N c k).mp hp\n  · simp [hp] at hb",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.sound",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "5446abf6201dbe71749e05e07d7a92b971505671710978b6a7b876348c53008e"
+            },
+            "sha256": "609e9e864c25499087e2cd29195216d964ea5371bcc6da57aa6e82da7a41e2fd"
+          }
+        }
+      }
+    },
+    "anchored": {
+      "id": "anchored",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.anchored",
+        "spec_sha256": "c9c1579c8d6928f93c046c365b7c1c160b121aef44d68e89c78bb54e3f531e92",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-ymx583fq/attempt-001/Candidate_c879ba4b31282cf6.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-ymx583fq/attempt-001/FrozenTarget_c879ba4b31282cf6.lean",
+            "feedback": "",
+            "target_sha256": "66d27a521113428159383aa0288c4a09b7a62ccb8b190963f600bf869fda471d",
+            "target_olean_sha256": "40fa43d871d33fb0d39d6bf04044aa0a6aef3c1b5e62909da605eb5eb5c869cd",
+            "source_sha256": "a12f19ef54fc34f43f60c7a760794bd8d2c8f25bea0b7c08a32bb7b82cc56d82",
+            "olean_sha256": "d0feda859de8d27375adb88fa5a9c7b596e964e44c7b69d726be5b78113bddf4",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:14:39.751862+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-ymx583fq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-ymx583fq/attempt-001/Candidate_c879ba4b31282cf6.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "sound": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.sound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → M8.Discovery.Good c k := by\n  classical\n  intro N _ c k h\n  have step (n : ℕ) (f : Fin n → Option (M8.Discovery.Choice N))\n      (hs : (M8.FiniteSearch.find f).1.map Prod.snd = some k) :\n      ∃ i, f i = some k := by\n    cases hf : (M8.FiniteSearch.find f).1 with\n    | none => simp [hf] at hs\n    | some p =>\n      rcases p with ⟨i, v⟩\n      have hv : v = k := by simpa [hf] using hs\n      subst v\n      exact ⟨i, ((M8.FiniteSearch.find_some n (M8.Discovery.Choice N) f i k).mp hf).1⟩\n  unfold M8.Discovery.discover at h\n  obtain ⟨e, he⟩ := step 2 _ h\n  unfold M8.Discovery.atUnit at he\n  obtain ⟨t, ht⟩ := step N _ he\n  unfold M8.Discovery.atLeft at ht\n  obtain ⟨a, ha⟩ := step N _ ht\n  unfold M8.Discovery.atRight at ha\n  obtain ⟨b, hb⟩ := step N _ ha\n  change (if M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true then\n    some ⟨decide (e.val = 1), t, a, b⟩ else none) = some k at hb\n  by_cases hp : M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true\n  · rw [if_pos hp] at hb\n    have hk := Option.some.inj hb\n    rw [hk] at hp\n    exact (M8.Discovery.test_spec N c k).mp hp\n  · simp [hp] at hb",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.sound",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "5446abf6201dbe71749e05e07d7a92b971505671710978b6a7b876348c53008e"
+            },
+            "sha256": "609e9e864c25499087e2cd29195216d964ea5371bcc6da57aa6e82da7a41e2fd"
+          },
+          "anchored": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.anchored : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → M8.Anchor.Anchored (M8.Discovery.transformed c k) := by\n  intro N _ c k h\n  have hg := M8.Discovery.sound N c k h\n  change M8.Anchor.Anchored (M8.Anchor.trial c k.exchange (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N))\n  exact M8.Anchor.anchored N c k.exchange (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N) hg.2.1",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.anchored",
+              "ancestors": [
+                "sound",
+                "test_spec"
+              ],
+              "spec_sha256": "869410704d18642b6542a4737d236c378acec0c1dd2e8ea4e814a0be350a6779"
+            },
+            "sha256": "e5bda734f85014d655dd4eb48bb7c99a0bd8eea88bf56e5d00d9636f748e3d3b"
+          }
+        }
+      }
+    },
+    "cutoff": {
+      "id": "cutoff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.cutoff",
+        "spec_sha256": "d22c2d27132b7056fba0b729357dd0420a5f5668bd37dd568f9cbaf9a7ebc854",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-z4dqxmmr/attempt-001/Candidate_dac12f2f39ea9bcc.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-z4dqxmmr/attempt-001/FrozenTarget_dac12f2f39ea9bcc.lean",
+            "feedback": "",
+            "target_sha256": "f389e08cc1e5894678ebc3e4ae4264e14da8af0aa8c336ed63a0f23f39074d2e",
+            "target_olean_sha256": "aedb3051feb05a682f8c438ec10f3fd3dcf6d5e216225ce1f6b1f0dd0765ee03",
+            "source_sha256": "d2a3c9a3c4e46ecd4803d705b77d217c19bc8d28c0d390afe147e628ed47aa1c",
+            "olean_sha256": "a12cd51200bcb44db2c52875740bf6f96ed4bf9dfcdbdbda3fa69403ae030bfe",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:17:28.855299+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-z4dqxmmr",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-z4dqxmmr/attempt-001/Candidate_dac12f2f39ea9bcc.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "sound": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.sound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → M8.Discovery.Good c k := by\n  classical\n  intro N _ c k h\n  have step (n : ℕ) (f : Fin n → Option (M8.Discovery.Choice N))\n      (hs : (M8.FiniteSearch.find f).1.map Prod.snd = some k) :\n      ∃ i, f i = some k := by\n    cases hf : (M8.FiniteSearch.find f).1 with\n    | none => simp [hf] at hs\n    | some p =>\n      rcases p with ⟨i, v⟩\n      have hv : v = k := by simpa [hf] using hs\n      subst v\n      exact ⟨i, ((M8.FiniteSearch.find_some n (M8.Discovery.Choice N) f i k).mp hf).1⟩\n  unfold M8.Discovery.discover at h\n  obtain ⟨e, he⟩ := step 2 _ h\n  unfold M8.Discovery.atUnit at he\n  obtain ⟨t, ht⟩ := step N _ he\n  unfold M8.Discovery.atLeft at ht\n  obtain ⟨a, ha⟩ := step N _ ht\n  unfold M8.Discovery.atRight at ha\n  obtain ⟨b, hb⟩ := step N _ ha\n  change (if M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true then\n    some ⟨decide (e.val = 1), t, a, b⟩ else none) = some k at hb\n  by_cases hp : M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true\n  · rw [if_pos hp] at hb\n    have hk := Option.some.inj hb\n    rw [hk] at hp\n    exact (M8.Discovery.test_spec N c k).mp hp\n  · simp [hp] at hb",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.sound",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "5446abf6201dbe71749e05e07d7a92b971505671710978b6a7b876348c53008e"
+            },
+            "sha256": "609e9e864c25499087e2cd29195216d964ea5371bcc6da57aa6e82da7a41e2fd"
+          },
+          "cutoff": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.cutoff : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → M8.Anchor.span (M8.Discovery.transformed c k) ≤ M8.Cutoff.limit N := by\n  intro N _ c k h\n  exact (M8.Discovery.sound N c k h).2.2",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.cutoff",
+              "ancestors": [
+                "sound",
+                "test_spec"
+              ],
+              "spec_sha256": "9a627030da58afa9341ac8c03cbc6cb4fe352b5fcf79dec71a6fbddca6554cc6"
+            },
+            "sha256": "dc27a5aa886678af253e4f351f4e1cbdc5e00450f354e50c1ace224d65bcc253"
+          }
+        }
+      }
+    },
+    "lex_first": {
+      "id": "lex_first",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.lex_first",
+        "spec_sha256": "0a1003459b97c6492f1eb8cb6c679cd0a0418c1e910a3df8a6bb1a2de36ae2f1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-001/Candidate_c294318ade28f5f6.lean:72:4: error: failed to create binder due to failure when reverting variable dependencies\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-001/Candidate_c294318ade28f5f6.lean:21:22: warning: This simp argument is unused:\n  hf\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-002/Candidate_2accaab5ba089c19.lean:30:4: warning: try 'simp' instead of 'simpa'\n\nNote: This linter can be disabled with `set_option linter.unnecessarySimpa false`\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-002/Candidate_2accaab5ba089c19.lean:60:46: error: No goals to be solved\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-002/Candidate_2accaab5ba089c19.lean:60:46: error: No goals to be solved\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-002/Candidate_2accaab5ba089c19.lean:60:46: error: No goals to be solved\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-002/Candidate_2accaab5ba089c19.lean:78:42: warning: `if_true` has been deprecated: Use `ite_true` instead\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-003/Candidate_b01ed87e63b8fb12.lean:71:37: error: No goals to be solved\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-003/Candidate_b01ed87e63b8fb12.lean:71:37: error: No goals to be solved\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-003/Candidate_b01ed87e63b8fb12.lean:71:37: error: No goals to be solved\n",
+            "attempt": 3
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-004/Candidate_ccb03f606a18462e.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-004/FrozenTarget_ccb03f606a18462e.lean",
+            "feedback": "",
+            "target_sha256": "04ee9cfe251494ec0ab61c53e32f9ff350b9d821d866c73a93a1dda16e102efd",
+            "target_olean_sha256": "c9a7aa998278b918e03faa0b6aa40f6b3fdbdcbbfa626b03c2f9f36ec9dcaf45",
+            "source_sha256": "0f96f4503e081118669accf3f651c11ec42f54cd8ecc48155c51f346a8c42714",
+            "olean_sha256": "6fe20b43f30fa5b467b4936a56b6df71bc9576d718af41fc3f39e2a92663d760",
+            "attempt": 4
+          }
+        ],
+        "created_at": "2026-09-16T13:19:33.489084+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 4,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-az0qd_vp/attempt-004/Candidate_ccb03f606a18462e.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "test_spec": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.test_spec",
+              "ancestors": [],
+              "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+            },
+            "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+          },
+          "sound": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.sound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → M8.Discovery.Good c k := by\n  classical\n  intro N _ c k h\n  have step (n : ℕ) (f : Fin n → Option (M8.Discovery.Choice N))\n      (hs : (M8.FiniteSearch.find f).1.map Prod.snd = some k) :\n      ∃ i, f i = some k := by\n    cases hf : (M8.FiniteSearch.find f).1 with\n    | none => simp [hf] at hs\n    | some p =>\n      rcases p with ⟨i, v⟩\n      have hv : v = k := by simpa [hf] using hs\n      subst v\n      exact ⟨i, ((M8.FiniteSearch.find_some n (M8.Discovery.Choice N) f i k).mp hf).1⟩\n  unfold M8.Discovery.discover at h\n  obtain ⟨e, he⟩ := step 2 _ h\n  unfold M8.Discovery.atUnit at he\n  obtain ⟨t, ht⟩ := step N _ he\n  unfold M8.Discovery.atLeft at ht\n  obtain ⟨a, ha⟩ := step N _ ht\n  unfold M8.Discovery.atRight at ha\n  obtain ⟨b, hb⟩ := step N _ ha\n  change (if M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true then\n    some ⟨decide (e.val = 1), t, a, b⟩ else none) = some k at hb\n  by_cases hp : M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true\n  · rw [if_pos hp] at hb\n    have hk := Option.some.inj hb\n    rw [hk] at hp\n    exact (M8.Discovery.test_spec N c k).mp hp\n  · simp [hp] at hb",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.sound",
+              "ancestors": [
+                "test_spec"
+              ],
+              "spec_sha256": "5446abf6201dbe71749e05e07d7a92b971505671710978b6a7b876348c53008e"
+            },
+            "sha256": "609e9e864c25499087e2cd29195216d964ea5371bcc6da57aa6e82da7a41e2fd"
+          },
+          "lex_first": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.lex_first : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.discover c = some k → ∀ j : M8.Discovery.Choice N, M8.Discovery.Good c j → M8.Discovery.key k ≤ M8.Discovery.key j := by\n  classical\n  intro N _ c k h j hj\n  have lift (n : ℕ) (f : Fin n → Option (M8.Discovery.Choice N))\n      (i : Fin n) (hi : f i ≠ none) :\n      (M8.FiniteSearch.find f).1.map Prod.snd ≠ none := by\n    intro hz\n    have hf : (M8.FiniteSearch.find f).1 = none := by\n      cases hh : (M8.FiniteSearch.find f).1 <;> simp_all\n    exact hi ((M8.FiniteSearch.find_none n (M8.Discovery.Choice N) f).mp hf i)\n  have step (n : ℕ) (f : Fin n → Option (M8.Discovery.Choice N))\n      (hs : (M8.FiniteSearch.find f).1.map Prod.snd = some k) :\n      ∃ i, f i = some k ∧ ∀ q, f q ≠ none → i ≤ q := by\n    cases hf : (M8.FiniteSearch.find f).1 with\n    | none => simp [hf] at hs\n    | some p =>\n      rcases p with ⟨i, v⟩\n      have hv : v = k := by simpa [hf] using hs\n      subst v\n      have hp := (M8.FiniteSearch.find_some n (M8.Discovery.Choice N) f i k).mp hf\n      refine ⟨i, hp.1, ?_⟩\n      intro q hq\n      by_contra hn\n      exact hq (hp.2 q (by omega))\n  have hjtest := (M8.Discovery.test_spec N c j).mpr hj\n  have hr : M8.Discovery.atRight c j.exchange j.unitIndex j.leftAnchor ≠ none := by\n    unfold M8.Discovery.atRight\n    apply lift N _ j.rightAnchor\n    change (if M8.Discovery.test c j = true then some j else none) ≠ none\n    simp [hjtest]\n  have hl : M8.Discovery.atLeft c j.exchange j.unitIndex ≠ none := by\n    unfold M8.Discovery.atLeft\n    exact lift N _ j.leftAnchor hr\n  have hu : M8.Discovery.atUnit c j.exchange ≠ none := by\n    unfold M8.Discovery.atUnit\n    exact lift N _ j.unitIndex hl\n  let ej : Fin 2 := if j.exchange then 1 else 0\n  have hej : decide (ej.val = 1) = j.exchange := by\n    cases hx : j.exchange <;> simp [ej, hx]\n  unfold M8.Discovery.discover at h\n  obtain ⟨e, he, emin⟩ := step 2 _ h\n  have ele : e ≤ ej := emin ej (by simpa only [hej] using hu)\n  unfold M8.Discovery.atUnit at he\n  obtain ⟨t, ht, tmin⟩ := step N _ he\n  unfold M8.Discovery.atLeft at ht\n  obtain ⟨a, ha, amin⟩ := step N _ ht\n  unfold M8.Discovery.atRight at ha\n  obtain ⟨b, hb, bmin⟩ := step N _ ha\n  change (if M8.Discovery.test c ⟨decide (e.val = 1), t, a, b⟩ = true then\n    some ⟨decide (e.val = 1), t, a, b⟩ else none) = some k at hb\n  have hk : (⟨decide (e.val = 1), t, a, b⟩ : M8.Discovery.Choice N) = k := by\n    split at hb\n    · exact Option.some.inj hb\n    · simp at hb\n  rw [← hk]\n  change toLex (decide (e.val = 1), toLex (t, toLex (a, b))) ≤\n    toLex (j.exchange, toLex (j.unitIndex, toLex (j.leftAnchor, j.rightAnchor)))\n  rcases lt_or_eq_of_le ele with elt | eeq\n  · have hex : decide (e.val = 1) < j.exchange := by\n      fin_cases e <;> cases hx : j.exchange <;> simp_all [ej]\n    apply Prod.Lex.left\n    exact hex\n  · have hex : decide (e.val = 1) = j.exchange := by\n      rw [eeq]\n      exact hej\n    rw [hex] at tmin amin bmin ⊢\n    apply Prod.Lex.right\n    have tle : t ≤ j.unitIndex := tmin j.unitIndex hl\n    rcases lt_or_eq_of_le tle with tlt | teq\n    · apply Prod.Lex.left\n      exact tlt\n    · subst t\n      apply Prod.Lex.right\n      have ale : a ≤ j.leftAnchor := amin j.leftAnchor hr\n      rcases lt_or_eq_of_le ale with alt | aeq\n      · apply Prod.Lex.left\n        exact alt\n      · subst a\n        apply Prod.Lex.right\n        apply bmin j.rightAnchor\n        change (if M8.Discovery.test c j = true then some j else none) ≠ none\n        simp [hjtest]",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.lex_first",
+              "ancestors": [
+                "sound",
+                "test_spec"
+              ],
+              "spec_sha256": "9a44144d5773224bddefed502b09eae6693b11e06a999b18989f76d5f73e5268"
+            },
+            "sha256": "3f82fe7e41f400779ddb24a68cde1290b68d2165c832d9f6f55f9daac2ac9f18"
+          }
+        }
+      }
+    }
+  }
+}

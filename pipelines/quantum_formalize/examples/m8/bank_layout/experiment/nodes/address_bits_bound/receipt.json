@@ -1,0 +1,69 @@
+{
+  "id": "address_bits_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.BankLayout.address_bits_bound",
+    "spec_sha256": "a1b63c6853ba7ca38d954415f798bbedfad9a2ddbd38e6df69e623ce6c22ba6f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-1e80za6h/attempt-001/Candidate_8b2da8ca2e5b5209.lean",
+        "target_path": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-1e80za6h/attempt-001/FrozenTarget_8b2da8ca2e5b5209.lean",
+        "feedback": "",
+        "target_sha256": "40a8219bcc09d7171d1e0bf335f8f76d5185dbfba1c5d89e175fcf156cff1ce7",
+        "target_olean_sha256": "bf404ff86bc747642b49e740bf8952b5e4223edc2a76762cb722ae23122989d6",
+        "source_sha256": "53045d3797a205eac123bc86ae8abe7952b45929d794740b4fe4b642473ef89e",
+        "olean_sha256": "7b2eb37e080fdf5fe951886b6f43ef4a3cef18371f793d0ca44880096625c4e4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:46:15.103717+00:00",
+    "work": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-1e80za6h",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8a572e02efa9a996ba9e10fd854fea55c656b8a5d4cb3e3453b53ec792495d5e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-1e80za6h/attempt-001/Candidate_8b2da8ca2e5b5209.lean",
+    "environment_sha256": "98f52ac16cc5867c6d89a1aa0864ffbf28c9e4adab2e33146e04594a4b7a24cf",
+    "artifacts": {
+      "payload_bound": {
+        "payload": {
+          "declaration": "theorem M8.BankLayout.payload_bound : ∀ (N : ℕ) [NeZero N], M8.BankLayout.payloadSlots N ≤ 20000*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N], M8.BankLayout.payloadSlots N ≤ 20000 * (N + 1)^3\n  intro N hN\n  have hpos : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)\n  have hcut : M8.Cutoff.limit N < N := (M8.Cutoff.limit_bounds N).2.2 hpos\n  have hpre := (M6.EuclidStorage.layout_bound N).2.2\n  have hb := M6.Transfer.solve_storage_bound (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N) hcut hpre\n  have he := M8.Cutoff.indexed_storage_envelope N (M8.Cutoff.limit N) (le_refl _)\n  have hbank : M8.BankLayout.bankSlots N ≤ 16384 * (N + 1)^3 := by\n    unfold M8.BankLayout.bankSlots\n    calc\n      _ ≤ 16384 * N^2 * 2^(M8.Cutoff.limit N) := hb\n      _ ≤ 16384 * (N + 1)^3 := by\n        simpa only [Nat.mul_assoc] using Nat.mul_le_mul_left 16384 he\n  norm_num [M8.BankLayout.payloadSlots, M8.BankLayout.bufferWidths, M8.BankLayout.registers, M8.BankLayout.registerBits]\n  nlinarith [hbank, Nat.zero_le (N^3), Nat.zero_le (N^2)]",
+          "imports": [
+            "M8BankLayout"
+          ],
+          "name": "M8.BankLayout.payload_bound",
+          "ancestors": [],
+          "spec_sha256": "94875d3999e1194cf33355d78e66ee2bd91d8767e0a7ecb8c06057e707551a83"
+        },
+        "sha256": "dda1062ea9ef91a794e3cab592842fb9ee0afde7a0220b356393519ed218a23b"
+      },
+      "address_bits_bound": {
+        "payload": {
+          "declaration": "theorem M8.BankLayout.address_bits_bound : ∀ (N : ℕ) [NeZero N], (M8.BankLayout.payloadSlots N).size ≤ 32*(N+1) := by\n  change ∀ (N : ℕ) [NeZero N], (M8.BankLayout.payloadSlots N).size ≤ 32 * (N + 1)\n  intro N hN\n  apply Nat.size_le.mpr\n  have hsmall : ∀ k : ℕ, k ≤ 2 ^ k := by\n    intro k\n    induction k with\n    | zero => norm_num\n    | succ k ih =>\n      rw [pow_succ]\n      have hp : 0 < (2 : ℕ) ^ k := by positivity\n      omega\n  have hc : (20000 : ℕ) < 2 ^ 15 := by norm_num\n  calc\n    M8.BankLayout.payloadSlots N ≤ 20000 * (N + 1) ^ 3 := M8.BankLayout.payload_bound N\n    _ ≤ 20000 * (2 ^ (N + 1)) ^ 3 := by\n      gcongr\n      exact hsmall (N + 1)\n    _ < 2 ^ 15 * (2 ^ (N + 1)) ^ 3 :=\n      Nat.mul_lt_mul_of_pos_right hc (by positivity)\n    _ = 2 ^ 15 * 2 ^ ((N + 1) * 3) := by rw [pow_mul]\n    _ = 2 ^ (15 + (N + 1) * 3) := (pow_add (2 : ℕ) 15 ((N + 1) * 3)).symm\n    _ ≤ 2 ^ (32 * (N + 1)) := Nat.pow_le_pow_right (by decide) (by omega)",
+          "imports": [
+            "M8BankLayout"
+          ],
+          "name": "M8.BankLayout.address_bits_bound",
+          "ancestors": [
+            "payload_bound"
+          ],
+          "spec_sha256": "db9852f49eb31a88a56aabea5229a02c7dcb582687312744ad752cef388d0ca1"
+        },
+        "sha256": "e2939d499be2aec64d7f469717049e5bcdd182be5b564c8dabaa266948ce2305"
+      }
+    }
+  }
+}

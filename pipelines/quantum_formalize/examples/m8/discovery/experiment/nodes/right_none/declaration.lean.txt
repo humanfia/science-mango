@@ -1,0 +1,8 @@
+theorem M8.Discovery.right_none : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.Discovery.atRight c e t a = none ↔ ∀ b : Fin N, ¬ M8.Discovery.Good c ⟨e,t,a,b⟩ := by
+  classical
+  intro N _ c e t a
+  have hm (o : Option (Fin N × M8.Discovery.Choice N)) :
+      o.map Prod.snd = none ↔ o = none := by
+    cases o <;> simp
+  rw [M8.Discovery.atRight, hm, M8.FiniteSearch.find_none]
+  simp [M8.Discovery.test_spec]

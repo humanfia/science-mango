@@ -1,0 +1,69 @@
+{
+  "id": "weight_orbit_span",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.ExclusionGeometry.weight_orbit_span",
+    "spec_sha256": "53478511f5f65384ad819fa94ee28fb7d1f5fbaa928c3841f31b26683d581e60",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-ogh2jvba/attempt-001/Candidate_04fb7042fd342708.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-ogh2jvba/attempt-001/FrozenTarget_04fb7042fd342708.lean",
+        "feedback": "",
+        "target_sha256": "760992363e5abaab0c34ddb410a5af380a5566230ff0655174338ab4a5cf23e3",
+        "target_olean_sha256": "a055c71d671279006e50736f82eedcbba97dd5a794ca4b3478d489a892f9ecae",
+        "source_sha256": "5f3ef72828290fb4bddb53cec0cb73de3dea66c5538173e0000143f084b6f3ad",
+        "olean_sha256": "69c8002aeceb83a8c8cbc40e7cf297301a6cf0e26baafa219141e01ee3b629b1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:18:23.307084+00:00",
+    "work": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-ogh2jvba",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8afe9c7e471e16165800372a93c24218722144be962fb7f9a194b1fc38f9254f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-ogh2jvba/attempt-001/Candidate_04fb7042fd342708.lean",
+    "environment_sha256": "b26d1ee653ba909f9adbec0d55038a46a037fcad8a0cd41d5615bf8b218c292d",
+    "artifacts": {
+      "card_sup": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.card_sup : ∀ (N : ℕ) [NeZero N], ∀ B : Finset (ZMod N), B.card ≤ B.sup ZMod.val + 1 := by\n  change ∀ (N : ℕ) [NeZero N], ∀ B : Finset (ZMod N), B.card ≤ B.sup ZMod.val + 1\n  intro N inst B\n  classical\n  have hinj : Function.Injective (ZMod.val : ZMod N → ℕ) := by\n    intro a b h\n    have hc := congrArg (fun k : ℕ => (k : ZMod N)) h\n    simpa using hc\n  have hsub : B.image ZMod.val ⊆ Finset.range (B.sup ZMod.val + 1) := by\n    intro k hk\n    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hk\n    apply Finset.mem_range.mpr\n    exact Nat.lt_succ_of_le (Finset.le_sup hx)\n  calc\n    B.card = (B.image ZMod.val).card := (Finset.card_image_of_injective B hinj).symm\n    _ ≤ (Finset.range (B.sup ZMod.val + 1)).card := Finset.card_le_card hsub\n    _ = B.sup ZMod.val + 1 := Finset.card_range _",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.card_sup",
+          "ancestors": [],
+          "spec_sha256": "a20af17bb7ef8890f29cd3aa7f93f638063056dd0642208fe499036af122765d"
+        },
+        "sha256": "94fe00cc920226f7d4156f6b289301965f8bfc1fe27daa4ef05d631025f056e0"
+      },
+      "weight_orbit_span": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.weight_orbit_span : ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), c.1.card = w → c.2.card = w → w ≤ M8.Anchor.span (M7.Action.act g c) + 1 := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), c.1.card = w → c.2.card = w → w ≤ M8.Anchor.span (M7.Action.act g c) + 1\n  intro N inst w c g h₁ h₂\n  classical\n  have hc : (M7.Action.act g c).1.card = w := by\n    simpa [h₁, h₂] using (M7.Action.support_cards N g c).1\n  have hs : (M7.Action.act g c).1.sup ZMod.val ≤ M8.Anchor.span (M7.Action.act g c) := by\n    apply Finset.sup_le\n    intro i hi\n    exact ((M8.Anchor.span_le N (M7.Action.act g c) (M8.Anchor.span (M7.Action.act g c))).mp le_rfl).1 i hi\n  calc\n    w = (M7.Action.act g c).1.card := hc.symm\n    _ ≤ (M7.Action.act g c).1.sup ZMod.val + 1 := M8.ExclusionGeometry.card_sup N _\n    _ ≤ M8.Anchor.span (M7.Action.act g c) + 1 := Nat.add_le_add_right hs 1",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.weight_orbit_span",
+          "ancestors": [
+            "card_sup"
+          ],
+          "spec_sha256": "f9244afee886bf8db2d45a74fe4d1b3097e2a9bb7723045a736fa5077c38da42"
+        },
+        "sha256": "70cada33ec766b720cc3bab58edfd6e0552793c99515cc9ddeefa114253bef7c"
+      }
+    }
+  }
+}

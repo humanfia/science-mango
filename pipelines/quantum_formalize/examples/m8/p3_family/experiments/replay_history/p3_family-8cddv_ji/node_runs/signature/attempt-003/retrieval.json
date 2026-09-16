@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.dvd_antisymm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 314094,
+        "name": "MonomialOrder.sPolynomial_antisymm",
+        "module": "Mathlib.RingTheory.MvPolynomial.MonomialOrder",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/MonomialOrder.lean#L944-L946",
+        "source_text": "lemma sPolynomial_antisymm (f g : MvPolynomial σ R) :\n    m.sPolynomial f g = - m.sPolynomial g f :=\n  (neg_sub (_ * g) (_ * f)).symm\n",
+        "docstring": null
+      },
+      {
+        "id": 314135,
+        "name": "MvPolynomial.IsSymmetric.sub",
+        "module": "Mathlib.RingTheory.MvPolynomial.Symmetric.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/Symmetric/Defs.lean#L169-L170",
+        "source_text": "theorem sub (hφ : IsSymmetric φ) (hψ : IsSymmetric ψ) : IsSymmetric (φ - ψ) :=\n  (symmetricSubalgebra σ R).sub_mem hφ hψ\n",
+        "docstring": null
+      },
+      {
+        "id": 77336,
+        "name": "dvd_antisymm'",
+        "module": "Mathlib.Algebra.GroupWithZero.Divisibility",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Divisibility.lean#L147-L148",
+        "source_text": "theorem dvd_antisymm' : a ∣ b → b ∣ a → b = a :=\n  flip dvd_antisymm\n",
+        "docstring": null
+      },
+      {
+        "id": 314122,
+        "name": "MvPolynomial.IsSymmetric",
+        "module": "Mathlib.RingTheory.MvPolynomial.Symmetric.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/Symmetric/Defs.lean#L102-L105",
+        "source_text": "/-- A `MvPolynomial φ` is symmetric if it is invariant under\npermutations of its variables by the `rename` operation -/\ndef IsSymmetric [CommSemiring R] (φ : MvPolynomial σ R) : Prop :=\n  ∀ e : Perm σ, rename e φ = φ\n",
+        "docstring": "A `MvPolynomial φ` is symmetric if it is invariant under\npermutations of its variables by the `rename` operation "
+      },
+      {
+        "id": 77338,
+        "name": "Dvd.dvd.antisymm'",
+        "module": "Mathlib.Algebra.GroupWithZero.Divisibility",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/GroupWithZero/Divisibility.lean#L152-L152",
+        "source_text": "alias Dvd.dvd.antisymm' := dvd_antisymm'\n",
+        "docstring": "**Alias** of `dvd_antisymm'`."
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Polynomial.dvd_antisymm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390360,
+        "name": "QuantumMechanics.SpaceDHilbertSpace.PolyBddSchwartzSubmodule.antitone",
+        "module": "Physlib.QuantumMechanics.HilbertSpaces.SpaceD.PolyBddSchwartzSubmodule",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/SpaceD/PolyBddSchwartzSubmodule.lean#L156-L160",
+        "source_text": "lemma antitone (d : ℕ) {a b : ℕ∞} (h : a ≤ b) :\n    PolyBddSchwartzSubmodule d b ≤ PolyBddSchwartzSubmodule d a := by\n  simp only [PolyBddSchwartzSubmodule, polyBddSchwartzIncl,\n    ContinuousLinearMap.toLinearMap_domRestrict, LinearMap.range_domRestrict]\n  exact Submodule.map_mono (PolyBddSchwartzMap_antitone d h)\n",
+        "docstring": null
+      },
+      {
+        "id": 389937,
+        "name": "PureU1.VectorLikeEvenPlane.P!_accCube",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Even/BasisLinear.lean#L596-L602",
+        "source_text": "lemma P!_accCube (f : Fin n → ℚ) : accCube (2 * n.succ) (P! f) = 0 := by\n  rw [accCube_explicit, sum_evenShift, P!_evenShiftZero, P!_evenShiftLast]\n  simp only [ne_eq, OfNat.ofNat_ne_zero, not_false_eq_true, zero_pow, add_zero, Function.comp_apply,\n    zero_add]\n  refine Finset.sum_eq_zero fun i _ => ?_\n  simp only [P!_evenShiftFst, P!_evenShiftSnd]\n  ring\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.eq_of_monic_of_dvd_of_natDegree_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101998,
+        "name": "Polynomial.eq_of_monic_of_dvd_of_natDegree_le",
+        "module": "Mathlib.Algebra.Polynomial.Div",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Div.lean#L95-L98",
+        "source_text": "lemma eq_of_monic_of_dvd_of_natDegree_le {p q : R[X]} (hp : p.Monic)\n    (hq : q.Monic) (hdvd : p ∣ q) (hdeg : q.natDegree ≤ p.natDegree) : q = p := by\n  rw [eq_mul_leadingCoeff_of_monic_of_dvd_of_natDegree_le hp hdvd hdeg]\n  simp [hq]\n",
+        "docstring": null
+      },
+      {
+        "id": 101633,
+        "name": "Polynomial.monic_of_degree_le",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L257-L258",
+        "source_text": "theorem monic_of_degree_le (n : ℕ) (pn : p.degree ≤ n) (p1 : p.coeff n = 1) : Monic p :=\n  monic_of_natDegree_le_of_coeff_eq_one n (natDegree_le_of_degree_le pn) p1\n",
+        "docstring": null
+      },
+      {
+        "id": 101632,
+        "name": "Polynomial.monic_of_natDegree_le_of_coeff_eq_one",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L250-L255",
+        "source_text": "theorem monic_of_natDegree_le_of_coeff_eq_one (n : ℕ) (pn : p.natDegree ≤ n) (p1 : p.coeff n = 1) :\n    Monic p := by\n  unfold Monic\n  nontriviality\n  refine (congr_arg _ <| natDegree_eq_of_le_of_coeff_ne_zero pn ?_).trans p1\n  exact ne_of_eq_of_ne p1 one_ne_zero\n",
+        "docstring": null
+      },
+      {
+        "id": 101360,
+        "name": "Polynomial.natDegree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L51-L53",
+        "source_text": "/-- `natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. -/\ndef natDegree (p : R[X]) : ℕ :=\n  (degree p).unbotD 0\n",
+        "docstring": "`natDegree p` forces `degree p` to ℕ, by defining `natDegree 0 = 0`. "
+      },
+      {
+        "id": 101529,
+        "name": "Polynomial.eq_natDegree_of_le_mem_support",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Lemmas.lean#L101-L103",
+        "source_text": "theorem eq_natDegree_of_le_mem_support (pn : p.natDegree ≤ n) (ns : n ∈ p.support) :\n    p.natDegree = n :=\n  le_antisymm pn (le_natDegree_of_mem_supp _ ns)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Polynomial.eq_of_monic_of_dvd_of_natDegree_le",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.eq_of_monic_of_dvd_of_natDegree_le",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.eq_of_monic_of_associated",
+    "status": "ok",
+    "results": [
+      {
+        "id": 102925,
+        "name": "Polynomial.eq_of_monic_of_associated",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L219-L221",
+        "source_text": "theorem eq_of_monic_of_associated (hp : p.Monic) (hq : q.Monic) (hpq : Associated p q) : p = q := by\n  obtain ⟨u, rfl⟩ := hpq\n  rw [(hp.of_mul_monic_left hq).eq_one_of_isUnit u.isUnit, mul_one]\n",
+        "docstring": null
+      },
+      {
+        "id": 101362,
+        "name": "Polynomial.Monic",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L59-L61",
+        "source_text": "/-- a polynomial is `Monic` if its leading coefficient is 1 -/\ndef Monic (p : R[X]) :=\n  leadingCoeff p = (1 : R)\n",
+        "docstring": "a polynomial is `Monic` if its leading coefficient is 1 "
+      },
+      {
+        "id": 102953,
+        "name": "Polynomial.Monic.sub_of_left",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L446-L450",
+        "source_text": "theorem Monic.sub_of_left {p q : R[X]} (hp : Monic p) (hpq : degree q < degree p) :\n    Monic (p - q) := by\n  rw [sub_eq_add_neg]\n  apply hp.add_of_left\n  rwa [degree_neg]\n",
+        "docstring": null
+      },
+      {
+        "id": 102935,
+        "name": "Polynomial.monic_prod_of_monic",
+        "module": "Mathlib.Algebra.Polynomial.Monic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Monic.lean#L283-L285",
+        "source_text": "theorem monic_prod_of_monic (s : Finset ι) (f : ι → R[X]) (hs : ∀ i ∈ s, Monic (f i)) :\n    Monic (∏ i ∈ s, f i) :=\n  monic_multiset_prod_of_monic s.1 f hs\n",
+        "docstring": null
+      },
+      {
+        "id": 103081,
+        "name": "Polynomial.degree_eq_degree_of_associated",
+        "module": "Mathlib.Algebra.Polynomial.RingDivision",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/RingDivision.lean#L216-L218",
+        "source_text": "theorem degree_eq_degree_of_associated (h : Associated p q) : degree p = degree q := by\n  let ⟨u, hu⟩ := h\n  simp [hu.symm]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Polynomial.eq_of_monic_of_associated",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.eq_of_monic_of_associated",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

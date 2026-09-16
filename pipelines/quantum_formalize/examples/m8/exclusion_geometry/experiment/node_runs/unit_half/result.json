@@ -1,0 +1,48 @@
+{
+  "status": "accepted",
+  "target": "M8.ExclusionGeometry.unit_half",
+  "spec_sha256": "e0c3e26491d6c8e79f21ae2d4a224113fc9ce3c90d8a186eeb06e2efffb0b550",
+  "accepted": true,
+  "attempts": [
+    {
+      "accepted": false,
+      "stage": "compile",
+      "feedback": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9toqq7rl/attempt-001/Candidate_da36cddb794134e6.lean:24:4: error: Type mismatch: After simplification, term\n  hzN\n has type\n  (2 : ZMod (2 * h)) * ↑h = 0\nbut is expected to have type\n  (2 : ZMod N) * ↑h = 0\n",
+      "attempt": 1
+    },
+    {
+      "accepted": false,
+      "stage": "compile",
+      "feedback": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9toqq7rl/attempt-002/Candidate_55407d3b0095a3f7.lean:5:6: error: Tactic `rewrite` failed: motive is not type correct:\n  fun _a => (↑u).val.Coprime _a\nError: Application type mismatch: The argument\n  u\nhas type\n  (ZMod N)ˣ\nbut is expected to have type\n  (ZMod _a)ˣ\nin the application\n  ↑u\n\nExplanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is definitionally equal to 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. However, if 'e' depends on specific properties of 'a', then the motive 'm' might not typecheck.\n\nPossible solutions: use rewrite's 'occs' configuration option to limit which occurrences are rewritten, or use 'simp' or 'conv' mode, which have strategies for certain kinds of dependencies (these tactics can handle proofs and 'Decidable' instances whose types depend on the rewritten term, and 'simp' can apply user-defined '@[congr]' theorems as well).\n\nN : ℕ\ninst✝ : NeZero N\nh : ℕ\nu : (ZMod N)ˣ\nhN : N = 2 * h\nhc : (↑u).val.Coprime N\n⊢ ↑u * ↑h = ↑h\n",
+      "attempt": 2
+    },
+    {
+      "accepted": true,
+      "stage": "acceptance",
+      "axioms": [
+        "propext",
+        "Classical.choice",
+        "Quot.sound"
+      ],
+      "proof_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9toqq7rl/attempt-003/Candidate_de73b01c533661f8.lean",
+      "target_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9toqq7rl/attempt-003/FrozenTarget_de73b01c533661f8.lean",
+      "feedback": "",
+      "target_sha256": "b2a7da7978b24b392e3d16988ecf16a5488ff33dec7ee97f5898c6c39f3261db",
+      "target_olean_sha256": "5b40550e2d285a61ed370bf9308dab6825e42a558d23e5c666c86284103ce794",
+      "source_sha256": "79172ae5e3dd8154fd167aa2fe45d7d58608d80c5157e5d787c45c8e623b18af",
+      "olean_sha256": "278717b76758a6476a500853954512d93ae71d09c28c49a91d2e5e6f3667cf03",
+      "attempt": 3
+    }
+  ],
+  "created_at": "2026-09-16T13:18:18.841737+00:00",
+  "work": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9toqq7rl",
+  "library_mapping": {
+    "Mathlib": "Mathlib",
+    "Physlib": "Physlib"
+  },
+  "local_interfaces_sha256": "8afe9c7e471e16165800372a93c24218722144be962fb7f9a194b1fc38f9254f",
+  "phase": "finished",
+  "round": 3,
+  "proof": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9toqq7rl/attempt-003/Candidate_de73b01c533661f8.lean",
+  "environment_sha256": "b26d1ee653ba909f9adbec0d55038a46a037fcad8a0cd41d5615bf8b218c292d"
+}

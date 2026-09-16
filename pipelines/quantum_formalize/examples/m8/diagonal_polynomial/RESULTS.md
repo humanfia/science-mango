@@ -1,0 +1,5 @@
+Five exact literal polynomial bridge targets accepted; assembly and environment checks passed. Canonical archive: 106 manifest files, all hashes verified. Four targets passed on the first live attempt; delta_not_image passed on the second live attempt. All original drafts remain archived; no deterministic proof repair was used.
+
+A nonzero literal polynomial p of degree below N with a monic nontrivial common divisor F of p and X^N+1 has actual diagonal CSS distance2. The proof uses the actual encode/convolution identity: a putative convolution inverse sends p to a unit in the quotient, forcing F to divide1, a contradiction. This discharges the DeltaNotImage condition in the diagonal foundation rather than assuming a distance or correctness oracle. Exact full gcd and family membership are still established by their separate literal family batches.
+
+When combining this closure with physical_bridge, use the exact source/proof superset normalization documented in ../import_normalization; do not import duplicate M6 theorem containers.

@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst p F hp hF hFne hFp hFM\nhave hnot : ∀ h : M6.Physical.Block N,\n    M6.Physical.conv N (M6.Coordinates.coefficients N p) h ≠ M6.Physical.delta N 0 := by\n  intro h hh\n  have he := congrArg (M6.Coordinates.encode N) hh\n  rw [M6.Coordinates.encode_conv, M6.Coordinates.encode_polynomial N p hp,\n    M8.DiagonalPolynomial.encode_delta N] at he\n  apply hFne\n  apply M8.DiagonalPolynomial.common_divisor_of_inverse N p F\n    (M6.Coordinates.blockPolynomial N h) hF hFp hFM\n  simpa only [M6.Coordinates.encode, M6.Cyclic.image] using he\nunfold M8.Diagonal.DeltaNotImage\nfirst\n| exact hnot\n| exact fun ⟨h, hh⟩ => hnot h hh",
+  "queries": []
+}

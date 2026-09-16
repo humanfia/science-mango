@@ -1,0 +1,280 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Euclid.preprocess_correct_cost",
+    "status": "ok",
+    "results": [
+      {
+        "id": 328922,
+        "name": "Mathlib.Tactic.Polynomial.preprocess",
+        "module": "Mathlib.Tactic.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Polynomial/Basic.lean#L76-L81",
+        "source_text": "/-- Run the `polynomial_pre` simpset to turn nonstandard spellings of `algebraMap` such as\n`Polynomial.C` into `algebraMap` -/\ndef preprocess (e : Expr) : MetaM Simp.Result := do\n  let preThms ← polynomialPreExt.getTheorems\n  let ctx ← Simp.mkContext { failIfUnchanged := false } (simpTheorems := #[preThms])\n  pure (← Simp.main e ctx (methods := Lean.Meta.Simp.mkDefaultMethodsCore {})).1\n",
+        "docstring": "Run the `polynomial_pre` simpset to turn nonstandard spellings of `algebraMap` such as\n`Polynomial.C` into `algebraMap` "
+      },
+      {
+        "id": 327992,
+        "name": "Mathlib.Tactic.Linarith.preprocess",
+        "module": "Mathlib.Tactic.Linarith.Preprocessing",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Preprocessing.lean#L388-L400",
+        "source_text": "/--\n`preprocess pps l` takes a list `l` of proofs of propositions.\nIt maps each preprocessor `pp ∈ pps` over this list.\nThe preprocessors are run sequentially: each receives the output of the previous one.\nNote that a preprocessor may produce multiple or no expressions from each input expression,\nso the size of the list may change.\n-/\ndef preprocess (pps : List GlobalBranchingPreprocessor) (g : MVarId) (l : List Expr) :\n    MetaM (List Branch) := do\n  withTraceNode `linarith (fun _ => return m!\"Running preprocessors\") <|\n    g.withContext <|\n      pps.foldlM (init := [(g, l)]) fun ls pp => do\n        return (← ls.mapM fun (g, l) => do pp.process g l).flatten\n",
+        "docstring": "`preprocess pps l` takes a list `l` of proofs of propositions.\nIt maps each preprocessor `pp ∈ pps` over this list.\nThe preprocessors are run sequentially: each receives the output of the previous one.\nNote that a preprocessor may produce multiple or no expressions from each input expression,\nso the size of the list may change.\n"
+      },
+      {
+        "id": 327991,
+        "name": "Mathlib.Tactic.Linarith.defaultPreprocessors",
+        "module": "Mathlib.Tactic.Linarith.Preprocessing",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Preprocessing.lean#L381-L386",
+        "source_text": "/--\nThe default list of preprocessors, in the order they should typically run.\n-/\ndef defaultPreprocessors : List GlobalBranchingPreprocessor :=\n  [filterComparisons, nnrealToReal, natToInt, strengthenStrictInt,\n    compWithZero, cancelDenoms]\n",
+        "docstring": "The default list of preprocessors, in the order they should typically run.\n"
+      },
+      {
+        "id": 215451,
+        "name": "PNat.XgcdType.step_wf",
+        "module": "Mathlib.Data.PNat.Xgcd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Xgcd.lean#L271-L278",
+        "source_text": "/-- We will apply the above step recursively.  The following result\nis used to ensure that the process terminates. -/\ntheorem step_wf (hr : u.r ≠ 0) : SizeOf.sizeOf u.step < SizeOf.sizeOf u := by\n  change u.r - 1 < u.bp\n  have h₀ : u.r - 1 + 1 = u.r := Nat.succ_pred_eq_of_pos (Nat.pos_of_ne_zero hr)\n  have h₁ : u.r < u.bp + 1 := Nat.mod_lt (u.ap + 1) u.bp.succ_pos\n  rw [← h₀] at h₁\n  exact lt_of_succ_lt_succ h₁\n",
+        "docstring": "We will apply the above step recursively.  The following result\nis used to ensure that the process terminates. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Euclid.preprocess_correct_cost",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392798,
+        "name": "Space.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Basic.lean#L268-L274",
+        "source_text": "lemma deriv_euclid {d ν μ} {f : Space d → EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (x : Space d) :\n    deriv ν (fun x => f x μ) x = deriv ν (fun x => f x) x μ := by\n  rw [deriv_eq_fderiv_basis]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) x (basis ν) = _\n  rw [fderiv_comp x (EuclideanSpace.proj μ).differentiableAt (hf x)]\n  simp [-EuclideanSpace.coe_proj, ← deriv_eq_fderiv_basis]\n",
+        "docstring": null
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Supports.support",
+    "status": "ok",
+    "results": [
+      {
+        "id": 237265,
+        "name": "MulAction.Supports",
+        "module": "Mathlib.GroupTheory.GroupAction.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Support.lean#L34-L37",
+        "source_text": "/-- A set `s` supports `b` if `g • b = b` whenever `g • a = a` for all `a ∈ s`. -/\n@[to_additive /-- A set `s` supports `b` if `g +ᵥ b = b` whenever `g +ᵥ a = a` for all `a ∈ s`. -/]\ndef Supports (s : Set α) (b : β) :=\n  ∀ g : G, (∀ ⦃a⦄, a ∈ s → g • a = a) → g • b = b\n",
+        "docstring": "A set `s` supports `b` if `g • b = b` whenever `g • a = a` for all `a ∈ s`. "
+      },
+      {
+        "id": 246435,
+        "name": "Finsupp.mem_supported",
+        "module": "Mathlib.LinearAlgebra.Finsupp.Supported",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Finsupp/Supported.lean#L58-L59",
+        "source_text": "theorem mem_supported {s : Set α} (p : α →₀ M) : p ∈ supported M R s ↔ ↑p.support ⊆ s :=\n  Iff.rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 197110,
+        "name": "Turing.TM2.Supports",
+        "module": "Mathlib.Computability.TuringMachine.StackTuringMachine",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/StackTuringMachine.lean#L255-L258",
+        "source_text": "/-- Given a TM2 machine `M` and a set `S` of states, `Supports M S` means that all states in\n`S` jump only to other states in `S`. -/\ndef Supports (M : Λ → Stmt Γ Λ σ) (S : Finset Λ) :=\n  default ∈ S ∧ ∀ q ∈ S, SupportsStmt S (M q)\n",
+        "docstring": "Given a TM2 machine `M` and a set `S` of states, `Supports M S` means that all states in\n`S` jump only to other states in `S`. "
+      },
+      {
+        "id": 205110,
+        "name": "Finsupp.ofSupportFinite_support",
+        "module": "Mathlib.Data.Finsupp.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Defs.lean#L283-L285",
+        "source_text": "theorem ofSupportFinite_support {f : α → M} (hf : f.support.Finite) :\n    (ofSupportFinite f hf).support = hf.toFinset := by\n  ext; simp [ofSupportFinite_coe]\n",
+        "docstring": null
+      },
+      {
+        "id": 91697,
+        "name": "Function.support",
+        "module": "Mathlib.Algebra.Notation.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+        "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+        "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M7.Supports.support",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M7.Supports.support",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.RecipeSignature.signature",
+    "status": "ok",
+    "results": [
+      {
+        "id": 327256,
+        "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+        "module": "Mathlib.Tactic.ExtractGoal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ExtractGoal.lean#L140-L193",
+        "source_text": "/-- Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n-/\ndef goalSignature (name : Name) (g : MVarId) : TermElabM (MessageData × Expr × Array Name × Bool) :=\n  withoutModifyingEnv <| withoutModifyingState do\n    let (g, _) ← g.renameInaccessibleFVars\n    -- Check if the original goal has foralls before reverting\n    -- We only consider it to have \"original foralls\" if it has a named forall,\n    -- not just implications (which have anonymous or internal hygienic names)\n    let originalTy ← instantiateMVars (← g.getType)\n    let hasOriginalForalls :=\n      originalTy.isForall &&\n      !originalTy.bindingName!.isAnonymous &&\n      !originalTy.bindingName!.isInternal\n    let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds\n    let ty ← instantiateMVars (← g.getType)\n    if ty.hasExprMVar then\n      -- TODO: turn metavariables into new hypotheses?\n      throwError \"Extracted goal has metavariables: {ty}\"\n    let ty ← Term.levelMVarToParam ty\n    let seenLevels := collectLevelParams {} ty\n    let levels := (← Term.getLevelNames).filter\n      fun u => seenLevels.visitedLevel.contains (.param u)\n    addAndCompile <| Declaration.axiomDecl\n      { name := name\n        levelParams := levels\n        isUnsafe := false\n        type := ty }\n    let sig ← addMessageContext <| MessageData.signature name\n    let context ← liftM (m := CoreM) <| read\n    let state ← get\n    let env ← getEnv\n    let (ts, _) ← ((Mathlib.Command.MinImports.getVisited name).run\n        { context with snap? := none }).run\n        { state with env, maxRecDepth := context.maxRecDepth }\n    let mut hm : Std.HashMap Nat Name := {}\n    for imp in env.header.moduleNames do\n      hm := hm.insert ((env.getModuleIdx? imp).getD default) imp\n    let mut fins : NameSet := {}\n    for t in ts do\n      let new := match env.getModuleIdxFor? t with\n        | some t => (hm.get? t).get!\n        | none   => .anonymous -- instead of `getMainModule`, we omit the current module\n      if !fins.contains new then fins := fins.insert new\n    let tot := Mathlib.Command.MinImports.getIrredundantImports (← getEnv) (fins.erase .anonymous)\n    let fileNames := tot.toArray.qsort Name.lt\n    return (sig, ty, fileNames, hasOriginalForalls)\n",
+        "docstring": "Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n"
+      },
+      {
+        "id": 268861,
+        "name": "MeasureTheory.Measure.toSignedMeasure",
+        "module": "Mathlib.MeasureTheory.VectorMeasure.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/VectorMeasure/Basic.lean#L444-L452",
+        "source_text": "/-- A finite measure coerced into a real function is a signed measure. -/\ndef toSignedMeasure (μ : Measure α) [hμ : IsFiniteMeasure μ] : SignedMeasure α where\n  measureOf' s := if MeasurableSet s then μ.real s else 0\n  empty' := by simp\n  not_measurable' _ hi := if_neg hi\n  m_iUnion' f hf₁ hf₂ := by\n    simp only [*, MeasurableSet.iUnion hf₁, if_true, measure_iUnion hf₂ hf₁, measureReal_def]\n    rw [ENNReal.tsum_toReal_eq]\n    exacts [(summable_measure_toReal hf₁ hf₂).hasSum, fun _ ↦ measure_ne_top _ _]\n",
+        "docstring": "A finite measure coerced into a real function is a signed measure. "
+      },
+      {
+        "id": 97388,
+        "name": "HahnEmbedding.Seed.baseEmbedding",
+        "module": "Mathlib.Algebra.Order.Module.HahnEmbedding",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Module/HahnEmbedding.lean#L221-L227",
+        "source_text": "/-- Combining all `HahnEmbedding.Seed.coeff` as\na partial linear map from `HahnEmbedding.Seed.baseDomain` to `HahnSeries`. -/\nnoncomputable\ndef baseEmbedding : M →ₗ.[K] Lex R⟦FiniteArchimedeanClass M⟧ where\n  domain := seed.baseDomain\n  toFun := (toLexLinearEquiv _ _).toLinearMap ∘ₗ (HahnSeries.ofFinsuppLinearMap _) ∘ₗ\n    (finsuppLequivDFinsupp K).symm.toLinearMap ∘ₗ seed.hahnCoeff\n",
+        "docstring": "Combining all `HahnEmbedding.Seed.coeff` as\na partial linear map from `HahnEmbedding.Seed.baseDomain` to `HahnSeries`. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      },
+      {
+        "id": 309102,
+        "name": "HahnModule",
+        "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L118-L124",
+        "source_text": "/-- We introduce a type alias for `HahnSeries` in order to work with scalar multiplication by\nseries. If we wrote a `SMul R⟦Γ⟧ V⟦Γ⟧` instance, then when\n`V = R⟦Γ⟧`, we would have two different actions of `R⟦Γ⟧` on `V⟦Γ⟧`.\nSee `Mathlib/Algebra/Polynomial/Module/Basic.lean` for more discussion on this problem. -/\n@[nolint unusedArguments]\ndef HahnModule (Γ R V : Type*) [PartialOrder Γ] [Zero V] [SMul R V] :=\n  V⟦Γ⟧\n",
+        "docstring": "We introduce a type alias for `HahnSeries` in order to work with scalar multiplication by\nseries. If we wrote a `SMul R⟦Γ⟧ V⟦Γ⟧` instance, then when\n`V = R⟦Γ⟧`, we would have two different actions of `R⟦Γ⟧` on `V⟦Γ⟧`.\nSee `Mathlib/Algebra/Polynomial/Module/Basic.lean` for more discussion on this problem. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.RecipeSignature.signature",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387115,
+        "name": "Physlib.RemarkInfo.IsRemark",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L32-L36",
+        "source_text": "/-- A Bool which is true if a name corresponds to a remark. -/\nmeta def RemarkInfo.IsRemark (n : Name) : m Bool := do\n  let allRemarks ← allRemarkInfo\n  let r := allRemarks.find? fun r => r.toFullName == n\n  return r.isSome\n",
+        "docstring": "A Bool which is true if a name corresponds to a remark. "
+      },
+      {
+        "id": 387105,
+        "name": "Physlib.NoteFile.titleHTML",
+        "module": "Physlib.Meta.Notes.ToHTML",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Notes/ToHTML.lean#L160-L164",
+        "source_text": "/-- The html code corresponding to the title, abstract and authors. -/\nmeta def titleHTML : String :=\n\"<center><h1 style=\\\"font-size: 50px;\\\">\" ++ N.title ++ \"</h1></center>\n<center><b>Authors:</b> \" ++ String.intercalate \", \" N.authors ++ \"</center>\n<center><b>Abstract:</b> \" ++ N.abstract ++ \"</center>\"\n",
+        "docstring": "The html code corresponding to the title, abstract and authors. "
+      },
+      {
+        "id": 387116,
+        "name": "Physlib.RemarkInfo.getRemarkInfo",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L38-L43",
+        "source_text": "/-- Gets the remarkInfo from a name corresponding to a remark.. -/\nmeta def RemarkInfo.getRemarkInfo (n : Name) : m RemarkInfo := do\n  let allRemarks ← allRemarkInfo\n  match allRemarks.find? fun r => r.toFullName == n with\n  | some r => return r\n  | none => throwError s!\"No remark named {n}\"\n",
+        "docstring": "Gets the remarkInfo from a name corresponding to a remark.. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

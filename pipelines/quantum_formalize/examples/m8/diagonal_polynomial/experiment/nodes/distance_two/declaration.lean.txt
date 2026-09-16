@@ -1,0 +1,5 @@
+theorem M8.DiagonalPolynomial.distance_two : ∀ (N : ℕ) [NeZero N], ∀ (p F : M8.DiagonalPolynomial.BP), p ≠ 0 → p.degree < (N : WithBot ℕ) → F.Monic → F ≠ 1 → F ∣ p → F ∣ M6.Cyclic.modulus N → M8.Diagonal.distance N (M6.Coordinates.coefficients N p) = some 2 := by
+  intro N inst p F hp hdeg hF hFne hFp hFM
+  exact M8.Diagonal.distance_two N (M6.Coordinates.coefficients N p)
+    (M8.DiagonalPolynomial.coefficients_nonzero N p hp hdeg)
+    (M8.DiagonalPolynomial.delta_not_image N p F hdeg hF hFne hFp hFM)

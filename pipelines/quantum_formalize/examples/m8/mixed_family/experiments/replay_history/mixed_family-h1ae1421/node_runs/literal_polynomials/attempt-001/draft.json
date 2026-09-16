@@ -1,0 +1,8 @@
+{
+  "proof": "  classical\n  intro N inst hN\n  have h1 : (1 : ZMod N).val = 1 := by\n    change ((1 : ℕ) : ZMod N).val = 1\n    rw [ZMod.val_natCast, Nat.mod_eq_of_lt (by omega : 1 < N)]\n  have h2 : (2 : ZMod N).val = 2 := by\n    change ((2 : ℕ) : ZMod N).val = 2\n    rw [ZMod.val_natCast, Nat.mod_eq_of_lt (by omega : 2 < N)]\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have := congrArg ZMod.val h\n    simp [h1] at this\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    simp [h2] at this\n  constructor <;>\n    simp [M8.MixedFamily.left, M8.MixedFamily.right,\n      M8.MixedFamily.a, M8.MixedFamily.b,\n      M7.Supports.polynomial, M7.Supports.natSupport,\n      h01, h02, h1, h2, Polynomial.monomial_eq_C_mul_X]",
+  "queries": [
+    "M7.Supports.polynomial",
+    "M7.Supports.natSupport",
+    "ZMod.val_natCast"
+  ]
+}

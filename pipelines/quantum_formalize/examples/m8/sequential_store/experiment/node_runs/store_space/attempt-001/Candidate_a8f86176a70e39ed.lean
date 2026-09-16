@@ -1,0 +1,21 @@
+import FrozenTarget_a8f86176a70e39ed
+theorem M8.SequentialStore.store_space : QuantumHarnessFrozenTarget := by
+  intro N inst mem hmem
+  have hp : M8.SequentialStore.slots N ≤ 20000 * (N + 1)^3 := by
+    simpa only [M8.SequentialStore.slots] using M8.BankLayout.payload_bound N
+  have ha : M8.SequentialStore.addressBits N ≤ 32 * (N + 1) := by
+    simpa only [M8.SequentialStore.addressBits, M8.SequentialStore.slots] using M8.BankLayout.address_bits_bound N
+  have ht : (M8.TaggedStore.tapeBits (M8.TaggedStore.packFrom 0 mem)).length ≤
+      M8.SequentialStore.slots N * (2 * M8.SequentialStore.addressBits N + 2) := by
+    simpa only [Nat.zero_add, hmem, M8.SequentialStore.addressBits] using
+      (M8.TaggedStore.packed_layout 0 mem).2.2
+  change (M8.TaggedStore.tapeBits (M8.TaggedStore.packFrom 0 mem)).length +
+      (4 * (M8.SequentialStore.addressBits N + 1) + 32) ≤ 2000000 * (N + 1)^4
+  calc
+    _ ≤ M8.SequentialStore.slots N * (2 * M8.SequentialStore.addressBits N + 2) +
+        (4 * (M8.SequentialStore.addressBits N + 1) + 32) := Nat.add_le_add_right ht _
+    _ ≤ (20000 * (N + 1)^3) * (2 * (32 * (N + 1)) + 2) +
+        (4 * (32 * (N + 1) + 1) + 32) := by
+      gcongr <;> assumption
+    _ ≤ 2000000 * (N + 1)^4 := by
+      nlinarith only [Nat.zero_le N, Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4)]

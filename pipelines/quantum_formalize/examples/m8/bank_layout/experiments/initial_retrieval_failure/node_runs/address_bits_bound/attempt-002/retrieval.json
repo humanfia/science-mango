@@ -1,0 +1,131 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.size_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 213679,
+        "name": "Nat.size_le",
+        "module": "Mathlib.Data.Nat.Size",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Size.lean#L79-L88",
+        "source_text": "theorem size_le {m n : ℕ} : size m ≤ n ↔ m < 2 ^ n :=\n  ⟨fun h => Nat.lt_of_lt_of_le (lt_size_self _) (Nat.pow_le_pow_right (by decide) h), fun h ↦ by\n    induction m using binaryRec' generalizing n with\n    | zero => simp\n    | bit b m e IH =>\n      rw [← Nat.bit_ne_zero_iff] at e\n      rw [size_bit e]\n      cases n with\n      | zero => exact (e (Nat.lt_one_iff.mp h)).elim\n      | succ n => exact succ_le_succ (IH (bit_lt_two_pow_succ_iff.mp h))⟩\n",
+        "docstring": null
+      },
+      {
+        "id": 211862,
+        "name": "Nat.size",
+        "module": "Mathlib.Data.Nat.Bits",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L134-L137",
+        "source_text": "/-- `size n` : Returns the size of a natural number in\nbits i.e. the length of its binary representation -/\ndef size : ℕ → ℕ :=\n  binaryRec 0 fun _ _ => succ\n",
+        "docstring": "`size n` : Returns the size of a natural number in\nbits i.e. the length of its binary representation "
+      },
+      {
+        "id": 213684,
+        "name": "Nat.size_le_size",
+        "module": "Mathlib.Data.Nat.Size",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Size.lean#L101-L102",
+        "source_text": "theorem size_le_size {m n : ℕ} (h : m ≤ n) : size m ≤ size n :=\n  size_le.2 <| Nat.lt_of_le_of_lt h (lt_size_self _)\n",
+        "docstring": null
+      },
+      {
+        "id": 213675,
+        "name": "Nat.size_one",
+        "module": "Mathlib.Data.Nat.Size",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Size.lean#L47-L48",
+        "source_text": "@[simp]\ntheorem size_one : size 1 = 1 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 213683,
+        "name": "Nat.size_pow",
+        "module": "Mathlib.Data.Nat.Size",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Size.lean#L98-L99",
+        "source_text": "theorem size_pow {n : ℕ} : size (2 ^ n) = n + 1 := by\n  simpa [shiftLeft_eq, Nat.add_comm] using size_shiftLeft (m := 1) (by decide) n\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.pow_le_pow_right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 98318,
+        "name": "pow_le_pow_right'",
+        "module": "Mathlib.Algebra.Order.Monoid.Unbundled.Pow",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Monoid/Unbundled/Pow.lean#L66-L68",
+        "source_text": "@[to_additive (attr := gcongr low) nsmul_le_nsmul_left]\ntheorem pow_le_pow_right' {n m : ℕ} (ha : 1 ≤ a) (h : n ≤ m) : a ^ n ≤ a ^ m :=\n  pow_right_monotone ha h",
+        "docstring": null
+      },
+      {
+        "id": 211778,
+        "name": "Nat.pow_right_injective",
+        "module": "Mathlib.Data.Nat.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Basic.lean#L70-L71",
+        "source_text": "protected lemma pow_right_injective (ha : 2 ≤ a) : Injective (a ^ ·) := by\n  simp [Injective, le_antisymm_iff, Nat.pow_le_pow_iff_right ha]\n",
+        "docstring": null
+      },
+      {
+        "id": 211787,
+        "name": "Nat.mul_le_pow",
+        "module": "Mathlib.Data.Nat.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Basic.lean#L146-L154",
+        "source_text": "lemma mul_le_pow {a : ℕ} (ha : a ≠ 1) (b : ℕ) :\n    a * b ≤ a ^ b := by\n  cases b with\n  | zero => exact Nat.zero_le _\n  | succ b =>\n      obtain rfl | ha0 : a = 0 ∨ a > 0 := a.eq_zero_or_pos\n      · rw [Nat.zero_mul]; exact Nat.zero_le _\n      · have ha1 : a > 1 := Nat.lt_of_le_of_ne ha0 ha.symm\n        rw [Nat.pow_succ']; exact Nat.mul_le_mul_left a (Nat.lt_pow_self ha1)\n",
+        "docstring": null
+      },
+      {
+        "id": 146157,
+        "name": "Real.rpow_mul_natCast",
+        "module": "Mathlib.Analysis.SpecialFunctions.Pow.Real",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Pow/Real.lean#L518-L519",
+        "source_text": "lemma rpow_mul_natCast (hx : 0 ≤ x) (y : ℝ) (n : ℕ) : x ^ (y * n) = (x ^ y) ^ n := by\n  rw [rpow_mul hx, rpow_natCast]\n",
+        "docstring": null
+      },
+      {
+        "id": 145853,
+        "name": "NNReal.rpow_mul_natCast",
+        "module": "Mathlib.Analysis.SpecialFunctions.Pow.NNReal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Pow/NNReal.lean#L146-L147",
+        "source_text": "lemma rpow_mul_natCast (x : ℝ≥0) (y : ℝ) (n : ℕ) : x ^ (y * n) = (x ^ y) ^ n := by\n  rw [rpow_mul, rpow_natCast]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

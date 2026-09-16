@@ -1,0 +1,93 @@
+{
+  "title": "M8 actual fixed-cutoff reusable memory bank layout",
+  "nodes": [
+    {
+      "id": "workspace_monotone",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.BankLayout.workspace_monotone",
+        "statement": "\u2200 R S N slots : \u2115, R \u2264 S \u2192 M6.Transfer.solveStorage R N slots \u2264 M6.Transfer.solveStorage S N slots",
+        "imports": [
+          "M8BankLayout"
+        ],
+        "context": "",
+        "queries": [
+          "Nat size power monotonicity"
+        ],
+        "guidance": "Explicit reusable layout for the actual revised M8 algorithm. bankSlots uses the original M6 solveStorage at fixed Cutoff.limit, including its true preprocessing slots, trace banks, signed widths, pins and registers; no asymptotic polynomial is defined as allocation. workspace_monotone unfolds solveStorage/pairedQueryStorage/actualTraceStorage/traceStorageModel/width definitions; scatterEventList.length equals card ScatterEvent = 2^R*2*(2*N+1)*3 via state_count and card_prod; gcongr plus pow_le_pow_right\u2080 (by decide) hRS proves monotonicity. payload_bound uses M6.Transfer.solve_storage_bound at Cutoff.limit<N and actualPreprocessStorage\u2264512n\u00b2 (unfold concrete slots/registerBits or preprocess_storage on 0,0,0), then Cutoff.state_bound and explicit buffer/register lengths. actual_workspace_fits is definition + monotonicity. address_bits_bound uses Nat.size_le: 20000*n\u00b3<2^(32*n), n=N+1\u22651; 20000<2^15 and n<2^n imply n\u00b3<2^(3*n), and 15+3*n\u226432*n. Keep all N>0 including N=1; no caller-provided allocation or cost oracle. Return tactic lines only.\nimport M8OptimizerResourcesAccepted\nnamespace M8.BankLayout\n/-- Input, original gcd, output witness, cutoff, selected choice, transformed input. -/\ndef bufferWidths (N : \u2115) : List \u2115 := [2*N,N+1,2*N,N+1,1+3*(N+1),2*N]\ndef registers : List String :=\n  [\"phase\",\"exchange\",\"unit\",\"leftAnchor\",\"rightAnchor\",\"leftCursor\",\"rightCursor\",\n   \"gcdP\",\"gcdQ\",\"gcdShift\",\"gcdCarry\",\"inverseP\",\"inverseQ\",\"inverseX\",\"inverseY\",\n   \"inverseShift\",\"inverseCarry\",\"residue\",\"product\",\"remainder\",\"spanLeft\",\"spanRight\",\n   \"sourceAddress\",\"targetAddress\",\"bitCursor\",\"wordCursor\",\"layerCursor\",\"startCursor\",\n   \"queryCursor\",\"workCounter\",\"loopCounter\",\"savedIndex\"]\ndef registerBits (N : \u2115) : \u2115 := 32*(N+1)\n/-- Exactly the existing M6 banks at the fixed public cutoff, reused for every query. -/\nnoncomputable def bankSlots (N : \u2115) : \u2115 :=\n  M6.Transfer.solveStorage (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N)\nnoncomputable def payloadSlots (N : \u2115) : \u2115 :=\n  (bufferWidths N).sum + registers.length * registerBits N + bankSlots N\nend M8.BankLayout\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "payload_bound",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.BankLayout.payload_bound",
+        "statement": "\u2200 (N : \u2115) [NeZero N], M8.BankLayout.payloadSlots N \u2264 20000*(N+1)^3",
+        "imports": [
+          "M8BankLayout"
+        ],
+        "context": "",
+        "queries": [
+          "Nat size power monotonicity"
+        ],
+        "guidance": "Explicit reusable layout for the actual revised M8 algorithm. bankSlots uses the original M6 solveStorage at fixed Cutoff.limit, including its true preprocessing slots, trace banks, signed widths, pins and registers; no asymptotic polynomial is defined as allocation. workspace_monotone unfolds solveStorage/pairedQueryStorage/actualTraceStorage/traceStorageModel/width definitions; scatterEventList.length equals card ScatterEvent = 2^R*2*(2*N+1)*3 via state_count and card_prod; gcongr plus pow_le_pow_right\u2080 (by decide) hRS proves monotonicity. payload_bound uses M6.Transfer.solve_storage_bound at Cutoff.limit<N and actualPreprocessStorage\u2264512n\u00b2 (unfold concrete slots/registerBits or preprocess_storage on 0,0,0), then Cutoff.state_bound and explicit buffer/register lengths. actual_workspace_fits is definition + monotonicity. address_bits_bound uses Nat.size_le: 20000*n\u00b3<2^(32*n), n=N+1\u22651; 20000<2^15 and n<2^n imply n\u00b3<2^(3*n), and 15+3*n\u226432*n. Keep all N>0 including N=1; no caller-provided allocation or cost oracle. Return tactic lines only.\nimport M8OptimizerResourcesAccepted\nnamespace M8.BankLayout\n/-- Input, original gcd, output witness, cutoff, selected choice, transformed input. -/\ndef bufferWidths (N : \u2115) : List \u2115 := [2*N,N+1,2*N,N+1,1+3*(N+1),2*N]\ndef registers : List String :=\n  [\"phase\",\"exchange\",\"unit\",\"leftAnchor\",\"rightAnchor\",\"leftCursor\",\"rightCursor\",\n   \"gcdP\",\"gcdQ\",\"gcdShift\",\"gcdCarry\",\"inverseP\",\"inverseQ\",\"inverseX\",\"inverseY\",\n   \"inverseShift\",\"inverseCarry\",\"residue\",\"product\",\"remainder\",\"spanLeft\",\"spanRight\",\n   \"sourceAddress\",\"targetAddress\",\"bitCursor\",\"wordCursor\",\"layerCursor\",\"startCursor\",\n   \"queryCursor\",\"workCounter\",\"loopCounter\",\"savedIndex\"]\ndef registerBits (N : \u2115) : \u2115 := 32*(N+1)\n/-- Exactly the existing M6 banks at the fixed public cutoff, reused for every query. -/\nnoncomputable def bankSlots (N : \u2115) : \u2115 :=\n  M6.Transfer.solveStorage (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N)\nnoncomputable def payloadSlots (N : \u2115) : \u2115 :=\n  (bufferWidths N).sum + registers.length * registerBits N + bankSlots N\nend M8.BankLayout\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "actual_workspace_fits",
+      "dependencies": [
+        "workspace_monotone"
+      ],
+      "spec": {
+        "name": "M8.BankLayout.actual_workspace_fits",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b \u2264 M8.Cutoff.limit N \u2192 M6.ActualTransfer.actualSolveStorage N a b \u2264 M8.BankLayout.bankSlots N",
+        "imports": [
+          "M8BankLayout"
+        ],
+        "context": "",
+        "queries": [
+          "Nat size power monotonicity"
+        ],
+        "guidance": "Explicit reusable layout for the actual revised M8 algorithm. bankSlots uses the original M6 solveStorage at fixed Cutoff.limit, including its true preprocessing slots, trace banks, signed widths, pins and registers; no asymptotic polynomial is defined as allocation. workspace_monotone unfolds solveStorage/pairedQueryStorage/actualTraceStorage/traceStorageModel/width definitions; scatterEventList.length equals card ScatterEvent = 2^R*2*(2*N+1)*3 via state_count and card_prod; gcongr plus pow_le_pow_right\u2080 (by decide) hRS proves monotonicity. payload_bound uses M6.Transfer.solve_storage_bound at Cutoff.limit<N and actualPreprocessStorage\u2264512n\u00b2 (unfold concrete slots/registerBits or preprocess_storage on 0,0,0), then Cutoff.state_bound and explicit buffer/register lengths. actual_workspace_fits is definition + monotonicity. address_bits_bound uses Nat.size_le: 20000*n\u00b3<2^(32*n), n=N+1\u22651; 20000<2^15 and n<2^n imply n\u00b3<2^(3*n), and 15+3*n\u226432*n. Keep all N>0 including N=1; no caller-provided allocation or cost oracle. Return tactic lines only.\nimport M8OptimizerResourcesAccepted\nnamespace M8.BankLayout\n/-- Input, original gcd, output witness, cutoff, selected choice, transformed input. -/\ndef bufferWidths (N : \u2115) : List \u2115 := [2*N,N+1,2*N,N+1,1+3*(N+1),2*N]\ndef registers : List String :=\n  [\"phase\",\"exchange\",\"unit\",\"leftAnchor\",\"rightAnchor\",\"leftCursor\",\"rightCursor\",\n   \"gcdP\",\"gcdQ\",\"gcdShift\",\"gcdCarry\",\"inverseP\",\"inverseQ\",\"inverseX\",\"inverseY\",\n   \"inverseShift\",\"inverseCarry\",\"residue\",\"product\",\"remainder\",\"spanLeft\",\"spanRight\",\n   \"sourceAddress\",\"targetAddress\",\"bitCursor\",\"wordCursor\",\"layerCursor\",\"startCursor\",\n   \"queryCursor\",\"workCounter\",\"loopCounter\",\"savedIndex\"]\ndef registerBits (N : \u2115) : \u2115 := 32*(N+1)\n/-- Exactly the existing M6 banks at the fixed public cutoff, reused for every query. -/\nnoncomputable def bankSlots (N : \u2115) : \u2115 :=\n  M6.Transfer.solveStorage (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N)\nnoncomputable def payloadSlots (N : \u2115) : \u2115 :=\n  (bufferWidths N).sum + registers.length * registerBits N + bankSlots N\nend M8.BankLayout\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "address_bits_bound",
+      "dependencies": [
+        "payload_bound"
+      ],
+      "spec": {
+        "name": "M8.BankLayout.address_bits_bound",
+        "statement": "\u2200 (N : \u2115) [NeZero N], (M8.BankLayout.payloadSlots N).size \u2264 32*(N+1)",
+        "imports": [
+          "M8BankLayout"
+        ],
+        "context": "",
+        "queries": [
+          "Nat size power monotonicity"
+        ],
+        "guidance": "Explicit reusable layout for the actual revised M8 algorithm. bankSlots uses the original M6 solveStorage at fixed Cutoff.limit, including its true preprocessing slots, trace banks, signed widths, pins and registers; no asymptotic polynomial is defined as allocation. workspace_monotone unfolds solveStorage/pairedQueryStorage/actualTraceStorage/traceStorageModel/width definitions; scatterEventList.length equals card ScatterEvent = 2^R*2*(2*N+1)*3 via state_count and card_prod; gcongr plus pow_le_pow_right\u2080 (by decide) hRS proves monotonicity. payload_bound uses M6.Transfer.solve_storage_bound at Cutoff.limit<N and actualPreprocessStorage\u2264512n\u00b2 (unfold concrete slots/registerBits or preprocess_storage on 0,0,0), then Cutoff.state_bound and explicit buffer/register lengths. actual_workspace_fits is definition + monotonicity. address_bits_bound uses Nat.size_le: 20000*n\u00b3<2^(32*n), n=N+1\u22651; 20000<2^15 and n<2^n imply n\u00b3<2^(3*n), and 15+3*n\u226432*n. Keep all N>0 including N=1; no caller-provided allocation or cost oracle. Return tactic lines only.\nimport M8OptimizerResourcesAccepted\nnamespace M8.BankLayout\n/-- Input, original gcd, output witness, cutoff, selected choice, transformed input. -/\ndef bufferWidths (N : \u2115) : List \u2115 := [2*N,N+1,2*N,N+1,1+3*(N+1),2*N]\ndef registers : List String :=\n  [\"phase\",\"exchange\",\"unit\",\"leftAnchor\",\"rightAnchor\",\"leftCursor\",\"rightCursor\",\n   \"gcdP\",\"gcdQ\",\"gcdShift\",\"gcdCarry\",\"inverseP\",\"inverseQ\",\"inverseX\",\"inverseY\",\n   \"inverseShift\",\"inverseCarry\",\"residue\",\"product\",\"remainder\",\"spanLeft\",\"spanRight\",\n   \"sourceAddress\",\"targetAddress\",\"bitCursor\",\"wordCursor\",\"layerCursor\",\"startCursor\",\n   \"queryCursor\",\"workCounter\",\"loopCounter\",\"savedIndex\"]\ndef registerBits (N : \u2115) : \u2115 := 32*(N+1)\n/-- Exactly the existing M6 banks at the fixed public cutoff, reused for every query. -/\nnoncomputable def bankSlots (N : \u2115) : \u2115 :=\n  M6.Transfer.solveStorage (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N)\nnoncomputable def payloadSlots (N : \u2115) : \u2115 :=\n  (bufferWidths N).sum + registers.length * registerBits N + bankSlots N\nend M8.BankLayout\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

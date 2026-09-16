@@ -1,0 +1,12 @@
+{
+  "name": "M8.MixedFamily.full_direction",
+  "statement": "∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.CoverageFoundation.FullDirection (M8.MixedFamily.left N)",
+  "imports": [
+    "M8MixedFamily"
+  ],
+  "context": "theorem M8.MixedFamily.support_data : ∀ (N : ℕ) [NeZero N], 7 ≤ N → (M8.MixedFamily.left N).card = 2 ∧ (M8.MixedFamily.right N).card = 2 ∧ (0 : ZMod N) ∈ M8.MixedFamily.left N ∧ (0 : ZMod N) ∈ M8.MixedFamily.right N ∧ (1 : ZMod N) ∈ M8.MixedFamily.left N := by\n  intro N inst hN\n  have hsmall : ∀ k : ℕ, 0 < k → k < N → (k : ZMod N) ≠ 0 := by\n    intro k hk hkN he\n    have hv := congrArg ZMod.val he\n    rw [ZMod.val_natCast, ZMod.val_zero, Nat.mod_eq_of_lt hkN] at hv\n    omega\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa using Ne.symm (hsmall 1 (by omega) (by omega))\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    simpa using Ne.symm (hsmall 2 (by omega) (by omega))\n  simp [M8.MixedFamily.left, M8.MixedFamily.right, h01, h02]",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original M8 mixed family a=1+X,b=1+X² for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a². a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a²,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : ℕ) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : ℕ) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+}

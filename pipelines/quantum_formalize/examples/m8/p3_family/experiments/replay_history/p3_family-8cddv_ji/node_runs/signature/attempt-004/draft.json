@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M7.RecipeSignature.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial\nintro N inst hN hdiv\nclassical\nhave hl := M8.P3Family.literal_polynomial N hN\nhave hd := M8.P3Family.divides_modulus N hdiv\nhave hm : M8.P3Family.polynomial.Monic := by\n  unfold M8.P3Family.polynomial\n  monicity\nhave hn := hm.normalize_eq_self\nhave hg : gcd M8.P3Family.polynomial (M6.Cyclic.modulus N) = M8.P3Family.polynomial :=\n  (gcd_eq_left_iff _ _ hn).2 hd\nfirst\n| change gcd (gcd (M7.Supports.polynomial (M8.P3Family.support N)) (M7.Supports.polynomial (M8.P3Family.support N))) (M6.Cyclic.modulus N) = _\n| change gcd (M7.Supports.polynomial (M8.P3Family.support N)) (gcd (M7.Supports.polynomial (M8.P3Family.support N)) (M6.Cyclic.modulus N)) = _\n| change normalize (gcd (gcd (M7.Supports.polynomial (M8.P3Family.support N)) (M7.Supports.polynomial (M8.P3Family.support N))) (M6.Cyclic.modulus N)) = _\n| change normalize (gcd (M7.Supports.polynomial (M8.P3Family.support N)) (gcd (M7.Supports.polynomial (M8.P3Family.support N)) (M6.Cyclic.modulus N))) = _\nsimp only [hl, gcd_self, hn, hg]",
+  "queries": [
+    "Polynomial monicity",
+    "Polynomial.monic_of_natDegree_le_of_coeff_eq_one",
+    "gcd_self"
+  ]
+}

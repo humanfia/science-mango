@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N\nintro N inst hN\nclassical\nhave hinj (a b : ℕ) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n  have hv := congrArg (fun x : ZMod N => x.val) h\n  simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\nhave h01 : (0 : ZMod N) ≠ 1 := by\n  intro h\n  have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n  omega\nhave h02 : (0 : ZMod N) ≠ 2 := by\n  intro h\n  have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n  omega\nhave h12 : (1 : ZMod N) ≠ 2 := by\n  intro h\n  have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n  omega\nsimp [M8.P3Family.support, h01, h02, h12]",
+  "queries": [
+    "ZMod.val_natCast",
+    "Finset.card_insert_of_notMem"
+  ]
+}

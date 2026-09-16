@@ -1,0 +1,10 @@
+import FrozenTarget_80041a0edfd6b09d
+theorem M8.BankLayout.workspace_monotone : QuantumHarnessFrozenTarget := by
+  intro R S N slots hRS
+  have hpow : (2 : ℕ)^R ≤ 2^S := pow_le_pow_right₀ (by decide) hRS
+  unfold M6.Transfer.solveStorage M6.Transfer.pairedQueryStorage M6.Transfer.actualTraceStorage M6.Transfer.traceStorageModel
+  simp only [M6.Transfer.scatterEventList, Finset.length_toList, Finset.card_univ,
+    M6.Transfer.ScatterEvent, Fintype.card_prod, M6.Transfer.state_count,
+    M6.Transfer.Bit, ZMod.card, Fintype.card_fin,
+    M6.Transfer.queryCoefficientBits, M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits]
+  gcongr <;> first | exact hRS | exact hpow | omega

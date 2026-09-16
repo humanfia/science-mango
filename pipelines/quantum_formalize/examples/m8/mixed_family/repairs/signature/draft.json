@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst hN\nhave hp := M8.MixedFamily.literal_polynomials N hN\nhave hab : M8.MixedFamily.a ∣ M8.MixedFamily.b := by\n  rw [M8.MixedFamily.algebra.1]\n  exact dvd_pow_self _ (by decide : 2 ≠ 0)\nhave hn : -(1 : Polynomial (ZMod 2)) = 1 := by\n  have h := congrArg (fun c : ZMod 2 => Polynomial.C c)\n    (show -(1 : ZMod 2) = 1 by decide)\n  simpa only [Polynomial.C_neg, Polynomial.C_1] using h\nhave ham : M8.MixedFamily.a ∣ M6.Cyclic.modulus N := by\n  simpa [M8.MixedFamily.a, M6.Cyclic.modulus, sub_eq_add_neg, hn, add_comm] using\n    (sub_dvd_pow_sub_pow (Polynomial.X : Polynomial (ZMod 2)) 1 N)\nchange EuclideanDomain.gcd\n  (EuclideanDomain.gcd (M7.Supports.polynomial (M8.MixedFamily.left N))\n    (M7.Supports.polynomial (M8.MixedFamily.right N))) (M6.Cyclic.modulus N) = M8.MixedFamily.a\nrw [hp.1,hp.2,EuclideanDomain.gcd_eq_left.mpr hab]\nexact EuclideanDomain.gcd_eq_left.mpr ham",
+  "queries": []
+}

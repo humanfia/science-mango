@@ -1,0 +1,61 @@
+{
+  "id": "support_data",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P4Family.support_data",
+    "spec_sha256": "835e1a941bc534b77f8249a762003ff818f8bf10fdb99c3c4f8bd4037bc37351",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-001/Candidate_60950a211b3570d3.lean:11:35: error: Type mismatch\n  hd 0 1 ?m.48 ?m.49 ?m.50\nhas type\n  ↑0 ≠ ↑1\nbut is expected to have type\n  0 ≠ 1\n/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-001/Candidate_60950a211b3570d3.lean:12:35: error: Type mismatch\n  hd 0 2 ?m.77 ?m.78 ?m.79\nhas type\n  ↑0 ≠ ↑2\nbut is expected to have type\n  0 ≠ 2\n/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-001/Candidate_60950a211b3570d3.lean:13:35: error: Type mismatch\n  hd 0 3 ?m.106 ?m.107 ?m.108\nhas type\n  ↑0 ≠ ↑3\nbut is expected to have type\n  0 ≠ 3\n/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-001/Candidate_60950a211b3570d3.lean:14:35: error: Type mismatch\n  hd 1 2 ?m.135 ?m.136 ?m.137\nhas type\n  ↑1 ≠ ↑2\nbut is expected to have type\n  1 ≠ 2\n/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-001/Candidate_60950a211b3570d3.lean:15:35: error: Type mismatch\n  hd 1 3 ?m.164 ?m.165 ?m.166\nhas type\n  ↑1 ≠ ↑3\nbut is expected to have type\n  1 ≠ 3\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-002/Candidate_f272c7656d2dbc03.lean",
+        "target_path": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-002/FrozenTarget_f272c7656d2dbc03.lean",
+        "feedback": "",
+        "target_sha256": "8308f441258952742e003b3f2850249cee7dfe87667249d76c3ea212e01efed4",
+        "target_olean_sha256": "92f096ae63981cdde349689ab825267809e67f47fe6b6f3e619227592b474bde",
+        "source_sha256": "3ffa4d2d16c0c4bd1330802e0774edec3d4474ac9f32eddceb2a1bff34561225",
+        "olean_sha256": "1f7b43f3c1e74cc31061db2e2ca1964aab95a102882e45c19c67d2074eb9898c",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T13:33:32.633200+00:00",
+    "work": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5bf0539eb7fa947ef794b260b19587058f2898e7048ae55aaaafbabe9d9d2534",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-88_iru_9/attempt-002/Candidate_f272c7656d2dbc03.lean",
+    "environment_sha256": "8bbdb5d00ff49c749d34abdcfe9121823b4a61f4ca648764bb328b809b77c620",
+    "artifacts": {
+      "support_data": {
+        "payload": {
+          "declaration": "theorem M8.P4Family.support_data : ∀ (N : ℕ) [NeZero N], 8 ≤ N → (M8.P4Family.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.P4Family.support N ∧ (1 : ZMod N) ∈ M8.P4Family.support N := by\n  change ∀ (N : ℕ) [NeZero N], 8 ≤ N → (M8.P4Family.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.P4Family.support N ∧ (1 : ZMod N) ∈ M8.P4Family.support N\n  intro N inst hN\n  classical\n  have hd (a b : ℕ) (ha : a < N) (hb : b < N) (hab : a ≠ b) : (a : ZMod N) ≠ (b : ZMod N) := by\n    intro h\n    have hv := congrArg (fun x : ZMod N => x.val) h\n    rw [ZMod.val_natCast, ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] at hv\n    exact hab hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa using hd 0 1 (by omega) (by omega) (by omega)\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    simpa using hd 0 2 (by omega) (by omega) (by omega)\n  have h03 : (0 : ZMod N) ≠ 3 := by\n    simpa using hd 0 3 (by omega) (by omega) (by omega)\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    simpa using hd 1 2 (by omega) (by omega) (by omega)\n  have h13 : (1 : ZMod N) ≠ 3 := by\n    simpa using hd 1 3 (by omega) (by omega) (by omega)\n  have h23 : (2 : ZMod N) ≠ 3 := by\n    simpa using hd 2 3 (by omega) (by omega) (by omega)\n  simp [M8.P4Family.support, h01, h02, h03, h12, h13, h23]",
+          "imports": [
+            "M8P4Family"
+          ],
+          "name": "M8.P4Family.support_data",
+          "ancestors": [],
+          "spec_sha256": "835e1a941bc534b77f8249a762003ff818f8bf10fdb99c3c4f8bd4037bc37351"
+        },
+        "sha256": "5f8d84c08548f3296f31034abcee9746684e763cb8e51babbe9317343a894100"
+      }
+    }
+  }
+}

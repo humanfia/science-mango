@@ -1,0 +1,3 @@
+import Candidate_d9ef17621d644717
+example : QuantumHarnessFrozenTarget := M8.DiagonalPolynomial.common_divisor_of_inverse
+#print axioms M8.DiagonalPolynomial.common_divisor_of_inverse

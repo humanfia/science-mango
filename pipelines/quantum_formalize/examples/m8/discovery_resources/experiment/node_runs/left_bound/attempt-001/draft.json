@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144 * (N + 1)^5\nintro N inst c e t\nhave h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n  (fun a : Fin N =>\n    let r := M8.DiscoveryResources.rightRun c e t a\n    (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n  (136 * (N + 1)^4) (M8.DiscoveryResources.control N)\n  (fun a => M8.DiscoveryResources.right_bound N c e t a)\ncalc\n  M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t)\n      ≤ N * (M8.DiscoveryResources.control N + 136 * (N + 1)^4) := by\n        simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.leftRun,\n          Nat.add_comm] using h\n  _ ≤ 144 * (N + 1)^5 := by\n    unfold M8.DiscoveryResources.control\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5)]",
+  "queries": []
+}

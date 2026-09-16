@@ -1,0 +1,68 @@
+{
+  "id": "left_projection",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.DiscoveryResources.left_projection",
+    "spec_sha256": "d740e10813da317bbf805831bbd6e82ff32f2bf5c5114151c761fb76b9a056a4",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff/attempt-001/Candidate_0d334f5591b7b9f2.lean",
+        "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff/attempt-001/FrozenTarget_0d334f5591b7b9f2.lean",
+        "feedback": "",
+        "target_sha256": "81aa8dae699fd2cb43b53ec44933a5442525051f33878261bb3800492f0eed21",
+        "target_olean_sha256": "b7d11801c9959cb332cc7bfcb063501c8dcc4d3d8f67ee6b4a33bdddac301e87",
+        "source_sha256": "6c6c7d7eedf1f9f024cbb717639c36f55ede2da81a4c7d7a1da7002479097f98",
+        "olean_sha256": "ef13b05af56bb0e2d1b7a486c1bc9412291b77d1aa4044a511ae123bf46349f2",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:41:09.178194+00:00",
+    "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff/attempt-001/Candidate_0d334f5591b7b9f2.lean",
+    "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+    "artifacts": {
+      "right_projection": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.right_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), (M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd = M8.Discovery.atRight c e t a := by\n  intro N inst c e t a\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e, t, a, b⟩ then some ⟨e, t, a, b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e, t, a, b⟩)))\n  simpa only [M8.DiscoveryResources.rightRun, M8.Discovery.atRight] using\n    congrArg (Option.map Prod.snd) h",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.right_projection",
+          "ancestors": [],
+          "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc"
+        },
+        "sha256": "779b3f860a489884ca12dc0cad01d2cbe591533eed608b62ffac1c89b509abb1"
+      },
+      "left_projection": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.left_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), (M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd = M8.Discovery.atLeft c e t := by\n  intro N inst c e t\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      ((M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a))))\n  simpa only [M8.DiscoveryResources.leftRun, M8.Discovery.atLeft,\n    M8.DiscoveryResources.right_projection] using congrArg (Option.map Prod.snd) h",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.left_projection",
+          "ancestors": [
+            "right_projection"
+          ],
+          "spec_sha256": "54bc12ecd9b29fe00fd8fe61c32e61eeccf696529dca59eb08a68f0d620942e6"
+        },
+        "sha256": "175bca0000d1841c766cb5e8adc391d50ceb769964be6cf681ae4fe496c8cc78"
+      }
+    }
+  }
+}

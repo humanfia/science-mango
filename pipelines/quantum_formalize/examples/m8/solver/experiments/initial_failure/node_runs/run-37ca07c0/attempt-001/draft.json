@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst c w hw hc\nclassical\nhave degree_bound (s : Finset (ZMod N)) (L : ℕ)\n    (hs : ∀ i ∈ s, ZMod.val i ≤ L) :\n    (M7.Supports.polynomial s).natDegree ≤ L := by\n  by_cases hz : M7.Supports.polynomial s = 0\n  · simp [hz]\n  · have hm := Polynomial.natDegree_mem_support_of_nonzero hz\n    rw [M7.Supports.support] at hm\n    rcases Finset.mem_image.mp hm with ⟨i, hi, he⟩\n    rw [← he]\n    exact hs i hi\nhave hb := (M8.Anchor.span_le N c (M8.Anchor.span c)).mp le_rfl\nchange max (M7.Supports.polynomial c.1).natDegree\n  (M7.Supports.polynomial c.2).natDegree ≤ M8.Anchor.span c\nexact max_le (degree_bound c.1 _ hb.1) (degree_bound c.2 _ hb.2)",
+  "queries": [
+    "M7.Supports.support",
+    "M6.ActualTransfer.span",
+    "Polynomial.natDegree_mem_support_of_nonzero"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M7.RecipeSignature.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial\nintro N inst hN hdiv\nhave hp := M8.P3Family.literal_polynomial N hN\nhave hd := M8.P3Family.divides_modulus N hdiv\nhave hm : M8.P3Family.polynomial.Monic := by\n  unfold M8.P3Family.polynomial\n  monicity\nhave hs := (M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)).1\napply hs.dvd_antisymm hm\nall_goals\n  dsimp [M7.RecipeSignature.signature, M8.P3Family.recipe]\n  simp only [hp]\nfirst\n| change gcd (gcd M8.P3Family.polynomial M8.P3Family.polynomial) (M6.Cyclic.modulus N) ∣ M8.P3Family.polynomial\n  exact dvd_trans (gcd_dvd_left _ _) (gcd_dvd_left _ _)\n| change gcd M8.P3Family.polynomial (gcd M8.P3Family.polynomial (M6.Cyclic.modulus N)) ∣ M8.P3Family.polynomial\n  exact gcd_dvd_left _ _\nfirst\n| change M8.P3Family.polynomial ∣ gcd (gcd M8.P3Family.polynomial M8.P3Family.polynomial) (M6.Cyclic.modulus N)\n  exact dvd_gcd (dvd_gcd (dvd_refl _) (dvd_refl _)) hd\n| change M8.P3Family.polynomial ∣ gcd M8.P3Family.polynomial (gcd M8.P3Family.polynomial (M6.Cyclic.modulus N))\n  exact dvd_gcd (dvd_refl _) (dvd_gcd (dvd_refl _) hd)",
+  "queries": [
+    "Polynomial.Monic.dvd_antisymm",
+    "monicity polynomial sum powers",
+    "M7.RecipeSignature.signature"
+  ]
+}

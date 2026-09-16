@@ -1,0 +1,10 @@
+import FrozenTarget_5a83edb9de05808f
+theorem M8.P4Family.valid : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], 8 ≤ N → M8.PhysicalBridge.Valid 4 (M8.P4Family.recipe N)
+  intro N inst hN
+  have hcard := (M8.P4Family.support_data N hN).1
+  have hconn : M7.Connectivity.connected (M8.P4Family.recipe N) := by
+    simpa [M7.Connectivity.connected, M8.P4Family.recipe,
+      M8.CoverageFoundation.FullDirection, M8.CoverageFoundation.direction] using
+      (M8.P4Family.full_direction N hN)
+  simp_all [M8.PhysicalBridge.Valid, M8.P4Family.recipe]

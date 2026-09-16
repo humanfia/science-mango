@@ -1,0 +1,5 @@
+import M8SequentialStore
+def M8.SequentialTarget.allocation_access : Prop := ∀ (N : ℕ) [NeZero N], ∀ (mem : List Bool), mem.length = M8.SequentialStore.slots N → ∀ (i : Fin (M8.SequentialStore.slots N)) (bit : Bool), (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).1 = mem[i.val]? ∧ (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).1 = M8.TaggedStore.packFrom 0 (mem.set i.val bit) ∧ (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).2 ≤ M8.SequentialStore.accessCharge N ∧ (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).2 ≤ M8.SequentialStore.accessCharge N
+def M8.SequentialTarget.store_space : Prop := ∀ (N : ℕ) [NeZero N], ∀ mem : List Bool, mem.length = M8.SequentialStore.slots N → M8.SequentialStore.storeSpace N mem ≤ 2000000*(N+1)^4
+def M8.SequentialTarget.access_envelope : Prop := ∀ (N : ℕ) [NeZero N], M8.SequentialStore.accessCharge N ≤ 3000000*(N+1)^6
+def M8.SequentialTarget.tag_setup_bound : Prop := ∀ (N : ℕ) [NeZero N], M8.SequentialStore.tagSetupCharge N ≤ 11000000*(N+1)^6

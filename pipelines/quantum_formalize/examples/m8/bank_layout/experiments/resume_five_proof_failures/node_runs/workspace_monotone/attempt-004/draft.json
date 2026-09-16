@@ -1,0 +1,4 @@
+{
+  "proof": "set_option maxRecDepth 10000 in\n  classical\n  change ∀ R S N slots : ℕ, R ≤ S → M6.Transfer.solveStorage R N slots ≤ M6.Transfer.solveStorage S N slots\n  intro R S N slots hRS\n  have hp : 2 ^ R ≤ 2 ^ S := pow_le_pow_right₀ (by decide) hRS\n  have hlen : ∀ r : ℕ, (M6.Transfer.scatterEventList r N).length = 2^r * 2 * (2*N+1) * 3 := by\n    intro r\n    simp [M6.Transfer.scatterEventList, M6.Transfer.ScatterEvent,\n      M6.Transfer.state_count, M6.Transfer.Bit, mul_assoc]\n  simp only [M6.Transfer.solveStorage, M6.Transfer.pairedQueryStorage,\n    M6.Transfer.actualTraceStorage, M6.Transfer.traceStorageModel, hlen]\n  repeat first\n    | exact le_rfl\n    | exact hRS\n    | exact hp\n    | apply Nat.add_le_add\n    | apply Nat.mul_le_mul\n    | apply pow_le_pow_right₀ (by decide)",
+  "queries": []
+}

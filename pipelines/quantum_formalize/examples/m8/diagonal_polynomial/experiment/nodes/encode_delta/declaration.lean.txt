@@ -1,0 +1,8 @@
+theorem M8.DiagonalPolynomial.encode_delta : ∀ (N : ℕ) [NeZero N], M6.Coordinates.encode N (M6.Physical.delta N 0) = 1 := by
+  intro N inst
+  rw [M6.Coordinates.encode_sum]
+  rw [Finset.sum_eq_single (0 : ZMod N)]
+  · simp [M6.Physical.delta, M6.Coordinates.rootPow]
+  · intro i hi hne
+    simp [M6.Physical.delta, hne, Ne.symm hne]
+  · simp

@@ -1,0 +1,84 @@
+{
+  "id": "none_iff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Discovery.none_iff",
+    "spec_sha256": "e0ebc2d7e3f348275a3de72fde7f7d5328b4725fab864ffbc0da65ffcf165b9a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1/attempt-001/Candidate_ff1e50bd2fc1c35a.lean",
+        "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1/attempt-001/FrozenTarget_ff1e50bd2fc1c35a.lean",
+        "feedback": "",
+        "target_sha256": "b4d10e5132f647c254e53cb30e7f889daacd5cebdb57040d9e5add341f056859",
+        "target_olean_sha256": "8b180abf091a884808aa789f1b8035b6a2bc47d378629e2a65bd00fb7bf1cfe6",
+        "source_sha256": "d1355b6a08d8f265dc99bfc36acbd696961f8ac82236f3a1498775bb9b96b701",
+        "olean_sha256": "c90633ec7342d2d64229f047e454dd9c087c95fd7ba3ee37f814199f47602d01",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:14:15.573757+00:00",
+    "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-76ng2vq1/attempt-001/Candidate_ff1e50bd2fc1c35a.lean",
+    "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+    "artifacts": {
+      "test_spec": {
+        "payload": {
+          "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+          "imports": [
+            "M8Discovery"
+          ],
+          "name": "M8.Discovery.test_spec",
+          "ancestors": [],
+          "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+        },
+        "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+      },
+      "right_none": {
+        "payload": {
+          "declaration": "theorem M8.Discovery.right_none : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.Discovery.atRight c e t a = none ↔ ∀ b : Fin N, ¬ M8.Discovery.Good c ⟨e,t,a,b⟩ := by\n  classical\n  intro N _ c e t a\n  have hm (o : Option (Fin N × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  rw [M8.Discovery.atRight, hm, M8.FiniteSearch.find_none]\n  simp [M8.Discovery.test_spec]",
+          "imports": [
+            "M8Discovery"
+          ],
+          "name": "M8.Discovery.right_none",
+          "ancestors": [
+            "test_spec"
+          ],
+          "spec_sha256": "6a410a5d04702afa680b02835d0b4a675646e680f1ba9b56b69540290581d768"
+        },
+        "sha256": "47f70f194809af82cd18f3f96118d7b8238d282d1c8fb5f6f44b6bbdc1ff2b4c"
+      },
+      "none_iff": {
+        "payload": {
+          "declaration": "theorem M8.Discovery.none_iff : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Discovery.discover c = none ↔ ∀ k : M8.Discovery.Choice N, ¬ M8.Discovery.Good c k := by\n  classical\n  intro N _ c\n  have hm {m : ℕ} (o : Option (Fin m × M8.Discovery.Choice N)) :\n      o.map Prod.snd = none ↔ o = none := by\n    cases o <;> simp\n  simp only [M8.Discovery.discover, M8.Discovery.atUnit,\n    M8.Discovery.atLeft, hm, M8.FiniteSearch.find_none,\n    M8.Discovery.right_none]\n  constructor\n  · intro h k\n    rcases k with ⟨e, t, a, b⟩\n    cases e\n    · simpa using h (0 : Fin 2) t a b\n    · simpa using h (1 : Fin 2) t a b\n  · intro h e t a b\n    exact h ⟨decide (e.val = 1), t, a, b⟩",
+          "imports": [
+            "M8Discovery"
+          ],
+          "name": "M8.Discovery.none_iff",
+          "ancestors": [
+            "right_none",
+            "test_spec"
+          ],
+          "spec_sha256": "3df4c808a5ef96f2156952c9ded28e0425d275dcba9f53822f8fd75b1d77da02"
+        },
+        "sha256": "41ce7a01ff30cb3a191469ad214dbadc714bac68857e4dfaed65cb452661be9d"
+      }
+    }
+  }
+}

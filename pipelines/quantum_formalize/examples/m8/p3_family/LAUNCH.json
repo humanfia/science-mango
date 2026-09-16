@@ -1,15 +1,59 @@
 {
-  "launcher": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/p3_family-8cddv_ji",
-  "pid": 60158,
+  "launcher": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/retrieval-resume-g8zgjpi_",
+  "pid": 344906,
   "detached": true,
   "config": {
     "project": "/home/jing/m8-lean-p3-family-formalization",
-    "graph": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/p3_family-8cddv_ji/graph.json",
-    "output": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/p3_family-8cddv_ji/experiment",
-    "result_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/p3_family-8cddv_ji/result.json",
+    "graph": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/retrieval-resume-g8zgjpi_/graph.json",
+    "output": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/retrieval-resume-g8zgjpi_/experiment",
+    "result_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/retrieval-resume-g8zgjpi_/result.json",
     "concurrency": 2,
     "rounds": 5,
     "compile_timeout": 600,
-    "turn_timeout": 600
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "divides_modulus": {
+        "proof": "change \u2200 N : \u2115, 3 \u2223 N \u2192 M8.P3Family.polynomial \u2223 M6.Cyclic.modulus N\nintro N hN\nobtain \u27e8k, rfl\u27e9 := hN\nhave h : \u2200 k : \u2115, M8.P3Family.polynomial \u2223\n    (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (3 * k) - 1 := by\n  intro k\n  induction k with\n  | zero => simp\n  | succ k ih =>\n    obtain \u27e8q, hq\u27e9 := ih\n    refine \u27e8q * Polynomial.X ^ 3 + (Polynomial.X - 1), ?_\u27e9\n    calc\n      Polynomial.X ^ (3 * (k + 1)) - 1 =\n          (Polynomial.X ^ (3 * k) - 1) * Polynomial.X ^ 3 +\n            (Polynomial.X ^ 3 - 1) := by\n              rw [Nat.mul_succ, pow_add]\n              ring\n      _ = M8.P3Family.polynomial *\n          (q * Polynomial.X ^ 3 + (Polynomial.X - 1)) := by\n            rw [hq]\n            unfold M8.P3Family.polynomial\n            ring\nhave hone : (-1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n  ext n\n  by_cases hn : n = 0 <;>\n    norm_num [Polynomial.coeff_neg, Polynomial.coeff_one, hn]\nsimpa [M6.Cyclic.modulus, sub_eq_add_neg, hone] using h k",
+        "queries": [
+          "M6.Cyclic.modulus",
+          "M6.Cyclic.BinaryPolynomial"
+        ]
+      },
+      "literal_polynomial": {
+        "proof": "  change \u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial\n  intro N inst hN\n  classical\n  have h0 : (0 : ZMod N).val = 0 := by simp\n  have h1 : (1 : ZMod N).val = 1 := by\n    have h : ((1 : \u2115) : ZMod N).val = 1 % N := by\n      rw [ZMod.val_natCast]\n    simpa only [Nat.cast_one, Nat.mod_eq_of_lt (show 1 < N by omega)] using h\n  have h2 : (2 : ZMod N).val = 2 := by\n    have h : ((2 : \u2115) : ZMod N).val = 2 % N := by\n      rw [ZMod.val_natCast]\n    simpa only [Nat.cast_ofNat, Nat.mod_eq_of_lt (show 2 < N by omega)] using h\n  have h01 : (0 : ZMod N) \u2260 1 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  have h02 : (0 : ZMod N) \u2260 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  have h12 : (1 : ZMod N) \u2260 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  simp [M8.P3Family.support, M8.P3Family.polynomial, M7.Supports.polynomial,\n    h0, h1, h2, h01, h02, h12, add_assoc, add_comm, add_left_comm]",
+        "queries": []
+      },
+      "nontrivial": {
+        "proof": "change M8.P3Family.polynomial \u2260 1 \u2227 M8.P3Family.polynomial \u2260 0 \u2227 M8.P3Family.polynomial.natDegree = 2\nhave hc : M8.P3Family.polynomial.coeff 2 \u2260 0 := by\n  norm_num [M8.P3Family.polynomial, Polynomial.coeff_add, Polynomial.coeff_one, Polynomial.coeff_X, Polynomial.coeff_X_pow]\nhave hs : (1 + Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree \u2264 1 := by\n  calc\n    _ \u2264 max (1 : M6.Cyclic.BinaryPolynomial).natDegree (Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _\n    _ \u2264 1 := by simp\nhave hd : M8.P3Family.polynomial.natDegree = 2 := by\n  apply Nat.le_antisymm\n  \u00b7 unfold M8.P3Family.polynomial\n    calc\n      _ \u2264 max (1 + Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree (Polynomial.X ^ 2 : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _\n      _ \u2264 2 := max_le (hs.trans (by decide)) (by simp)\n  \u00b7 exact Polynomial.le_natDegree_of_ne_zero hc\nrefine \u27e8?_, ?_, hd\u27e9\n\u00b7 intro h\n  simpa [h] using hd\n\u00b7 intro h\n  simpa [h] using hd",
+        "queries": []
+      },
+      "signature": {
+        "proof": "intro N inst hN hdiv\nhave hl := M8.P3Family.literal_polynomial N hN\nhave hd := M8.P3Family.divides_modulus N hdiv\nchange EuclideanDomain.gcd\n  (EuclideanDomain.gcd (M7.Supports.polynomial (M8.P3Family.support N))\n    (M7.Supports.polynomial (M8.P3Family.support N))) (M6.Cyclic.modulus N) = M8.P3Family.polynomial\nrw [hl, EuclideanDomain.gcd_self]\nexact EuclideanDomain.gcd_eq_left.mpr hd",
+        "queries": []
+      },
+      "span_cutoff": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 M8.Anchor.span (M8.P3Family.recipe N) \u2264 M8.Cutoff.limit N\nintro N inst hN\nclassical\nhave hs : \u2200 i \u2208 M8.P3Family.support N, i.val \u2264 2 := by\n  intro i hi\n  simp only [M8.P3Family.support, Finset.mem_insert, Finset.mem_singleton] at hi\n  rcases hi with rfl | rfl | rfl\n  \u00b7 simp\n  \u00b7 change ((1 : \u2115) : ZMod N).val \u2264 2\n    rw [ZMod.val_natCast]\n    exact le_trans (Nat.mod_le 1 N) (by decide)\n  \u00b7 change ((2 : \u2115) : ZMod N).val \u2264 2\n    rw [ZMod.val_natCast]\n    exact Nat.mod_le 2 N\nhave hspan : M8.Anchor.span (M8.P3Family.recipe N) \u2264 2 := by\n  apply (M8.Anchor.span_le N (M8.P3Family.recipe N) 2).2\n  exact \u27e8hs, hs\u27e9\nhave hlog : 2 \u2264 Nat.log 2 (N + 1) := by\n  apply (Nat.le_log_iff_pow_le (by decide) (by omega)).2\n  norm_num\n  omega\nhave hlog2 : 2 \u2264 Nat.log2 (N + 1) := by\n  first\n  | simpa only [Nat.log_two_eq_log2] using hlog\n  | simpa only [Nat.log2_eq_log] using hlog\n  | exact hlog\napply le_trans hspan\nrw [M8.Cutoff.bit_length_limit]\nexact le_min (by omega) hlog2",
+        "queries": [
+          "Nat.le_log_iff_pow_le",
+          "Nat.log_two_eq_log2",
+          "ZMod.val_natCast"
+        ]
+      },
+      "support_data": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 (M8.P3Family.support N).card = 3 \u2227 (0 : ZMod N) \u2208 M8.P3Family.support N \u2227 (1 : ZMod N) \u2208 M8.P3Family.support N\nintro N inst hN\nclassical\nhave hinj (a b : \u2115) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n  have hv := congrArg (fun x : ZMod N => x.val) h\n  simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\nhave h01 : (0 : ZMod N) \u2260 1 := by\n  intro h\n  have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n  omega\nhave h02 : (0 : ZMod N) \u2260 2 := by\n  intro h\n  have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n  omega\nhave h12 : (1 : ZMod N) \u2260 2 := by\n  intro h\n  have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n  omega\nsimp [M8.P3Family.support, h01, h02, h12]",
+        "queries": [
+          "ZMod.val_natCast",
+          "Finset.card_insert_of_notMem"
+        ]
+      },
+      "full_direction": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 M8.CoverageFoundation.FullDirection (M8.P3Family.support N)\nintro N inst hN\napply M8.CoverageFoundation.consecutive_full N (M8.P3Family.support N) 0\n\u00b7 exact (M8.P3Family.support_data N hN).2.1\n\u00b7 simpa only [zero_add] using (M8.P3Family.support_data N hN).2.2",
+        "queries": []
+      },
+      "valid": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 M8.PhysicalBridge.Valid 3 (M8.P3Family.recipe N)\nintro N inst hN\nclassical\nhave hs := M8.P3Family.support_data N hN\nhave hf := M8.P3Family.full_direction N hN\nhave hc : M7.Connectivity.connected (M8.P3Family.support N, M8.P3Family.support N) := by\n  simpa only [M7.Connectivity.connected, Set.union_self,\n    M8.CoverageFoundation.FullDirection, M8.CoverageFoundation.direction] using hf\nsimp_all [M8.PhysicalBridge.Valid, M8.P3Family.recipe]",
+        "queries": []
+      }
+    }
   }
 }

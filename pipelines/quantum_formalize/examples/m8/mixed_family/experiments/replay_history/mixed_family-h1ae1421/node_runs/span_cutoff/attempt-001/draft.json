@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.Anchor.span (M8.MixedFamily.recipe N) ≤ M8.Cutoff.limit N\nintro N inst hN\nclassical\nhave hspan : M8.Anchor.span (M8.MixedFamily.recipe N) ≤ 2 := by\n  apply (M8.Anchor.span_le N (M8.MixedFamily.recipe N) 2).2\n  constructor\n  · intro i hi\n    change i ∈ ({0, 1} : Finset (ZMod N)) at hi\n    simp only [Finset.mem_insert, Finset.mem_singleton] at hi\n    rcases hi with rfl | rfl\n    · simp\n    · change ((1 : ℕ) : ZMod N).val ≤ 2\n      rw [ZMod.val_natCast]\n      exact (Nat.mod_le 1 N).trans (by decide)\n  · intro i hi\n    change i ∈ ({0, 2} : Finset (ZMod N)) at hi\n    simp only [Finset.mem_insert, Finset.mem_singleton] at hi\n    rcases hi with rfl | rfl\n    · simp\n    · change ((2 : ℕ) : ZMod N).val ≤ 2\n      rw [ZMod.val_natCast]\n      exact Nat.mod_le 2 N\napply hspan.trans\nhave hlog : 2 ≤ Nat.log 2 (N + 1) := by\n  have h := Nat.log_mono_right (b := 2) (show 4 ≤ N + 1 by omega)\n  norm_num at h\n  exact h\nfirst\n| change 2 ≤ min (N - 1) (Nat.log 2 (N + 1))\n  exact le_min (by omega) hlog\n| rw [M8.Cutoff.bit_length_limit]\n  apply le_min (by omega)\n  first\n  | simpa only [Nat.log_two_eq_log2] using hlog\n  | simpa only [Nat.log2_eq_log_two] using hlog",
+  "queries": [
+    "Nat.log_mono_right",
+    "Nat.log_two_eq_log2",
+    "ZMod.val_natCast"
+  ]
+}

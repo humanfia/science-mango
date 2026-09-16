@@ -1,0 +1,5 @@
+Nine exact original exclusion geometry targets accepted, with assembly and environment checks passed. Canonical experiment: 185 manifest files, all hashes verified. Eight targets passed on their first live attempt; unit_half passed on its third live attempt. All original attempts are retained. No deterministic repair was used; the prepared but unexecuted unit-cast backup did not replace the successful late live proof.
+
+The actual unit fixes a natural half-period in ZMod N when N=2h, and both independent affine shifts plus block exchange preserve existence of an antipodal pair in either block. Its standard-residue span is at least h under every actual action. Separately, support cardinality is at most its residue supremum plus one, yielding the original equal-weight orbit lower bound and general weight-threshold exclusion.
+
+These are actual all-action span statements. Downstream instantiated cutoff and solver theorems must turn them into discover none; Unrecognized additionally requires the original nontrivial-signature branch, since signature1 takes priority as NoLogical. No distance, hardness, or Clifford-inequivalence conclusion is inferred from exclusion.

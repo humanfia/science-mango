@@ -1,0 +1,654 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-16T13:54:56.969732+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "cutoff_half": {
+      "id": "cutoff_half",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.cutoff_half",
+        "spec_sha256": "57b1d07d8c9896e3aff5649a92f212d3b1636455c03563b31a576dcc0303a5c8",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-b6b8oeoj/attempt-001/Candidate_a53dc9241717e6a7.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-b6b8oeoj/attempt-001/FrozenTarget_a53dc9241717e6a7.lean",
+            "feedback": "",
+            "target_sha256": "fb97b9b681192082477e47fa7b496f8d06c54e8331444d51fc0116b9060eb41d",
+            "target_olean_sha256": "26e6b5b9db4d2ba23cd62485b2a9aad3241f2cdd9085001883e1619a134d10bb",
+            "source_sha256": "aec8651679e539f0c51195ff741e75fc7310f28b0c87e78dec763c3e1cd6d1c4",
+            "olean_sha256": "f89c6e0a1e942d2a5c41fa7924c3b1e32527c8b4d5fc404498a2127b0bfbd261",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:35:18.638554+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-b6b8oeoj",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-b6b8oeoj/attempt-001/Candidate_a53dc9241717e6a7.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "cutoff_half": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.cutoff_half : ∀ (v : ℕ), 3 ≤ v → M8.Cutoff.limit (2^v) = v ∧ v < 2^(v-1) := by\n  change ∀ v : ℕ, 3 ≤ v → M8.Cutoff.limit (2^v) = v ∧ v < 2^(v-1)\n  intro v hv\n  have hp : ∀ k : ℕ, k + 3 < (2 : ℕ)^(k + 2) := by\n    intro k\n    induction k with\n    | zero => norm_num\n    | succ k ih =>\n      have he : (2 : ℕ)^(Nat.succ k + 2) = 2^(k + 2) * 2 := by\n        rw [show Nat.succ k + 2 = (k + 2) + 1 by omega, pow_succ]\n      rw [he]\n      omega\n  have hhalf := hp (v - 3)\n  have hx : v - 3 + 3 = v := by omega\n  have hy : v - 3 + 2 = v - 1 := by omega\n  rw [hx, hy] at hhalf\n  have he : (2 : ℕ)^v = 2^(v-1) * 2 := by\n    calc\n      2^v = 2^((v-1)+1) := congrArg (fun n : ℕ => (2 : ℕ)^n) (by omega)\n      _ = 2^(v-1) * 2 := pow_succ _ _\n  have hmin : v ≤ (2 : ℕ)^v - 1 := by omega\n  have hlo : (2 : ℕ)^v ≤ 2^v + 1 := by omega\n  have hhi : (2 : ℕ)^v + 1 < 2^(v+1) := by\n    rw [pow_succ]\n    omega\n  have hlog : Nat.log 2 ((2 : ℕ)^v + 1) = v := by\n    apply Nat.log_eq_of_pow_le_of_lt_pow <;> omega\n  constructor\n  · rw [M8.Cutoff.bit_length_limit]\n    have hlog2 : Nat.log2 ((2 : ℕ)^v + 1) = v := by\n      first\n      | simpa only [Nat.log2_eq_log_two] using hlog\n      | simpa only [Nat.log_two_eq_log2] using hlog\n    rw [hlog2, min_eq_right hmin]\n  · exact hhalf",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.cutoff_half",
+              "ancestors": [],
+              "spec_sha256": "57b1d07d8c9896e3aff5649a92f212d3b1636455c03563b31a576dcc0303a5c8"
+            },
+            "sha256": "e2f9fe88fd47db8a51ab2eef5de2059321fda9c565641e83418041c319fac194"
+          }
+        }
+      }
+    },
+    "literal_polynomial": {
+      "id": "literal_polynomial",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M8.AntipodalFamily.literal_polynomial",
+        "spec_sha256": "2888f6624f626920421360afef3593bf81f16ca4a448b12d8497a84b958dd5e4",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:18:4: error: Type mismatch\n  hn 0 1 h0 h1 fun a => literal_polynomial._proof_1_5 N a\nhas type\n  ↑0 ≠ ↑1\nbut is expected to have type\n  0 ≠ 1\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:20:4: error: Type mismatch\n  hn 0 (N / 2) h0 hh fun a => literal_polynomial._proof_1_6 N hs a\nhas type\n  ↑0 ≠ ↑(N / 2)\nbut is expected to have type\n  0 ≠ ↑(N / 2)\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:22:4: error: Type mismatch\n  hn 0 (N / 2 + 1) h0 hs fun a => literal_polynomial._proof_1_7 N hs a\nhas type\n  ↑0 ≠ ↑(N / 2 + 1)\nbut is expected to have type\n  0 ≠ ↑(N / 2 + 1)\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:24:4: error: Type mismatch\n  hn 1 (N / 2) h1 hh fun a => literal_polynomial._proof_1_8 N hN hs a\nhas type\n  ↑1 ≠ ↑(N / 2)\nbut is expected to have type\n  1 ≠ ↑(N / 2)\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:26:4: error: Type mismatch\n  hn 1 (N / 2 + 1) h1 hs fun a => literal_polynomial._proof_1_9 N hs a\nhas type\n  ↑1 ≠ ↑(N / 2 + 1)\nbut is expected to have type\n  1 ≠ ↑(N / 2 + 1)\nTry this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:2:78: error: unsolved goals\nN : ℕ\ninst : NeZero N\nhN : 8 ≤ N\nhEven : Even N\nh0 : 0 < N\nh1 : 1 < N\nhh : N / 2 < N\nhs : N / 2 + 1 < N\nhv : ∀ k < N, (↑k).val = k\nhn : ∀ (a b : ℕ), a < N → b < N → a ≠ b → ↑a ≠ ↑b\nh01 : 0 ≠ 1\nh0h : 0 ≠ ↑(N / 2)\nh0s : 0 ≠ ↑(N / 2 + 1)\nh1h : 1 ≠ ↑(N / 2)\nh1s : 1 ≠ ↑(N / 2 + 1)\nhhs : ↑(N / 2) ≠ ↑(N / 2 + 1)\nv1 : ZMod.val 1 = 1\n⊢ ∑ x ∈ {0, 1, ↑(N / 2), 1 + ↑(N / 2)}, Polynomial.X ^ x.val =\n    1 + Polynomial.X + Polynomial.X * Polynomial.X ^ (N / 2) + Polynomial.X ^ (N / 2)\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:31:32: warning: This simp argument is unused:\n  M7.Supports.natSupport\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M8.AntipodalFamily.support, M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h,\n    h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, ← Polynomial.X_pow_eq_monomial, pow_succ,\n    Nat.ne_of_lt (show 1 < N / 2 by omega), Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:4: warning: This simp argument is unused:\n  h01\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:9: warning: This simp argument is unused:\n  h0h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:14: warning: This simp argument is unused:\n  h0s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:19: warning: This simp argument is unused:\n  h1h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:24: warning: This simp argument is unused:\n  h1s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:29: warning: This simp argument is unused:\n  hhs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:34: warning: This simp argument is unused:\n  v1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n    Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:33:38: warning: This simp argument is unused:\n  hv (N / 2) hh\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2 + 1) hs, ← Polynomial.X_pow_eq_monomial,\n    pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega), Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:34:4: warning: This simp argument is unused:\n  hv (N / 2 + 1) hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, ← Polynomial.X_pow_eq_monomial,\n    pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega), Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:34:23: warning: This simp argument is unused:\n  ← Polynomial.X_pow_eq_monomial\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, pow_succ,\n    Nat.ne_of_lt (show 1 < N / 2 by omega), Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: Simp arguments with `←` have the additional effect of removing the other direction from the simp set, even if the simp argument itself is unused. If the hint above does not work, try replacing `←` with `-` to only get that effect and silence this warning.\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:35:4: warning: This simp argument is unused:\n  pow_succ\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, Nat.ne_of_lt (show 1 < N / 2 by omega), Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:35:14: warning: This simp argument is unused:\n  Nat.ne_of_lt (show 1 < N / 2 by omega)\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 0 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-001/Candidate_b6bf50202c54f753.lean:36:4: warning: This simp argument is unused:\n  Nat.ne_of_lt (show 0 < N / 2 by omega)\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs,\n    ← Polynomial.X_pow_eq_monomial, pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega)]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-002/Candidate_b902e75f35e868fd.lean:27:14: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  HDiv ℕ ℕ (ZMod N)\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-002/Candidate_b902e75f35e868fd.lean:28:4: error: Type mismatch\n  hn (N / 2) (N / 2 + 1) hh hs fun a => literal_polynomial._proof_1_10 N a\nhas type\n  ↑(N / 2) ≠ ↑(N / 2 + 1)\nbut is expected to have type\n  N / 2 ≠ ↑(N / 2 + 1)\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:41:6: error(lean.unknownIdentifier): Unknown constant `Polynomial.monomial_eq_C_mul_X`\nTry this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:2:78: error: unsolved goals\nN : ℕ\ninst : NeZero N\nhN : 8 ≤ N\nhEven : Even N\nhh : N / 2 < N\nhs : N / 2 + 1 < N\nhv : ∀ a < N, (↑a).val = a\nhn : ∀ (a b : ℕ), a < N → b < N → a ≠ b → ↑a ≠ ↑b\nh01 : 0 ≠ 1\nh0h : 0 ≠ ↑(N / 2)\nh0s : 0 ≠ ↑(N / 2 + 1)\nh1h : 1 ≠ ↑(N / 2)\nh1s : 1 ≠ ↑(N / 2 + 1)\nhhs : ↑(N / 2) ≠ ↑(N / 2 + 1)\nv0 : ZMod.val 0 = 0\nv1 : ZMod.val 1 = 1\nhn0 : N / 2 ≠ 0\nhn1 : N / 2 ≠ 1\nhsn0 : N / 2 + 1 ≠ 0\nhsn1 : N / 2 + 1 ≠ 1\n⊢ ∑ x ∈ {0, 1, ↑(N / 2), 1 + ↑(N / 2)}, Polynomial.X ^ x.val =\n    1 + Polynomial.X + Polynomial.X * Polynomial.X ^ (N / 2) + Polynomial.X ^ (N / 2)\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:36:34: warning: This simp argument is unused:\n  M7.Supports.natSupport\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M8.AntipodalFamily.support, M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h,\n    h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0, hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0,\n    Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:6: warning: This simp argument is unused:\n  h01\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:11: warning: This simp argument is unused:\n  h0h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:16: warning: This simp argument is unused:\n  h0s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:21: warning: This simp argument is unused:\n  h1h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:26: warning: This simp argument is unused:\n  h1s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:31: warning: This simp argument is unused:\n  hhs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:36: warning: This simp argument is unused:\n  v0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:40: warning: This simp argument is unused:\n  v1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:38:44: warning: This simp argument is unused:\n  hv (N / 2) hh\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2 + 1) hs, hn0, hn1, hsn0, hsn1,\n    Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:39:6: warning: This simp argument is unused:\n  hv (N / 2 + 1) hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hn0, hn1, hsn0, hsn1,\n    Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:39:25: warning: This simp argument is unused:\n  hn0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn1, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:39:30: warning: This simp argument is unused:\n  hn1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hsn0,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:39:35: warning: This simp argument is unused:\n  hsn0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:39:41: warning: This simp argument is unused:\n  hsn1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn0, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:40:6: warning: This simp argument is unused:\n  Ne.symm hn0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn0, hsn1, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:40:19: warning: This simp argument is unused:\n  Ne.symm hn1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn0, hsn1, Ne.symm hn0, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:40:32: warning: This simp argument is unused:\n  Ne.symm hsn0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn0, hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:40:46: warning: This simp argument is unused:\n  Ne.symm hsn1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn0, hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-003/Candidate_e83479788166f0cb.lean:41:38: warning: This simp argument is unused:\n  pow_succ\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, v0, v1, hv (N / 2) hh, hv (N / 2 + 1) hs, hn0, hn1,\n    hsn0, hsn1, Ne.symm hn0, Ne.symm hn1, Ne.symm hsn0, Ne.symm hsn1, Polynomial.monomial_eq_C_mul_X]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-004/Candidate_e5e5a2581cfa02fc.lean:33:56: error(lean.unknownIdentifier): Unknown identifier `not_false_eq`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-004/Candidate_e5e5a2581cfa02fc.lean:32:4: error: `simp` made no progress\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": " 1 < N\nhv : ∀ k < N, (↑k).val = k\nv0 : ZMod.val 0 = 0\nv1 : ZMod.val 1 = 1\nvh : (↑(N / 2)).val = N / 2\nvs : (↑(N / 2 + 1)).val = N / 2 + 1\nh01 : 0 ≠ 1\nh0h : 0 ≠ ↑(N / 2)\nh0s : 0 ≠ ↑(N / 2 + 1)\nh1h : 1 ≠ ↑(N / 2)\nh1s : 1 ≠ ↑(N / 2 + 1)\nhhs : ↑(N / 2) ≠ ↑(N / 2 + 1)\nhn0 : N / 2 ≠ 0\nhn1 : N / 2 ≠ 1\nhs0 : N / 2 + 1 ≠ 0\nhs1 : N / 2 + 1 ≠ 1\n⊢ ∑ x ∈ {0, 1, ↑(N / 2), 1 + ↑(N / 2)}, Polynomial.X ^ x.val =\n    1 + Polynomial.X + Polynomial.X * Polynomial.X ^ (N / 2) + Polynomial.X ^ (N / 2)\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:48:32: warning: This simp argument is unused:\n  M7.Supports.natSupport\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M8.AntipodalFamily.support, M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h,\n    h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h, Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1,\n    hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1, Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:4: warning: This simp argument is unused:\n  h01\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:9: warning: This simp argument is unused:\n  h0h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:14: warning: This simp argument is unused:\n  h0s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:19: warning: This simp argument is unused:\n  h1h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:24: warning: This simp argument is unused:\n  h1s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:29: warning: This simp argument is unused:\n  hhs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:50:34: warning: This simp argument is unused:\n  Ne.symm h01\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h, Ne.symm h1s,\n    Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:51:4: warning: This simp argument is unused:\n  Ne.symm h0h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0s, Ne.symm h1h, Ne.symm h1s,\n    Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:51:17: warning: This simp argument is unused:\n  Ne.symm h0s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h1h, Ne.symm h1s,\n    Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:51:30: warning: This simp argument is unused:\n  Ne.symm h1h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1s,\n    Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:51:43: warning: This simp argument is unused:\n  Ne.symm h1s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:4: warning: This simp argument is unused:\n  Ne.symm hhs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:17: warning: This simp argument is unused:\n  v0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:21: warning: This simp argument is unused:\n  v1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:25: warning: This simp argument is unused:\n  vh\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:29: warning: This simp argument is unused:\n  vs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:33: warning: This simp argument is unused:\n  hn0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:38: warning: This simp argument is unused:\n  hn1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:43: warning: This simp argument is unused:\n  hs0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:52:48: warning: This simp argument is unused:\n  hs1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:53:4: warning: This simp argument is unused:\n  Ne.symm hn0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:53:17: warning: This simp argument is unused:\n  Ne.symm hn1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:53:30: warning: This simp argument is unused:\n  Ne.symm hs0\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:53:43: warning: This simp argument is unused:\n  Ne.symm hs1\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0,\n    Polynomial.monomial_eq_C_mul_X, pow_succ]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq/attempt-005/Candidate_337c9d3bdec9fd13.lean:54:36: warning: This simp argument is unused:\n  pow_succ\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M7.Supports.polynomial, M7.Supports.natSupport, M8.AntipodalFamily.support,\n    M8.AntipodalFamily.polynomial, h01, h0h, h0s, h1h, h1s, hhs, Ne.symm h01, Ne.symm h0h, Ne.symm h0s, Ne.symm h1h,\n    Ne.symm h1s, Ne.symm hhs, v0, v1, vh, vs, hn0, hn1, hs0, hs1, Ne.symm hn0, Ne.symm hn1, Ne.symm hs0, Ne.symm hs1,\n    Polynomial.monomial_eq_C_mul_X]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-16T13:35:18.797077+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x7pq3itq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "modulus_power": {
+      "id": "modulus_power",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.modulus_power",
+        "spec_sha256": "daa2d615b5117877428ccdb0f3886895fde8b51b84ea33a8a0f243b20980f726",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-7b3pih70/attempt-001/Candidate_6521a030bc1ca16e.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-7b3pih70/attempt-001/FrozenTarget_6521a030bc1ca16e.lean",
+            "feedback": "",
+            "target_sha256": "592838ca238d1c70062368d9c0c16f3ecb943d4d3f3ffd0c71e47111e0f4191d",
+            "target_olean_sha256": "b5dec731849a25fd760f74c238c4bd084deb6d559c18f46e9e1f48e7c9cb6fb6",
+            "source_sha256": "117f26abc2269bfeed1058b8fe261adbd71dbfe34078d003c5cc9ea4c9418fb1",
+            "olean_sha256": "8dcd1b60da9dfc21627909a976f85453359ef5aa32a49763a1246325f5e9008b",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:37:57.367488+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-7b3pih70",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-7b3pih70/attempt-001/Candidate_6521a030bc1ca16e.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "modulus_power": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.modulus_power : ∀ (v : ℕ), 3 ≤ v → M6.Cyclic.modulus (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^v) := by\n  change ∀ (v : ℕ), 3 ≤ v → M6.Cyclic.modulus (2^v) = (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial)^(2^v)\n  intro v hv\n  simp [M6.Cyclic.modulus, add_pow_char_pow]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.modulus_power",
+              "ancestors": [],
+              "spec_sha256": "daa2d615b5117877428ccdb0f3886895fde8b51b84ea33a8a0f243b20980f726"
+            },
+            "sha256": "8765612534cca8d61c01a4302407f0b47e04bd63c5465f6aa0dccd4636dad2e1"
+          }
+        }
+      }
+    },
+    "nontrivial": {
+      "id": "nontrivial",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.nontrivial",
+        "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop/attempt-001/Candidate_72881e80aeebaa8e.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop/attempt-001/FrozenTarget_72881e80aeebaa8e.lean",
+            "feedback": "",
+            "target_sha256": "70ad55a39a36e767986249ad39d7ef597ae1361cb930942565f826be15ff9dad",
+            "target_olean_sha256": "80fc8bc8c70cfa2aedeccd98fa73510b528d51d0f503be3fd752d1bbdf682316",
+            "source_sha256": "df5e77180ddec374691db6090d13c4d3f139f08d6cce3029eddfdbbbacd2982c",
+            "olean_sha256": "1c73caf63163d13502614856b1610ce99b8040855d746c2292f6d52708d77597",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:40:07.522928+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop/attempt-001/Candidate_72881e80aeebaa8e.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "nontrivial": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.nontrivial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).Monic ∧ M8.AntipodalFamily.polynomial N ≠ 1 ∧ M8.AntipodalFamily.polynomial N ≠ 0 ∧ (M8.AntipodalFamily.polynomial N).natDegree = N/2+1 := by\n  intro N inst hN hEven\n  have hhalf : 0 < N / 2 := by omega\n  have monic_binomial : ∀ (R : Type) [CommRing R] (k : ℕ), 0 < k → (1 + (Polynomial.X : Polynomial R) ^ k).Monic := by\n    intro R _ k hk\n    first\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) (ne_of_gt hk) 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 (ne_of_gt hk))\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) hk 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 hk)\n  have h₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).Monic := by\n    simpa using monic_binomial _ 1 (by omega)\n  have h₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).Monic :=\n    monic_binomial _ _ hhalf\n  have hm : (M8.AntipodalFamily.polynomial N).Monic := by\n    exact h₁.mul h₂\n  have hd₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).natDegree = 1 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n    simp\n  have hd₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).natDegree = N / 2 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simpa using hhalf)]\n    simp\n  have hd : (M8.AntipodalFamily.polynomial N).natDegree = N / 2 + 1 := by\n    unfold M8.AntipodalFamily.polynomial\n    rw [Polynomial.natDegree_mul h₁.ne_zero h₂.ne_zero, hd₁, hd₂]\n    omega\n  refine ⟨hm, ?_, hm.ne_zero, hd⟩\n  intro heq\n  rw [heq, Polynomial.natDegree_one] at hd\n  omega",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.nontrivial",
+              "ancestors": [],
+              "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd"
+            },
+            "sha256": "e036f80b8bb405832356e601e23b6bb90b881180cd759d58d09b547e91de42be"
+          }
+        }
+      }
+    },
+    "degree_bound": {
+      "id": "degree_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.degree_bound",
+        "spec_sha256": "41e78ae0f54b3009b99fc3264b8b1867ed36c12f7fa1895e19c0693352801838",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb/attempt-001/Candidate_76ea45a9d18f25e8.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb/attempt-001/FrozenTarget_76ea45a9d18f25e8.lean",
+            "feedback": "",
+            "target_sha256": "f7183fb681b79f4254722bf8266077dc7351d424ad2714b5469be651a9a99ffe",
+            "target_olean_sha256": "cd33e0dc8439bf4534de6423ee57140ec04afbe6052da542df557e6b8cc2dd22",
+            "source_sha256": "1ca163130fad893a13da441cc42f87897b986218e0e7473e363d0beede790e13",
+            "olean_sha256": "b08a885466e76b56a0655db738327db2b2735ee5db2045ea33d90bcacb14c6e0",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:43:07.384782+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb/attempt-001/Candidate_76ea45a9d18f25e8.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "nontrivial": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.nontrivial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).Monic ∧ M8.AntipodalFamily.polynomial N ≠ 1 ∧ M8.AntipodalFamily.polynomial N ≠ 0 ∧ (M8.AntipodalFamily.polynomial N).natDegree = N/2+1 := by\n  intro N inst hN hEven\n  have hhalf : 0 < N / 2 := by omega\n  have monic_binomial : ∀ (R : Type) [CommRing R] (k : ℕ), 0 < k → (1 + (Polynomial.X : Polynomial R) ^ k).Monic := by\n    intro R _ k hk\n    first\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) (ne_of_gt hk) 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 (ne_of_gt hk))\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) hk 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 hk)\n  have h₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).Monic := by\n    simpa using monic_binomial _ 1 (by omega)\n  have h₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).Monic :=\n    monic_binomial _ _ hhalf\n  have hm : (M8.AntipodalFamily.polynomial N).Monic := by\n    exact h₁.mul h₂\n  have hd₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).natDegree = 1 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n    simp\n  have hd₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).natDegree = N / 2 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simpa using hhalf)]\n    simp\n  have hd : (M8.AntipodalFamily.polynomial N).natDegree = N / 2 + 1 := by\n    unfold M8.AntipodalFamily.polynomial\n    rw [Polynomial.natDegree_mul h₁.ne_zero h₂.ne_zero, hd₁, hd₂]\n    omega\n  refine ⟨hm, ?_, hm.ne_zero, hd⟩\n  intro heq\n  rw [heq, Polynomial.natDegree_one] at hd\n  omega",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.nontrivial",
+              "ancestors": [],
+              "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd"
+            },
+            "sha256": "e036f80b8bb405832356e601e23b6bb90b881180cd759d58d09b547e91de42be"
+          },
+          "degree_bound": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.degree_bound : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).degree < (N : WithBot ℕ) := by\n  intro N inst hN hEven\n  obtain ⟨hm, hne_one, hne_zero, hd⟩ := M8.AntipodalFamily.nontrivial N hN hEven\n  rw [Polynomial.degree_eq_natDegree hne_zero, hd]\n  exact_mod_cast (show N / 2 + 1 < N by omega)",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.degree_bound",
+              "ancestors": [
+                "nontrivial"
+              ],
+              "spec_sha256": "599ac7d7c78c3e802ce731eac53bd5ac99dda56fd0a1b89b086e6fd48bb047f3"
+            },
+            "sha256": "626a81888f036bd860cde3bfbddf1fd3526df73a8f07ae54247f9b75a939e846"
+          }
+        }
+      }
+    },
+    "polynomial_power": {
+      "id": "polynomial_power",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.polynomial_power",
+        "spec_sha256": "2d90e8ad77f231ab91d0ae0bf678b3778717969ab9776a19fcca289f9ba9f725",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hah0iyw8/attempt-001/Candidate_f6eb951bcaeae11b.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hah0iyw8/attempt-001/FrozenTarget_f6eb951bcaeae11b.lean",
+            "feedback": "",
+            "target_sha256": "af4cf0731db4ae52c7cb831dd7ce910a8616a89bb6b2e3d70ccb9e11d9f198c5",
+            "target_olean_sha256": "d4c8d5d14d15ce4f395141835a57ffcc2e965b4189f5df68e1dfbcc68cd1760b",
+            "source_sha256": "07c2cecd969a7d943028e4b2fff7a1007bf5652bce2e02d5f2369632fbcdef5c",
+            "olean_sha256": "adc3ecad9a85555edc4bc36725f68d789b5f585df2ba9e7c33896fae0bfe35fc",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:45:57.703307+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hah0iyw8",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hah0iyw8/attempt-001/Candidate_f6eb951bcaeae11b.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "polynomial_power": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.polynomial_power : ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^(v-1)+1) := by\n  intro v hv\n  change (1 + Polynomial.X) * (1 + Polynomial.X ^ (2 ^ v / 2)) =\n    (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1) + 1)\n  have hd : 2 ^ v / 2 = 2 ^ (v - 1) := by\n    calc\n      2 ^ v / 2 = (2 ^ (v - 1) * 2) / 2 := by\n        rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n      _ = 2 ^ (v - 1) := by simp\n  have hf : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1)) =\n      Polynomial.X ^ (2 ^ (v - 1)) + 1 := by\n    simpa using (add_pow_char_pow (Polynomial.X : M6.Cyclic.BinaryPolynomial) 1 2 (v - 1))\n  rw [hd, pow_succ, hf]\n  ring",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.polynomial_power",
+              "ancestors": [],
+              "spec_sha256": "2d90e8ad77f231ab91d0ae0bf678b3778717969ab9776a19fcca289f9ba9f725"
+            },
+            "sha256": "ec0ef75e0419aceb19ff07c0ca8f432d66a5998b318cd906cea7b1fba69d56e8"
+          }
+        }
+      }
+    },
+    "divides_modulus": {
+      "id": "divides_modulus",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.divides_modulus",
+        "spec_sha256": "82d1c5f59957482468b2f559ea5e60c890e890899abd719c58170100c589a853",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-_mci_qob/attempt-001/Candidate_a89b9c682825f88d.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-_mci_qob/attempt-001/FrozenTarget_a89b9c682825f88d.lean",
+            "feedback": "",
+            "target_sha256": "511a7b16ad832dcddd2463c3be1fccc0b005b88a741e7b99e57c3f5393f05a0f",
+            "target_olean_sha256": "b4d77569f596138754ed5314ec74cb4e5b96137a526f91941cf6e5d78c9ffa6e",
+            "source_sha256": "c19709b4529d637687f34cd1009015de5a0f87d9c4c4986f21d7d7c089d5d810",
+            "olean_sha256": "ab6ff94c0f63f1789985190f012398dbfb28f4ba2ae679e5c2b912b72700b6b3",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:48:00.804028+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-_mci_qob",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-_mci_qob/attempt-001/Candidate_a89b9c682825f88d.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "polynomial_power": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.polynomial_power : ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^(v-1)+1) := by\n  intro v hv\n  change (1 + Polynomial.X) * (1 + Polynomial.X ^ (2 ^ v / 2)) =\n    (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1) + 1)\n  have hd : 2 ^ v / 2 = 2 ^ (v - 1) := by\n    calc\n      2 ^ v / 2 = (2 ^ (v - 1) * 2) / 2 := by\n        rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n      _ = 2 ^ (v - 1) := by simp\n  have hf : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1)) =\n      Polynomial.X ^ (2 ^ (v - 1)) + 1 := by\n    simpa using (add_pow_char_pow (Polynomial.X : M6.Cyclic.BinaryPolynomial) 1 2 (v - 1))\n  rw [hd, pow_succ, hf]\n  ring",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.polynomial_power",
+              "ancestors": [],
+              "spec_sha256": "2d90e8ad77f231ab91d0ae0bf678b3778717969ab9776a19fcca289f9ba9f725"
+            },
+            "sha256": "ec0ef75e0419aceb19ff07c0ca8f432d66a5998b318cd906cea7b1fba69d56e8"
+          },
+          "modulus_power": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.modulus_power : ∀ (v : ℕ), 3 ≤ v → M6.Cyclic.modulus (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^v) := by\n  change ∀ (v : ℕ), 3 ≤ v → M6.Cyclic.modulus (2^v) = (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial)^(2^v)\n  intro v hv\n  simp [M6.Cyclic.modulus, add_pow_char_pow]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.modulus_power",
+              "ancestors": [],
+              "spec_sha256": "daa2d615b5117877428ccdb0f3886895fde8b51b84ea33a8a0f243b20980f726"
+            },
+            "sha256": "8765612534cca8d61c01a4302407f0b47e04bd63c5465f6aa0dccd4636dad2e1"
+          },
+          "divides_modulus": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.divides_modulus : ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) ∣ M6.Cyclic.modulus (2^v) := by\n  change ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) ∣ M6.Cyclic.modulus (2^v)\n  intro v hv\n  rw [M8.AntipodalFamily.polynomial_power v hv, M8.AntipodalFamily.modulus_power v hv]\n  have hd : 2 ^ v = 2 ^ (v - 1) * 2 := by\n    rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n  have hp : 0 < (2 : ℕ) ^ (v - 1) := by positivity\n  have he : 2 ^ (v - 1) + 1 ≤ 2 ^ v := by omega\n  refine ⟨(Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ v - (2 ^ (v - 1) + 1)), ?_⟩\n  rw [← pow_add, Nat.add_sub_of_le he]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.divides_modulus",
+              "ancestors": [
+                "modulus_power",
+                "polynomial_power"
+              ],
+              "spec_sha256": "a622d886a0f5e86e45ec5b1c27bacfb36a54ae5604ad374c4e2be642e4e65b66"
+            },
+            "sha256": "1c3a43cfa48c69ee38c3e4e83befc0d1c4592e6f33c26b3bf2be470da01e7392"
+          }
+        }
+      }
+    },
+    "signature": {
+      "id": "signature",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "literal_polynomial"
+      ]
+    },
+    "support_data": {
+      "id": "support_data",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.support_data",
+        "spec_sha256": "afea1b7aad5ee01b9b2898cdb4cd9e612633ca998421b537104df1a934aadc80",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-001/Candidate_a99443513ba478ce.lean:2:72: error: unsolved goals\nN : ℕ\ninst : NeZero N\nhN : 8 ≤ N\nhEven : Even N\nhh : 4 ≤ N / 2\nhs : N / 2 + 1 < N\nhne : ∀ (a b : ℕ), a < N → b < N → a ≠ b → ↑a ≠ ↑b\nhhs : ↑(N / 2) ≠ ↑(N / 2 + 1)\nh01 : 0 ≠ 1\nh0h : 0 ≠ ↑(N / 2)\nh0s : 0 ≠ ↑(N / 2 + 1)\nh1h : 1 ≠ ↑(N / 2)\nh1s : 1 ≠ ↑(N / 2 + 1)\n⊢ {0, 1, ↑(N / 2), ↑(N / 2) + 1}.card = 4\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-001/Candidate_a99443513ba478ce.lean:20:48: warning: This simp argument is unused:\n  h0s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M8.AntipodalFamily.support, h01, h0h, h1h, h1s, hhs]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-001/Candidate_a99443513ba478ce.lean:20:58: warning: This simp argument is unused:\n  h1s\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M8.AntipodalFamily.support, h01, h0h, h0s, h1h, hhs]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-001/Candidate_a99443513ba478ce.lean:20:63: warning: This simp argument is unused:\n  hhs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M8.AntipodalFamily.support, h01, h0h, h0s, h1h, h1s]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-002/Candidate_118c6236e47f9f56.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-002/FrozenTarget_118c6236e47f9f56.lean",
+            "feedback": "",
+            "target_sha256": "db7131190972ac1ef4bc95eddc5cd9af4a72571181422d7432929dc70ada73a0",
+            "target_olean_sha256": "ea890fe9f7c18fce24a45f5a4c352ff1e14ab4d192de63f46983ccb1df2d0516",
+            "source_sha256": "8090a2ff44c2716b38cf1545d40aad3d2644aacad17b024f47335293d3349d9f",
+            "olean_sha256": "5ce3ca6ab5279c543023db8f6910d616ad02e0708f9f95dbe39b348674370185",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-16T13:47:23.630642+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-x_yeo753/attempt-002/Candidate_118c6236e47f9f56.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "support_data": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.support_data : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ (1 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ ((N/2 : ℕ) : ZMod N) ∈ M8.AntipodalFamily.support N := by\n  classical\n  intro N inst hN hEven\n  have hh : 4 ≤ N / 2 := by omega\n  have hs : N / 2 + 1 < N := by omega\n  have hne : ∀ a b : ℕ, a < N → b < N → a ≠ b → (a : ZMod N) ≠ (b : ZMod N) := by\n    intro a b ha hb hab he\n    have hv := congrArg (fun x : ZMod N => x.val) he\n    rw [ZMod.val_natCast, ZMod.val_natCast, Nat.mod_eq_of_lt ha,\n      Nat.mod_eq_of_lt hb] at hv\n    exact hab hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa only [Nat.cast_zero, Nat.cast_one] using hne 0 1 (by omega) (by omega) (by omega)\n  have h0h : (0 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2) (by omega) (by omega) (by omega)\n  have h0s : (0 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2 + 1) (by omega) hs (by omega)\n  have h1h : (1 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2) (by omega) (by omega) (by omega)\n  have h1s : (1 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2 + 1) (by omega) hs (by omega)\n  have hhs : ((N / 2 : ℕ) : ZMod N) ≠ (N / 2 + 1 : ℕ) :=\n    hne (N / 2) (N / 2 + 1) (by omega) hs (by omega)\n  constructor\n  · simp only [M8.AntipodalFamily.support, Finset.card_insert_of_notMem,\n      Finset.mem_insert, Finset.mem_singleton, h01, h0h, h0s, h1h, h1s,\n      hhs, or_self, not_false_eq_true, Finset.card_singleton] <;> norm_num\n  · simp [M8.AntipodalFamily.support]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.support_data",
+              "ancestors": [],
+              "spec_sha256": "afea1b7aad5ee01b9b2898cdb4cd9e612633ca998421b537104df1a934aadc80"
+            },
+            "sha256": "1545742b38f84211a85738f07c4fd437bab7eda9fd59a7dc4a5580ef08ebbb3d"
+          }
+        }
+      }
+    },
+    "full_direction": {
+      "id": "full_direction",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.full_direction",
+        "spec_sha256": "5d01a9252acca241b77c94b7c2632f85d8d5976f4df2c7005fe956aed98210f3",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-nvocfwcq/attempt-001/Candidate_b56111a1015e5d0b.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-nvocfwcq/attempt-001/FrozenTarget_b56111a1015e5d0b.lean",
+            "feedback": "",
+            "target_sha256": "282a9f3d30f2cedde71bb5614022eeb2882a158913c034b7666368b0428b090e",
+            "target_olean_sha256": "985865b782a8f253182ff16b9cce47ecb09e1dcb2a2377f61c26c3f7540788b7",
+            "source_sha256": "d089750ff5b0ef2cb8fbeb3450697ec49d7ff74a7194503ab26c82f70e05c1d2",
+            "olean_sha256": "1be46c57feb14d80e1c1d98dad6a959370d0d0df1c3c18ae14404db258b8b5ec",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:50:20.214316+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-nvocfwcq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-nvocfwcq/attempt-001/Candidate_b56111a1015e5d0b.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "support_data": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.support_data : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ (1 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ ((N/2 : ℕ) : ZMod N) ∈ M8.AntipodalFamily.support N := by\n  classical\n  intro N inst hN hEven\n  have hh : 4 ≤ N / 2 := by omega\n  have hs : N / 2 + 1 < N := by omega\n  have hne : ∀ a b : ℕ, a < N → b < N → a ≠ b → (a : ZMod N) ≠ (b : ZMod N) := by\n    intro a b ha hb hab he\n    have hv := congrArg (fun x : ZMod N => x.val) he\n    rw [ZMod.val_natCast, ZMod.val_natCast, Nat.mod_eq_of_lt ha,\n      Nat.mod_eq_of_lt hb] at hv\n    exact hab hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa only [Nat.cast_zero, Nat.cast_one] using hne 0 1 (by omega) (by omega) (by omega)\n  have h0h : (0 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2) (by omega) (by omega) (by omega)\n  have h0s : (0 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2 + 1) (by omega) hs (by omega)\n  have h1h : (1 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2) (by omega) (by omega) (by omega)\n  have h1s : (1 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2 + 1) (by omega) hs (by omega)\n  have hhs : ((N / 2 : ℕ) : ZMod N) ≠ (N / 2 + 1 : ℕ) :=\n    hne (N / 2) (N / 2 + 1) (by omega) hs (by omega)\n  constructor\n  · simp only [M8.AntipodalFamily.support, Finset.card_insert_of_notMem,\n      Finset.mem_insert, Finset.mem_singleton, h01, h0h, h0s, h1h, h1s,\n      hhs, or_self, not_false_eq_true, Finset.card_singleton] <;> norm_num\n  · simp [M8.AntipodalFamily.support]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.support_data",
+              "ancestors": [],
+              "spec_sha256": "afea1b7aad5ee01b9b2898cdb4cd9e612633ca998421b537104df1a934aadc80"
+            },
+            "sha256": "1545742b38f84211a85738f07c4fd437bab7eda9fd59a7dc4a5580ef08ebbb3d"
+          },
+          "full_direction": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.full_direction : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.CoverageFoundation.FullDirection (M8.AntipodalFamily.support N) := by\n  classical\n  intro N inst hN hEven\n  apply M8.CoverageFoundation.consecutive_full N (M8.AntipodalFamily.support N) 0\n  · simp [M8.AntipodalFamily.support]\n  · simp [M8.AntipodalFamily.support]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.full_direction",
+              "ancestors": [
+                "support_data"
+              ],
+              "spec_sha256": "5f81283b8ce2bc983926073305f93ce06362e0bf03c1d0979efc8d85b011969b"
+            },
+            "sha256": "edad6b9aa664d4596fa535a14133599e215b3a4e1cb2ea5a23583cb922f220c0"
+          }
+        }
+      }
+    },
+    "valid": {
+      "id": "valid",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.AntipodalFamily.valid",
+        "spec_sha256": "31458d6cf99ef598a0895bf51a21360474adfb027fb12afbabdd3a1464e734ed",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hcoidnti/attempt-001/Candidate_a1f090cbb5976792.lean",
+            "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hcoidnti/attempt-001/FrozenTarget_a1f090cbb5976792.lean",
+            "feedback": "",
+            "target_sha256": "8c1fdd4d1721435a8404947c026e99aad2f39853c95afacf9662b4c0e14119c2",
+            "target_olean_sha256": "e2a06c261f5572f14bd73b7b35af017d32a53dcdec7db6966bbc6143141cd113",
+            "source_sha256": "ab70a955e46ab70cc82327e84a1a5f8016ad9c98073202c274cc90cc4820f756",
+            "olean_sha256": "42f22c43fee77c5213170450dca7702524e7c8c6c28dc022b35781df7a285852",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:53:14.007682+00:00",
+        "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hcoidnti",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-hcoidnti/attempt-001/Candidate_a1f090cbb5976792.lean",
+        "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+        "artifacts": {
+          "support_data": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.support_data : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ (1 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ ((N/2 : ℕ) : ZMod N) ∈ M8.AntipodalFamily.support N := by\n  classical\n  intro N inst hN hEven\n  have hh : 4 ≤ N / 2 := by omega\n  have hs : N / 2 + 1 < N := by omega\n  have hne : ∀ a b : ℕ, a < N → b < N → a ≠ b → (a : ZMod N) ≠ (b : ZMod N) := by\n    intro a b ha hb hab he\n    have hv := congrArg (fun x : ZMod N => x.val) he\n    rw [ZMod.val_natCast, ZMod.val_natCast, Nat.mod_eq_of_lt ha,\n      Nat.mod_eq_of_lt hb] at hv\n    exact hab hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa only [Nat.cast_zero, Nat.cast_one] using hne 0 1 (by omega) (by omega) (by omega)\n  have h0h : (0 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2) (by omega) (by omega) (by omega)\n  have h0s : (0 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2 + 1) (by omega) hs (by omega)\n  have h1h : (1 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2) (by omega) (by omega) (by omega)\n  have h1s : (1 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2 + 1) (by omega) hs (by omega)\n  have hhs : ((N / 2 : ℕ) : ZMod N) ≠ (N / 2 + 1 : ℕ) :=\n    hne (N / 2) (N / 2 + 1) (by omega) hs (by omega)\n  constructor\n  · simp only [M8.AntipodalFamily.support, Finset.card_insert_of_notMem,\n      Finset.mem_insert, Finset.mem_singleton, h01, h0h, h0s, h1h, h1s,\n      hhs, or_self, not_false_eq_true, Finset.card_singleton] <;> norm_num\n  · simp [M8.AntipodalFamily.support]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.support_data",
+              "ancestors": [],
+              "spec_sha256": "afea1b7aad5ee01b9b2898cdb4cd9e612633ca998421b537104df1a934aadc80"
+            },
+            "sha256": "1545742b38f84211a85738f07c4fd437bab7eda9fd59a7dc4a5580ef08ebbb3d"
+          },
+          "full_direction": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.full_direction : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.CoverageFoundation.FullDirection (M8.AntipodalFamily.support N) := by\n  classical\n  intro N inst hN hEven\n  apply M8.CoverageFoundation.consecutive_full N (M8.AntipodalFamily.support N) 0\n  · simp [M8.AntipodalFamily.support]\n  · simp [M8.AntipodalFamily.support]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.full_direction",
+              "ancestors": [
+                "support_data"
+              ],
+              "spec_sha256": "5f81283b8ce2bc983926073305f93ce06362e0bf03c1d0979efc8d85b011969b"
+            },
+            "sha256": "edad6b9aa664d4596fa535a14133599e215b3a4e1cb2ea5a23583cb922f220c0"
+          },
+          "valid": {
+            "payload": {
+              "declaration": "theorem M8.AntipodalFamily.valid : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.PhysicalBridge.Valid 4 (M8.AntipodalFamily.recipe N) := by\n  classical\n  intro N inst hN hEven\n  have hd := M8.AntipodalFamily.support_data N hN hEven\n  have hf := M8.AntipodalFamily.full_direction N hN hEven\n  have hc : M7.Connectivity.connected (M8.AntipodalFamily.recipe N) := by\n    simpa only [M7.Connectivity.connected, M8.AntipodalFamily.recipe,\n      M8.CoverageFoundation.FullDirection, M8.CoverageFoundation.direction,\n      Set.union_self] using hf\n  simp_all [M8.PhysicalBridge.Valid, M8.AntipodalFamily.recipe]",
+              "imports": [
+                "M8AntipodalFamily"
+              ],
+              "name": "M8.AntipodalFamily.valid",
+              "ancestors": [
+                "full_direction",
+                "support_data"
+              ],
+              "spec_sha256": "3ee9e3a94cb9e9d6d7d47bb386f0c70c77b4d384afb6c17103d7991727d6c127"
+            },
+            "sha256": "acfe2d621943ee76c4fd4161f592ebedac309cd13abd86f729c16f8b96fcb73e"
+          }
+        }
+      }
+    }
+  }
+}

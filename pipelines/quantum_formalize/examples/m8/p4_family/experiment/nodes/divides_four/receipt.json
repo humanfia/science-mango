@@ -1,0 +1,55 @@
+{
+  "id": "divides_four",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P4Family.divides_four",
+    "spec_sha256": "9b8fef6fd8c844e638a8219eddf734cf4fb7ab89bc13774cc063788e32c48f94",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-5ssm85vw/attempt-001/Candidate_483a4720d718f667.lean",
+        "target_path": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-5ssm85vw/attempt-001/FrozenTarget_483a4720d718f667.lean",
+        "feedback": "",
+        "target_sha256": "a258f5f3c81f9dc70cc48faf023b05821589b5a614474d0e5f2cc6a241d8ce13",
+        "target_olean_sha256": "708597502594fdba0476e1b1e684a510d4feb9ba2584d16b87cb5a34af0f9b96",
+        "source_sha256": "30fb539ce2b03c2074830d6ea67d8b342741050c280d5c0acac845477f227ca9",
+        "olean_sha256": "cc085c4ee015243112861697c46b6818093151b45de3e67d20b38865a6931927",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:23:02.246011+00:00",
+    "work": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-5ssm85vw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "5bf0539eb7fa947ef794b260b19587058f2898e7048ae55aaaafbabe9d9d2534",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-p4-family-formalization/.humanize-formal-runs/run-5ssm85vw/attempt-001/Candidate_483a4720d718f667.lean",
+    "environment_sha256": "8bbdb5d00ff49c749d34abdcfe9121823b4a61f4ca648764bb328b809b77c620",
+    "artifacts": {
+      "divides_four": {
+        "payload": {
+          "declaration": "theorem M8.P4Family.divides_four : ∀ N : ℕ, 4 ∣ N → M8.P4Family.polynomial ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 4 ∣ N → M8.P4Family.polynomial ∣ M6.Cyclic.modulus N\n  intro N hN\n  rcases hN with ⟨k, rfl⟩\n  have h : ∀ k : ℕ, M8.P4Family.polynomial ∣ (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (4 * k) - 1 := by\n    intro k\n    induction k with\n    | zero => simp\n    | succ k ih =>\n      rcases ih with ⟨q, hq⟩\n      refine ⟨q * Polynomial.X ^ 4 + (Polynomial.X - 1), ?_⟩\n      rw [Nat.mul_succ, pow_add]\n      calc\n        Polynomial.X ^ (4 * k) * Polynomial.X ^ 4 - 1 =\n            (Polynomial.X ^ (4 * k) - 1) * Polynomial.X ^ 4 + (Polynomial.X ^ 4 - 1) := by ring\n        _ = M8.P4Family.polynomial * (q * Polynomial.X ^ 4 + (Polynomial.X - 1)) := by\n          rw [hq]\n          unfold M8.P4Family.polynomial\n          ring\n  first\n  | simpa only [M6.Cyclic.modulus] using h k\n  | have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n      ext n\n      by_cases hn : n = 0\n      · subst n\n        norm_num\n      · simp [Polynomial.coeff_one, hn]\n    simpa [M6.Cyclic.modulus, sub_eq_add_neg, hneg] using h k",
+          "imports": [
+            "M8P4Family"
+          ],
+          "name": "M8.P4Family.divides_four",
+          "ancestors": [],
+          "spec_sha256": "9b8fef6fd8c844e638a8219eddf734cf4fb7ab89bc13774cc063788e32c48f94"
+        },
+        "sha256": "ee8654d5fddb55b85eba04cee6884d0803409b1850262120758cf965045b22f4"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+theorem M8.P4Family.nontrivial : M8.P4Family.polynomial ≠ 1 ∧ M8.P4Family.polynomial ≠ 0 ∧ M8.P4Family.polynomial.natDegree = 3 := by
+  change M8.P4Family.polynomial ≠ 1 ∧ M8.P4Family.polynomial ≠ 0 ∧ M8.P4Family.polynomial.natDegree = 3
+  have h₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).natDegree = 1 := by
+    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt] <;> simp
+  have h₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) + Polynomial.X ^ 2).natDegree = 2 := by
+    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt] <;> simp [h₁]
+  have h₃ : M8.P4Family.polynomial.natDegree = 3 := by
+    unfold M8.P4Family.polynomial
+    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt] <;> simp [h₂]
+  refine ⟨?_, ?_, h₃⟩
+  · intro h
+    simpa [h] using h₃
+  · intro h
+    simpa [h] using h₃

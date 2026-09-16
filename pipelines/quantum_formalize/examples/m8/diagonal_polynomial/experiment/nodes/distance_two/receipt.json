@@ -1,0 +1,111 @@
+{
+  "id": "distance_two",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.DiagonalPolynomial.distance_two",
+    "spec_sha256": "4b9bf9750ebf4b049a669f4f01b3926f32250ff07187f92ec92d5dd02cfcddc6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-diagonal-polynomial-formalization/.humanize-formal-runs/run-2675fbty/attempt-001/Candidate_15903e958d1bb26d.lean",
+        "target_path": "/home/jing/m8-lean-diagonal-polynomial-formalization/.humanize-formal-runs/run-2675fbty/attempt-001/FrozenTarget_15903e958d1bb26d.lean",
+        "feedback": "",
+        "target_sha256": "aff3837ce5d3f749f366c1a8817b5449d7de67720aad0416630cdd76cdcf012a",
+        "target_olean_sha256": "0b83ae0cd03e0ab9b87eec9d4f899384758bd492cdec96bec6f0803ce3db72c8",
+        "source_sha256": "82d2993c84578fe8f9528f602e098b9cef725f7b3f4aa6108c8d895979b8cf07",
+        "olean_sha256": "da85c111ce48743319f8b5cf2c3e71f1ef9b2803876976bf3cf913248831e99b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:35:48.595156+00:00",
+    "work": "/home/jing/m8-lean-diagonal-polynomial-formalization/.humanize-formal-runs/run-2675fbty",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "57b325997dda6a603ce7208b19a82b36847bdb9ea494bb004e7596d0715c88d4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-diagonal-polynomial-formalization/.humanize-formal-runs/run-2675fbty/attempt-001/Candidate_15903e958d1bb26d.lean",
+    "environment_sha256": "064fb1a9dec395442867b11278025548cb842ea0d3be4fe1041d57f66811229d",
+    "artifacts": {
+      "coefficients_nonzero": {
+        "payload": {
+          "declaration": "theorem M8.DiagonalPolynomial.coefficients_nonzero : ∀ (N : ℕ) [NeZero N], ∀ p : M8.DiagonalPolynomial.BP, p ≠ 0 → p.degree < (N : WithBot ℕ) → M6.Coordinates.coefficients N p ≠ 0 := by\n  intro N inst p hp hdeg hzero\n  apply hp\n  have hrec := M6.Coordinates.block_reconstruct N p hdeg\n  rw [hzero] at hrec\n  simpa [M6.Coordinates.blockPolynomial] using hrec.symm",
+          "imports": [
+            "M8DiagonalPolynomial"
+          ],
+          "name": "M8.DiagonalPolynomial.coefficients_nonzero",
+          "ancestors": [],
+          "spec_sha256": "10acc483c0e6f07c6697a97f9fe12e3b1dda781422a2c68be249328d6b6436ac"
+        },
+        "sha256": "ea118a28dc63465ddd2de59a5e9e093c12eb15edec7ce258e6e4a409d8ca1d52"
+      },
+      "encode_delta": {
+        "payload": {
+          "declaration": "theorem M8.DiagonalPolynomial.encode_delta : ∀ (N : ℕ) [NeZero N], M6.Coordinates.encode N (M6.Physical.delta N 0) = 1 := by\n  intro N inst\n  rw [M6.Coordinates.encode_sum]\n  rw [Finset.sum_eq_single (0 : ZMod N)]\n  · simp [M6.Physical.delta, M6.Coordinates.rootPow]\n  · intro i hi hne\n    simp [M6.Physical.delta, hne, Ne.symm hne]\n  · simp",
+          "imports": [
+            "M8DiagonalPolynomial"
+          ],
+          "name": "M8.DiagonalPolynomial.encode_delta",
+          "ancestors": [],
+          "spec_sha256": "f0f7f70656d75f5849120dc4b221e56dd46b2f97b529daee606a99cffd6b3aae"
+        },
+        "sha256": "02b30b83165c0c3637e3f0205a28c1f989751a2e7dbed4d4478898a3a8d06f5b"
+      },
+      "common_divisor_of_inverse": {
+        "payload": {
+          "declaration": "theorem M8.DiagonalPolynomial.common_divisor_of_inverse : ∀ (N : ℕ) [NeZero N], ∀ (p F q : M8.DiagonalPolynomial.BP), F.Monic → F ∣ p → F ∣ M6.Cyclic.modulus N → M6.Cyclic.image N p * M6.Cyclic.image N q = 1 → F = 1 := by\n  intro N inst p F q hF hFp hFM hInv\n  change AdjoinRoot.mk (M6.Cyclic.modulus N) p * AdjoinRoot.mk (M6.Cyclic.modulus N) q = 1 at hInv\n  have hm : AdjoinRoot.mk (M6.Cyclic.modulus N) (p * q) = AdjoinRoot.mk (M6.Cyclic.modulus N) 1 := by\n    simpa only [map_mul, map_one] using hInv\n  rw [AdjoinRoot.mk_eq_mk] at hm\n  have hpq : F ∣ p * q := dvd_mul_of_dvd_left hFp q\n  have hsub : F ∣ p * q - 1 := dvd_trans hFM hm\n  have h1 : F ∣ 1 := by\n    have h := dvd_sub hpq hsub\n    simpa only [sub_sub_cancel] using h\n  first\n  | exact hF.eq_one_of_dvd_one h1\n  | exact hF.isUnit_iff.mp (isUnit_of_dvd_one h1)\n  | exact hF.dvd_antisymm Polynomial.monic_one h1 (one_dvd F)",
+          "imports": [
+            "M8DiagonalPolynomial"
+          ],
+          "name": "M8.DiagonalPolynomial.common_divisor_of_inverse",
+          "ancestors": [],
+          "spec_sha256": "26c85080f0eeded035f99e0ad5cfcb357e0a77e64a7aaaf58090a1d53c1503d5"
+        },
+        "sha256": "56ca87c616c5292020a2fedd58844e439c6afce2466e2893723aa2342431d6d7"
+      },
+      "delta_not_image": {
+        "payload": {
+          "declaration": "theorem M8.DiagonalPolynomial.delta_not_image : ∀ (N : ℕ) [NeZero N], ∀ (p F : M8.DiagonalPolynomial.BP), p.degree < (N : WithBot ℕ) → F.Monic → F ≠ 1 → F ∣ p → F ∣ M6.Cyclic.modulus N → M8.Diagonal.DeltaNotImage N (M6.Coordinates.coefficients N p) := by\n  intro N inst p F hp hF hFne hFp hFM\n  have hnot : ∀ h : M6.Physical.Block N,\n      M6.Physical.conv N (M6.Coordinates.coefficients N p) h ≠ M6.Physical.delta N 0 := by\n    intro h hh\n    have he := congrArg (M6.Coordinates.encode N) hh\n    rw [M6.Coordinates.encode_conv, M6.Coordinates.encode_polynomial N p hp,\n      M8.DiagonalPolynomial.encode_delta N] at he\n    apply hFne\n    apply M8.DiagonalPolynomial.common_divisor_of_inverse N p F\n      (M6.Coordinates.blockPolynomial N h) hF hFp hFM\n    simpa only [M6.Coordinates.encode, M6.Cyclic.image] using he\n  unfold M8.Diagonal.DeltaNotImage\n  first\n  | exact hnot\n  | exact fun ⟨h, hh⟩ => hnot h hh",
+          "imports": [
+            "M8DiagonalPolynomial"
+          ],
+          "name": "M8.DiagonalPolynomial.delta_not_image",
+          "ancestors": [
+            "common_divisor_of_inverse",
+            "encode_delta"
+          ],
+          "spec_sha256": "0f471cabeee51439966585ac94e26e137567b6e4ffa3540e26c96755e5f0592b"
+        },
+        "sha256": "0d3afc6d0ff977d4b7a54305718291014b14813ae82afcb4c895781a837be0f1"
+      },
+      "distance_two": {
+        "payload": {
+          "declaration": "theorem M8.DiagonalPolynomial.distance_two : ∀ (N : ℕ) [NeZero N], ∀ (p F : M8.DiagonalPolynomial.BP), p ≠ 0 → p.degree < (N : WithBot ℕ) → F.Monic → F ≠ 1 → F ∣ p → F ∣ M6.Cyclic.modulus N → M8.Diagonal.distance N (M6.Coordinates.coefficients N p) = some 2 := by\n  intro N inst p F hp hdeg hF hFne hFp hFM\n  exact M8.Diagonal.distance_two N (M6.Coordinates.coefficients N p)\n    (M8.DiagonalPolynomial.coefficients_nonzero N p hp hdeg)\n    (M8.DiagonalPolynomial.delta_not_image N p F hdeg hF hFne hFp hFM)",
+          "imports": [
+            "M8DiagonalPolynomial"
+          ],
+          "name": "M8.DiagonalPolynomial.distance_two",
+          "ancestors": [
+            "coefficients_nonzero",
+            "common_divisor_of_inverse",
+            "delta_not_image",
+            "encode_delta"
+          ],
+          "spec_sha256": "c3c25a6e9d637452b45b6664ac646f6f0a65a295583fcd8052c790a16fc4b675"
+        },
+        "sha256": "c33c0d81523f1d1106e979c7567865b301c751a046c5565a6e6119278df503cf"
+      }
+    }
+  }
+}

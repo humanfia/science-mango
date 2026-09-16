@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst p F q hF hFp hFM hInv\nchange AdjoinRoot.mk (M6.Cyclic.modulus N) p * AdjoinRoot.mk (M6.Cyclic.modulus N) q = 1 at hInv\nhave hm : AdjoinRoot.mk (M6.Cyclic.modulus N) (p * q) = AdjoinRoot.mk (M6.Cyclic.modulus N) 1 := by\n  simpa only [map_mul, map_one] using hInv\nrw [AdjoinRoot.mk_eq_mk] at hm\nhave hpq : F ∣ p * q := dvd_mul_of_dvd_left hFp q\nhave hsub : F ∣ p * q - 1 := dvd_trans hFM hm\nhave h1 : F ∣ 1 := by\n  have h := dvd_sub hpq hsub\n  simpa only [sub_sub_cancel] using h\nfirst\n| exact hF.eq_one_of_dvd_one h1\n| exact hF.isUnit_iff.mp (isUnit_of_dvd_one h1)\n| exact hF.dvd_antisymm Polynomial.monic_one h1 (one_dvd F)",
+  "queries": [
+    "AdjoinRoot.mk_eq_mk",
+    "Polynomial.Monic.eq_one_of_dvd_one",
+    "Polynomial.Monic.dvd_antisymm"
+  ]
+}

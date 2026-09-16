@@ -1,0 +1,55 @@
+{
+  "id": "nontrivial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.nontrivial",
+    "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop/attempt-001/Candidate_72881e80aeebaa8e.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop/attempt-001/FrozenTarget_72881e80aeebaa8e.lean",
+        "feedback": "",
+        "target_sha256": "70ad55a39a36e767986249ad39d7ef597ae1361cb930942565f826be15ff9dad",
+        "target_olean_sha256": "80fc8bc8c70cfa2aedeccd98fa73510b528d51d0f503be3fd752d1bbdf682316",
+        "source_sha256": "df5e77180ddec374691db6090d13c4d3f139f08d6cce3029eddfdbbbacd2982c",
+        "olean_sha256": "1c73caf63163d13502614856b1610ce99b8040855d746c2292f6d52708d77597",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:40:07.522928+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-d42ikeop/attempt-001/Candidate_72881e80aeebaa8e.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "nontrivial": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.nontrivial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).Monic ∧ M8.AntipodalFamily.polynomial N ≠ 1 ∧ M8.AntipodalFamily.polynomial N ≠ 0 ∧ (M8.AntipodalFamily.polynomial N).natDegree = N/2+1 := by\n  intro N inst hN hEven\n  have hhalf : 0 < N / 2 := by omega\n  have monic_binomial : ∀ (R : Type) [CommRing R] (k : ℕ), 0 < k → (1 + (Polynomial.X : Polynomial R) ^ k).Monic := by\n    intro R _ k hk\n    first\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) (ne_of_gt hk) 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 (ne_of_gt hk))\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) hk 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 hk)\n  have h₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).Monic := by\n    simpa using monic_binomial _ 1 (by omega)\n  have h₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).Monic :=\n    monic_binomial _ _ hhalf\n  have hm : (M8.AntipodalFamily.polynomial N).Monic := by\n    exact h₁.mul h₂\n  have hd₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).natDegree = 1 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n    simp\n  have hd₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).natDegree = N / 2 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simpa using hhalf)]\n    simp\n  have hd : (M8.AntipodalFamily.polynomial N).natDegree = N / 2 + 1 := by\n    unfold M8.AntipodalFamily.polynomial\n    rw [Polynomial.natDegree_mul h₁.ne_zero h₂.ne_zero, hd₁, hd₂]\n    omega\n  refine ⟨hm, ?_, hm.ne_zero, hd⟩\n  intro heq\n  rw [heq, Polynomial.natDegree_one] at hd\n  omega",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.nontrivial",
+          "ancestors": [],
+          "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd"
+        },
+        "sha256": "e036f80b8bb405832356e601e23b6bb90b881180cd759d58d09b547e91de42be"
+      }
+    }
+  }
+}

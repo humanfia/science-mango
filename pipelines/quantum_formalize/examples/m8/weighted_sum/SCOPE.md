@@ -1,0 +1,1 @@
+Canonical mathematical parent is weighted_search. The p3_family completion gate only reserves its released two-worker allocation to keep the shared ceiling at sixteen; no p3 theorem is imported. This additional full-sum cursor bound is for the original refined eligible-trial count, not a stronger end goal.

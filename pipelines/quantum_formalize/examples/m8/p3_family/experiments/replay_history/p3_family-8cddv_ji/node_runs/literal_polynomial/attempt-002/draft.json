@@ -1,0 +1,4 @@
+{
+  "proof": "  intro N inst hN\n  classical\n  have h0 : (0 : ZMod N).val = 0 := by simp\n  have h1 : (1 : ZMod N).val = 1 := by\n    change ((1 : ℕ) : ZMod N).val = 1\n    rw [ZMod.val_natCast, Nat.mod_eq_of_lt (by omega)]\n  have h2 : (2 : ZMod N).val = 2 := by\n    change ((2 : ℕ) : ZMod N).val = 2\n    rw [ZMod.val_natCast, Nat.mod_eq_of_lt (by omega)]\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hv := congrArg ZMod.val h\n    rw [h0, h1] at hv\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have hv := congrArg ZMod.val h\n    rw [h0, h2] at hv\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have hv := congrArg ZMod.val h\n    rw [h1, h2] at hv\n    omega\n  simp [M8.P3Family.support, M8.P3Family.polynomial,\n    M7.Supports.polynomial, h0, h1, h2, h01, h02, h12,\n    add_assoc, add_comm, add_left_comm] <;>\n    ext k <;> simp [Polynomial.coeff_monomial]",
+  "queries": []
+}

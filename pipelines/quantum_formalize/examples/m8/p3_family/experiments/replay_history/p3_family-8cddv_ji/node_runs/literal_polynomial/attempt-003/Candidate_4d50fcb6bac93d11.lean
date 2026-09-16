@@ -1,0 +1,28 @@
+import FrozenTarget_4d50fcb6bac93d11
+theorem M8.P3Family.literal_polynomial : QuantumHarnessFrozenTarget := by
+    change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial
+    intro N inst hN
+    classical
+    have h0 : (0 : ZMod N).val = 0 := by simp
+    have h1 : (1 : ZMod N).val = 1 := by
+      have h : ((1 : ℕ) : ZMod N).val = 1 % N := by
+        rw [ZMod.val_natCast]
+      simpa only [Nat.cast_one, Nat.mod_eq_of_lt (show 1 < N by omega)] using h
+    have h2 : (2 : ZMod N).val = 2 := by
+      have h : ((2 : ℕ) : ZMod N).val = 2 % N := by
+        rw [ZMod.val_natCast]
+      simpa only [Nat.cast_ofNat, Nat.mod_eq_of_lt (show 2 < N by omega)] using h
+    have h01 : (0 : ZMod N) ≠ 1 := by
+      intro h
+      have := congrArg ZMod.val h
+      omega
+    have h02 : (0 : ZMod N) ≠ 2 := by
+      intro h
+      have := congrArg ZMod.val h
+      omega
+    have h12 : (1 : ZMod N) ≠ 2 := by
+      intro h
+      have := congrArg ZMod.val h
+      omega
+    simp [M8.P3Family.support, M8.P3Family.polynomial, M7.Supports.polynomial,
+      h0, h1, h2, h01, h02, h12, add_assoc, add_comm, add_left_comm]

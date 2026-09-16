@@ -1,0 +1,39 @@
+{
+  "launcher": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/live-resume-bdpis3fs",
+  "pid": 175550,
+  "detached": true,
+  "config": {
+    "project": "/home/jing/m8-lean-bank-layout-formalization",
+    "graph": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/live-resume-bdpis3fs/graph.json",
+    "output": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/live-resume-bdpis3fs/experiment",
+    "result_path": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/live-resume-bdpis3fs/result.json",
+    "concurrency": 2,
+    "rounds": 5,
+    "compile_timeout": 600,
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "payload_bound": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], M8.BankLayout.payloadSlots N \u2264 20000 * (N + 1)^3\nintro N hN\nhave hpos : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)\nhave hcut : M8.Cutoff.limit N < N := (M8.Cutoff.limit_bounds N).2.2 hpos\nhave hpre := (M6.EuclidStorage.layout_bound N).2.2\nhave hb := M6.Transfer.solve_storage_bound (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N) hcut hpre\nhave he := M8.Cutoff.indexed_storage_envelope N (M8.Cutoff.limit N) (le_refl _)\nhave hbank : M8.BankLayout.bankSlots N \u2264 16384 * (N + 1)^3 := by\n  unfold M8.BankLayout.bankSlots\n  calc\n    _ \u2264 16384 * N^2 * 2^(M8.Cutoff.limit N) := hb\n    _ \u2264 16384 * (N + 1)^3 := by\n      simpa only [Nat.mul_assoc] using Nat.mul_le_mul_left 16384 he\nnorm_num [M8.BankLayout.payloadSlots, M8.BankLayout.bufferWidths, M8.BankLayout.registers, M8.BankLayout.registerBits]\nnlinarith [hbank, Nat.zero_le (N^3), Nat.zero_le (N^2)]",
+        "queries": []
+      },
+      "address_bits_bound": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], (M8.BankLayout.payloadSlots N).size \u2264 32 * (N + 1)\nintro N hN\napply Nat.size_le.mpr\nhave hsmall : \u2200 k : \u2115, k \u2264 2 ^ k := by\n  intro k\n  induction k with\n  | zero => norm_num\n  | succ k ih =>\n    rw [pow_succ]\n    have hp : 0 < (2 : \u2115) ^ k := by positivity\n    omega\nhave hc : (20000 : \u2115) < 2 ^ 15 := by norm_num\ncalc\n  M8.BankLayout.payloadSlots N \u2264 20000 * (N + 1) ^ 3 := M8.BankLayout.payload_bound N\n  _ \u2264 20000 * (2 ^ (N + 1)) ^ 3 := by\n    gcongr\n    exact hsmall (N + 1)\n  _ < 2 ^ 15 * (2 ^ (N + 1)) ^ 3 :=\n    Nat.mul_lt_mul_of_pos_right hc (by positivity)\n  _ = 2 ^ 15 * 2 ^ ((N + 1) * 3) := by rw [pow_mul]\n  _ = 2 ^ (15 + (N + 1) * 3) := (pow_add (2 : \u2115) 15 ((N + 1) * 3)).symm\n  _ \u2264 2 ^ (32 * (N + 1)) := Nat.pow_le_pow_right (by decide) (by omega)",
+        "queries": []
+      }
+    }
+  },
+  "seed_origins": {
+    "payload_bound": {
+      "draft": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-zqt8djab/attempt-001/draft.json",
+      "sha256": "35d0473092ca0319736ca80e4fb7f9e6b1e241d799e2af06571d5cdcaae39cda",
+      "source": "accepted live candidate, unchanged"
+    },
+    "address_bits_bound": {
+      "draft": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-85mf4ea7/attempt-002/draft.json",
+      "sha256": "2d4874fc96c157dfb619201f86c42ebb6b977509163975b5aed89923ff4fd9bf",
+      "source": "accepted live candidate, unchanged"
+    }
+  },
+  "reason": "external retrieval unavailable after one failed workspace draft; only genuinely accepted live candidates replayed; no local repair seeded",
+  "original_archive": "/home/jing/science-mango-quantum-harness-publish-20260914/pipelines/quantum_formalize/examples/m8/bank_layout/experiments/initial_retrieval_failure"
+}

@@ -1,0 +1,55 @@
+{
+  "id": "store_space",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.SequentialStore.store_space",
+    "spec_sha256": "43b2fac1649c1a9a40f26074579407d06592aa0f70bc496477ba394e59636a0f",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-vcnarbze/attempt-001/Candidate_a8f86176a70e39ed.lean",
+        "target_path": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-vcnarbze/attempt-001/FrozenTarget_a8f86176a70e39ed.lean",
+        "feedback": "",
+        "target_sha256": "8d28bd39129ed7531879f5f5aba145ce7187d106f2327a76c4adbdc2a869729c",
+        "target_olean_sha256": "bf411f2231a813e1d3ee85ea2154da5b4da8134cad05e3e92c808151110d9f88",
+        "source_sha256": "977db6358842a023d517e486a5ccfc429f94413fe116683605f0fdb37309e5e9",
+        "olean_sha256": "c05012cd8e1279fbebbf98d34e1febf934c3db8f22bf94fb467388ecfbeaa04a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:58:43.248890+00:00",
+    "work": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-vcnarbze",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d07f74f3687c237624fdd8ad2c8e9dce7073a186d74c37e5bf98867ceb5a555a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-vcnarbze/attempt-001/Candidate_a8f86176a70e39ed.lean",
+    "environment_sha256": "e41cd331f5484e3e634e4ddc84c589e3eb686fe51299d9d62822f1943dc9d429",
+    "artifacts": {
+      "store_space": {
+        "payload": {
+          "declaration": "theorem M8.SequentialStore.store_space : ∀ (N : ℕ) [NeZero N], ∀ mem : List Bool, mem.length = M8.SequentialStore.slots N → M8.SequentialStore.storeSpace N mem ≤ 2000000*(N+1)^4 := by\n  intro N inst mem hmem\n  have hp : M8.SequentialStore.slots N ≤ 20000 * (N + 1)^3 := by\n    simpa only [M8.SequentialStore.slots] using M8.BankLayout.payload_bound N\n  have ha : M8.SequentialStore.addressBits N ≤ 32 * (N + 1) := by\n    simpa only [M8.SequentialStore.addressBits, M8.SequentialStore.slots] using M8.BankLayout.address_bits_bound N\n  have ht : (M8.TaggedStore.tapeBits (M8.TaggedStore.packFrom 0 mem)).length ≤\n      M8.SequentialStore.slots N * (2 * M8.SequentialStore.addressBits N + 2) := by\n    simpa only [Nat.zero_add, hmem, M8.SequentialStore.addressBits] using\n      (M8.TaggedStore.packed_layout 0 mem).2.2\n  change (M8.TaggedStore.tapeBits (M8.TaggedStore.packFrom 0 mem)).length +\n      (4 * (M8.SequentialStore.addressBits N + 1) + 32) ≤ 2000000 * (N + 1)^4\n  calc\n    _ ≤ M8.SequentialStore.slots N * (2 * M8.SequentialStore.addressBits N + 2) +\n        (4 * (M8.SequentialStore.addressBits N + 1) + 32) := Nat.add_le_add_right ht _\n    _ ≤ (20000 * (N + 1)^3) * (2 * (32 * (N + 1)) + 2) +\n        (4 * (32 * (N + 1) + 1) + 32) := by\n      gcongr <;> assumption\n    _ ≤ 2000000 * (N + 1)^4 := by\n      nlinarith only [Nat.zero_le N, Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4)]",
+          "imports": [
+            "M8SequentialStore"
+          ],
+          "name": "M8.SequentialStore.store_space",
+          "ancestors": [],
+          "spec_sha256": "43b2fac1649c1a9a40f26074579407d06592aa0f70bc496477ba394e59636a0f"
+        },
+        "sha256": "b61624d32f11102dc39cda8dad1035eeb1c9a05c9114b35ec3810283c43c9dff"
+      }
+    }
+  }
+}

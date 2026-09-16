@@ -1,0 +1,18 @@
+import FrozenTarget_6d0d9a36e454195b
+theorem M8.DiscoveryResources.unit_bound : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e) ≤ 152 * (N + 1)^6
+  intro N inst c e
+  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)
+    (fun t : Fin N =>
+      let r := M8.DiscoveryResources.leftRun c e t
+      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))
+    (144 * (N + 1)^5) (M8.DiscoveryResources.control N)
+    (fun t => M8.DiscoveryResources.left_bound N c e t)
+  calc
+    M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e)
+        ≤ N * (M8.DiscoveryResources.control N + 144 * (N + 1)^5) := by
+          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.unitRun,
+            Nat.add_comm] using h
+    _ ≤ 152 * (N + 1)^6 := by
+      unfold M8.DiscoveryResources.control
+      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5), Nat.zero_le (N^6)]

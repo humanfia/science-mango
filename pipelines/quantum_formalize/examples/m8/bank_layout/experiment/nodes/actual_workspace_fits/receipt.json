@@ -1,0 +1,69 @@
+{
+  "id": "actual_workspace_fits",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.BankLayout.actual_workspace_fits",
+    "spec_sha256": "024de2d4f91f1bf62ff0bac4405f660c024c45255efa8b498c24219c50e58dde",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-0qog872q/attempt-001/Candidate_5856e94479b0cc84.lean",
+        "target_path": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-0qog872q/attempt-001/FrozenTarget_5856e94479b0cc84.lean",
+        "feedback": "",
+        "target_sha256": "24dd11500a32d0d9dc6a2b4aef6f18f25809a08d0515f7d80440977c72f318b0",
+        "target_olean_sha256": "2d0b6fd665a28c4ff9d62afcf1faa1b63b25a6eec26ea9ce744248c8eaa5f9a8",
+        "source_sha256": "e5cbec2fd106d0b0727559b418ed09a7e11b8219092cbed84cc22b9732222b99",
+        "olean_sha256": "35fbad851b7b59918e8967a59aadf99504251b5ae8e6684cb743f7591876a3ce",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:46:13.963806+00:00",
+    "work": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-0qog872q",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8a572e02efa9a996ba9e10fd854fea55c656b8a5d4cb3e3453b53ec792495d5e",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-bank-layout-formalization/.humanize-formal-runs/run-0qog872q/attempt-001/Candidate_5856e94479b0cc84.lean",
+    "environment_sha256": "98f52ac16cc5867c6d89a1aa0864ffbf28c9e4adab2e33146e04594a4b7a24cf",
+    "artifacts": {
+      "workspace_monotone": {
+        "payload": {
+          "declaration": "theorem M8.BankLayout.workspace_monotone : ∀ R S N slots : ℕ, R ≤ S → M6.Transfer.solveStorage R N slots ≤ M6.Transfer.solveStorage S N slots := by\n  intro R S N slots hRS\n  have hpow : (2 : ℕ)^R ≤ 2^S := pow_le_pow_right₀ (by decide) hRS\n  unfold M6.Transfer.solveStorage M6.Transfer.pairedQueryStorage M6.Transfer.actualTraceStorage M6.Transfer.traceStorageModel\n  simp only [M6.Transfer.scatterEventList, Finset.length_toList, Finset.card_univ,\n    M6.Transfer.ScatterEvent, Fintype.card_prod, M6.Transfer.state_count,\n    M6.Transfer.Bit, ZMod.card, Fintype.card_fin,\n    M6.Transfer.queryCoefficientBits, M6.Transfer.coefficientBits, M6.Transfer.actualAddressBits]\n  gcongr <;> first | exact hRS | exact hpow | omega",
+          "imports": [
+            "M8BankLayout"
+          ],
+          "name": "M8.BankLayout.workspace_monotone",
+          "ancestors": [],
+          "spec_sha256": "e58eb7c43da139216b26839a46cf82aee76e67383277891ea2b1c447e19fa0ce"
+        },
+        "sha256": "e8d1241c5a3d4ac7695c148cea33e5020516ffe5784c30da3f7fee71aa260c76"
+      },
+      "actual_workspace_fits": {
+        "payload": {
+          "declaration": "theorem M8.BankLayout.actual_workspace_fits : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b ≤ M8.Cutoff.limit N → M6.ActualTransfer.actualSolveStorage N a b ≤ M8.BankLayout.bankSlots N := by\n  intro N inst a b h\n  change M6.Transfer.solveStorage (M6.ActualTransfer.span a b) N (M6.EuclidStorage.actualPreprocessStorage N) ≤ M6.Transfer.solveStorage (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N)\n  exact M8.BankLayout.workspace_monotone (M6.ActualTransfer.span a b) (M8.Cutoff.limit N) N (M6.EuclidStorage.actualPreprocessStorage N) h",
+          "imports": [
+            "M8BankLayout"
+          ],
+          "name": "M8.BankLayout.actual_workspace_fits",
+          "ancestors": [
+            "workspace_monotone"
+          ],
+          "spec_sha256": "575f1b862967b42d778630c2df43c744f28df69c3e1ce34552abe122ea25ce12"
+        },
+        "sha256": "8f31d2fd7f454c630e79e0bb83491cbfcc131958bb6101b33dc55f6612db9ef0"
+      }
+    }
+  }
+}

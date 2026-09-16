@@ -1,0 +1,7 @@
+{
+  "proof": "  classical\n  intro N inst hN hEven\n  have hh : 4 ≤ N / 2 := by omega\n  have hs : N / 2 + 1 < N := by omega\n  have hne : ∀ a b : ℕ, a < N → b < N → a ≠ b →\n      (a : ZMod N) ≠ (b : ZMod N) := by\n    intro a b ha hb hab heq\n    have hv := congrArg (fun z : ZMod N => z.val) heq\n    simp only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] at hv\n    exact hab hv\n  have h01 := hne 0 1 (by omega) (by omega) (by omega)\n  have h0h := hne 0 (N / 2) (by omega) (by omega) (by omega)\n  have h0s := hne 0 (N / 2 + 1) (by omega) hs (by omega)\n  have h1h := hne 1 (N / 2) (by omega) (by omega) (by omega)\n  have h1s := hne 1 (N / 2 + 1) (by omega) hs (by omega)\n  have hhs := hne (N / 2) (N / 2 + 1) (by omega) hs (by omega)\n  simp only [Nat.cast_zero, Nat.cast_one] at h01 h0h h0s h1h h1s\n  simp [M8.AntipodalFamily.support, h01, h0h, h0s, h1h, h1s, hhs]",
+  "queries": [
+    "ZMod.val_natCast",
+    "Finset.card_insert_of_notMem"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst hN\nclassical\nhave hp := M8.MixedFamily.literal_polynomials N hN\nhave hm := (M7.RecipeSignature.signature_properties N (M8.MixedFamily.recipe N)).1\nhave ha : M8.MixedFamily.a.Monic := by\n  simpa [M8.MixedFamily.a, add_comm] using\n    (Polynomial.monic_X_add_C (1 : ZMod 2))\nhave hab : M8.MixedFamily.a ∣ M8.MixedFamily.b := by\n  rw [M8.MixedFamily.algebra.1]\n  exact dvd_pow_self _ (by decide : 2 ≠ 0)\nhave hn : -(1 : Polynomial (ZMod 2)) = 1 := by\n  have h := congrArg (fun c : ZMod 2 => Polynomial.C c)\n    (show -(1 : ZMod 2) = 1 by decide)\n  simpa using h\nhave ham : M8.MixedFamily.a ∣ M6.Cyclic.modulus N := by\n  simpa [M8.MixedFamily.a, M6.Cyclic.modulus, sub_eq_add_neg, hn, add_comm] using\n    (sub_dvd_pow_sub_pow (Polynomial.X : Polynomial (ZMod 2)) 1 N)\nhave hs : M7.RecipeSignature.signature (M8.MixedFamily.recipe N) =\n    Polynomial.gcd (Polynomial.gcd M8.MixedFamily.a M8.MixedFamily.b)\n      (M6.Cyclic.modulus N) := by\n  change Polynomial.gcd\n    (Polynomial.gcd (M7.Supports.polynomial (M8.MixedFamily.left N))\n      (M7.Supports.polynomial (M8.MixedFamily.right N)))\n    (M6.Cyclic.modulus N) = _\n  rw [hp.1, hp.2]\nhave hsa : M7.RecipeSignature.signature (M8.MixedFamily.recipe N) ∣ M8.MixedFamily.a := by\n  rw [hs]\n  exact dvd_trans (gcd_dvd_left _ _) (gcd_dvd_left _ _)\nhave has : M8.MixedFamily.a ∣ M7.RecipeSignature.signature (M8.MixedFamily.recipe N) := by\n  rw [hs]\n  exact dvd_gcd (dvd_gcd (dvd_refl _) hab) ham\nfirst\n| exact Polynomial.eq_of_monic_of_dvd_of_dvd hm ha hsa has\n| exact Polynomial.dvd_antisymm hm ha hsa has\n| exact?",
+  "queries": [
+    "Polynomial monic equality mutual divisibility",
+    "sub_dvd_pow_sub_pow",
+    "Polynomial gcd monic normalize_eq"
+  ]
+}

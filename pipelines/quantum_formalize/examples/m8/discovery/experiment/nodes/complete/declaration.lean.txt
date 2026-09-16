@@ -1,0 +1,8 @@
+theorem M8.Discovery.complete : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Discovery.discover c ≠ none ↔ ∃ g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) ∧ M8.Anchor.span (M7.Action.act g c) ≤ M8.Cutoff.limit N := by
+  classical
+  intro N inst c
+  change (¬ M8.Discovery.discover c = none) ↔ _
+  rw [M8.Discovery.none_iff N c]
+  simp only [not_forall, not_not]
+  exact (M8.Discovery.good_presentations N c).trans
+    (M8.Anchor.passing_presentations N c (M8.Cutoff.limit N))

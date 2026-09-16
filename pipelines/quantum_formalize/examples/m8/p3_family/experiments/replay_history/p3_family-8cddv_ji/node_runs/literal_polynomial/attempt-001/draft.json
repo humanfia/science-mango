@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial\nintro N inst hN\nclassical\nhave hv (k : ℕ) (hk : k < N) : (k : ZMod N).val = k := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\nhave h0 : (0 : ZMod N).val = 0 := by simp\nhave h1 : (1 : ZMod N).val = 1 := by\n  simpa using hv 1 (by omega)\nhave h2 : (2 : ZMod N).val = 2 := by\n  simpa using hv 2 (by omega)\nhave h01 : (0 : ZMod N) ≠ 1 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h02 : (0 : ZMod N) ≠ 2 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h12 : (1 : ZMod N) ≠ 2 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nsimp [M8.P3Family.support, M8.P3Family.polynomial,\n  M7.Supports.polynomial, M7.Supports.natSupport,\n  h0, h1, h2, h01, h02, h12, Polynomial.monomial_eq_C_mul_X,\n  add_assoc, add_comm, add_left_comm]",
+  "queries": [
+    "M7.Supports.polynomial definition",
+    "M7.Supports.natSupport definition",
+    "ZMod.val_natCast"
+  ]
+}

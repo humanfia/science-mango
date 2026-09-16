@@ -1,0 +1,525 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-16T13:54:07.148973+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "divides_modulus": {
+      "id": "divides_modulus",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.divides_modulus",
+        "spec_sha256": "8b63a6a577a78370684e7a19f618f0d9a5c68e94448a4f7740e5f73ffc322eee",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb/attempt-001/Candidate_a69b8559bbaaa0ef.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb/attempt-001/FrozenTarget_a69b8559bbaaa0ef.lean",
+            "feedback": "",
+            "target_sha256": "177a6633e5fb9421a5c7743fd916b46300bf99ebea81e4f0f05eb93cbbecece5",
+            "target_olean_sha256": "1ae22f113f6b4b3a31b7531985876c60d0820f17a968363c6e377f903babc0a8",
+            "source_sha256": "b751121de963fa65a15f1290a6b05d894d2649e21501fa7414544a62c8ddcb3d",
+            "olean_sha256": "4aa08fdfa26e0e99e9645f1514cdcc66c71bac5a5f865a28096b62bcd49fe5f3",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:46:58.128260+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb/attempt-001/Candidate_a69b8559bbaaa0ef.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "divides_modulus": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.divides_modulus : ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have h : ∀ k : ℕ, M8.P3Family.polynomial ∣\n      (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (3 * k) - 1 := by\n    intro k\n    induction k with\n    | zero => simp\n    | succ k ih =>\n      obtain ⟨q, hq⟩ := ih\n      refine ⟨q * Polynomial.X ^ 3 + (Polynomial.X - 1), ?_⟩\n      calc\n        Polynomial.X ^ (3 * (k + 1)) - 1 =\n            (Polynomial.X ^ (3 * k) - 1) * Polynomial.X ^ 3 +\n              (Polynomial.X ^ 3 - 1) := by\n                rw [Nat.mul_succ, pow_add]\n                ring\n        _ = M8.P3Family.polynomial *\n            (q * Polynomial.X ^ 3 + (Polynomial.X - 1)) := by\n              rw [hq]\n              unfold M8.P3Family.polynomial\n              ring\n  have hone : (-1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    ext n\n    by_cases hn : n = 0 <;>\n      norm_num [Polynomial.coeff_neg, Polynomial.coeff_one, hn]\n  simpa [M6.Cyclic.modulus, sub_eq_add_neg, hone] using h k",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.divides_modulus",
+              "ancestors": [],
+              "spec_sha256": "8b63a6a577a78370684e7a19f618f0d9a5c68e94448a4f7740e5f73ffc322eee"
+            },
+            "sha256": "224b7d4b507312260dc9e620547808f8438ff36911782433d3a31c52a4e42160"
+          }
+        }
+      }
+    },
+    "literal_polynomial": {
+      "id": "literal_polynomial",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.literal_polynomial",
+        "spec_sha256": "6cae93c8600a28d0286ad47af6c38eaecb7fd6684af1fc9ae9cb0d363e4fc384",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-u3ex1vui/attempt-001/Candidate_cf077c78974146fc.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-u3ex1vui/attempt-001/FrozenTarget_cf077c78974146fc.lean",
+            "feedback": "",
+            "target_sha256": "93940d40127f64a9647bb5a6bf9d04dbc387a57d4128dc8d47b2ae0a85d30bfe",
+            "target_olean_sha256": "ee2ca9fb47818dcd172e28ff3e8492890585ffa926c1757cb52524f9e7c2d800",
+            "source_sha256": "a0c5af1f5c5f758f6ee7cb7aa03cd45dede2169b6252f16de8235bc753784a81",
+            "olean_sha256": "3802b4d9bd2055c2bf022f3c13ca03980abce73121769fd042c3b37db2c30518",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:46:58.281430+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-u3ex1vui",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-u3ex1vui/attempt-001/Candidate_cf077c78974146fc.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "literal_polynomial": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.literal_polynomial : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial\n  intro N inst hN\n  classical\n  have h0 : (0 : ZMod N).val = 0 := by simp\n  have h1 : (1 : ZMod N).val = 1 := by\n    have h : ((1 : ℕ) : ZMod N).val = 1 % N := by\n      rw [ZMod.val_natCast]\n    simpa only [Nat.cast_one, Nat.mod_eq_of_lt (show 1 < N by omega)] using h\n  have h2 : (2 : ZMod N).val = 2 := by\n    have h : ((2 : ℕ) : ZMod N).val = 2 % N := by\n      rw [ZMod.val_natCast]\n    simpa only [Nat.cast_ofNat, Nat.mod_eq_of_lt (show 2 < N by omega)] using h\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  simp [M8.P3Family.support, M8.P3Family.polynomial, M7.Supports.polynomial,\n    h0, h1, h2, h01, h02, h12, add_assoc, add_comm, add_left_comm]",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.literal_polynomial",
+              "ancestors": [],
+              "spec_sha256": "6cae93c8600a28d0286ad47af6c38eaecb7fd6684af1fc9ae9cb0d363e4fc384"
+            },
+            "sha256": "83efd5677b79ce79ccffb2e1c0bfa6812e30699db554093a0f2c3ca1853b6b0c"
+          }
+        }
+      }
+    },
+    "nontrivial": {
+      "id": "nontrivial",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.nontrivial",
+        "spec_sha256": "0e9c2d4323fe45970157dd137f96e65a7af7e36bddbd31ba4936d777138b02d1",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-yis4yk2k/attempt-001/Candidate_98b32caba90906ae.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-yis4yk2k/attempt-001/FrozenTarget_98b32caba90906ae.lean",
+            "feedback": "",
+            "target_sha256": "649ff6dc4d3aeb29acdfcad084b3d8dc0270b4c4236b3640d575174e56d51c9d",
+            "target_olean_sha256": "f433eaa60885a8c258d3a30dfd21a7f49664f50c2e25513374ef3c95949bdcb6",
+            "source_sha256": "e42c7cb173d57a935c887bb1629f61e6f78d154c74be917f0623e47916c7012f",
+            "olean_sha256": "07afa0e9246e7d715a1bdc23f117ec3ebddcaba71b983624f89d72e2c0d256ca",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:48:21.910160+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-yis4yk2k",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-yis4yk2k/attempt-001/Candidate_98b32caba90906ae.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "nontrivial": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.nontrivial : M8.P3Family.polynomial ≠ 1 ∧ M8.P3Family.polynomial ≠ 0 ∧ M8.P3Family.polynomial.natDegree = 2 := by\n  change M8.P3Family.polynomial ≠ 1 ∧ M8.P3Family.polynomial ≠ 0 ∧ M8.P3Family.polynomial.natDegree = 2\n  have hc : M8.P3Family.polynomial.coeff 2 ≠ 0 := by\n    norm_num [M8.P3Family.polynomial, Polynomial.coeff_add, Polynomial.coeff_one, Polynomial.coeff_X, Polynomial.coeff_X_pow]\n  have hs : (1 + Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree ≤ 1 := by\n    calc\n      _ ≤ max (1 : M6.Cyclic.BinaryPolynomial).natDegree (Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _\n      _ ≤ 1 := by simp\n  have hd : M8.P3Family.polynomial.natDegree = 2 := by\n    apply Nat.le_antisymm\n    · unfold M8.P3Family.polynomial\n      calc\n        _ ≤ max (1 + Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree (Polynomial.X ^ 2 : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _\n        _ ≤ 2 := max_le (hs.trans (by decide)) (by simp)\n    · exact Polynomial.le_natDegree_of_ne_zero hc\n  refine ⟨?_, ?_, hd⟩\n  · intro h\n    simpa [h] using hd\n  · intro h\n    simpa [h] using hd",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.nontrivial",
+              "ancestors": [],
+              "spec_sha256": "0e9c2d4323fe45970157dd137f96e65a7af7e36bddbd31ba4936d777138b02d1"
+            },
+            "sha256": "713ec362ef8e42dd2fea9ad4578906c45630bf4f94a2d81e3e11fddd011f889a"
+          }
+        }
+      }
+    },
+    "signature": {
+      "id": "signature",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.signature",
+        "spec_sha256": "4806dd1a39a49e3458b163eae34ba9008ba5fcd7294c33c275fc8896137cd160",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-njsia415/attempt-001/Candidate_3020793a2833ae36.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-njsia415/attempt-001/FrozenTarget_3020793a2833ae36.lean",
+            "feedback": "",
+            "target_sha256": "df135b119c4f9d247167f58e0260a35fe0e9c1a3a8c799d609f5629dde98cae5",
+            "target_olean_sha256": "cf9c24051d6396bd9306724c7f75b1814ef502b71625038678616a2d3bb28474",
+            "source_sha256": "442fea4b7fcb43628ea4207746a1f1f4a7770a57ea572faee1207b563d09952c",
+            "olean_sha256": "0227546e804b356fc02d7e9719d43ed30749726f0c992e7a666eed9118c48230",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:48:22.551192+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-njsia415",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-njsia415/attempt-001/Candidate_3020793a2833ae36.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "literal_polynomial": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.literal_polynomial : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial\n  intro N inst hN\n  classical\n  have h0 : (0 : ZMod N).val = 0 := by simp\n  have h1 : (1 : ZMod N).val = 1 := by\n    have h : ((1 : ℕ) : ZMod N).val = 1 % N := by\n      rw [ZMod.val_natCast]\n    simpa only [Nat.cast_one, Nat.mod_eq_of_lt (show 1 < N by omega)] using h\n  have h2 : (2 : ZMod N).val = 2 := by\n    have h : ((2 : ℕ) : ZMod N).val = 2 % N := by\n      rw [ZMod.val_natCast]\n    simpa only [Nat.cast_ofNat, Nat.mod_eq_of_lt (show 2 < N by omega)] using h\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have := congrArg ZMod.val h\n    omega\n  simp [M8.P3Family.support, M8.P3Family.polynomial, M7.Supports.polynomial,\n    h0, h1, h2, h01, h02, h12, add_assoc, add_comm, add_left_comm]",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.literal_polynomial",
+              "ancestors": [],
+              "spec_sha256": "6cae93c8600a28d0286ad47af6c38eaecb7fd6684af1fc9ae9cb0d363e4fc384"
+            },
+            "sha256": "83efd5677b79ce79ccffb2e1c0bfa6812e30699db554093a0f2c3ca1853b6b0c"
+          },
+          "divides_modulus": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.divides_modulus : ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have h : ∀ k : ℕ, M8.P3Family.polynomial ∣\n      (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (3 * k) - 1 := by\n    intro k\n    induction k with\n    | zero => simp\n    | succ k ih =>\n      obtain ⟨q, hq⟩ := ih\n      refine ⟨q * Polynomial.X ^ 3 + (Polynomial.X - 1), ?_⟩\n      calc\n        Polynomial.X ^ (3 * (k + 1)) - 1 =\n            (Polynomial.X ^ (3 * k) - 1) * Polynomial.X ^ 3 +\n              (Polynomial.X ^ 3 - 1) := by\n                rw [Nat.mul_succ, pow_add]\n                ring\n        _ = M8.P3Family.polynomial *\n            (q * Polynomial.X ^ 3 + (Polynomial.X - 1)) := by\n              rw [hq]\n              unfold M8.P3Family.polynomial\n              ring\n  have hone : (-1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    ext n\n    by_cases hn : n = 0 <;>\n      norm_num [Polynomial.coeff_neg, Polynomial.coeff_one, hn]\n  simpa [M6.Cyclic.modulus, sub_eq_add_neg, hone] using h k",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.divides_modulus",
+              "ancestors": [],
+              "spec_sha256": "8b63a6a577a78370684e7a19f618f0d9a5c68e94448a4f7740e5f73ffc322eee"
+            },
+            "sha256": "224b7d4b507312260dc9e620547808f8438ff36911782433d3a31c52a4e42160"
+          },
+          "signature": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.signature : ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M7.RecipeSignature.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial := by\n  intro N inst hN hdiv\n  have hl := M8.P3Family.literal_polynomial N hN\n  have hd := M8.P3Family.divides_modulus N hdiv\n  change EuclideanDomain.gcd\n    (EuclideanDomain.gcd (M7.Supports.polynomial (M8.P3Family.support N))\n      (M7.Supports.polynomial (M8.P3Family.support N))) (M6.Cyclic.modulus N) = M8.P3Family.polynomial\n  rw [hl, EuclideanDomain.gcd_self]\n  exact EuclideanDomain.gcd_eq_left.mpr hd",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.signature",
+              "ancestors": [
+                "divides_modulus",
+                "literal_polynomial"
+              ],
+              "spec_sha256": "3a0fc3a2acc0b82b3ace7cbea4df57c21b34468ff01571f63b1af8da08a1e832"
+            },
+            "sha256": "08c475968c2bcaec6925ed2d0fee68f9410c79d84b030a0c529ea4d66edc292a"
+          }
+        }
+      }
+    },
+    "span_cutoff": {
+      "id": "span_cutoff",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.span_cutoff",
+        "spec_sha256": "d67b4f40f89ba3b8b2d14af694e9540bdf60fcbeee0cc7856143a7d3231e8b6d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-nk3o2t4j/attempt-001/Candidate_3a670450e202b732.lean:11:6: error: 'change' tactic failed, pattern\n  (↑1).val ≤ 2\nis not definitionally equal to target\n  ZMod.val 1 ≤ 2\n/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-nk3o2t4j/attempt-001/Candidate_3a670450e202b732.lean:28:6: error: Type mismatch\n  hlog\nhas type\n  2 ≤ Nat.log 2 (N + 1)\nbut is expected to have type\n  2 ≤ (N + 1).log2\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-nk3o2t4j/attempt-002/Candidate_5c9ea0856623025d.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-nk3o2t4j/attempt-002/FrozenTarget_5c9ea0856623025d.lean",
+            "feedback": "",
+            "target_sha256": "e9c01908f2bb386ed88d73729246240733ff9385f5b36f2e8a0d91f30c8b2b41",
+            "target_olean_sha256": "e6b0b02818b3c3c2329c8300f4a6388f370acc0dc4cc93bc18d8dcb46e4f8ce7",
+            "source_sha256": "9c4eb489ed08df6555e0bf6845b19d579bd4b4edd139bc144cd5624fd2e542f5",
+            "olean_sha256": "4586e17cd53732c9ab4990149c2076c8b90ce2a2da60ca51c3bd6452b7a0b878",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-16T13:49:12.013046+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-nk3o2t4j",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-nk3o2t4j/attempt-002/Candidate_5c9ea0856623025d.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "span_cutoff": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.span_cutoff : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.Anchor.span (M8.P3Family.recipe N) ≤ M8.Cutoff.limit N := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.Anchor.span (M8.P3Family.recipe N) ≤ M8.Cutoff.limit N\n  intro N inst hN\n  have hval (k : ℕ) : (k : ZMod N).val ≤ k := by\n    rw [ZMod.val_natCast]\n    exact Nat.mod_le _ _\n  have hs : ∀ i ∈ M8.P3Family.support N, i.val ≤ 2 := by\n    intro i hi\n    simp only [M8.P3Family.support, Finset.mem_insert, Finset.mem_singleton] at hi\n    rcases hi with rfl | rfl | rfl\n    · exact le_trans (by simpa using hval 0) (by decide : 0 ≤ 2)\n    · exact le_trans (by simpa using hval 1) (by decide : 1 ≤ 2)\n    · simpa using hval 2\n  have hspan : M8.Anchor.span (M8.P3Family.recipe N) ≤ 2 := by\n    apply (M8.Anchor.span_le N (M8.P3Family.recipe N) 2).2\n    exact ⟨hs, hs⟩\n  apply le_trans hspan\n  rw [M8.Cutoff.bit_length_limit, Nat.log2_eq_log_two]\n  apply le_min\n  · omega\n  · apply (Nat.le_log_iff_pow_le (by decide : 1 < 2) (by omega : N + 1 ≠ 0)).2\n    norm_num\n    omega",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.span_cutoff",
+              "ancestors": [],
+              "spec_sha256": "d67b4f40f89ba3b8b2d14af694e9540bdf60fcbeee0cc7856143a7d3231e8b6d"
+            },
+            "sha256": "cc0cb452335ae8fb9e2ac19987647ac19a9b4790282f133fcedbc92f385a70fc"
+          }
+        }
+      }
+    },
+    "support_data": {
+      "id": "support_data",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.support_data",
+        "spec_sha256": "4cf751bd5196e683aec90bfd6be75a1e002714c2332c4579ccbc060e1463df07",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-tr2aubdr/attempt-001/Candidate_2c4f7049c9fcb349.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-tr2aubdr/attempt-001/FrozenTarget_2c4f7049c9fcb349.lean",
+            "feedback": "",
+            "target_sha256": "1a0bf8acaa57d384c4c774edd26ef44c0f10b76333426da7fb6e1812ab4a9da6",
+            "target_olean_sha256": "20068d541cfb5579d034dee00d15fda2670f49fdef9c76f7ccbcc7d70857bb2e",
+            "source_sha256": "0487f1fd5e7750a7ae857ae4a413095480b17c6cc68aed21fdc9355000d2fa94",
+            "olean_sha256": "d80bac21d04430f6fd96acc3f142e7fcc47cff2ffcef0caaa4063a1adfa42e83",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:49:14.013240+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-tr2aubdr",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-tr2aubdr/attempt-001/Candidate_2c4f7049c9fcb349.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "support_data": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.support_data : ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N\n  intro N inst hN\n  classical\n  have hinj (a b : ℕ) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n    have hv := congrArg (fun x : ZMod N => x.val) h\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n    omega\n  simp [M8.P3Family.support, h01, h02, h12]",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.support_data",
+              "ancestors": [],
+              "spec_sha256": "4cf751bd5196e683aec90bfd6be75a1e002714c2332c4579ccbc060e1463df07"
+            },
+            "sha256": "df8e134ff02cd89dc2f1189065d127d9e946ae9be8f7806ea01b5b46ffee5f1e"
+          }
+        }
+      }
+    },
+    "full_direction": {
+      "id": "full_direction",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.full_direction",
+        "spec_sha256": "695b92f01c4be9822fa4eafac11506e992d36ee0758bf6aabaa72e0daa484e6c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y/attempt-001/Candidate_ff8e5f8a22d0f807.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y/attempt-001/FrozenTarget_ff8e5f8a22d0f807.lean",
+            "feedback": "",
+            "target_sha256": "a3f486724b89f29ac53904d7c07776ef505a39f5ae3ecd95a1f434aa653d69e3",
+            "target_olean_sha256": "d1eb9cdd9c640c3cbd72c0301d362ff34dbdf6d63f71daf39f16910cc8a29475",
+            "source_sha256": "d53f18d421f518dea0286570404ffc83a8e9aed0249ba0635ba970af8c764f34",
+            "olean_sha256": "b86d3fdd7aa1caea85128c52c2aa11e63ebc75f21f229d1b4f591e505adfacb1",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:50:04.055269+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y/attempt-001/Candidate_ff8e5f8a22d0f807.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "support_data": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.support_data : ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N\n  intro N inst hN\n  classical\n  have hinj (a b : ℕ) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n    have hv := congrArg (fun x : ZMod N => x.val) h\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n    omega\n  simp [M8.P3Family.support, h01, h02, h12]",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.support_data",
+              "ancestors": [],
+              "spec_sha256": "4cf751bd5196e683aec90bfd6be75a1e002714c2332c4579ccbc060e1463df07"
+            },
+            "sha256": "df8e134ff02cd89dc2f1189065d127d9e946ae9be8f7806ea01b5b46ffee5f1e"
+          },
+          "full_direction": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.full_direction : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N) := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N)\n  intro N inst hN\n  apply M8.CoverageFoundation.consecutive_full N (M8.P3Family.support N) 0\n  · exact (M8.P3Family.support_data N hN).2.1\n  · simpa only [zero_add] using (M8.P3Family.support_data N hN).2.2",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.full_direction",
+              "ancestors": [
+                "support_data"
+              ],
+              "spec_sha256": "e2609dc3a210fe379ca749ea751192214a8c8d91f6a9a1307bd2ef4b8f008de8"
+            },
+            "sha256": "23aafe92adc1ad07b5a2d763bd22dcd069e058f1a20c2f88078c7e2cf6fc8405"
+          }
+        }
+      }
+    },
+    "valid": {
+      "id": "valid",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.P3Family.valid",
+        "spec_sha256": "1b00ba91f15eb953158f9c8d4a9765d2c5a819df2efa467e0337cf43a751dcdd",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m/attempt-001/Candidate_0c0f9990120d2d00.lean",
+            "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m/attempt-001/FrozenTarget_0c0f9990120d2d00.lean",
+            "feedback": "",
+            "target_sha256": "3e84893b90a2b55d6e7077b4c5208b897dc54ea0e48c51c0a4533a747581a0e0",
+            "target_olean_sha256": "e8fe43eb2a6e3751dba405e69b83e3a5f215c5d0ffc9bb4784ddda395a79082c",
+            "source_sha256": "b135f3e62d4246b7446d1ef4a8c475b654a02115ad95f4c6e72a81ada47bce34",
+            "olean_sha256": "d61cbd38d3f2941e4cbf6b860154810b03a274db2c7b3629ab757a1acb715870",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:52:11.016079+00:00",
+        "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-g51zds4m/attempt-001/Candidate_0c0f9990120d2d00.lean",
+        "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+        "artifacts": {
+          "support_data": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.support_data : ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N\n  intro N inst hN\n  classical\n  have hinj (a b : ℕ) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n    have hv := congrArg (fun x : ZMod N => x.val) h\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n    omega\n  simp [M8.P3Family.support, h01, h02, h12]",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.support_data",
+              "ancestors": [],
+              "spec_sha256": "4cf751bd5196e683aec90bfd6be75a1e002714c2332c4579ccbc060e1463df07"
+            },
+            "sha256": "df8e134ff02cd89dc2f1189065d127d9e946ae9be8f7806ea01b5b46ffee5f1e"
+          },
+          "full_direction": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.full_direction : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N) := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N)\n  intro N inst hN\n  apply M8.CoverageFoundation.consecutive_full N (M8.P3Family.support N) 0\n  · exact (M8.P3Family.support_data N hN).2.1\n  · simpa only [zero_add] using (M8.P3Family.support_data N hN).2.2",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.full_direction",
+              "ancestors": [
+                "support_data"
+              ],
+              "spec_sha256": "e2609dc3a210fe379ca749ea751192214a8c8d91f6a9a1307bd2ef4b8f008de8"
+            },
+            "sha256": "23aafe92adc1ad07b5a2d763bd22dcd069e058f1a20c2f88078c7e2cf6fc8405"
+          },
+          "valid": {
+            "payload": {
+              "declaration": "theorem M8.P3Family.valid : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.PhysicalBridge.Valid 3 (M8.P3Family.recipe N) := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.PhysicalBridge.Valid 3 (M8.P3Family.recipe N)\n  intro N inst hN\n  classical\n  have hs := M8.P3Family.support_data N hN\n  have hf := M8.P3Family.full_direction N hN\n  have hc : M7.Connectivity.connected (M8.P3Family.support N, M8.P3Family.support N) := by\n    simpa only [M7.Connectivity.connected, Set.union_self,\n      M8.CoverageFoundation.FullDirection, M8.CoverageFoundation.direction] using hf\n  simp_all [M8.PhysicalBridge.Valid, M8.P3Family.recipe]",
+              "imports": [
+                "M8P3Family"
+              ],
+              "name": "M8.P3Family.valid",
+              "ancestors": [
+                "full_direction",
+                "support_data"
+              ],
+              "spec_sha256": "c26707939fc533500db1af4f071662319f1cad0533d961a81c4673dbc4d74a6a"
+            },
+            "sha256": "2b1daa3e64779adcf349838dfe260a08bdbb71050030d7ae963d315e27f953cf"
+          }
+        }
+      }
+    }
+  }
+}

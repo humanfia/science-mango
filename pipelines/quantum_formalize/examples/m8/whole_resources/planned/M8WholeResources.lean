@@ -8,9 +8,14 @@ namespace M8.WholeResources
 The counters describe the specified algorithm, not Lean evaluator time. -/
 def inputScanWork (N : ℕ) : ℕ :=
   (List.range (2*N)).foldl (fun w _ => w + 4*(N+1)) 0
+/-- Fixed input-validation pass over the two blocks: coordinate differences,
+standard binary gcd updates and weight/cursor bookkeeping. Public correctness
+still has Valid as its domain; no new InvalidInput outcome is introduced. -/
+def connectivityScanWork (N : ℕ) : ℕ :=
+  (List.range (2*N)).foldl (fun w _ => w + (64*(N+1)^2 + 8*(N+1))) 0
 /-- Clear the concrete reusable allocation once; cache cutoff/control words. -/
 noncomputable def setupWork (N : ℕ) : ℕ :=
-  M8.BankLayout.payloadSlots N + inputScanWork N + 32*(N+1)^2
+  M8.BankLayout.payloadSlots N + inputScanWork N + connectivityScanWork N + 32*(N+1)^2
 /-- Scan two literal blocks: subtract, multiply, reduce and assign each output bit.
 The fixed charge also covers the successful unit/inverse parameter conversion. -/
 def transformWork (N : ℕ) : ℕ :=

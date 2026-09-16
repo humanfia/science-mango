@@ -1,0 +1,27 @@
+theorem M8.P4Family.span_cutoff : ∀ (N : ℕ) [NeZero N], 8 ≤ N → M8.Anchor.span (M8.P4Family.recipe N) ≤ M8.Cutoff.limit N := by
+  intro N inst hN
+  classical
+  have hv (k : ℕ) : (k : ZMod N).val ≤ k := by
+    rw [ZMod.val_natCast]
+    exact Nat.mod_le _ _
+  have hs : ∀ i ∈ M8.P4Family.support N, i.val ≤ 3 := by
+    intro i hi
+    simp only [M8.P4Family.support, Finset.mem_insert, Finset.mem_singleton] at hi
+    rcases hi with rfl | rfl | rfl | rfl
+    · have h : (0 : ZMod N).val ≤ 0 := by simpa using hv 0
+      omega
+    · have h : (1 : ZMod N).val ≤ 1 := by simpa using hv 1
+      omega
+    · have h : (2 : ZMod N).val ≤ 2 := by simpa using hv 2
+      omega
+    · simpa using hv 3
+  have hspan : M8.Anchor.span (M8.P4Family.recipe N) ≤ 3 := by
+    apply (M8.Anchor.span_le N (M8.P4Family.recipe N) 3).2
+    exact ⟨hs, hs⟩
+  apply hspan.trans
+  change 3 ≤ min (N - 1) (Nat.log 2 (N + 1))
+  apply le_min
+  · omega
+  · apply Nat.le_log_of_pow_le (by decide : 1 < 2)
+    norm_num
+    omega

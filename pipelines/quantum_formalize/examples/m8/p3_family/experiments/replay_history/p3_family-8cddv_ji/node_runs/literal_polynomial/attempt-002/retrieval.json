@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Supports.polynomial definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 100946,
+        "name": "Polynomial.support",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L356-L358",
+        "source_text": "/-- The set of all `n` such that `X^n` has a non-zero coefficient. -/\ndef support : R[X] → Finset ℕ\n  | ⟨p⟩ => p.coeff.support\n",
+        "docstring": "The set of all `n` such that `X^n` has a non-zero coefficient. "
+      },
+      {
+        "id": 90479,
+        "name": "MvPolynomial.mem_support_iff",
+        "module": "Mathlib.Algebra.MvPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L516-L518",
+        "source_text": "@[simp, grind =]\ntheorem mem_support_iff {p : MvPolynomial σ R} {m : σ →₀ ℕ} : m ∈ p.support ↔ p.coeff m ≠ 0 := by\n  simp [support, coeff]",
+        "docstring": null
+      },
+      {
+        "id": 101753,
+        "name": "Polynomial.supp_subset_range",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L49-L50",
+        "source_text": "theorem supp_subset_range (h : natDegree p < m) : p.support ⊆ Finset.range m := fun _n hn =>\n  mem_range.2 <| (le_natDegree_of_mem_supp _ hn).trans_lt h\n",
+        "docstring": null
+      },
+      {
+        "id": 197013,
+        "name": "Turing.TM0.Supports",
+        "module": "Mathlib.Computability.TuringMachine.PostTuringMachine",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/PostTuringMachine.lean#L176-L184",
+        "source_text": "/-- The raw definition of a Turing machine does not require that\n  `Γ` and `Λ` are finite, and in practice we will be interested\n  in the infinite `Λ` case. We recover instead a notion of\n  \"effectively finite\" Turing machines, which only make use of a\n  finite subset of their states. We say that a set `S ⊆ Λ`\n  supports a Turing machine `M` if `S` is closed under the\n  transition function and contains the initial state. -/\ndef Supports (M : Machine Γ Λ) (S : Set Λ) :=\n  default ∈ S ∧ ∀ {q a q' s}, (q', s) ∈ M q a → q ∈ S → q' ∈ S\n",
+        "docstring": "The raw definition of a Turing machine does not require that\n`Γ` and `Λ` are finite, and in practice we will be interested\nin the infinite `Λ` case. We recover instead a notion of\n\"effectively finite\" Turing machines, which only make use of a\nfinite subset of their states. We say that a set `S ⊆ Λ`\nsupports a Turing machine `M` if `S` is closed under the\ntransition function and contains the initial state. "
+      },
+      {
+        "id": 197110,
+        "name": "Turing.TM2.Supports",
+        "module": "Mathlib.Computability.TuringMachine.StackTuringMachine",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/StackTuringMachine.lean#L255-L258",
+        "source_text": "/-- Given a TM2 machine `M` and a set `S` of states, `Supports M S` means that all states in\n`S` jump only to other states in `S`. -/\ndef Supports (M : Λ → Stmt Γ Λ σ) (S : Finset Λ) :=\n  default ∈ S ∧ ∀ q ∈ S, SupportsStmt S (M q)\n",
+        "docstring": "Given a TM2 machine `M` and a set `S` of states, `Supports M S` means that all states in\n`S` jump only to other states in `S`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Supports.polynomial definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Supports.natSupport definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 237265,
+        "name": "MulAction.Supports",
+        "module": "Mathlib.GroupTheory.GroupAction.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Support.lean#L34-L37",
+        "source_text": "/-- A set `s` supports `b` if `g • b = b` whenever `g • a = a` for all `a ∈ s`. -/\n@[to_additive /-- A set `s` supports `b` if `g +ᵥ b = b` whenever `g +ᵥ a = a` for all `a ∈ s`. -/]\ndef Supports (s : Set α) (b : β) :=\n  ∀ g : G, (∀ ⦃a⦄, a ∈ s → g • a = a) → g • b = b\n",
+        "docstring": "A set `s` supports `b` if `g • b = b` whenever `g • a = a` for all `a ∈ s`. "
+      },
+      {
+        "id": 267713,
+        "name": "MeasureTheory.Measure.support",
+        "module": "Mathlib.MeasureTheory.Measure.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/Support.lean#L52-L55",
+        "source_text": "/-- A point `x` is in the support of `μ` if any open neighborhood of `x` has positive measure.\nWe provide the definition in terms of the filter-theoretic equivalent\n`∃ᶠ u in (𝓝 x).smallSets, 0 < μ u`. -/\nprotected def support (μ : Measure X) : Set X := {x : X | ∃ᶠ u in (𝓝 x).smallSets, 0 < μ u}\n",
+        "docstring": "A point `x` is in the support of `μ` if any open neighborhood of `x` has positive measure.\nWe provide the definition in terms of the filter-theoretic equivalent\n`∃ᶠ u in (𝓝 x).smallSets, 0 < μ u`. "
+      },
+      {
+        "id": 205326,
+        "name": "Finsupp.toFinset_toMultiset",
+        "module": "Mathlib.Data.Finsupp.Multiset",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finsupp/Multiset.lean#L89-L97",
+        "source_text": "@[simp]\ntheorem toFinset_toMultiset [DecidableEq α] (f : α →₀ ℕ) : f.toMultiset.toFinset = f.support := by\n  refine f.induction ?_ ?_\n  · rw [toMultiset_zero, Multiset.toFinset_zero, support_zero]\n  · intro a n f ha hn ih\n    rw [toMultiset_add, Multiset.toFinset_add, ih, toMultiset_single, support_add_eq,\n      support_single _ hn, Multiset.toFinset_nsmul _ _ hn, Multiset.toFinset_singleton]\n    refine Disjoint.mono_left support_single_subset ?_\n    rwa [Finset.disjoint_singleton_left]",
+        "docstring": null
+      },
+      {
+        "id": 91697,
+        "name": "Function.support",
+        "module": "Mathlib.Algebra.Notation.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Notation/Support.lean#L31-L31",
+        "source_text": "@[to_additive /-- `support` of a function is the set of points `x` such that `f x ≠ 0`. -/]\ndef mulSupport (f : ι → M) : Set ι := {x | f x ≠ 1}",
+        "docstring": "`support` of a function is the set of points `x` such that `f x ≠ 0`. "
+      },
+      {
+        "id": 197110,
+        "name": "Turing.TM2.Supports",
+        "module": "Mathlib.Computability.TuringMachine.StackTuringMachine",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/StackTuringMachine.lean#L255-L258",
+        "source_text": "/-- Given a TM2 machine `M` and a set `S` of states, `Supports M S` means that all states in\n`S` jump only to other states in `S`. -/\ndef Supports (M : Λ → Stmt Γ Λ σ) (S : Finset Λ) :=\n  default ∈ S ∧ ∀ q ∈ S, SupportsStmt S (M q)\n",
+        "docstring": "Given a TM2 machine `M` and a set `S` of states, `Supports M S` means that all states in\n`S` jump only to other states in `S`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Supports.natSupport definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_natCast",
+    "status": "ok",
+    "results": [
+      {
+        "id": 222987,
+        "name": "ZMod.val_natCast",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+        "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+        "docstring": null
+      },
+      {
+        "id": 222980,
+        "name": "ZMod.val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+        "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+        "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+      },
+      {
+        "id": 223006,
+        "name": "ZMod.natCast_zmod_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+        "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+        "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+      },
+      {
+        "id": 328344,
+        "name": "Mathlib.Meta.NormNum.evalNatCast",
+        "module": "Mathlib.Tactic.NormNum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Basic.lean#L138-L145",
+        "source_text": "/-- The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. -/\n@[norm_num Nat.cast _, NatCast.natCast _] def evalNatCast : NormNumExt where eval {u α} e := do\n  let sα ← inferAddMonoidWithOne α\n  let .app n (a : Q(ℕ)) ← whnfR e | failure\n  guard <|← withNewMCtxDepth <| isDefEq n q(Nat.cast (R := $α))\n  let ⟨na, pa⟩ ← deriveNat a q(Nat.instAddMonoidWithOne)\n  haveI' : $e =Q $a := ⟨⟩\n  return .isNat sα na q(isNat_natCast $a $na $pa)\n",
+        "docstring": "The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. "
+      },
+      {
+        "id": 337463,
+        "name": "WithVal.instNatCast",
+        "module": "Mathlib.Topology.Algebra.Valued.WithVal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Valued/WithVal.lean#L95-L95",
+        "source_text": "instance : NatCast (WithVal v) where natCast n := toVal _ n\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_natCast",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393466,
+        "name": "Time.natCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+        "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393477,
+        "name": "Time.realCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L144-L144",
+        "source_text": "lemma realCast_val {r : ℝ} : (r : Time).val = r := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 393478,
+        "name": "Time.realCast_of_natCast",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L146-L147",
+        "source_text": "@[simp]\nlemma realCast_of_natCast {n : ℕ} : ((n : ℝ) : Time) = n := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

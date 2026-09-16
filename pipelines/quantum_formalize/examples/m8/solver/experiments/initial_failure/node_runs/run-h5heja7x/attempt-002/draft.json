@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 2000000 in\n  classical\n  intro N inst c\n  have hp (s : Finset (ZMod N)) : (M7.Supports.polynomial s).natDegree ≤ N := by\n    by_cases hz : M7.Supports.polynomial s = 0\n    · simp [hz]\n    · have hm := Polynomial.natDegree_mem_support_of_nonzero hz\n      rw [M7.Supports.support] at hm\n      obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hm\n      have hv := ZMod.val_lt i\n      omega\n  have hm : (M6.Cyclic.modulus N).natDegree ≤ N := by\n    change (Polynomial.X ^ N + (1 : M6.Cyclic.BinaryPolynomial)).natDegree ≤ N\n    calc\n      _ ≤ max (Polynomial.X ^ N : M6.Cyclic.BinaryPolynomial).natDegree (1 : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _\n      _ ≤ N := by simp\n  have hc := M6.Euclid.preprocess_correct_cost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) (hp c.1) (hp c.2) hm\n  simpa [M8.Solver.originalF, M8.PhysicalBridge.signature, M7.RecipeSignature.signature] using hc.1",
+  "queries": [
+    "M6.Euclid.preprocess_correct_cost",
+    "M7.Supports.support",
+    "M7.RecipeSignature.signature"
+  ]
+}

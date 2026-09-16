@@ -1,0 +1,131 @@
+{
+  "id": "antipodal_exclusion",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.ExclusionGeometry.antipodal_exclusion",
+    "spec_sha256": "b651386bc24dbbbe8297e0742e6132397cbb760ffb5484e68454da81f3ccc55c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-jt35f947/attempt-001/Candidate_abd083fb5dcd9a73.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-jt35f947/attempt-001/FrozenTarget_abd083fb5dcd9a73.lean",
+        "feedback": "",
+        "target_sha256": "5713d82b198f43472eb5e3e831ec9762db08e92e596369f2d293079e7e60a336",
+        "target_olean_sha256": "9ce87e4865d3950d3abbc5fd0a89ebea6a94ef02b6f4cc78e45f015d4a70ef29",
+        "source_sha256": "00ad7c349ea69c5cf5ca3f97e5c973d78db8a74722371e1437dac6a1264e5e55",
+        "olean_sha256": "34ba3e320cd02763a8552f8271f2c641e4f2c514026ca89142d5b20251782a39",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:31:43.305659+00:00",
+    "work": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-jt35f947",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8afe9c7e471e16165800372a93c24218722144be962fb7f9a194b1fc38f9254f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-jt35f947/attempt-001/Candidate_abd083fb5dcd9a73.lean",
+    "environment_sha256": "b26d1ee653ba909f9adbec0d55038a46a037fcad8a0cd41d5615bf8b218c292d",
+    "artifacts": {
+      "pair_span": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.pair_span : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)), N = 2*h → M8.ExclusionGeometry.Antipodal h B → h ≤ B.sup ZMod.val := by\n  intro N inst h B hN hB\n  rcases hB with ⟨x, hx, hxh⟩\n  by_cases hhx : h ≤ x.val\n  · exact hhx.trans (Finset.le_sup (f := ZMod.val) hx)\n  · have hsum : x.val + h < N := by omega\n    have hhN : h < N := by omega\n    have hv : (x + (h : ZMod N)).val = x.val + h := by\n      rw [ZMod.val_add, ZMod.val_natCast, Nat.mod_eq_of_lt hhN,\n        Nat.mod_eq_of_lt hsum]\n    have hbound : (x + (h : ZMod N)).val ≤ B.sup ZMod.val :=\n      Finset.le_sup (f := ZMod.val) hxh\n    rw [hv] at hbound\n    omega",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.pair_span",
+          "ancestors": [],
+          "spec_sha256": "89a5e80c9f223917f5fe05cf9f38d0531e212531012d107ff81149e4ebcbdd65"
+        },
+        "sha256": "50a1b3978dcfc72517a2899560ae35443b42d2b185f3694481bc9de7f5cb6ddb"
+      },
+      "unit_half": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.unit_half : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (u : (ZMod N)ˣ), N = 2*h → (u : ZMod N) * (h : ZMod N) = (h : ZMod N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (u : (ZMod N)ˣ), N = 2 * h → (u : ZMod N) * (h : ZMod N) = (h : ZMod N)\n  intro N _ h u hN\n  have hc := ZMod.val_coe_unit_coprime u\n  have hc2 : Nat.Coprime (u : ZMod N).val 2 :=\n    hc.of_dvd_right ⟨h, hN⟩\n  have ho : Odd (u : ZMod N).val := Nat.coprime_two_right.mp hc2\n  obtain ⟨k, hk⟩ := ho\n  have hk' : (u : ZMod N).val = 2 * k + 1 := by omega\n  have hu : (u : ZMod N) = 2 * (k : ZMod N) + 1 := by\n    simpa using congrArg (fun n : ℕ => (n : ZMod N)) hk'\n  have hz : (2 : ZMod N) * (h : ZMod N) = 0 := by\n    have he := congrArg (fun n : ℕ => (n : ZMod N)) hN\n    simpa using he.symm\n  rw [hu]\n  calc\n    (2 * (k : ZMod N) + 1) * (h : ZMod N) =\n        (k : ZMod N) * (2 * (h : ZMod N)) + (h : ZMod N) := by ring\n    _ = (h : ZMod N) := by rw [hz]; simp",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.unit_half",
+          "ancestors": [],
+          "spec_sha256": "e0c3e26491d6c8e79f21ae2d4a224113fc9ce3c90d8a186eeb06e2efffb0b550"
+        },
+        "sha256": "518224138bff9438ba552ad21e97486c019e8d160b011258443dd4e92e9cd68c"
+      },
+      "pair_affine": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.pair_affine : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), N = 2*h → M8.ExclusionGeometry.Antipodal h B → M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s)) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), N = 2 * h → M8.ExclusionGeometry.Antipodal h B → M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s))\n  intro N _ h B u s hN hB\n  classical\n  rcases hB with ⟨x, hx, hxh⟩\n  refine ⟨M7.Action.affine u s x, Finset.mem_image.mpr ⟨x, hx, rfl⟩, ?_⟩\n  apply Finset.mem_image.mpr\n  refine ⟨x + (h : ZMod N), hxh, ?_⟩\n  simp [M7.Action.affine, mul_add, M8.ExclusionGeometry.unit_half N h u hN, add_assoc, add_comm, add_left_comm]",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.pair_affine",
+          "ancestors": [
+            "unit_half"
+          ],
+          "spec_sha256": "1b54a341e8a6512ac875fa6e57b40d728a718099824025d8b7240d5de13d1c6e"
+        },
+        "sha256": "27e7e719db7e59b1781eb39e8f11d9f21d0862d1615c2e8a9f323a3b62c020bd"
+      },
+      "orbit_pair": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.orbit_pair : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2*h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → (M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).1 ∨ M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).2) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2 * h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → (M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).1 ∨ M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).2)\n  intro N _ h c g hN hc\n  classical\n  cases he : g.exchange <;> rcases hc with hc | hc <;>\n    simp [M7.Action.act, he] <;>\n    first\n    | exact Or.inl (M8.ExclusionGeometry.pair_affine N h _ g.unit g.leftShift hN hc)\n    | exact Or.inr (M8.ExclusionGeometry.pair_affine N h _ g.unit g.rightShift hN hc)",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.orbit_pair",
+          "ancestors": [
+            "pair_affine",
+            "unit_half"
+          ],
+          "spec_sha256": "63eb4acfb052699ed33b1ea9b14b61211a1bf2b29b2365963a5f7b948896ae54"
+        },
+        "sha256": "73f596bada76f041743fb8eaccc67c17dc380f605face7391864cb0ba88028b3"
+      },
+      "orbit_span": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.orbit_span : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2*h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → h ≤ M8.Anchor.span (M7.Action.act g c) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2 * h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → h ≤ M8.Anchor.span (M7.Action.act g c)\n  intro N _ h c g hN hc\n  have hb := (M8.Anchor.span_le N (M7.Action.act g c) (M8.Anchor.span (M7.Action.act g c))).mp (le_refl _)\n  rcases M8.ExclusionGeometry.orbit_pair N h c g hN hc with hl | hr\n  · exact (M8.ExclusionGeometry.pair_span N h _ hN hl).trans (Finset.sup_le hb.1)\n  · exact (M8.ExclusionGeometry.pair_span N h _ hN hr).trans (Finset.sup_le hb.2)",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.orbit_span",
+          "ancestors": [
+            "orbit_pair",
+            "pair_affine",
+            "pair_span",
+            "unit_half"
+          ],
+          "spec_sha256": "61e6d0954d57417023baf2aad2813b3be0e8d4e1d3ec4784f4daa4c8155488ec"
+        },
+        "sha256": "2c9aaf0080a3f2fb78fc3c9923ef2abee8ec5b9de46902dfc28acefe4cf17be9"
+      },
+      "antipodal_exclusion": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.antipodal_exclusion : ∀ (N : ℕ) [NeZero N], ∀ (h L : ℕ) (c : M7.Action.Recipe N), N = 2*h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → L < h → ∀ g : M7.Action.Record N, L < M8.Anchor.span (M7.Action.act g c) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h L : ℕ) (c : M7.Action.Recipe N), N = 2 * h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → L < h → ∀ g : M7.Action.Record N, L < M8.Anchor.span (M7.Action.act g c)\n  intro N _ h L c hN hc hL g\n  exact lt_of_lt_of_le hL (M8.ExclusionGeometry.orbit_span N h c g hN hc)",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.antipodal_exclusion",
+          "ancestors": [
+            "orbit_pair",
+            "orbit_span",
+            "pair_affine",
+            "pair_span",
+            "unit_half"
+          ],
+          "spec_sha256": "67028ca18955218fb3bf2950aa5804c99d6dea703bc84c2061d19c2a4db8e029"
+        },
+        "sha256": "eec10c4581665494f244d7448fa8ba5c66b49e8fb72a8402d06cb5566d75c25b"
+      }
+    }
+  }
+}

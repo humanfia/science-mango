@@ -1,0 +1,54 @@
+import FrozenTarget_2e599d5b82ed0c12
+theorem M8.SequentialStore.tag_setup_bound : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], M8.SequentialStore.tagSetupCharge N ≤ 11000000 * (N + 1)^6
+  intro N inst
+  let n := N + 1
+  let S := M8.SequentialStore.slots N
+  let B := S.size
+  have hn : 1 ≤ n := by dsimp [n]; omega
+  have hs : S ≤ 20000 * n^3 := M8.BankLayout.payload_bound N
+  have hb : B ≤ 32 * n := M8.BankLayout.address_bits_bound N
+  have hfold : ∀ (l : List ℕ) (total : ℕ),
+      (∀ i ∈ l, (M8.TaggedStore.address i).length ≤ B) →
+      l.foldl (fun total i => total + 16 * ((M8.TaggedStore.address i).length + 1)) total ≤
+        total + l.length * (16 * (B + 1)) := by
+    intro l
+    induction l with
+    | nil =>
+        intro total h
+        simp
+    | cons i l ih =>
+        intro total h
+        have hi := h i (by simp)
+        have ht := ih (total + 16 * ((M8.TaggedStore.address i).length + 1))
+          (by
+            intro j hj
+            exact h j (by simp [hj]))
+        simp only [List.foldl_cons, List.length_cons]
+        nlinarith
+  have hcharge : M8.SequentialStore.tagSetupCharge N ≤ S * (16 * (B + 1)) + 32 := by
+    have h := hfold (List.range S) 0 (by
+      intro i hi
+      rw [M8.TaggedStore.address_representation.2 i]
+      exact Nat.size_le_size (Nat.le_of_lt (List.mem_range.mp hi)))
+    simp only [List.length_range, zero_add] at h
+    exact Nat.add_le_add_right h 32
+  have hprod : S * (16 * (B + 1)) ≤ (20000 * n^3) * (16 * (32 * n + 1)) := by
+    apply Nat.mul_le_mul hs
+    omega
+  have h34 : n^3 ≤ n^4 := by
+    calc
+      n^3 = n^3 * 1 := by simp
+      _ ≤ n^3 * n := Nat.mul_le_mul_left _ hn
+      _ = n^4 := by ring
+  have h46 : n^4 ≤ n^6 := by
+    have h2 : 1 ≤ n^2 := by nlinarith
+    calc
+      n^4 = n^4 * 1 := by simp
+      _ ≤ n^4 * n^2 := Nat.mul_le_mul_left _ h2
+      _ = n^6 := by ring
+  have h6 : 1 ≤ n^6 := by
+    have hp : 0 < n^6 := pow_pos (by omega) _
+    omega
+  change M8.SequentialStore.tagSetupCharge N ≤ 11000000 * n^6
+  nlinarith [hcharge, hprod, h34, h46, h6]

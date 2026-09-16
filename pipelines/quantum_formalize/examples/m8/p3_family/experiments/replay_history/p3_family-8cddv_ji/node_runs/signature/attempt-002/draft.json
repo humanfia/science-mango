@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M7.RecipeSignature.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial\nintro N inst hN hdiv\nhave hp := M8.P3Family.literal_polynomial N hN\nhave hd := M8.P3Family.divides_modulus N hdiv\nhave hm : M8.P3Family.polynomial.Monic := by\n  unfold M8.P3Family.polynomial\n  monicity <;> norm_num\nhave hs := (M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)).1\nhave hsp : M7.RecipeSignature.signature (M8.P3Family.recipe N) ∣ M8.P3Family.polynomial := by\n  dsimp [M7.RecipeSignature.signature, M8.P3Family.recipe]\n  rw [hp]\n  first\n  | exact gcd_dvd_left _ _\n  | exact dvd_trans (gcd_dvd_left _ _) (gcd_dvd_left _ _)\n  | exact dvd_trans (gcd_dvd_right _ _) (gcd_dvd_left _ _)\nhave hps : M8.P3Family.polynomial ∣ M7.RecipeSignature.signature (M8.P3Family.recipe N) := by\n  dsimp [M7.RecipeSignature.signature, M8.P3Family.recipe]\n  rw [hp]\n  simp only [dvd_gcd_iff]\n  aesop\nfirst\n| exact Polynomial.dvd_antisymm hs hm hsp hps\n| exact Polynomial.eq_of_monic_of_dvd_of_natDegree_le hs hm hsp (Polynomial.natDegree_le_of_dvd hps hs.ne_zero)\n| exact Polynomial.eq_of_monic_of_associated hs hm (associated_of_dvd_dvd hsp hps)",
+  "queries": [
+    "Polynomial.dvd_antisymm",
+    "Polynomial.eq_of_monic_of_dvd_of_natDegree_le",
+    "Polynomial.eq_of_monic_of_associated"
+  ]
+}

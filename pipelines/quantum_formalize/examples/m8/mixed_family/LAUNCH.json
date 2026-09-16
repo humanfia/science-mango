@@ -1,15 +1,58 @@
 {
-  "launcher": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/mixed_family-h1ae1421",
-  "pid": 61815,
+  "launcher": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/retrieval-resume-ooo4gsfc",
+  "pid": 520288,
   "detached": true,
   "config": {
     "project": "/home/jing/m8-lean-mixed-family-formalization",
-    "graph": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/mixed_family-h1ae1421/graph.json",
-    "output": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/mixed_family-h1ae1421/experiment",
-    "result_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/mixed_family-h1ae1421/result.json",
+    "graph": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/retrieval-resume-ooo4gsfc/graph.json",
+    "output": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/retrieval-resume-ooo4gsfc/experiment",
+    "result_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/retrieval-resume-ooo4gsfc/result.json",
     "concurrency": 2,
     "rounds": 5,
     "compile_timeout": 600,
-    "turn_timeout": 600
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "algebra": {
+        "proof": "change (1 + Polynomial.X ^ 2 : Polynomial (ZMod 2)) = (1 + Polynomial.X) ^ 2 \u2227\n  (1 + Polynomial.X : Polynomial (ZMod 2)) * (1 + Polynomial.X ^ 2) =\n    1 + Polynomial.X + Polynomial.X ^ 2 + Polynomial.X ^ 3\nhave h : (1 + 1 : Polynomial (ZMod 2)) = 0 := by\n  simpa only [map_add, map_one, map_zero] using\n    congrArg (fun c : ZMod 2 => Polynomial.C c)\n      (show (1 + 1 : ZMod 2) = 0 by decide)\nconstructor\n\u00b7 calc\n    (1 + Polynomial.X ^ 2 : Polynomial (ZMod 2)) =\n        1 + Polynomial.X ^ 2 + (1 + 1) * Polynomial.X := by rw [h]; simp\n    _ = (1 + Polynomial.X) ^ 2 := by ring\n\u00b7 ring",
+        "queries": []
+      },
+      "literal_polynomials": {
+        "proof": "intro N inst hN\nclassical\nhave hv (k : \u2115) (hk : k < N) : (k : ZMod N).val = k := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\nhave h1 : (1 : ZMod N).val = 1 := by\n  simpa only [Nat.cast_one] using hv 1 (by omega)\nhave h2 : (2 : ZMod N).val = 2 := by\n  simpa using hv 2 (by omega)\nhave h01 : (0 : ZMod N) \u2260 1 := by\n  intro h\n  have hh := congrArg ZMod.val h\n  simp [h1] at hh\nhave h02 : (0 : ZMod N) \u2260 2 := by\n  intro h\n  have hh := congrArg ZMod.val h\n  simp [h2] at hh\nconstructor <;>\n  simp [M8.MixedFamily.left, M8.MixedFamily.right,\n    M8.MixedFamily.a, M8.MixedFamily.b, M7.Supports.polynomial,\n    h01, h02, h1, h2] <;>\n  ext k <;>\n  simp [Polynomial.coeff_X, Polynomial.coeff_X_pow, eq_comm]",
+        "queries": [
+          "Polynomial monomial_one_right",
+          "ZMod val_one"
+        ]
+      },
+      "nontrivial": {
+        "proof": "change M8.MixedFamily.a \u2260 1 \u2227 M8.MixedFamily.a \u2260 0 \u2227 (M8.MixedFamily.a * M8.MixedFamily.b).natDegree = 3\nhave ha : M8.MixedFamily.a.natDegree = 1 := by\n  unfold M8.MixedFamily.a\n  rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n  simp\nhave hb : M8.MixedFamily.b.natDegree = 2 := by\n  unfold M8.MixedFamily.b\n  rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n  simp\nhave ha1 : M8.MixedFamily.a \u2260 1 := by\n  intro h\n  rw [h] at ha\n  simp at ha\nhave ha0 : M8.MixedFamily.a \u2260 0 := by\n  intro h\n  rw [h] at ha\n  simp at ha\nhave hb0 : M8.MixedFamily.b \u2260 0 := by\n  intro h\n  rw [h] at hb\n  simp at hb\nrefine \u27e8ha1, ha0, ?_\u27e9\nrw [Polynomial.natDegree_mul ha0 hb0, ha, hb]",
+        "queries": [
+          "Polynomial.natDegree_add_eq_right_of_natDegree_lt",
+          "Polynomial.natDegree_mul"
+        ]
+      },
+      "signature": {
+        "proof": "intro N inst hN\nhave hp := M8.MixedFamily.literal_polynomials N hN\nhave hab : M8.MixedFamily.a \u2223 M8.MixedFamily.b := by\n  rw [M8.MixedFamily.algebra.1]\n  exact dvd_pow_self _ (by decide : 2 \u2260 0)\nhave hn : -(1 : Polynomial (ZMod 2)) = 1 := by\n  have h := congrArg (fun c : ZMod 2 => Polynomial.C c)\n    (show -(1 : ZMod 2) = 1 by decide)\n  simpa only [Polynomial.C_neg, Polynomial.C_1] using h\nhave ham : M8.MixedFamily.a \u2223 M6.Cyclic.modulus N := by\n  simpa [M8.MixedFamily.a, M6.Cyclic.modulus, sub_eq_add_neg, hn, add_comm] using\n    (sub_dvd_pow_sub_pow (Polynomial.X : Polynomial (ZMod 2)) 1 N)\nchange EuclideanDomain.gcd\n  (EuclideanDomain.gcd (M7.Supports.polynomial (M8.MixedFamily.left N))\n    (M7.Supports.polynomial (M8.MixedFamily.right N))) (M6.Cyclic.modulus N) = M8.MixedFamily.a\nrw [hp.1,hp.2,EuclideanDomain.gcd_eq_left.mpr hab]\nexact EuclideanDomain.gcd_eq_left.mpr ham",
+        "queries": []
+      },
+      "span_cutoff": {
+        "proof": "change \u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M8.Anchor.span (M8.MixedFamily.recipe N) \u2264 M8.Cutoff.limit N\nintro N inst hN\nhave hval (k : \u2115) (hk : k \u2264 2) : (k : ZMod N).val \u2264 2 := by\n  rw [ZMod.val_natCast]\n  exact (Nat.mod_le k N).trans hk\nhave hspan : M8.Anchor.span (M8.MixedFamily.recipe N) \u2264 2 := by\n  apply (M8.Anchor.span_le N (M8.MixedFamily.recipe N) 2).mpr\n  change (\u2200 i \u2208 ({0, 1} : Finset (ZMod N)), i.val \u2264 2) \u2227\n    (\u2200 i \u2208 ({0, 2} : Finset (ZMod N)), i.val \u2264 2)\n  constructor\n  \u00b7 intro i hi\n    simp only [Finset.mem_insert, Finset.mem_singleton] at hi\n    rcases hi with rfl | rfl\n    \u00b7 simpa only [Nat.cast_zero] using hval 0 (by omega)\n    \u00b7 simpa only [Nat.cast_one] using hval 1 (by omega)\n  \u00b7 intro i hi\n    simp only [Finset.mem_insert, Finset.mem_singleton] at hi\n    rcases hi with rfl | rfl\n    \u00b7 simpa only [Nat.cast_zero] using hval 0 (by omega)\n    \u00b7 simpa using hval 2 (by omega)\napply hspan.trans\nrw [M8.Cutoff.bit_length_limit, Nat.log2_eq_log_two]\napply le_min\n\u00b7 omega\n\u00b7 have hlog := Nat.log_mono_right (b := 2) (show 4 \u2264 N + 1 by omega)\n  norm_num at hlog\n  exact hlog",
+        "queries": []
+      },
+      "support_data": {
+        "proof": "intro N inst hN\nhave hsmall : \u2200 k : \u2115, 0 < k \u2192 k < N \u2192 (k : ZMod N) \u2260 0 := by\n  intro k hk hkN he\n  have hv := congrArg ZMod.val he\n  rw [ZMod.val_natCast, ZMod.val_zero, Nat.mod_eq_of_lt hkN] at hv\n  omega\nhave h01 : (0 : ZMod N) \u2260 1 := by\n  simpa using Ne.symm (hsmall 1 (by omega) (by omega))\nhave h02 : (0 : ZMod N) \u2260 2 := by\n  simpa using Ne.symm (hsmall 2 (by omega) (by omega))\nsimp [M8.MixedFamily.left, M8.MixedFamily.right, h01, h02]",
+        "queries": [
+          "ZMod.val_natCast",
+          "Finset.card_pair"
+        ]
+      },
+      "full_direction": {
+        "proof": "intro N inst hN\nclassical\napply M8.CoverageFoundation.consecutive_full N (M8.MixedFamily.left N) 0\n\u00b7 simp [M8.MixedFamily.left]\n\u00b7 simp [M8.MixedFamily.left]",
+        "queries": []
+      },
+      "valid": {
+        "proof": "intro N inst hN\nclassical\nobtain \u27e8hL, hR, h0L, h0R, h1L\u27e9 := M8.MixedFamily.support_data N hN\nhave hf := M8.MixedFamily.full_direction N hN\nchange AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N)) = \u22a4 at hf\nhave hc : M7.Connectivity.connected (M8.MixedFamily.recipe N) := by\n  change AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N) \u222a M7.Connectivity.differences (M8.MixedFamily.right N)) = \u22a4\n  apply top_unique\n  calc\n    \u22a4 = AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N)) := hf.symm\n    _ \u2264 AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N) \u222a M7.Connectivity.differences (M8.MixedFamily.right N)) := AddSubgroup.closure_mono Set.subset_union_left\nsimp_all [M8.PhysicalBridge.Valid, M8.MixedFamily.recipe]",
+        "queries": []
+      }
+    }
   }
 }

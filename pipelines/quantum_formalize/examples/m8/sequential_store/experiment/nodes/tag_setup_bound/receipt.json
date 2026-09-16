@@ -1,0 +1,55 @@
+{
+  "id": "tag_setup_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.SequentialStore.tag_setup_bound",
+    "spec_sha256": "f0a0dc8f45fd101cb49bb698cbabad82ad266a2e59bea2358e1b320913fad729",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-nzsqqioc/attempt-001/Candidate_2e599d5b82ed0c12.lean",
+        "target_path": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-nzsqqioc/attempt-001/FrozenTarget_2e599d5b82ed0c12.lean",
+        "feedback": "",
+        "target_sha256": "0753ac5146065dc5855e332fa129bce167e699e77d494aea79bd92336f791447",
+        "target_olean_sha256": "44626fe10e5b59a022de975fc490f70e9658a2e0d9ecc4a4cbb51920bc178c18",
+        "source_sha256": "e9aaabc69443fbbd486f403524fee23ffe6b595b17698c381c9e59785696788a",
+        "olean_sha256": "e800a579e62cad38f86071bbd21fcc5f7d4dfc1ac73a7f6bd4d4111d84b926a6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:58:45.220593+00:00",
+    "work": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-nzsqqioc",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "d07f74f3687c237624fdd8ad2c8e9dce7073a186d74c37e5bf98867ceb5a555a",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-sequential-store-formalization/.humanize-formal-runs/run-nzsqqioc/attempt-001/Candidate_2e599d5b82ed0c12.lean",
+    "environment_sha256": "e41cd331f5484e3e634e4ddc84c589e3eb686fe51299d9d62822f1943dc9d429",
+    "artifacts": {
+      "tag_setup_bound": {
+        "payload": {
+          "declaration": "theorem M8.SequentialStore.tag_setup_bound : ∀ (N : ℕ) [NeZero N], M8.SequentialStore.tagSetupCharge N ≤ 11000000*(N+1)^6 := by\n  change ∀ (N : ℕ) [NeZero N], M8.SequentialStore.tagSetupCharge N ≤ 11000000 * (N + 1)^6\n  intro N inst\n  let n := N + 1\n  let S := M8.SequentialStore.slots N\n  let B := S.size\n  have hn : 1 ≤ n := by dsimp [n]; omega\n  have hs : S ≤ 20000 * n^3 := M8.BankLayout.payload_bound N\n  have hb : B ≤ 32 * n := M8.BankLayout.address_bits_bound N\n  have hfold : ∀ (l : List ℕ) (total : ℕ),\n      (∀ i ∈ l, (M8.TaggedStore.address i).length ≤ B) →\n      l.foldl (fun total i => total + 16 * ((M8.TaggedStore.address i).length + 1)) total ≤\n        total + l.length * (16 * (B + 1)) := by\n    intro l\n    induction l with\n    | nil =>\n        intro total h\n        simp\n    | cons i l ih =>\n        intro total h\n        have hi := h i (by simp)\n        have ht := ih (total + 16 * ((M8.TaggedStore.address i).length + 1))\n          (by\n            intro j hj\n            exact h j (by simp [hj]))\n        simp only [List.foldl_cons, List.length_cons]\n        nlinarith\n  have hcharge : M8.SequentialStore.tagSetupCharge N ≤ S * (16 * (B + 1)) + 32 := by\n    have h := hfold (List.range S) 0 (by\n      intro i hi\n      rw [M8.TaggedStore.address_representation.2 i]\n      exact Nat.size_le_size (Nat.le_of_lt (List.mem_range.mp hi)))\n    simp only [List.length_range, zero_add] at h\n    exact Nat.add_le_add_right h 32\n  have hprod : S * (16 * (B + 1)) ≤ (20000 * n^3) * (16 * (32 * n + 1)) := by\n    apply Nat.mul_le_mul hs\n    omega\n  have h34 : n^3 ≤ n^4 := by\n    calc\n      n^3 = n^3 * 1 := by simp\n      _ ≤ n^3 * n := Nat.mul_le_mul_left _ hn\n      _ = n^4 := by ring\n  have h46 : n^4 ≤ n^6 := by\n    have h2 : 1 ≤ n^2 := by nlinarith\n    calc\n      n^4 = n^4 * 1 := by simp\n      _ ≤ n^4 * n^2 := Nat.mul_le_mul_left _ h2\n      _ = n^6 := by ring\n  have h6 : 1 ≤ n^6 := by\n    have hp : 0 < n^6 := pow_pos (by omega) _\n    omega\n  change M8.SequentialStore.tagSetupCharge N ≤ 11000000 * n^6\n  nlinarith [hcharge, hprod, h34, h46, h6]",
+          "imports": [
+            "M8SequentialStore"
+          ],
+          "name": "M8.SequentialStore.tag_setup_bound",
+          "ancestors": [],
+          "spec_sha256": "f0a0dc8f45fd101cb49bb698cbabad82ad266a2e59bea2358e1b320913fad729"
+        },
+        "sha256": "24f077a0469acf7f863f0b9cd5a63f8978bf22c0b132c8f132997d0ef83d5c18"
+      }
+    }
+  }
+}

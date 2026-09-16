@@ -1,0 +1,55 @@
+{
+  "id": "test_spec",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Discovery.test_spec",
+    "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5/attempt-001/Candidate_7b26eeca4e5862b5.lean",
+        "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5/attempt-001/FrozenTarget_7b26eeca4e5862b5.lean",
+        "feedback": "",
+        "target_sha256": "a23e3dfc3f45745c93a977b3a08f35397f6d38a83439bed1d27e82ce1e661193",
+        "target_olean_sha256": "8267f99a39a8d9afbd7249596b7f214a771e48c87a89dc55f242d89e2653e56e",
+        "source_sha256": "7e666ac5a30b73a314b77de32836ca07ecd2f2ba310bac43aa894fbe97a35808",
+        "olean_sha256": "1121ce9807b55be268ad7bb6bb681fbaaaaba94cbc2ca4af1feea2aada9a54f4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:08:37.562625+00:00",
+    "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-mshnone5/attempt-001/Candidate_7b26eeca4e5862b5.lean",
+    "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+    "artifacts": {
+      "test_spec": {
+        "payload": {
+          "declaration": "theorem M8.Discovery.test_spec : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.Discovery.test c k = true ↔ M8.Discovery.Good c k := by\n  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val ↔ i = (a.val : ZMod N) := by\n    constructor\n    · intro h\n      rw [← ZMod.natCast_zmod_val i, h]\n    · intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : ℕ) else 0) =\n        if a ∈ s then 1 else 0 := by\n    by_cases ha : a ∈ s\n    · rw [if_pos ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      · simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : ℕ) else 0) ha)\n    · rw [if_neg ha]\n      apply le_antisymm\n      · apply Finset.sup_le\n        intro i hi\n        have hia : i ≠ a := by\n          intro h\n          exact ha (h ▸ hi)\n        simp only [if_neg hia, le_refl]\n      · exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 ↔\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  · have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  · simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+          "imports": [
+            "M8Discovery"
+          ],
+          "name": "M8.Discovery.test_spec",
+          "ancestors": [],
+          "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1"
+        },
+        "sha256": "3c9a8ef6bde6438c0c5c5055d8bfd6ad86e8ad8ccb8dcd7aca2c80091c0c7243"
+      }
+    }
+  }
+}

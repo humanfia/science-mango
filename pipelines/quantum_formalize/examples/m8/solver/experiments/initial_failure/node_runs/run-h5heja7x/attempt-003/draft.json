@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst c\nclassical\nhave hs : ∀ s : Finset (ZMod N), (M7.Supports.polynomial s).natDegree ≤ N := by\n  intro s\n  by_cases hz : M7.Supports.polynomial s = 0\n  · simp [hz]\n  · have hm := Polynomial.natDegree_mem_support_of_nonzero hz\n    rw [M7.Supports.support] at hm\n    obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hm\n    exact he ▸ (Nat.le_of_lt (ZMod.val_lt i))\nhave ha := hs c.1\nhave hb := hs c.2\nhave hm : (M6.Cyclic.modulus N).natDegree ≤ N := by\n  unfold M6.Cyclic.modulus\n  exact le_trans Polynomial.natDegree_sub_le (by simp)\nunfold M8.Solver.originalF M8.PhysicalBridge.signature M7.RecipeSignature.signature\nsolve_by_elim (maxDepth := 8) only [M6.Euclid.preprocess_correct_cost, And.left, And.right, ha, hb, hm]",
+  "queries": [
+    "M6.Euclid.preprocess_correct_cost",
+    "M7.Supports.support",
+    "M7.RecipeSignature.signature"
+  ]
+}

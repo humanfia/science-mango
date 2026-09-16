@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N _ c\nhave hm {m : ℕ} (o : Option (Fin m × M8.Discovery.Choice N)) :\n    o.map Prod.snd = none ↔ o = none := by\n  cases o <;> simp\nsimp only [M8.Discovery.discover, M8.Discovery.atUnit,\n  M8.Discovery.atLeft, hm, M8.FiniteSearch.find_none,\n  M8.Discovery.right_none]\nconstructor\n· intro h k\n  rcases k with ⟨e, t, a, b⟩\n  cases e\n  · simpa using h (0 : Fin 2) t a b\n  · simpa using h (1 : Fin 2) t a b\n· intro h e t a b\n  exact h ⟨decide (e.val = 1), t, a, b⟩",
+  "queries": []
+}

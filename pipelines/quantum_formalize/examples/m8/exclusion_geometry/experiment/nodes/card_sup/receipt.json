@@ -1,0 +1,55 @@
+{
+  "id": "card_sup",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.ExclusionGeometry.card_sup",
+    "spec_sha256": "a20af17bb7ef8890f29cd3aa7f93f638063056dd0642208fe499036af122765d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-8mokcfot/attempt-001/Candidate_b05cc62d13037e5b.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-8mokcfot/attempt-001/FrozenTarget_b05cc62d13037e5b.lean",
+        "feedback": "",
+        "target_sha256": "a127e462de61261da00c9ad16d5528d2f0145930dd6ab551ffecc6f73211415f",
+        "target_olean_sha256": "f1ed6870f540216d87245e52016b2ad4ca0816046e3d05adcd36b8cc4e4f0927",
+        "source_sha256": "e6d19eb4bef8714337a5b48500e9b8853af2ac9a4cd3aac04b7a3043a2799cad",
+        "olean_sha256": "a2a87c88d643209735bd786d5641cfb55cf47640b55838d5702d3bf9a4edd700",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:15:22.076723+00:00",
+    "work": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-8mokcfot",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8afe9c7e471e16165800372a93c24218722144be962fb7f9a194b1fc38f9254f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-8mokcfot/attempt-001/Candidate_b05cc62d13037e5b.lean",
+    "environment_sha256": "b26d1ee653ba909f9adbec0d55038a46a037fcad8a0cd41d5615bf8b218c292d",
+    "artifacts": {
+      "card_sup": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.card_sup : ∀ (N : ℕ) [NeZero N], ∀ B : Finset (ZMod N), B.card ≤ B.sup ZMod.val + 1 := by\n  change ∀ (N : ℕ) [NeZero N], ∀ B : Finset (ZMod N), B.card ≤ B.sup ZMod.val + 1\n  intro N inst B\n  classical\n  have hinj : Function.Injective (ZMod.val : ZMod N → ℕ) := by\n    intro a b h\n    have hc := congrArg (fun k : ℕ => (k : ZMod N)) h\n    simpa using hc\n  have hsub : B.image ZMod.val ⊆ Finset.range (B.sup ZMod.val + 1) := by\n    intro k hk\n    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hk\n    apply Finset.mem_range.mpr\n    exact Nat.lt_succ_of_le (Finset.le_sup hx)\n  calc\n    B.card = (B.image ZMod.val).card := (Finset.card_image_of_injective B hinj).symm\n    _ ≤ (Finset.range (B.sup ZMod.val + 1)).card := Finset.card_le_card hsub\n    _ = B.sup ZMod.val + 1 := Finset.card_range _",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.card_sup",
+          "ancestors": [],
+          "spec_sha256": "a20af17bb7ef8890f29cd3aa7f93f638063056dd0642208fe499036af122765d"
+        },
+        "sha256": "94fe00cc920226f7d4156f6b289301965f8bfc1fe27daa4ef05d631025f056e0"
+      }
+    }
+  }
+}

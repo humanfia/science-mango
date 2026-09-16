@@ -1,0 +1,146 @@
+[
+  {
+    "id": "support_data",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P3Family.support_data",
+      "statement": "∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "literal_polynomial",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P3Family.literal_polynomial",
+      "statement": "∀ (N : ℕ) [NeZero N], 3 ≤ N → M7.Supports.polynomial (M8.P3Family.support N) = M8.P3Family.polynomial",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "full_direction",
+    "dependencies": [
+      "support_data"
+    ],
+    "spec": {
+      "name": "M8.P3Family.full_direction",
+      "statement": "∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N)",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "valid",
+    "dependencies": [
+      "support_data",
+      "full_direction"
+    ],
+    "spec": {
+      "name": "M8.P3Family.valid",
+      "statement": "∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.PhysicalBridge.Valid 3 (M8.P3Family.recipe N)",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "span_cutoff",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P3Family.span_cutoff",
+      "statement": "∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.Anchor.span (M8.P3Family.recipe N) ≤ M8.Cutoff.limit N",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "divides_modulus",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P3Family.divides_modulus",
+      "statement": "∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "signature",
+    "dependencies": [
+      "literal_polynomial",
+      "divides_modulus"
+    ],
+    "spec": {
+      "name": "M8.P3Family.signature",
+      "statement": "∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M7.RecipeSignature.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "nontrivial",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P3Family.nontrivial",
+      "statement": "M8.P3Family.polynomial ≠ 1 ∧ M8.P3Family.polynomial ≠ 0 ∧ M8.P3Family.polynomial.natDegree = 2",
+      "imports": [
+        "M8P3Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original accepted M8 first admitted family, all N divisible by3 including even orders; never assume squarefree modulus. Prove explicit residue support polynomial and cardinality with N>=3. Consecutive_full gives full direction; connectivity is closure of union of within-block differences so one full direction suffices. Actual identity support span=2 and cutoff min(N-1,log2(N+1))>=2 for N>=3 (Nat.le_log_iff_pow_le). Polynomial p=(1+X+X²) monic and divides X³+1 via (X+1)*p; if3 dividesN use geometric power divisibility over GF2 (sub=add). Since both inputpolys=p, gcd(p,p,M)=p when p dividesM and monic; no multiplicity loss. Nontrivial via coeff2/natDegree; exact definition untouched. Final recognized/distance/nonseparated family theorem is downstream, this batch does not itself close coverage.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P3Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2\nend M8.P3Family\n"
+    },
+    "metadata": {}
+  }
+]

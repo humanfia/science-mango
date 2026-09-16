@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N\nintro N hN\nobtain ⟨k, rfl⟩ := hN\nhave h : ∀ k : ℕ, M8.P3Family.polynomial ∣\n    (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (3 * k) - 1 := by\n  intro k\n  induction k with\n  | zero => simp\n  | succ k ih =>\n    obtain ⟨q, hq⟩ := ih\n    refine ⟨q * Polynomial.X ^ 3 + (Polynomial.X - 1), ?_⟩\n    calc\n      Polynomial.X ^ (3 * (k + 1)) - 1 =\n          (Polynomial.X ^ (3 * k) - 1) * Polynomial.X ^ 3 +\n            (Polynomial.X ^ 3 - 1) := by\n              rw [Nat.mul_succ, pow_add]\n              ring\n      _ = M8.P3Family.polynomial *\n          (q * Polynomial.X ^ 3 + (Polynomial.X - 1)) := by\n            rw [hq]\n            unfold M8.P3Family.polynomial\n            ring\nhave hone : (-1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n  ext n\n  by_cases hn : n = 0 <;>\n    norm_num [Polynomial.coeff_neg, Polynomial.coeff_one, hn]\nsimpa [M6.Cyclic.modulus, sub_eq_add_neg, hone] using h k",
+  "queries": [
+    "M6.Cyclic.modulus",
+    "M6.Cyclic.BinaryPolynomial"
+  ]
+}

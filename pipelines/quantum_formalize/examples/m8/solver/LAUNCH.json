@@ -1,0 +1,37 @@
+{
+  "launcher": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/solver-replay-vwu47cg8",
+  "pid": 450048,
+  "detached": true,
+  "config": {
+    "project": "/home/jing/m8-lean-solver-formalization",
+    "graph": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/solver-replay-vwu47cg8/graph.json",
+    "output": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/solver-replay-vwu47cg8/experiment",
+    "result_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/solver-replay-vwu47cg8/result.json",
+    "concurrency": 2,
+    "rounds": 5,
+    "compile_timeout": 600,
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "discovery_span": {
+        "proof": "intro N inst c w hw hv\nhave hleft : c.1.Nonempty := Finset.card_pos.mp (by\n  rw [hv.1]\n  exact hw)\nhave hright : c.2.Nonempty := Finset.card_pos.mp (by\n  rw [hv.2.1]\n  exact hw)\nexact (M8.Discovery.complete N c).trans\n  (M8.OrbitSpan.small_iff N c hleft hright (M8.Cutoff.limit N)).symm",
+        "queries": []
+      },
+      "literal_span_le": {
+        "proof": "intro N inst c w hw hc\nclassical\nhave degree_bound (s : Finset (ZMod N)) (L : \u2115)\n    (hs : \u2200 i \u2208 s, ZMod.val i \u2264 L) :\n    (M7.Supports.polynomial s).natDegree \u2264 L := by\n  by_cases hz : M7.Supports.polynomial s = 0\n  \u00b7 simp [hz]\n  \u00b7 have hm := Polynomial.natDegree_mem_support_of_nonzero hz\n    rw [M7.Supports.support] at hm\n    rcases Finset.mem_image.mp hm with \u27e8i, hi, he\u27e9\n    rw [\u2190 he]\n    exact hs i hi\nhave hb := (M8.Anchor.span_le N c (M8.Anchor.span c)).mp le_rfl\nchange max (M7.Supports.polynomial c.1).natDegree\n  (M7.Supports.polynomial c.2).natDegree \u2264 M8.Anchor.span c\nexact max_le (degree_bound c.1 _ hb.1) (degree_bound c.2 _ hb.2)",
+        "queries": [
+          "M7.Supports.support",
+          "M6.ActualTransfer.span",
+          "Polynomial.natDegree_mem_support_of_nonzero"
+        ]
+      },
+      "optimizer_present": {
+        "proof": "intro N inst c w hw hvalid hsignature choice hdiscover hnone\nhave hanchored : M8.PhysicalBridge.Anchored (M7.Action.act (M8.Discovery.action choice) c) :=\n  M8.Discovery.anchored N c choice hdiscover\nexact hsignature ((M8.PhysicalBridge.noLogical N c (M8.Discovery.action choice) w hvalid hanchored).mp hnone)",
+        "queries": []
+      },
+      "originalF_signature": {
+        "proof": "intro N inst c\nhave ha := Nat.le_of_lt (M7.Supports.degree_lt N c.1)\nhave hb := Nat.le_of_lt (M7.Supports.degree_lt N c.2)\nhave hm := le_of_eq (M6.Coordinates.modulus_monic_degree N).2\nhave h := (M6.Euclid.preprocess_correct_cost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) ha hb hm).1\nsimpa only [M8.Solver.originalF, M8.PhysicalBridge.signature, M7.RecipeSignature.signature, M6.Cyclic.signature, M6.Euclid.normalized_gcd, gcd_comm] using h\n",
+        "queries": []
+      }
+    }
+  }
+}

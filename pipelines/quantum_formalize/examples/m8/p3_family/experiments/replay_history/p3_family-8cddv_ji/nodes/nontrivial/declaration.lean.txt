@@ -1,0 +1,20 @@
+theorem M8.P3Family.nontrivial : M8.P3Family.polynomial ≠ 1 ∧ M8.P3Family.polynomial ≠ 0 ∧ M8.P3Family.polynomial.natDegree = 2 := by
+  change M8.P3Family.polynomial ≠ 1 ∧ M8.P3Family.polynomial ≠ 0 ∧ M8.P3Family.polynomial.natDegree = 2
+  have hc : M8.P3Family.polynomial.coeff 2 ≠ 0 := by
+    norm_num [M8.P3Family.polynomial, Polynomial.coeff_add, Polynomial.coeff_one, Polynomial.coeff_X, Polynomial.coeff_X_pow]
+  have hs : (1 + Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree ≤ 1 := by
+    calc
+      _ ≤ max (1 : M6.Cyclic.BinaryPolynomial).natDegree (Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _
+      _ ≤ 1 := by simp
+  have hd : M8.P3Family.polynomial.natDegree = 2 := by
+    apply Nat.le_antisymm
+    · unfold M8.P3Family.polynomial
+      calc
+        _ ≤ max (1 + Polynomial.X : M6.Cyclic.BinaryPolynomial).natDegree (Polynomial.X ^ 2 : M6.Cyclic.BinaryPolynomial).natDegree := Polynomial.natDegree_add_le _ _
+        _ ≤ 2 := max_le (hs.trans (by decide)) (by simp)
+    · exact Polynomial.le_natDegree_of_ne_zero hc
+  refine ⟨?_, ?_, hd⟩
+  · intro h
+    simpa [h] using hd
+  · intro h
+    simpa [h] using hd

@@ -1,0 +1,7 @@
+import FrozenTarget_ff8e5f8a22d0f807
+theorem M8.P3Family.full_direction : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N)
+  intro N inst hN
+  apply M8.CoverageFoundation.consecutive_full N (M8.P3Family.support N) 0
+  · exact (M8.P3Family.support_data N hN).2.1
+  · simpa only [zero_add] using (M8.P3Family.support_data N hN).2.2

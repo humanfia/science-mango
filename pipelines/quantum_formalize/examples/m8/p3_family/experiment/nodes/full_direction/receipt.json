@@ -1,0 +1,69 @@
+{
+  "id": "full_direction",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P3Family.full_direction",
+    "spec_sha256": "695b92f01c4be9822fa4eafac11506e992d36ee0758bf6aabaa72e0daa484e6c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y/attempt-001/Candidate_ff8e5f8a22d0f807.lean",
+        "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y/attempt-001/FrozenTarget_ff8e5f8a22d0f807.lean",
+        "feedback": "",
+        "target_sha256": "a3f486724b89f29ac53904d7c07776ef505a39f5ae3ecd95a1f434aa653d69e3",
+        "target_olean_sha256": "d1eb9cdd9c640c3cbd72c0301d362ff34dbdf6d63f71daf39f16910cc8a29475",
+        "source_sha256": "d53f18d421f518dea0286570404ffc83a8e9aed0249ba0635ba970af8c764f34",
+        "olean_sha256": "b86d3fdd7aa1caea85128c52c2aa11e63ebc75f21f229d1b4f591e505adfacb1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:50:04.055269+00:00",
+    "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-l62ez65y/attempt-001/Candidate_ff8e5f8a22d0f807.lean",
+    "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+    "artifacts": {
+      "support_data": {
+        "payload": {
+          "declaration": "theorem M8.P3Family.support_data : ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → (M8.P3Family.support N).card = 3 ∧ (0 : ZMod N) ∈ M8.P3Family.support N ∧ (1 : ZMod N) ∈ M8.P3Family.support N\n  intro N inst hN\n  classical\n  have hinj (a b : ℕ) (ha : a < N) (hb : b < N) (h : (a : ZMod N) = (b : ZMod N)) : a = b := by\n    have hv := congrArg (fun x : ZMod N => x.val) h\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb] using hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := hinj 0 1 (by omega) (by omega) (by simpa using h)\n    omega\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 0 2 (by omega) (by omega) (by simpa using h)\n    omega\n  have h12 : (1 : ZMod N) ≠ 2 := by\n    intro h\n    have hh := hinj 1 2 (by omega) (by omega) (by simpa using h)\n    omega\n  simp [M8.P3Family.support, h01, h02, h12]",
+          "imports": [
+            "M8P3Family"
+          ],
+          "name": "M8.P3Family.support_data",
+          "ancestors": [],
+          "spec_sha256": "4cf751bd5196e683aec90bfd6be75a1e002714c2332c4579ccbc060e1463df07"
+        },
+        "sha256": "df8e134ff02cd89dc2f1189065d127d9e946ae9be8f7806ea01b5b46ffee5f1e"
+      },
+      "full_direction": {
+        "payload": {
+          "declaration": "theorem M8.P3Family.full_direction : ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N) := by\n  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.CoverageFoundation.FullDirection (M8.P3Family.support N)\n  intro N inst hN\n  apply M8.CoverageFoundation.consecutive_full N (M8.P3Family.support N) 0\n  · exact (M8.P3Family.support_data N hN).2.1\n  · simpa only [zero_add] using (M8.P3Family.support_data N hN).2.2",
+          "imports": [
+            "M8P3Family"
+          ],
+          "name": "M8.P3Family.full_direction",
+          "ancestors": [
+            "support_data"
+          ],
+          "spec_sha256": "e2609dc3a210fe379ca749ea751192214a8c8d91f6a9a1307bd2ef4b8f008de8"
+        },
+        "sha256": "23aafe92adc1ad07b5a2d763bd22dcd069e058f1a20c2f88078c7e2cf6fc8405"
+      }
+    }
+  }
+}

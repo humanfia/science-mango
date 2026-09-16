@@ -1,0 +1,143 @@
+[
+  {
+    "id": "support_data",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P4Family.support_data",
+      "statement": "∀ (N : ℕ) [NeZero N], 8 ≤ N → (M8.P4Family.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.P4Family.support N ∧ (1 : ZMod N) ∈ M8.P4Family.support N",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "literal_polynomial",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P4Family.literal_polynomial",
+      "statement": "∀ (N : ℕ) [NeZero N], 8 ≤ N → M7.Supports.polynomial (M8.P4Family.support N) = M8.P4Family.polynomial",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "full_direction",
+    "dependencies": [
+      "support_data"
+    ],
+    "spec": {
+      "name": "M8.P4Family.full_direction",
+      "statement": "∀ (N : ℕ) [NeZero N], 8 ≤ N → M8.CoverageFoundation.FullDirection (M8.P4Family.support N)",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "valid",
+    "dependencies": [
+      "support_data",
+      "full_direction"
+    ],
+    "spec": {
+      "name": "M8.P4Family.valid",
+      "statement": "∀ (N : ℕ) [NeZero N], 8 ≤ N → M8.PhysicalBridge.Valid 4 (M8.P4Family.recipe N)",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "span_cutoff",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P4Family.span_cutoff",
+      "statement": "∀ (N : ℕ) [NeZero N], 8 ≤ N → M8.Anchor.span (M8.P4Family.recipe N) ≤ M8.Cutoff.limit N",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "power_identity",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P4Family.power_identity",
+      "statement": "M8.P4Family.polynomial = (Polynomial.X+1)^3",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "divides_four",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P4Family.divides_four",
+      "statement": "∀ N : ℕ, 4 ∣ N → M8.P4Family.polynomial ∣ M6.Cyclic.modulus N",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "nontrivial",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.P4Family.nontrivial",
+      "statement": "M8.P4Family.polynomial ≠ 1 ∧ M8.P4Family.polynomial ≠ 0 ∧ M8.P4Family.polynomial.natDegree = 3",
+      "imports": [
+        "M8P4Family"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 four-consecutive-support diagonal family foundations. Full target later includes every EVEN N>=8; this batch does not assume N divisible by4 for validity/span, and divides_four only supplies an intermediate divisible-by4 case. Final gcd multiplicity min(3,2^v) must still be proved for every even N. Literal support cardinality/poly require distinct residues0,1,2,3; derive val numerals from N>=8. Consecutive_full yields direction; connectivity union closure with full firstblock gives valid. span3 and 3<=log2(N+1) follow8<=N. Poweridentity characteristic2 polynomial ring normalization. (X+1)^4=X^4+1, thus p divides modulus4 and modulusN if4 dividesN. Exact definitions and statements only.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.P4Family\nnoncomputable def support (N : ℕ) : Finset (ZMod N) := {0,1,2,3}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (support N,support N)\nnoncomputable def polynomial : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3\nend M8.P4Family\n"
+    },
+    "metadata": {}
+  }
+]

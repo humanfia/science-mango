@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 8 ≤ N → M7.Supports.polynomial (M8.P4Family.support N) = M8.P4Family.polynomial\nintro N inst hN\nclassical\nhave hv (k : ℕ) (hk : k < N) : (k : ZMod N).val = k := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\nhave h0 : (0 : ZMod N).val = 0 := by simp\nhave h1 : (1 : ZMod N).val = 1 := by\n  simpa only [Nat.cast_one] using hv 1 (by omega)\nhave h2 : (2 : ZMod N).val = 2 := by\n  simpa using hv 2 (by omega)\nhave h3 : (3 : ZMod N).val = 3 := by\n  simpa using hv 3 (by omega)\nhave h01 : (0 : ZMod N) ≠ 1 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h02 : (0 : ZMod N) ≠ 2 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h03 : (0 : ZMod N) ≠ 3 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h12 : (1 : ZMod N) ≠ 2 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h13 : (1 : ZMod N) ≠ 3 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave h23 : (2 : ZMod N) ≠ 3 := by\n  intro h\n  have := congrArg ZMod.val h\n  omega\nhave hm (k : ℕ) : (Polynomial.monomial k 1 : M6.Cyclic.BinaryPolynomial) = Polynomial.X ^ k := by\n  ext j\n  simp [eq_comm]\nsimp [M8.P4Family.support, M7.Supports.polynomial, M8.P4Family.polynomial,\n  h0, h1, h2, h3, h01, h02, h03, h12, h13, h23, hm,\n  add_assoc, add_comm, add_left_comm]",
+  "queries": [
+    "Polynomial.coeff_X_pow",
+    "Polynomial.C_mul_X_pow_eq_monomial"
+  ]
+}

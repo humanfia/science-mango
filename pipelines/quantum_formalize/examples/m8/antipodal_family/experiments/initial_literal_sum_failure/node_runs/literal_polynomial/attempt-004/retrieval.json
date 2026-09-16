@@ -1,0 +1,248 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_natCast",
+    "status": "ok",
+    "results": [
+      {
+        "id": 222987,
+        "name": "ZMod.val_natCast",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+        "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+        "docstring": null
+      },
+      {
+        "id": 222980,
+        "name": "ZMod.val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+        "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+        "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+      },
+      {
+        "id": 223006,
+        "name": "ZMod.natCast_zmod_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+        "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+        "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+      },
+      {
+        "id": 328344,
+        "name": "Mathlib.Meta.NormNum.evalNatCast",
+        "module": "Mathlib.Tactic.NormNum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Basic.lean#L138-L145",
+        "source_text": "/-- The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. -/\n@[norm_num Nat.cast _, NatCast.natCast _] def evalNatCast : NormNumExt where eval {u α} e := do\n  let sα ← inferAddMonoidWithOne α\n  let .app n (a : Q(ℕ)) ← whnfR e | failure\n  guard <|← withNewMCtxDepth <| isDefEq n q(Nat.cast (R := $α))\n  let ⟨na, pa⟩ ← deriveNat a q(Nat.instAddMonoidWithOne)\n  haveI' : $e =Q $a := ⟨⟩\n  return .isNat sα na q(isNat_natCast $a $na $pa)\n",
+        "docstring": "The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. "
+      },
+      {
+        "id": 337463,
+        "name": "WithVal.instNatCast",
+        "module": "Mathlib.Topology.Algebra.Valued.WithVal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Valued/WithVal.lean#L95-L95",
+        "source_text": "instance : NatCast (WithVal v) where natCast n := toVal _ n\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_natCast",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393466,
+        "name": "Time.natCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+        "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393477,
+        "name": "Time.realCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L144-L144",
+        "source_text": "lemma realCast_val {r : ℝ} : (r : Time).val = r := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 393478,
+        "name": "Time.realCast_of_natCast",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L146-L147",
+        "source_text": "@[simp]\nlemma realCast_of_natCast {n : ℕ} : ((n : ℝ) : Time) = n := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Finset.sum_insert",
+    "status": "ok",
+    "results": [
+      {
+        "id": 58020,
+        "name": "Finset.sum_insert",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L48-L48",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem prod_insert [DecidableEq ι] : a ∉ s → ∏ x ∈ insert a s, f x = f a * ∏ x ∈ s, f x :=",
+        "docstring": null
+      },
+      {
+        "id": 58022,
+        "name": "Finset.sum_insert'",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Basic.lean#L53-L53",
+        "source_text": "@[to_additive (attr := grind =)]\ntheorem prod_insert' [DecidableEq ι] (h : a ∉ s) :",
+        "docstring": null
+      },
+      {
+        "id": 58295,
+        "name": "Finset.sum",
+        "module": "Mathlib.Algebra.BigOperators.Group.Finset.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/BigOperators/Group/Finset/Defs.lean#L63-L67",
+        "source_text": "@[to_additive /-- `∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. -/]\nprotected def prod [CommMonoid M] (s : Finset ι) (f : ι → M) : M :=",
+        "docstring": "`∑ x ∈ s, f x` is the sum of `f x` as `x` ranges over the elements\nof the finite set `s`.\n\nWhen the index type is a `Fintype`, the notation `∑ x, f x`, is a shorthand for\n`∑ x ∈ Finset.univ, f x`. "
+      },
+      {
+        "id": 218422,
+        "name": "Set.Finite.toFinset_insert'",
+        "module": "Mathlib.Data.Set.Finite.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Finite/Basic.lean#L701-L703",
+        "source_text": "theorem Finite.toFinset_insert' [DecidableEq α] {a : α} {s : Set α} (hs : s.Finite) :\n    (hs.insert a).toFinset = insert a hs.toFinset :=\n  Finite.toFinset_insert _\n",
+        "docstring": null
+      },
+      {
+        "id": 204404,
+        "name": "Finset.disjSum",
+        "module": "Mathlib.Data.Finset.Sum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Finset/Sum.lean#L33-L35",
+        "source_text": "/-- Disjoint sum of finsets. -/\ndef disjSum : Finset (α ⊕ β) :=\n  ⟨s.1.disjSum t.1, s.2.disjSum t.2⟩\n",
+        "docstring": "Disjoint sum of finsets. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Finset.sum_insert",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390021,
+        "name": "PureU1.VectorLikeOddPlane.oddShiftShiftFst",
+        "module": "Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QFT/QED/AnomalyCancellation/Odd/BasisLinear.lean#L182-L185",
+        "source_text": "/-- The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\n  to `Fin (2 * n.succ + 1)`. -/\ndef oddShiftShiftFst (j : Fin n) : Fin (2 * n.succ + 1) :=\n  Fin.cast (odd_shift_shift_eq n) (Fin.castAdd n.succ (Fin.castAdd 1 (Fin.natAdd 1 j)))\n",
+        "docstring": "The inclusion of `Fin n` into `Fin (1 + n + 1 + n.succ)` via the first `n` and casted\nto `Fin (2 * n.succ + 1)`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Polynomial.monomial_eq_C_mul_X",
+    "status": "ok",
+    "results": [
+      {
+        "id": 100953,
+        "name": "Polynomial.monomial",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L379-L383",
+        "source_text": "/-- `monomial s a` is the monomial `a * X^s` -/\ndef monomial (n : ℕ) : R →ₗ[R] R[X] where\n  toFun t := ⟨.single n t⟩\n  map_add' x y := by simp [← ofFinsupp_add]\n  map_smul' r x := by simp [← ofFinsupp_smul]\n",
+        "docstring": "`monomial s a` is the monomial `a * X^s` "
+      },
+      {
+        "id": 101022,
+        "name": "Polynomial.C_mul_X_pow_eq_monomial",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L659-L662",
+        "source_text": "theorem C_mul_X_pow_eq_monomial : ∀ {n : ℕ}, C a * X ^ n = monomial n a\n  | 0 => mul_one _\n  | n + 1 => by\n    rw [pow_succ, ← mul_assoc, C_mul_X_pow_eq_monomial, X, monomial_mul_monomial, mul_one]\n",
+        "docstring": null
+      },
+      {
+        "id": 101024,
+        "name": "Polynomial.C_mul_X_eq_monomial",
+        "module": "Mathlib.Algebra.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L668-L668",
+        "source_text": "theorem C_mul_X_eq_monomial : C a * X = monomial 1 a := by rw [← C_mul_X_pow_eq_monomial, pow_one]\n",
+        "docstring": null
+      },
+      {
+        "id": 90434,
+        "name": "MvPolynomial.C_mul_X_eq_monomial",
+        "module": "Mathlib.Algebra.MvPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/MvPolynomial/Basic.lean#L261-L262",
+        "source_text": "theorem C_mul_X_eq_monomial {s : σ} {a : R} : C a * X s = monomial (Finsupp.single s 1) a := by\n  rw [← C_mul_X_pow_eq_monomial, pow_one]\n",
+        "docstring": null
+      },
+      {
+        "id": 107515,
+        "name": "SkewPolynomial.C_mul_X_eq_monomial",
+        "module": "Mathlib.Algebra.SkewPolynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/SkewPolynomial/Basic.lean#L401-L402",
+        "source_text": "lemma C_mul_X_eq_monomial [MulSemiringAction (Multiplicative ℕ) R] : C a * X = monomial 1 a := by\n  rw [← C_mul_X_pow_eq_monomial, pow_one]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Polynomial.monomial_eq_C_mul_X",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Polynomial.monomial_eq_C_mul_X",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

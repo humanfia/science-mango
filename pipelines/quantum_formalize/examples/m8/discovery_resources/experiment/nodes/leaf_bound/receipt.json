@@ -1,0 +1,75 @@
+{
+  "id": "leaf_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.DiscoveryResources.leaf_bound",
+    "spec_sha256": "dac32c311793ac4c9d0e7367604f681261fb8c5f3843f3e1dd95ecd19641056d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-001/Candidate_353b145fa50593e2.lean:2:73: error: unsolved goals\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Discovery.Choice N\nhlm : memberCharge (Anchor.left c k.exchange) ≤ 4 * N * (N + 1)\nhls : spanCharge (Anchor.left c k.exchange) ≤ 16 * N * (N + 1) ^ 2\nhrm : memberCharge (Anchor.right c k.exchange) ≤ 4 * N * (N + 1)\nhrs : spanCharge (Anchor.right c k.exchange) ≤ 16 * N * (N + 1) ^ 2\nhtotal :\n  64 * (N + 1) ^ 2 + (4 * N * (N + 1) + (4 * N * (N + 1) + (16 * N * (N + 1) ^ 2 + 16 * N * (N + 1) ^ 2))) ≤\n    128 * (N + 1) ^ 3\n⊢ (64 * (N + 1) ^ 2 +\n      if ((↑k.unitIndex).gcd N == 1) = true then\n        memberCharge (Anchor.left c k.exchange) +\n          if leftTest c k = true then\n            memberCharge (Anchor.right c k.exchange) +\n              if rightTest c k = true then\n                spanCharge (Anchor.left c k.exchange) + spanCharge (Anchor.right c k.exchange)\n              else 0\n          else 0\n      else 0) ≤\n    128 * (N + 1) ^ 3\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-002/Candidate_35b29fb930f91ec6.lean",
+        "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-002/FrozenTarget_35b29fb930f91ec6.lean",
+        "feedback": "",
+        "target_sha256": "2fea53a3df3dd5e7d57d5099b7985219f509c27c5b85c1e38f58caa9755f9fa5",
+        "target_olean_sha256": "ec480985929dd3c2b67b9cf65014cd9ae515c46abde58d5b31dc1fba1adca951",
+        "source_sha256": "bdf7cc90111779cd6a4445b08233e9ef6e790f96af36330f4c2e88bc2f5975b3",
+        "olean_sha256": "c9b2c5344f21be2dcb38653f65f292bf9437e9cdbffa399e6dd2d3b04c17abac",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T13:45:32.438509+00:00",
+    "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-002/Candidate_35b29fb930f91ec6.lean",
+    "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+    "artifacts": {
+      "fold_charges": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.fold_charges",
+          "ancestors": [],
+          "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+        },
+        "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+      },
+      "leaf_bound": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3\n  intro N inst c k\n  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)\n  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)\n  have htotal :\n      64 * (N + 1)^2 +\n        (4 * N * (N + 1) +\n          (4 * N * (N + 1) +\n            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤\n        128 * (N + 1)^3 := by\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]\n  unfold M8.DiscoveryResources.leafCharge\n  split_ifs <;> omega",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.leaf_bound",
+          "ancestors": [
+            "fold_charges"
+          ],
+          "spec_sha256": "c2a825bffcc5a0336bbeb52cd3da7c206beca3e74401392b90f8cea830741361"
+        },
+        "sha256": "ad32916aa9c15df8d3ac676ec597c7b25a33dd508bf5daf524d77d5c6bdd5e10"
+      }
+    }
+  }
+}

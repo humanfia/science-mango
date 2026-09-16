@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst hN\nclassical\nhave hv (k : ℕ) : (k : ZMod N).val ≤ k := by\n  rw [ZMod.val_natCast]\n  exact Nat.mod_le _ _\nhave hs : ∀ i ∈ M8.P4Family.support N, i.val ≤ 3 := by\n  intro i hi\n  simp only [M8.P4Family.support, Finset.mem_insert, Finset.mem_singleton] at hi\n  rcases hi with rfl | rfl | rfl | rfl\n  · have h : (0 : ZMod N).val ≤ 0 := by simpa using hv 0\n    omega\n  · have h : (1 : ZMod N).val ≤ 1 := by simpa using hv 1\n    omega\n  · have h : (2 : ZMod N).val ≤ 2 := by simpa using hv 2\n    omega\n  · simpa using hv 3\nhave hspan : M8.Anchor.span (M8.P4Family.recipe N) ≤ 3 := by\n  apply (M8.Anchor.span_le N (M8.P4Family.recipe N) 3).2\n  exact ⟨hs, hs⟩\napply hspan.trans\nchange 3 ≤ min (N - 1) (Nat.log 2 (N + 1))\napply le_min\n· omega\n· apply Nat.le_log_of_pow_le (by decide : 1 < 2)\n  norm_num\n  omega",
+  "queries": [
+    "Nat.le_log_of_pow_le",
+    "Nat.log2_eq_log_two"
+  ]
+}

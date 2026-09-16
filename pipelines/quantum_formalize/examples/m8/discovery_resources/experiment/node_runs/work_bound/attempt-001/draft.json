@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.DiscoveryResources.work c ≤ 320 * (N + 1)^6\nintro N inst c\nhave h := M8.WeightedSearch.total_bound 2 (M8.Discovery.Choice N)\n  (fun e : Fin 2 =>\n    let r := M8.DiscoveryResources.unitRun c (decide (e.val = 1))\n    (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n  (152 * (N + 1)^6) (M8.DiscoveryResources.control N)\n  (fun e => M8.DiscoveryResources.unit_bound N c (decide (e.val = 1)))\ncalc\n  M8.DiscoveryResources.work c\n      ≤ 2 * (M8.DiscoveryResources.control N + 152 * (N + 1)^6) := by\n        simpa only [M8.DiscoveryResources.work, M8.DiscoveryResources.charged,\n          M8.DiscoveryResources.run, Nat.add_comm] using h\n  _ ≤ 320 * (N + 1)^6 := by\n    unfold M8.DiscoveryResources.control\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4),\n      Nat.zero_le (N^5), Nat.zero_le (N^6)]",
+  "queries": []
+}

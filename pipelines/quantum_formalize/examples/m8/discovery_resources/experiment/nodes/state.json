@@ -1,0 +1,891 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-16T13:56:10.200185+00:00",
+  "all_nodes_accepted": true,
+  "m5_formalized": false,
+  "nodes": {
+    "fold_charges": {
+      "id": "fold_charges",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.fold_charges",
+        "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-gk5l0bqx/attempt-001/Candidate_fffc08218948cc1b.lean:9:4: error: Type mismatch: After simplification, term\n  Nat.mul_le_mul_right (16 * (N + 1) ^ 2) hcard\n has type\n  A.card * (16 * (N + 1) ^ 2) ≤ N * (16 * (N + 1) ^ 2)\nbut is expected to have type\n  A.card ≤ N\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-gk5l0bqx/attempt-002/Candidate_9a7f644553223232.lean:10:4: error: Type mismatch: After simplification, term\n  Nat.mul_le_mul_right (16 * (N + 1) ^ 2) hcard\n has type\n  A.card * (16 * (N + 1) ^ 2) ≤ N * (16 * (N + 1) ^ 2)\nbut is expected to have type\n  A.card * ((N + 1) ^ 2 * 16) ≤ N * ((N + 1) ^ 2 * 16)\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-gk5l0bqx/attempt-003/Candidate_0359946abd256b16.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-gk5l0bqx/attempt-003/FrozenTarget_0359946abd256b16.lean",
+            "feedback": "",
+            "target_sha256": "6be7d12d573c065f40c0925e3ec585cc28529112c7f4a05a1e5e63dede3de404",
+            "target_olean_sha256": "9c99346a9615dc6a43496fea2f1a4f3270b7a0355d8362c3d904bb89c7fa1e80",
+            "source_sha256": "e205727950175d21c7b0e20b008552d6286e4948a7978f543948a109c88da7ab",
+            "olean_sha256": "6d54384e6d7131e5324787ad9cf956ab6e8b15e88ed18dde4c7c4233189ea70a",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-16T13:38:26.518265+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-gk5l0bqx",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-gk5l0bqx/attempt-003/Candidate_0359946abd256b16.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "fold_charges": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.fold_charges",
+              "ancestors": [],
+              "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+            },
+            "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+          }
+        }
+      }
+    },
+    "leaf_bound": {
+      "id": "leaf_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.leaf_bound",
+        "spec_sha256": "dac32c311793ac4c9d0e7367604f681261fb8c5f3843f3e1dd95ecd19641056d",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-001/Candidate_353b145fa50593e2.lean:2:73: error: unsolved goals\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Discovery.Choice N\nhlm : memberCharge (Anchor.left c k.exchange) ≤ 4 * N * (N + 1)\nhls : spanCharge (Anchor.left c k.exchange) ≤ 16 * N * (N + 1) ^ 2\nhrm : memberCharge (Anchor.right c k.exchange) ≤ 4 * N * (N + 1)\nhrs : spanCharge (Anchor.right c k.exchange) ≤ 16 * N * (N + 1) ^ 2\nhtotal :\n  64 * (N + 1) ^ 2 + (4 * N * (N + 1) + (4 * N * (N + 1) + (16 * N * (N + 1) ^ 2 + 16 * N * (N + 1) ^ 2))) ≤\n    128 * (N + 1) ^ 3\n⊢ (64 * (N + 1) ^ 2 +\n      if ((↑k.unitIndex).gcd N == 1) = true then\n        memberCharge (Anchor.left c k.exchange) +\n          if leftTest c k = true then\n            memberCharge (Anchor.right c k.exchange) +\n              if rightTest c k = true then\n                spanCharge (Anchor.left c k.exchange) + spanCharge (Anchor.right c k.exchange)\n              else 0\n          else 0\n      else 0) ≤\n    128 * (N + 1) ^ 3\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-002/Candidate_35b29fb930f91ec6.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-002/FrozenTarget_35b29fb930f91ec6.lean",
+            "feedback": "",
+            "target_sha256": "2fea53a3df3dd5e7d57d5099b7985219f509c27c5b85c1e38f58caa9755f9fa5",
+            "target_olean_sha256": "ec480985929dd3c2b67b9cf65014cd9ae515c46abde58d5b31dc1fba1adca951",
+            "source_sha256": "bdf7cc90111779cd6a4445b08233e9ef6e790f96af36330f4c2e88bc2f5975b3",
+            "olean_sha256": "c9b2c5344f21be2dcb38653f65f292bf9437e9cdbffa399e6dd2d3b04c17abac",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-16T13:45:32.438509+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-mxx54r8i/attempt-002/Candidate_35b29fb930f91ec6.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "fold_charges": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.fold_charges",
+              "ancestors": [],
+              "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+            },
+            "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+          },
+          "leaf_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3\n  intro N inst c k\n  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)\n  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)\n  have htotal :\n      64 * (N + 1)^2 +\n        (4 * N * (N + 1) +\n          (4 * N * (N + 1) +\n            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤\n        128 * (N + 1)^3 := by\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]\n  unfold M8.DiscoveryResources.leafCharge\n  split_ifs <;> omega",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.leaf_bound",
+              "ancestors": [
+                "fold_charges"
+              ],
+              "spec_sha256": "c2a825bffcc5a0336bbeb52cd3da7c206beca3e74401392b90f8cea830741361"
+            },
+            "sha256": "ad32916aa9c15df8d3ac676ec597c7b25a33dd508bf5daf524d77d5c6bdd5e10"
+          }
+        }
+      }
+    },
+    "right_bound": {
+      "id": "right_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.right_bound",
+        "spec_sha256": "63b081ba714dbeba77dce791e5c19a35375f12c612c5f055b5fc9cd694df0424",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-8h4034yf/attempt-001/Candidate_8505bb9eaeb6b188.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-8h4034yf/attempt-001/FrozenTarget_8505bb9eaeb6b188.lean",
+            "feedback": "",
+            "target_sha256": "85e93ff5f08a2ea11fdc11a9643c79b86f5db784a75f970936bc891b2e797312",
+            "target_olean_sha256": "2c8091a89c59afb20bdbfe9b9e7ee704b1067c251ba8f93391688b521c6ceb05",
+            "source_sha256": "a7b45ea6590dca7d9a65475dd7ef973c8b945e0d05fb2c8f6ab8edef64bd81fe",
+            "olean_sha256": "b64fa93e95678d1add29ec18f2587c512ea298aea349c2f166b14f371e7e774f",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:48:32.909684+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-8h4034yf",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-8h4034yf/attempt-001/Candidate_8505bb9eaeb6b188.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "fold_charges": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.fold_charges",
+              "ancestors": [],
+              "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+            },
+            "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+          },
+          "leaf_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3\n  intro N inst c k\n  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)\n  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)\n  have htotal :\n      64 * (N + 1)^2 +\n        (4 * N * (N + 1) +\n          (4 * N * (N + 1) +\n            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤\n        128 * (N + 1)^3 := by\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]\n  unfold M8.DiscoveryResources.leafCharge\n  split_ifs <;> omega",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.leaf_bound",
+              "ancestors": [
+                "fold_charges"
+              ],
+              "spec_sha256": "c2a825bffcc5a0336bbeb52cd3da7c206beca3e74401392b90f8cea830741361"
+            },
+            "sha256": "ad32916aa9c15df8d3ac676ec597c7b25a33dd508bf5daf524d77d5c6bdd5e10"
+          },
+          "right_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136*(N+1)^4 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136 * (N + 1)^4\n  intro N inst c e t a\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e,t,a,b⟩ then some ⟨e,t,a,b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e,t,a,b⟩))\n    (128 * (N + 1)^3) (M8.DiscoveryResources.control N)\n    (fun b => M8.DiscoveryResources.leaf_bound N c ⟨e,t,a,b⟩)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a)\n        ≤ N * (M8.DiscoveryResources.control N + 128 * (N + 1)^3) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.rightRun,\n            Nat.add_comm] using h\n    _ ≤ 136 * (N + 1)^4 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound"
+              ],
+              "spec_sha256": "b1bb84937a658c2606da851c08431cbada3ddd6554f9024d63155d2db2a584ef"
+            },
+            "sha256": "61d163aca7662a6f13fbbef7ab8fc5e11ed6586f7362306f9074e7922522bdcd"
+          }
+        }
+      }
+    },
+    "left_bound": {
+      "id": "left_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.left_bound",
+        "spec_sha256": "63b0fd4268de3b1c23242ff1ea420a718169b9d687927de78e44ba9acb6e5d98",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-pyejegyw/attempt-001/Candidate_9ec8c87c88def842.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-pyejegyw/attempt-001/FrozenTarget_9ec8c87c88def842.lean",
+            "feedback": "",
+            "target_sha256": "5d63073f34b2736435f68fb6401e7576fbed73f6f0a19505e0aa0f8ddb1dc227",
+            "target_olean_sha256": "c0121dbd762456f2569f050267a377b1b3288aa89a53134c553dd939c380ed6a",
+            "source_sha256": "a6ce3dece5525201cf5d0e3a779cb7b72a9dbcf02222ed05e62bb345b7f539d7",
+            "olean_sha256": "245ea59c1bd562f057f55ebd1e2182791fbedbedff9424ab5a43cc575439362e",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:49:55.856401+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-pyejegyw",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-pyejegyw/attempt-001/Candidate_9ec8c87c88def842.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "fold_charges": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.fold_charges",
+              "ancestors": [],
+              "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+            },
+            "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+          },
+          "leaf_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3\n  intro N inst c k\n  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)\n  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)\n  have htotal :\n      64 * (N + 1)^2 +\n        (4 * N * (N + 1) +\n          (4 * N * (N + 1) +\n            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤\n        128 * (N + 1)^3 := by\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]\n  unfold M8.DiscoveryResources.leafCharge\n  split_ifs <;> omega",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.leaf_bound",
+              "ancestors": [
+                "fold_charges"
+              ],
+              "spec_sha256": "c2a825bffcc5a0336bbeb52cd3da7c206beca3e74401392b90f8cea830741361"
+            },
+            "sha256": "ad32916aa9c15df8d3ac676ec597c7b25a33dd508bf5daf524d77d5c6bdd5e10"
+          },
+          "right_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136*(N+1)^4 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136 * (N + 1)^4\n  intro N inst c e t a\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e,t,a,b⟩ then some ⟨e,t,a,b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e,t,a,b⟩))\n    (128 * (N + 1)^3) (M8.DiscoveryResources.control N)\n    (fun b => M8.DiscoveryResources.leaf_bound N c ⟨e,t,a,b⟩)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a)\n        ≤ N * (M8.DiscoveryResources.control N + 128 * (N + 1)^3) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.rightRun,\n            Nat.add_comm] using h\n    _ ≤ 136 * (N + 1)^4 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound"
+              ],
+              "spec_sha256": "b1bb84937a658c2606da851c08431cbada3ddd6554f9024d63155d2db2a584ef"
+            },
+            "sha256": "61d163aca7662a6f13fbbef7ab8fc5e11ed6586f7362306f9074e7922522bdcd"
+          },
+          "left_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.left_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144*(N+1)^5 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144 * (N + 1)^5\n  intro N inst c e t\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      let r := M8.DiscoveryResources.rightRun c e t a\n      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n    (136 * (N + 1)^4) (M8.DiscoveryResources.control N)\n    (fun a => M8.DiscoveryResources.right_bound N c e t a)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t)\n        ≤ N * (M8.DiscoveryResources.control N + 136 * (N + 1)^4) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.leftRun,\n            Nat.add_comm] using h\n    _ ≤ 144 * (N + 1)^5 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.left_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound",
+                "right_bound"
+              ],
+              "spec_sha256": "657de481959b43cbecc2c798ea21ba8c5e373543f99e96c38f6b6a85adad5ba7"
+            },
+            "sha256": "17904a7a41b08e5a5057fb954d019628ad45215fce326721cd52eff59fa0c044"
+          }
+        }
+      }
+    },
+    "right_projection": {
+      "id": "right_projection",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.right_projection",
+        "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-zs858h64/attempt-001/Candidate_6944a9ac5ef7aff7.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-zs858h64/attempt-001/FrozenTarget_6944a9ac5ef7aff7.lean",
+            "feedback": "",
+            "target_sha256": "9dae6b5e3ddc4e24e28655a17101e1ab79010d7b01c1a303b3ffc0871ef889c0",
+            "target_olean_sha256": "c87cc97085bc5af9a71645e900a059a3397a6998ba4f094c71dc931ce0383620",
+            "source_sha256": "7cf014241bf93ebf07a4896ed1d78d271f0dee9b105d4cc54a3feb078079bdd2",
+            "olean_sha256": "6d1070efc79b880f716ec12c4da6f28c99aec1d9597518fdbf58014420d62988",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:38:26.558796+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-zs858h64",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-zs858h64/attempt-001/Candidate_6944a9ac5ef7aff7.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "right_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), (M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd = M8.Discovery.atRight c e t a := by\n  intro N inst c e t a\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e, t, a, b⟩ then some ⟨e, t, a, b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e, t, a, b⟩)))\n  simpa only [M8.DiscoveryResources.rightRun, M8.Discovery.atRight] using\n    congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_projection",
+              "ancestors": [],
+              "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc"
+            },
+            "sha256": "779b3f860a489884ca12dc0cad01d2cbe591533eed608b62ffac1c89b509abb1"
+          }
+        }
+      }
+    },
+    "left_projection": {
+      "id": "left_projection",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.left_projection",
+        "spec_sha256": "d740e10813da317bbf805831bbd6e82ff32f2bf5c5114151c761fb76b9a056a4",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff/attempt-001/Candidate_0d334f5591b7b9f2.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff/attempt-001/FrozenTarget_0d334f5591b7b9f2.lean",
+            "feedback": "",
+            "target_sha256": "81aa8dae699fd2cb43b53ec44933a5442525051f33878261bb3800492f0eed21",
+            "target_olean_sha256": "b7d11801c9959cb332cc7bfcb063501c8dcc4d3d8f67ee6b4a33bdddac301e87",
+            "source_sha256": "6c6c7d7eedf1f9f024cbb717639c36f55ede2da81a4c7d7a1da7002479097f98",
+            "olean_sha256": "ef13b05af56bb0e2d1b7a486c1bc9412291b77d1aa4044a511ae123bf46349f2",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:41:09.178194+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-ucks1pff/attempt-001/Candidate_0d334f5591b7b9f2.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "right_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), (M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd = M8.Discovery.atRight c e t a := by\n  intro N inst c e t a\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e, t, a, b⟩ then some ⟨e, t, a, b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e, t, a, b⟩)))\n  simpa only [M8.DiscoveryResources.rightRun, M8.Discovery.atRight] using\n    congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_projection",
+              "ancestors": [],
+              "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc"
+            },
+            "sha256": "779b3f860a489884ca12dc0cad01d2cbe591533eed608b62ffac1c89b509abb1"
+          },
+          "left_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.left_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), (M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd = M8.Discovery.atLeft c e t := by\n  intro N inst c e t\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      ((M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a))))\n  simpa only [M8.DiscoveryResources.leftRun, M8.Discovery.atLeft,\n    M8.DiscoveryResources.right_projection] using congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.left_projection",
+              "ancestors": [
+                "right_projection"
+              ],
+              "spec_sha256": "54bc12ecd9b29fe00fd8fe61c32e61eeccf696529dca59eb08a68f0d620942e6"
+            },
+            "sha256": "175bca0000d1841c766cb5e8adc391d50ceb769964be6cf681ae4fe496c8cc78"
+          }
+        }
+      }
+    },
+    "unit_bound": {
+      "id": "unit_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.unit_bound",
+        "spec_sha256": "f3fb20f5008274c5ada98b83b008149d6749a75651bd9425102c6f48c70dd770",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-g22qwfr5/attempt-001/Candidate_6d0d9a36e454195b.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-g22qwfr5/attempt-001/FrozenTarget_6d0d9a36e454195b.lean",
+            "feedback": "",
+            "target_sha256": "c0e997c7380c56699675166c0ea3d8fcc05e47cd89a00c22488d7ff875cab028",
+            "target_olean_sha256": "a036db06b431ca3edccef11a051e1676cb39a51664e03772d9e25c1ca8fad91d",
+            "source_sha256": "efaf5508f902d23549e15c10a352268d9109ddaf6c53ce7e27dc0971563d10b7",
+            "olean_sha256": "d17271c8defa4787ddd6fa8448dc465be5eaa9b80839b848f5597ed561ffd154",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:52:24.109235+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-g22qwfr5",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-g22qwfr5/attempt-001/Candidate_6d0d9a36e454195b.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "fold_charges": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.fold_charges",
+              "ancestors": [],
+              "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+            },
+            "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+          },
+          "leaf_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3\n  intro N inst c k\n  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)\n  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)\n  have htotal :\n      64 * (N + 1)^2 +\n        (4 * N * (N + 1) +\n          (4 * N * (N + 1) +\n            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤\n        128 * (N + 1)^3 := by\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]\n  unfold M8.DiscoveryResources.leafCharge\n  split_ifs <;> omega",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.leaf_bound",
+              "ancestors": [
+                "fold_charges"
+              ],
+              "spec_sha256": "c2a825bffcc5a0336bbeb52cd3da7c206beca3e74401392b90f8cea830741361"
+            },
+            "sha256": "ad32916aa9c15df8d3ac676ec597c7b25a33dd508bf5daf524d77d5c6bdd5e10"
+          },
+          "right_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136*(N+1)^4 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136 * (N + 1)^4\n  intro N inst c e t a\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e,t,a,b⟩ then some ⟨e,t,a,b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e,t,a,b⟩))\n    (128 * (N + 1)^3) (M8.DiscoveryResources.control N)\n    (fun b => M8.DiscoveryResources.leaf_bound N c ⟨e,t,a,b⟩)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a)\n        ≤ N * (M8.DiscoveryResources.control N + 128 * (N + 1)^3) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.rightRun,\n            Nat.add_comm] using h\n    _ ≤ 136 * (N + 1)^4 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound"
+              ],
+              "spec_sha256": "b1bb84937a658c2606da851c08431cbada3ddd6554f9024d63155d2db2a584ef"
+            },
+            "sha256": "61d163aca7662a6f13fbbef7ab8fc5e11ed6586f7362306f9074e7922522bdcd"
+          },
+          "left_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.left_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144*(N+1)^5 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144 * (N + 1)^5\n  intro N inst c e t\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      let r := M8.DiscoveryResources.rightRun c e t a\n      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n    (136 * (N + 1)^4) (M8.DiscoveryResources.control N)\n    (fun a => M8.DiscoveryResources.right_bound N c e t a)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t)\n        ≤ N * (M8.DiscoveryResources.control N + 136 * (N + 1)^4) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.leftRun,\n            Nat.add_comm] using h\n    _ ≤ 144 * (N + 1)^5 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.left_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound",
+                "right_bound"
+              ],
+              "spec_sha256": "657de481959b43cbecc2c798ea21ba8c5e373543f99e96c38f6b6a85adad5ba7"
+            },
+            "sha256": "17904a7a41b08e5a5057fb954d019628ad45215fce326721cd52eff59fa0c044"
+          },
+          "unit_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.unit_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e) ≤ 152*(N+1)^6 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e) ≤ 152 * (N + 1)^6\n  intro N inst c e\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun t : Fin N =>\n      let r := M8.DiscoveryResources.leftRun c e t\n      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n    (144 * (N + 1)^5) (M8.DiscoveryResources.control N)\n    (fun t => M8.DiscoveryResources.left_bound N c e t)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e)\n        ≤ N * (M8.DiscoveryResources.control N + 144 * (N + 1)^5) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.unitRun,\n            Nat.add_comm] using h\n    _ ≤ 152 * (N + 1)^6 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5), Nat.zero_le (N^6)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.unit_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound",
+                "left_bound",
+                "right_bound"
+              ],
+              "spec_sha256": "5ca1d5353c36c0e5193daac8aeeda9805f3a70c18ae2a5b0ff6f2e09d816a211"
+            },
+            "sha256": "7bb49452df87ea71c5d188161dc1922e9d2b10be648f6320735f1d4fc8143bfb"
+          }
+        }
+      }
+    },
+    "unit_projection": {
+      "id": "unit_projection",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.unit_projection",
+        "spec_sha256": "47595f7e8b0096d29eb62ef8a5ea32cfbe9f5202995200b365fc12448239e8da",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-u7otey2y/attempt-001/Candidate_6fec2ef0d12b59b3.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-u7otey2y/attempt-001/FrozenTarget_6fec2ef0d12b59b3.lean",
+            "feedback": "",
+            "target_sha256": "0157489e7fadbe74c69f264f1c576a0c655759a5a4e9e31caf0b476c4602731b",
+            "target_olean_sha256": "ba3fb557c611ac7637a0d66502085c441ae2f33d5cd4b9325555615743ead3e5",
+            "source_sha256": "8d7d065240ec7278f83a95721e559d49b0f72f13eaa8105310c8f150f34a61d3",
+            "olean_sha256": "92b25152ca7c570b22fa65ac824431bdd0fb51a72e582bc896dc5104ddb653fb",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:43:38.993006+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-u7otey2y",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-u7otey2y/attempt-001/Candidate_6fec2ef0d12b59b3.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "right_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), (M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd = M8.Discovery.atRight c e t a := by\n  intro N inst c e t a\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e, t, a, b⟩ then some ⟨e, t, a, b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e, t, a, b⟩)))\n  simpa only [M8.DiscoveryResources.rightRun, M8.Discovery.atRight] using\n    congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_projection",
+              "ancestors": [],
+              "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc"
+            },
+            "sha256": "779b3f860a489884ca12dc0cad01d2cbe591533eed608b62ffac1c89b509abb1"
+          },
+          "left_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.left_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), (M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd = M8.Discovery.atLeft c e t := by\n  intro N inst c e t\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      ((M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a))))\n  simpa only [M8.DiscoveryResources.leftRun, M8.Discovery.atLeft,\n    M8.DiscoveryResources.right_projection] using congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.left_projection",
+              "ancestors": [
+                "right_projection"
+              ],
+              "spec_sha256": "54bc12ecd9b29fe00fd8fe61c32e61eeccf696529dca59eb08a68f0d620942e6"
+            },
+            "sha256": "175bca0000d1841c766cb5e8adc391d50ceb769964be6cf681ae4fe496c8cc78"
+          },
+          "unit_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.unit_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, (M8.DiscoveryResources.unitRun c e).selected.map Prod.snd = M8.Discovery.atUnit c e := by\n  intro N inst c e\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun t : Fin N =>\n      ((M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t))))\n  simpa only [M8.DiscoveryResources.unitRun, M8.Discovery.atUnit,\n    M8.DiscoveryResources.left_projection] using congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.unit_projection",
+              "ancestors": [
+                "left_projection",
+                "right_projection"
+              ],
+              "spec_sha256": "7a0e0a1831897ea9fb8453be374fa231889d50a3e90a671b084a8001b6527971"
+            },
+            "sha256": "af149fdc58575ac3edb9f636d5fe40f67e0a5565b25b8a6b61898597308d8b10"
+          }
+        }
+      }
+    },
+    "projection": {
+      "id": "projection",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.projection",
+        "spec_sha256": "75bb6d0f88591437c7ef624cc20609fc91e923c610889170bd9cb203693819e9",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n/attempt-001/Candidate_ccbe5f8f36c313a8.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n/attempt-001/FrozenTarget_ccbe5f8f36c313a8.lean",
+            "feedback": "",
+            "target_sha256": "5d46f0c1a4be75c9f4f679264e20170cfedc86e39757e71f8fa2d27587abe7d4",
+            "target_olean_sha256": "9b95f53f265f9e44ec9df0080f7556793fd44f8ff5abf1a4ca2c5f20612277cd",
+            "source_sha256": "37314cb08e00d6d153126decbd0cd3f3f7333aeb45f101f852d4ec94b4ed82a5",
+            "olean_sha256": "bc03db03b0fd031f179dcdc647d45815057eb030806208947072a95670fcc5f8",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:45:59.228909+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n/attempt-001/Candidate_ccbe5f8f36c313a8.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "right_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), (M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd = M8.Discovery.atRight c e t a := by\n  intro N inst c e t a\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e, t, a, b⟩ then some ⟨e, t, a, b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e, t, a, b⟩)))\n  simpa only [M8.DiscoveryResources.rightRun, M8.Discovery.atRight] using\n    congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_projection",
+              "ancestors": [],
+              "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc"
+            },
+            "sha256": "779b3f860a489884ca12dc0cad01d2cbe591533eed608b62ffac1c89b509abb1"
+          },
+          "left_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.left_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), (M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd = M8.Discovery.atLeft c e t := by\n  intro N inst c e t\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      ((M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a))))\n  simpa only [M8.DiscoveryResources.leftRun, M8.Discovery.atLeft,\n    M8.DiscoveryResources.right_projection] using congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.left_projection",
+              "ancestors": [
+                "right_projection"
+              ],
+              "spec_sha256": "54bc12ecd9b29fe00fd8fe61c32e61eeccf696529dca59eb08a68f0d620942e6"
+            },
+            "sha256": "175bca0000d1841c766cb5e8adc391d50ceb769964be6cf681ae4fe496c8cc78"
+          },
+          "unit_projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.unit_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, (M8.DiscoveryResources.unitRun c e).selected.map Prod.snd = M8.Discovery.atUnit c e := by\n  intro N inst c e\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun t : Fin N =>\n      ((M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t))))\n  simpa only [M8.DiscoveryResources.unitRun, M8.Discovery.atUnit,\n    M8.DiscoveryResources.left_projection] using congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.unit_projection",
+              "ancestors": [
+                "left_projection",
+                "right_projection"
+              ],
+              "spec_sha256": "7a0e0a1831897ea9fb8453be374fa231889d50a3e90a671b084a8001b6527971"
+            },
+            "sha256": "af149fdc58575ac3edb9f636d5fe40f67e0a5565b25b8a6b61898597308d8b10"
+          },
+          "projection": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M8.DiscoveryResources.run c).selected.map Prod.snd = M8.Discovery.discover c := by\n  intro N inst c\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection 2 (M8.Discovery.Choice N)\n    (fun e : Fin 2 =>\n      ((M8.DiscoveryResources.unitRun c (decide (e.val = 1))).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c (decide (e.val = 1))))))\n  simpa only [M8.DiscoveryResources.run, M8.Discovery.discover,\n    M8.DiscoveryResources.unit_projection] using congrArg (Option.map Prod.snd) h",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.projection",
+              "ancestors": [
+                "left_projection",
+                "right_projection",
+                "unit_projection"
+              ],
+              "spec_sha256": "996833d67756572fb939b7f9a9afa922a5e267eff8e0bb9913328511e4cd7110"
+            },
+            "sha256": "ca179efb86717105136617666a608417a3a1529b3b52d14a7f0e120f5d3a3e72"
+          }
+        }
+      }
+    },
+    "work_bound": {
+      "id": "work_bound",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.DiscoveryResources.work_bound",
+        "spec_sha256": "b38a123ca42f027f13e45674a6b2154ed378d61d43cdee49e5b93db091cdf9db",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-desslknh/attempt-001/Candidate_bfad04421f611def.lean",
+            "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-desslknh/attempt-001/FrozenTarget_bfad04421f611def.lean",
+            "feedback": "",
+            "target_sha256": "794d1659c8088701a0fc18c2709d47d82db96d826c01689d6a21f926848d7422",
+            "target_olean_sha256": "cad6b3f4f5d0885fa54de592c318e7bf816ba95a700a7b4dd4d91b3b2b14507a",
+            "source_sha256": "e669e7aec661f97271e00731ba3bb0acf70c702f5f211aaac67b564659554882",
+            "olean_sha256": "ad4367d7ceb8feb8af0e7198f4d12d8bad445b4816707f2f510baa7d1e0d42f9",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:54:32.454833+00:00",
+        "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-desslknh",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-desslknh/attempt-001/Candidate_bfad04421f611def.lean",
+        "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+        "artifacts": {
+          "fold_charges": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.fold_charges : ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N] (A : Finset (ZMod N)), M8.DiscoveryResources.memberCharge A ≤ 4*N*(N+1) ∧ M8.DiscoveryResources.spanCharge A ≤ 16*N*(N+1)^2\n  intro N inst A\n  have hcard : A.card ≤ N := by\n    simpa only [ZMod.card] using Finset.card_le_univ A\n  constructor\n  · calc\n      M8.DiscoveryResources.memberCharge A = A.card * (4 * (N + 1)) := by\n        simp [M8.DiscoveryResources.memberCharge]\n      _ ≤ N * (4 * (N + 1)) := Nat.mul_le_mul_right _ hcard\n      _ = 4 * N * (N + 1) := by ring\n  · calc\n      M8.DiscoveryResources.spanCharge A = A.card * (16 * (N + 1)^2) := by\n        simp [M8.DiscoveryResources.spanCharge]\n      _ ≤ N * (16 * (N + 1)^2) := Nat.mul_le_mul_right _ hcard\n      _ = 16 * N * (N + 1)^2 := by ring",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.fold_charges",
+              "ancestors": [],
+              "spec_sha256": "34bb970f1d9427c40d2ed6cefb49d15a36433a7c276c975487b40760d4cb3a2c"
+            },
+            "sha256": "f12214622af9753f413c6879f543cbae3c64d3ff7c03290ac4c1a1efdffb1ef5"
+          },
+          "leaf_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.leaf_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128*(N+1)^3 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M8.DiscoveryResources.leafCharge c k ≤ 128 * (N + 1)^3\n  intro N inst c k\n  obtain ⟨hlm, hls⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.left c k.exchange)\n  obtain ⟨hrm, hrs⟩ := M8.DiscoveryResources.fold_charges N (M8.Anchor.right c k.exchange)\n  have htotal :\n      64 * (N + 1)^2 +\n        (4 * N * (N + 1) +\n          (4 * N * (N + 1) +\n            (16 * N * (N + 1)^2 + 16 * N * (N + 1)^2))) ≤\n        128 * (N + 1)^3 := by\n    nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3)]\n  unfold M8.DiscoveryResources.leafCharge\n  split_ifs <;> omega",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.leaf_bound",
+              "ancestors": [
+                "fold_charges"
+              ],
+              "spec_sha256": "c2a825bffcc5a0336bbeb52cd3da7c206beca3e74401392b90f8cea830741361"
+            },
+            "sha256": "ad32916aa9c15df8d3ac676ec597c7b25a33dd508bf5daf524d77d5c6bdd5e10"
+          },
+          "right_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.right_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136*(N+1)^4 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a) ≤ 136 * (N + 1)^4\n  intro N inst c e t a\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e,t,a,b⟩ then some ⟨e,t,a,b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e,t,a,b⟩))\n    (128 * (N + 1)^3) (M8.DiscoveryResources.control N)\n    (fun b => M8.DiscoveryResources.leaf_bound N c ⟨e,t,a,b⟩)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a)\n        ≤ N * (M8.DiscoveryResources.control N + 128 * (N + 1)^3) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.rightRun,\n            Nat.add_comm] using h\n    _ ≤ 136 * (N + 1)^4 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.right_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound"
+              ],
+              "spec_sha256": "b1bb84937a658c2606da851c08431cbada3ddd6554f9024d63155d2db2a584ef"
+            },
+            "sha256": "61d163aca7662a6f13fbbef7ab8fc5e11ed6586f7362306f9074e7922522bdcd"
+          },
+          "left_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.left_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144*(N+1)^5 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t) ≤ 144 * (N + 1)^5\n  intro N inst c e t\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      let r := M8.DiscoveryResources.rightRun c e t a\n      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n    (136 * (N + 1)^4) (M8.DiscoveryResources.control N)\n    (fun a => M8.DiscoveryResources.right_bound N c e t a)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t)\n        ≤ N * (M8.DiscoveryResources.control N + 136 * (N + 1)^4) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.leftRun,\n            Nat.add_comm] using h\n    _ ≤ 144 * (N + 1)^5 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.left_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound",
+                "right_bound"
+              ],
+              "spec_sha256": "657de481959b43cbecc2c798ea21ba8c5e373543f99e96c38f6b6a85adad5ba7"
+            },
+            "sha256": "17904a7a41b08e5a5057fb954d019628ad45215fce326721cd52eff59fa0c044"
+          },
+          "unit_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.unit_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e) ≤ 152*(N+1)^6 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e) ≤ 152 * (N + 1)^6\n  intro N inst c e\n  have h := M8.WeightedSearch.total_bound N (M8.Discovery.Choice N)\n    (fun t : Fin N =>\n      let r := M8.DiscoveryResources.leftRun c e t\n      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n    (144 * (N + 1)^5) (M8.DiscoveryResources.control N)\n    (fun t => M8.DiscoveryResources.left_bound N c e t)\n  calc\n    M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c e)\n        ≤ N * (M8.DiscoveryResources.control N + 144 * (N + 1)^5) := by\n          simpa only [M8.DiscoveryResources.charged, M8.DiscoveryResources.unitRun,\n            Nat.add_comm] using h\n    _ ≤ 152 * (N + 1)^6 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4), Nat.zero_le (N^5), Nat.zero_le (N^6)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.unit_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound",
+                "left_bound",
+                "right_bound"
+              ],
+              "spec_sha256": "5ca1d5353c36c0e5193daac8aeeda9805f3a70c18ae2a5b0ff6f2e09d816a211"
+            },
+            "sha256": "7bb49452df87ea71c5d188161dc1922e9d2b10be648f6320735f1d4fc8143bfb"
+          },
+          "work_bound": {
+            "payload": {
+              "declaration": "theorem M8.DiscoveryResources.work_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.DiscoveryResources.work c ≤ 320*(N+1)^6 := by\n  change ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.DiscoveryResources.work c ≤ 320 * (N + 1)^6\n  intro N inst c\n  have h := M8.WeightedSearch.total_bound 2 (M8.Discovery.Choice N)\n    (fun e : Fin 2 =>\n      let r := M8.DiscoveryResources.unitRun c (decide (e.val = 1))\n      (r.selected.map Prod.snd, M8.DiscoveryResources.charged N r))\n    (152 * (N + 1)^6) (M8.DiscoveryResources.control N)\n    (fun e => M8.DiscoveryResources.unit_bound N c (decide (e.val = 1)))\n  calc\n    M8.DiscoveryResources.work c\n        ≤ 2 * (M8.DiscoveryResources.control N + 152 * (N + 1)^6) := by\n          simpa only [M8.DiscoveryResources.work, M8.DiscoveryResources.charged,\n            M8.DiscoveryResources.run, Nat.add_comm] using h\n    _ ≤ 320 * (N + 1)^6 := by\n      unfold M8.DiscoveryResources.control\n      nlinarith [Nat.zero_le (N^2), Nat.zero_le (N^3), Nat.zero_le (N^4),\n        Nat.zero_le (N^5), Nat.zero_le (N^6)]",
+              "imports": [
+                "M8DiscoveryResources"
+              ],
+              "name": "M8.DiscoveryResources.work_bound",
+              "ancestors": [
+                "fold_charges",
+                "leaf_bound",
+                "left_bound",
+                "right_bound",
+                "unit_bound"
+              ],
+              "spec_sha256": "046bd6b4a4c046f9d2954655be65b34a4318aedd166cfddff4043e91657b0104"
+            },
+            "sha256": "88e772d575133bbdb6041241520ed331225f6ac1e5f023b633f1fdb3bd2d3656"
+          }
+        }
+      }
+    }
+  }
+}

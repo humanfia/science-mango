@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ N : ℕ, 4 ∣ N → M8.P4Family.polynomial ∣ M6.Cyclic.modulus N\nintro N hN\nrcases hN with ⟨k, rfl⟩\nhave h : ∀ k : ℕ, M8.P4Family.polynomial ∣ (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (4 * k) - 1 := by\n  intro k\n  induction k with\n  | zero => simp\n  | succ k ih =>\n    rcases ih with ⟨q, hq⟩\n    refine ⟨q * Polynomial.X ^ 4 + (Polynomial.X - 1), ?_⟩\n    rw [Nat.mul_succ, pow_add]\n    calc\n      Polynomial.X ^ (4 * k) * Polynomial.X ^ 4 - 1 =\n          (Polynomial.X ^ (4 * k) - 1) * Polynomial.X ^ 4 + (Polynomial.X ^ 4 - 1) := by ring\n      _ = M8.P4Family.polynomial * (q * Polynomial.X ^ 4 + (Polynomial.X - 1)) := by\n        rw [hq]\n        unfold M8.P4Family.polynomial\n        ring\nfirst\n| simpa only [M6.Cyclic.modulus] using h k\n| have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    ext n\n    by_cases hn : n = 0\n    · subst n\n      norm_num\n    · simp [Polynomial.coeff_one, hn]\n  simpa [M6.Cyclic.modulus, sub_eq_add_neg, hneg] using h k",
+  "queries": [
+    "pow_sub_one_dvd_pow_sub_one",
+    "CharTwo neg_eq",
+    "Polynomial X_pow_sub_one_dvd"
+  ]
+}

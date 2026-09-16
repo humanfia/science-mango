@@ -1,0 +1,4 @@
+{
+  "proof": "  change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.Anchor.span (M8.P3Family.recipe N) ≤ M8.Cutoff.limit N\n  intro N inst hN\n  have hval (k : ℕ) : (k : ZMod N).val ≤ k := by\n    rw [ZMod.val_natCast]\n    exact Nat.mod_le _ _\n  have hs : ∀ i ∈ M8.P3Family.support N, i.val ≤ 2 := by\n    intro i hi\n    simp only [M8.P3Family.support, Finset.mem_insert, Finset.mem_singleton] at hi\n    rcases hi with rfl | rfl | rfl\n    · exact le_trans (by simpa using hval 0) (by decide : 0 ≤ 2)\n    · exact le_trans (by simpa using hval 1) (by decide : 1 ≤ 2)\n    · simpa using hval 2\n  have hspan : M8.Anchor.span (M8.P3Family.recipe N) ≤ 2 := by\n    apply (M8.Anchor.span_le N (M8.P3Family.recipe N) 2).2\n    exact ⟨hs, hs⟩\n  apply le_trans hspan\n  rw [M8.Cutoff.bit_length_limit, Nat.log2_eq_log_two]\n  apply le_min\n  · omega\n  · apply (Nat.le_log_iff_pow_le (by decide : 1 < 2) (by omega : N + 1 ≠ 0)).2\n    norm_num\n    omega",
+  "queries": []
+}

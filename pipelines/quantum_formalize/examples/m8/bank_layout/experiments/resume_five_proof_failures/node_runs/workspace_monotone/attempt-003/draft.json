@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ R S N slots : ℕ, R ≤ S → M6.Transfer.solveStorage R N slots ≤ M6.Transfer.solveStorage S N slots\nintro R S N slots hRS\nhave hp : 2 ^ R ≤ (2 : ℕ) ^ S := pow_le_pow_right₀ (by decide) hRS\nunfold M6.Transfer.solveStorage M6.Transfer.pairedQueryStorage M6.Transfer.actualTraceStorage M6.Transfer.traceStorageModel\nsimp [M6.Transfer.scatterEventList, M6.Transfer.ScatterEvent, M6.Transfer.state_count, M6.Transfer.Bit]\nrepeat' first\n  | exact le_rfl\n  | exact hRS\n  | exact hp\n  | apply Nat.add_le_add\n  | apply Nat.mul_le_mul\n  | apply Nat.pow_le_pow_left\n  | omega",
+  "queries": [
+    "M6.Transfer.solveStorage M6.Transfer.pairedQueryStorage definitions",
+    "M6.Transfer.actualTraceStorage M6.Transfer.traceStorageModel coefficient width definitions",
+    "M6.Transfer.scatterEventList M6.Transfer.ScatterEvent M6.Transfer.state_count"
+  ]
+}

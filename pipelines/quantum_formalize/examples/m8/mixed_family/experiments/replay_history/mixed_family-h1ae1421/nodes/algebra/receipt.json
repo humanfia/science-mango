@@ -1,0 +1,55 @@
+{
+  "id": "algebra",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.MixedFamily.algebra",
+    "spec_sha256": "5e759f9ea5c6668af2b775ab32c34cd9b3c36550559b0176574bc5edfe33790a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-4usewsoo/attempt-001/Candidate_b3d41771b809cabd.lean",
+        "target_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-4usewsoo/attempt-001/FrozenTarget_b3d41771b809cabd.lean",
+        "feedback": "",
+        "target_sha256": "63cde8cc20f61941fe6d02b8a1c159753fb03090f62f1dd4960a8679fa840ca4",
+        "target_olean_sha256": "561f80d4fc810597a9f3e0f5267db7f33b010cabb6b6a668b12455550f20091b",
+        "source_sha256": "2d20606cab11dc5cbd95485b9659cd0d4ce5391b353399fe8c2db784e8fba4a5",
+        "olean_sha256": "d466b03410370204461ac18fc7b975d296a7d0d1e3ccb0ea0bd09410636a6b4f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:23:00.128064+00:00",
+    "work": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-4usewsoo",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "532712e98a39e69acb6442a1ae87151a15bf126e37c780fbb5cb29e378ff2b47",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-4usewsoo/attempt-001/Candidate_b3d41771b809cabd.lean",
+    "environment_sha256": "300034bddd0ab85bc2b81f0e971be503795c340e2c81d61b0637d30aa0dccec4",
+    "artifacts": {
+      "algebra": {
+        "payload": {
+          "declaration": "theorem M8.MixedFamily.algebra : M8.MixedFamily.b = M8.MixedFamily.a^2 ∧ M8.MixedFamily.a*M8.MixedFamily.b = 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3 := by\n  change (1 + Polynomial.X ^ 2 : Polynomial (ZMod 2)) = (1 + Polynomial.X) ^ 2 ∧\n    (1 + Polynomial.X : Polynomial (ZMod 2)) * (1 + Polynomial.X ^ 2) =\n      1 + Polynomial.X + Polynomial.X ^ 2 + Polynomial.X ^ 3\n  have h : (1 + 1 : Polynomial (ZMod 2)) = 0 := by\n    simpa only [map_add, map_one, map_zero] using\n      congrArg (fun c : ZMod 2 => Polynomial.C c)\n        (show (1 + 1 : ZMod 2) = 0 by decide)\n  constructor\n  · calc\n      (1 + Polynomial.X ^ 2 : Polynomial (ZMod 2)) =\n          1 + Polynomial.X ^ 2 + (1 + 1) * Polynomial.X := by rw [h]; simp\n      _ = (1 + Polynomial.X) ^ 2 := by ring\n  · ring",
+          "imports": [
+            "M8MixedFamily"
+          ],
+          "name": "M8.MixedFamily.algebra",
+          "ancestors": [],
+          "spec_sha256": "5e759f9ea5c6668af2b775ab32c34cd9b3c36550559b0176574bc5edfe33790a"
+        },
+        "sha256": "8f716f5c46afb3ced66b5b32046565360002858c01146cbc5f3e6f55a3831888"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 2000000 in\n  classical\n  intro N inst c\n  have hdegree (s : Finset (ZMod N)) : (M7.Supports.polynomial s).natDegree ≤ N := by\n    by_cases hz : M7.Supports.polynomial s = 0\n    · simp [hz]\n    · have hi := Polynomial.natDegree_mem_support_of_nonzero hz\n      rw [M7.Supports.support] at hi\n      obtain ⟨i, hi, he⟩ := Finset.mem_image.mp hi\n      rw [← he]\n      exact Nat.le_of_lt (ZMod.val_lt i)\n  have ha := hdegree c.1\n  have hb := hdegree c.2\n  have hm : (M6.Cyclic.modulus N).natDegree ≤ N := by\n    unfold M6.Cyclic.modulus\n    exact le_trans (Polynomial.natDegree_add_le _ _) (by simp)\n  dsimp [M8.Solver.originalF, M8.PhysicalBridge.signature, M7.RecipeSignature.signature]\n  solve_by_elim (maxDepth := 8) [M6.Euclid.preprocess_correct_cost, And.left, And.right]",
+  "queries": [
+    "M6.Euclid.preprocess_correct_cost",
+    "M7.Supports.support",
+    "M7.RecipeSignature.signature"
+  ]
+}

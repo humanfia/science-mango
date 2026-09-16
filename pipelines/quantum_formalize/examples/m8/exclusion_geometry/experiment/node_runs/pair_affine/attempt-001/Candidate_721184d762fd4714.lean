@@ -1,0 +1,10 @@
+import FrozenTarget_721184d762fd4714
+theorem M8.ExclusionGeometry.pair_affine : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), N = 2 * h → M8.ExclusionGeometry.Antipodal h B → M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s))
+  intro N _ h B u s hN hB
+  classical
+  rcases hB with ⟨x, hx, hxh⟩
+  refine ⟨M7.Action.affine u s x, Finset.mem_image.mpr ⟨x, hx, rfl⟩, ?_⟩
+  apply Finset.mem_image.mpr
+  refine ⟨x + (h : ZMod N), hxh, ?_⟩
+  simp [M7.Action.affine, mul_add, M8.ExclusionGeometry.unit_half N h u hN, add_assoc, add_comm, add_left_comm]

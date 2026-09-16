@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ B : Finset (ZMod N), B.card ≤ B.sup ZMod.val + 1\nintro N inst B\nclassical\nhave hinj : Function.Injective (ZMod.val : ZMod N → ℕ) := by\n  intro a b h\n  have hc := congrArg (fun k : ℕ => (k : ZMod N)) h\n  simpa using hc\nhave hsub : B.image ZMod.val ⊆ Finset.range (B.sup ZMod.val + 1) := by\n  intro k hk\n  obtain ⟨x, hx, rfl⟩ := Finset.mem_image.mp hk\n  apply Finset.mem_range.mpr\n  exact Nat.lt_succ_of_le (Finset.le_sup hx)\ncalc\n  B.card = (B.image ZMod.val).card := (Finset.card_image_of_injective B hinj).symm\n  _ ≤ (Finset.range (B.sup ZMod.val + 1)).card := Finset.card_le_card hsub\n  _ = B.sup ZMod.val + 1 := Finset.card_range _",
+  "queries": []
+}

@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst hN\nclassical\nhave hv (k : ℕ) (hk : k < N) : (k : ZMod N).val = k := by\n  rw [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\nhave h1 : (1 : ZMod N).val = 1 := by\n  simpa only [Nat.cast_one] using hv 1 (by omega)\nhave h2 : (2 : ZMod N).val = 2 := by\n  simpa using hv 2 (by omega)\nhave h01 : (0 : ZMod N) ≠ 1 := by\n  intro h\n  have hh := congrArg ZMod.val h\n  simp [h1] at hh\nhave h02 : (0 : ZMod N) ≠ 2 := by\n  intro h\n  have hh := congrArg ZMod.val h\n  simp [h2] at hh\nconstructor <;>\n  simp [M8.MixedFamily.left, M8.MixedFamily.right,\n    M8.MixedFamily.a, M8.MixedFamily.b, M7.Supports.polynomial,\n    h01, h02, h1, h2] <;>\n  ext k <;>\n  simp [Polynomial.coeff_X, Polynomial.coeff_X_pow, eq_comm]",
+  "queries": [
+    "Polynomial monomial_one_right",
+    "ZMod val_one"
+  ]
+}

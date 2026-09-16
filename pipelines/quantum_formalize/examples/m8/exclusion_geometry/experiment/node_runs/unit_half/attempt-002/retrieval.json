@@ -1,0 +1,264 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_coe_unit_coprime",
+    "status": "ok",
+    "results": [
+      {
+        "id": 223113,
+        "name": "ZMod.val_coe_unit_coprime",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L798-L806",
+        "source_text": "theorem val_coe_unit_coprime {n : ℕ} (u : (ZMod n)ˣ) : Nat.Coprime (u : ZMod n).val n := by\n  rcases n with - | n\n  · rcases Int.units_eq_one_or u with (rfl | rfl) <;> simp\n  apply Nat.coprime_of_mul_modEq_one ((u⁻¹ : Units (ZMod (n + 1))) : ZMod (n + 1)).val\n  have := Units.ext_iff.1 (mul_inv_cancel u)\n  rw [Units.val_one] at this\n  rw [← natCast_eq_natCast_iff, Nat.cast_one, ← this]; clear this\n  rw [← natCast_zmod_val ((u * u⁻¹ : Units (ZMod (n + 1))) : ZMod (n + 1))]\n  rw [Units.val_mul, val_mul, natCast_mod]\n",
+        "docstring": null
+      },
+      {
+        "id": 223280,
+        "name": "ZMod.coe_unitOfIsCoprime",
+        "module": "Mathlib.Data.ZMod.Units",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Units.lean#L147-L149",
+        "source_text": "@[simp]\ntheorem coe_unitOfIsCoprime {m : ℕ} (n : ℤ) (h : IsCoprime n ↑m) :\n    (unitOfIsCoprime n h : ZMod m) = n := rfl",
+        "docstring": null
+      },
+      {
+        "id": 223112,
+        "name": "ZMod.coe_unitOfCoprime",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L792-L795",
+        "source_text": "@[simp]\ntheorem coe_unitOfCoprime {n : ℕ} (x : ℕ) (h : Nat.Coprime x n) :\n    (unitOfCoprime x h : ZMod n) = x :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 305308,
+        "name": "IsCoprime",
+        "module": "Mathlib.RingTheory.Coprime.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Coprime/Basic.lean#L41-L46",
+        "source_text": "/-- The proposition that `x` and `y` are coprime, defined to be the existence of `a` and `b` such\nthat `a * x + b * y = 1`. Note that elements with no common divisors are not necessarily coprime,\ne.g., the multivariate polynomials `x₁` and `x₂` are not coprime. -/\n@[wikidata Q104752]\ndef IsCoprime : Prop :=\n  ∃ a b, a * x + b * y = 1\n",
+        "docstring": "The proposition that `x` and `y` are coprime, defined to be the existence of `a` and `b` such\nthat `a * x + b * y = 1`. Note that elements with no common divisors are not necessarily coprime,\ne.g., the multivariate polynomials `x₁` and `x₂` are not coprime. "
+      },
+      {
+        "id": 305359,
+        "name": "isCoprime_mul_unit_left_right",
+        "module": "Mathlib.RingTheory.Coprime.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Coprime/Basic.lean#L269-L272",
+        "source_text": "theorem isCoprime_mul_unit_left_right (hu : IsUnit x) (y z : R) :\n    IsCoprime y (x * z) ↔ IsCoprime y z :=\n  let ⟨u, hu⟩ := hu\n  hu ▸ isCoprime_group_smul_right u y z\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_coe_unit_coprime",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394235,
+        "name": "TemperatureUnit.val_pos",
+        "module": "Physlib.Thermodynamics.Temperature.TemperatureUnits",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Thermodynamics/Temperature/TemperatureUnits.lean#L46-L46",
+        "source_text": "lemma val_pos (x : TemperatureUnit) : 0 < x.val := x.property\n",
+        "docstring": null
+      },
+      {
+        "id": 393139,
+        "name": "LengthUnit.val_pos",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L42-L42",
+        "source_text": "lemma val_pos (x : LengthUnit) : 0 < x.val := x.property\n",
+        "docstring": null
+      },
+      {
+        "id": 393615,
+        "name": "TimeUnit.val_pos",
+        "module": "Physlib.SpaceAndTime.Time.TimeUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/TimeUnit.lean#L47-L47",
+        "source_text": "lemma val_pos (x : TimeUnit) : 0 < x.val := x.property\n",
+        "docstring": null
+      },
+      {
+        "id": 385569,
+        "name": "ChargeUnit.val_pos",
+        "module": "Physlib.Electromagnetism.Charge.ChargeUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Electromagnetism/Charge/ChargeUnit.lean#L50-L50",
+        "source_text": "lemma val_pos (x : ChargeUnit) : 0 < x.val := x.property\n",
+        "docstring": null
+      },
+      {
+        "id": 385362,
+        "name": "MassUnit.val_pos",
+        "module": "Physlib.ClassicalMechanics.Mass.MassUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/ClassicalMechanics/Mass/MassUnit.lean#L45-L45",
+        "source_text": "lemma val_pos (x : MassUnit) : 0 < x.val := x.property\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.coprime_two_right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 213512,
+        "name": "Nat.coprime_two_right",
+        "module": "Mathlib.Data.Nat.Prime.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Prime/Basic.lean#L148-L148",
+        "source_text": "@[simp] lemma coprime_two_right : n.Coprime 2 ↔ Odd n := coprime_comm.trans coprime_two_left",
+        "docstring": null
+      },
+      {
+        "id": 213511,
+        "name": "Nat.coprime_two_left",
+        "module": "Mathlib.Data.Nat.Prime.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Prime/Basic.lean#L145-L146",
+        "source_text": "@[simp] lemma coprime_two_left : Coprime 2 n ↔ Odd n := by\n  rw [prime_two.coprime_iff_not_dvd, ← not_even_iff_odd, even_iff_two_dvd]",
+        "docstring": null
+      },
+      {
+        "id": 213515,
+        "name": "Odd.coprime_two_right",
+        "module": "Mathlib.Data.Nat.Prime.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Prime/Basic.lean#L151-L151",
+        "source_text": "protected alias ⟨Coprime.odd_of_right, _root_.Odd.coprime_two_right⟩ := coprime_two_right\n",
+        "docstring": "**Alias** of the reverse direction of `Nat.coprime_two_right`."
+      },
+      {
+        "id": 213594,
+        "name": "Nat.coprime_of_dvd",
+        "module": "Mathlib.Data.Nat.Prime.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Prime/Defs.lean#L410-L416",
+        "source_text": "theorem coprime_of_dvd {m n : ℕ} (H : ∀ k, Prime k → k ∣ m → ¬k ∣ n) : Coprime m n := by\n  rw [coprime_iff_gcd_eq_one]\n  by_contra g2\n  obtain ⟨p, hp, hpdvd⟩ := exists_prime_and_dvd g2\n  apply H p hp <;> apply dvd_trans hpdvd\n  · exact gcd_dvd_left _ _\n  · exact gcd_dvd_right _ _\n",
+        "docstring": null
+      },
+      {
+        "id": 213505,
+        "name": "Nat.coprime_of_dvd'",
+        "module": "Mathlib.Data.Nat.Prime.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Prime/Basic.lean#L115-L116",
+        "source_text": "theorem coprime_of_dvd' {m n : ℕ} (H : ∀ k, Prime k → k ∣ m → k ∣ n → k ∣ 1) : Coprime m n :=\n  coprime_of_dvd fun k kp km kn => not_le_of_gt kp.one_lt <| le_of_dvd Nat.one_pos <| H k kp km kn\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Nat.coprime_two_right",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Nat.coprime_two_right",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.natCast_zmod_val",
+    "status": "ok",
+    "results": [
+      {
+        "id": 223006,
+        "name": "ZMod.natCast_zmod_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+        "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+        "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+      },
+      {
+        "id": 223018,
+        "name": "ZMod.natCast_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L262-L264",
+        "source_text": "@[simp]\ntheorem natCast_val [NeZero n] (i : ZMod n) : (i.val : R) = cast i :=\n  congr_fun (natCast_comp_val R) i",
+        "docstring": null
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 222987,
+        "name": "ZMod.val_natCast",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+        "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+        "docstring": null
+      },
+      {
+        "id": 214283,
+        "name": "ZNum.div_to_int",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L654-L674",
+        "source_text": "@[simp, norm_cast]\ntheorem div_to_int : ∀ n d, ((n / d : ZNum) : ℤ) = n / d\n  | 0, 0 => by simp [Int.ediv_zero]\n  | 0, pos _ => (Int.zero_ediv _).symm\n  | 0, neg _ => (Int.zero_ediv _).symm\n  | pos _, 0 => (Int.ediv_zero _).symm\n  | neg _, 0 => (Int.ediv_zero _).symm\n  | pos n, pos d => (Num.cast_toZNum _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | pos n, neg d => (Num.cast_toZNumNeg _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | neg n, pos d =>\n    show -_ = -_ / ↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change -[n.pred' / ↑d+1] = -[n.pred' / (d.pred' + 1)+1]\n      rw [d.to_nat_eq_succ_pred]\n  | neg n, neg d =>\n    show ↑(PosNum.pred' n / Num.pos d).succ' = -_ / -↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change (Nat.succ (_ / d) : ℤ) = Nat.succ (n.pred' / (d.pred' + 1))\n      rw [d.to_nat_eq_succ_pred]\n\n@[simp, norm_cast]\ntheorem mod_to_int : ∀ n d, ((n % d : ZNum) : ℤ) = n % d\n  | 0, _ => (Int.zero_emod _).symm\n  | pos n, d =>\n    (Num.cast_toZNum _).trans <| by\n      rw [← Num.to_nat_to_int, cast_pos, Num.mod_to_nat, ← PosNum.to_nat_to_int, abs_to_nat]\n      rfl\n  | neg n, d =>\n    (Num.cast_sub' _ _).trans <| by\n      rw [← Num.to_nat_to_int, cast_neg, ← Num.to_nat_to_int, Num.succ_to_nat, Num.mod_to_nat,\n          abs_to_nat, ← Int.subNatNat_eq_coe, n.to_int_eq_succ_pred]\n      rfl\n\n@[simp]\ntheorem gcd_to_nat (a b) : (gcd a b : ℕ) = Int.gcd a b :=",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.natCast_zmod_val",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393466,
+        "name": "Time.natCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+        "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

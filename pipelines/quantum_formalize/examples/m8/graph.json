@@ -53,7 +53,7 @@
       "metadata": {
         "scope": "Lexicographic finite enumeration, first passing tuple, exact failure and actual visited-trial bound",
         "module_graph": "discovery/graph.json",
-        "status": "proof experiment or preflight active"
+        "status": "canonical accepted"
       }
     },
     {
@@ -67,15 +67,15 @@
       "spec": null,
       "metadata": {
         "scope": "Three actual outcomes; NoLogical iff F=1; recognized iff full gcd nontrivial and orbit span within cutoff",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
+        "module_graph": "solver/graph.json",
+        "status": "proof experiment or preflight active"
       }
     },
     {
       "id": "sequential_resources",
       "dependencies": [
         "whole_resources",
-        "tagged_store"
+        "sequential_store"
       ],
       "spec": null,
       "metadata": {
@@ -103,7 +103,7 @@
       }
     },
     {
-      "id": "exclusion",
+      "id": "exclusion_conclusions",
       "dependencies": [
         "solver",
         "antipodal_family",
@@ -185,8 +185,8 @@
       "spec": null,
       "metadata": {
         "scope": "Actual nested discovery schedule and binary upper-charge accumulation",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
+        "module_graph": "discovery_resources/graph.json",
+        "status": "canonical accepted"
       }
     },
     {
@@ -206,7 +206,7 @@
       "metadata": {
         "scope": "Actual physical diagonal distance-two foundation",
         "module_graph": "diagonal/graph.json",
-        "status": "proof experiment or preflight active"
+        "status": "canonical accepted"
       }
     },
     {
@@ -221,7 +221,7 @@
       "metadata": {
         "scope": "Literal all-order trinomial family foundations",
         "module_graph": "p3_family/graph.json",
-        "status": "planned or waiting for canonical parents"
+        "status": "canonical accepted"
       }
     },
     {
@@ -236,7 +236,7 @@
       "metadata": {
         "scope": "Literal four-term family foundations",
         "module_graph": "p4_family/graph.json",
-        "status": "planned or waiting for canonical parents"
+        "status": "canonical accepted"
       }
     },
     {
@@ -247,8 +247,8 @@
       "spec": null,
       "metadata": {
         "scope": "Full gcd multiplicity for all even orders, including N congruent2 modulo4",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
+        "module_graph": "p4_gcd/graph.json",
+        "status": "proof experiment or preflight active"
       }
     },
     {
@@ -263,7 +263,7 @@
       "metadata": {
         "scope": "Literal mixed family and full gcd at all N>=7",
         "module_graph": "mixed_family/graph.json",
-        "status": "planned or waiting for canonical parents"
+        "status": "proof experiment or preflight active"
       }
     },
     {
@@ -286,8 +286,8 @@
       "spec": null,
       "metadata": {
         "scope": "Actual polynomial nonunit to physical distance-two bridge",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
+        "module_graph": "diagonal_polynomial/graph.json",
+        "status": "canonical accepted"
       }
     },
     {
@@ -299,7 +299,7 @@
       "metadata": {
         "scope": "General support-cardinality and antipodal actual-orbit span obstructions",
         "module_graph": "exclusion_geometry/graph.json",
-        "status": "proof experiment or preflight active"
+        "status": "canonical accepted"
       }
     },
     {
@@ -314,7 +314,7 @@
       "metadata": {
         "scope": "Literal sparse power-two family and full repeated-factor gcd",
         "module_graph": "antipodal_family/graph.json",
-        "status": "planned or waiting for canonical parents"
+        "status": "proof experiment or preflight active"
       }
     },
     {
@@ -326,7 +326,7 @@
       "metadata": {
         "scope": "Concrete reusable buffer layout and actual workspace embedding",
         "module_graph": "bank_layout/graph.json",
-        "status": "planned or waiting for canonical parents"
+        "status": "canonical accepted"
       }
     },
     {
@@ -341,16 +341,20 @@
       "metadata": {
         "scope": "Actual algorithm branch charges and reusable layout",
         "module_graph": null,
-        "status": "planned or waiting for canonical parents"
+        "status": "planned or waiting for canonical parents",
+        "scheduling_dependencies": [
+          "sequential_store"
+        ]
       }
     },
     {
       "id": "final",
       "dependencies": [
         "solver",
+        "raw_parameters",
         "sequential_resources",
         "coverage",
-        "exclusion"
+        "exclusion_conclusions"
       ],
       "spec": null,
       "metadata": {
@@ -358,6 +362,26 @@
         "module_graph": null,
         "status": "planned or waiting for canonical parents"
       }
+    },
+    {
+      "id": "sequential_store",
+      "dependencies": [
+        "bank_layout",
+        "tagged_store"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual fixed sequential tape projection, space, single-access and initialization costs",
+        "module_graph": "sequential_store/graph.json",
+        "status": "canonical accepted"
+      }
+    }
+  ],
+  "optional_followups": [
+    {
+      "id": "weighted_sum",
+      "required_for_original_m8": false,
+      "reason": "Sharper intermediate discovery estimate is not the original fixed n12/n4 main resource gate."
     }
   ]
 }

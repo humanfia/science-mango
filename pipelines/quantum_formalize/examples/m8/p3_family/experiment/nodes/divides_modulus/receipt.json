@@ -1,0 +1,55 @@
+{
+  "id": "divides_modulus",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P3Family.divides_modulus",
+    "spec_sha256": "8b63a6a577a78370684e7a19f618f0d9a5c68e94448a4f7740e5f73ffc322eee",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb/attempt-001/Candidate_a69b8559bbaaa0ef.lean",
+        "target_path": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb/attempt-001/FrozenTarget_a69b8559bbaaa0ef.lean",
+        "feedback": "",
+        "target_sha256": "177a6633e5fb9421a5c7743fd916b46300bf99ebea81e4f0f05eb93cbbecece5",
+        "target_olean_sha256": "1ae22f113f6b4b3a31b7531985876c60d0820f17a968363c6e377f903babc0a8",
+        "source_sha256": "b751121de963fa65a15f1290a6b05d894d2649e21501fa7414544a62c8ddcb3d",
+        "olean_sha256": "4aa08fdfa26e0e99e9645f1514cdcc66c71bac5a5f865a28096b62bcd49fe5f3",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:46:58.128260+00:00",
+    "work": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "209b4030e2ff3aaf22f1b3da6c8e6825a70aa48e04d9dd93d672f3331a9e2d92",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-p3-family-formalization/.humanize-formal-runs/run-ru9p2pwb/attempt-001/Candidate_a69b8559bbaaa0ef.lean",
+    "environment_sha256": "f42c704581bbfff02d4e05fb412f50e93f50ee456b2f69bdbde4d277de5adac2",
+    "artifacts": {
+      "divides_modulus": {
+        "payload": {
+          "declaration": "theorem M8.P3Family.divides_modulus : ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N := by\n  change ∀ N : ℕ, 3 ∣ N → M8.P3Family.polynomial ∣ M6.Cyclic.modulus N\n  intro N hN\n  obtain ⟨k, rfl⟩ := hN\n  have h : ∀ k : ℕ, M8.P3Family.polynomial ∣\n      (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (3 * k) - 1 := by\n    intro k\n    induction k with\n    | zero => simp\n    | succ k ih =>\n      obtain ⟨q, hq⟩ := ih\n      refine ⟨q * Polynomial.X ^ 3 + (Polynomial.X - 1), ?_⟩\n      calc\n        Polynomial.X ^ (3 * (k + 1)) - 1 =\n            (Polynomial.X ^ (3 * k) - 1) * Polynomial.X ^ 3 +\n              (Polynomial.X ^ 3 - 1) := by\n                rw [Nat.mul_succ, pow_add]\n                ring\n        _ = M8.P3Family.polynomial *\n            (q * Polynomial.X ^ 3 + (Polynomial.X - 1)) := by\n              rw [hq]\n              unfold M8.P3Family.polynomial\n              ring\n  have hone : (-1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    ext n\n    by_cases hn : n = 0 <;>\n      norm_num [Polynomial.coeff_neg, Polynomial.coeff_one, hn]\n  simpa [M6.Cyclic.modulus, sub_eq_add_neg, hone] using h k",
+          "imports": [
+            "M8P3Family"
+          ],
+          "name": "M8.P3Family.divides_modulus",
+          "ancestors": [],
+          "spec_sha256": "8b63a6a577a78370684e7a19f618f0d9a5c68e94448a4f7740e5f73ffc322eee"
+        },
+        "sha256": "224b7d4b507312260dc9e620547808f8438ff36911782433d3a31c52a4e42160"
+      }
+    }
+  }
+}

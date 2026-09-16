@@ -1,6 +1,6 @@
 # Revised M8 §§8–9 coverage and exclusion plan
 
-The authoritative frozen proof hash is `fd39ff50501693e6b53e63ed7894079b5b460ebe19bca306d225282dc8e3fd91`; its decoded argument matches `SOURCE_ARGUMENT.md`. The six direction targets are canonical accepted (117 manifest files, all batch gates passed). The diagonal8 and exclusion_geometry9 batches have passed exact type preflight and are running; diagonal_polynomial5 is gated on diagonal acceptance and antipodal_family11 is in preflight with proof workers gated for concurrency. Later rows remain obligations until their concrete receipts are available.
+The authoritative frozen proof hash is `fd39ff50501693e6b53e63ed7894079b5b460ebe19bca306d225282dc8e3fd91`; its decoded argument matches `SOURCE_ARGUMENT.md`. The six direction targets are canonical accepted (117 manifest files, all batch gates passed). The diagonal8 (153 manifest files) and exclusion_geometry9 (185 files) batches are also canonical accepted with all batch gates passed. diagonal_polynomial5 (106 manifest files) is canonical accepted; antipodal_family11 is running. Its downstream six-target actual solver exclusion batch is gated on the canonical family and solver parents. Later rows remain obligations until their concrete receipts are available.
 
 | Component | Concrete interface and dependency | Required outcome |
 |---|---|---|

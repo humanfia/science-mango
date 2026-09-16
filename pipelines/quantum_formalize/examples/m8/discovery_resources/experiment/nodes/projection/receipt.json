@@ -1,0 +1,99 @@
+{
+  "id": "projection",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.DiscoveryResources.projection",
+    "spec_sha256": "75bb6d0f88591437c7ef624cc20609fc91e923c610889170bd9cb203693819e9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n/attempt-001/Candidate_ccbe5f8f36c313a8.lean",
+        "target_path": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n/attempt-001/FrozenTarget_ccbe5f8f36c313a8.lean",
+        "feedback": "",
+        "target_sha256": "5d46f0c1a4be75c9f4f679264e20170cfedc86e39757e71f8fa2d27587abe7d4",
+        "target_olean_sha256": "9b95f53f265f9e44ec9df0080f7556793fd44f8ff5abf1a4ca2c5f20612277cd",
+        "source_sha256": "37314cb08e00d6d153126decbd0cd3f3f7333aeb45f101f852d4ec94b4ed82a5",
+        "olean_sha256": "bc03db03b0fd031f179dcdc647d45815057eb030806208947072a95670fcc5f8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:45:59.228909+00:00",
+    "work": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "84b26d719bf64cdcb200f2a568c8e505a0310e428c2950280e0e345bff0defc4",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-discovery-resources-formalization/.humanize-formal-runs/run-v721647n/attempt-001/Candidate_ccbe5f8f36c313a8.lean",
+    "environment_sha256": "0e9148c38031813c2f284493be0501e346eda13e1be1a2b512789760d44970c6",
+    "artifacts": {
+      "right_projection": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.right_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t a : Fin N), (M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd = M8.Discovery.atRight c e t a := by\n  intro N inst c e t a\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun b : Fin N =>\n      (if M8.Discovery.test c ⟨e, t, a, b⟩ then some ⟨e, t, a, b⟩ else none,\n        M8.DiscoveryResources.leafCharge c ⟨e, t, a, b⟩)))\n  simpa only [M8.DiscoveryResources.rightRun, M8.Discovery.atRight] using\n    congrArg (Option.map Prod.snd) h",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.right_projection",
+          "ancestors": [],
+          "spec_sha256": "f54715c683ad487039dd87d7f46098d60e885cb63b180ea960ccacd22804c4dc"
+        },
+        "sha256": "779b3f860a489884ca12dc0cad01d2cbe591533eed608b62ffac1c89b509abb1"
+      },
+      "left_projection": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.left_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ (e : Bool) (t : Fin N), (M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd = M8.Discovery.atLeft c e t := by\n  intro N inst c e t\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun a : Fin N =>\n      ((M8.DiscoveryResources.rightRun c e t a).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.rightRun c e t a))))\n  simpa only [M8.DiscoveryResources.leftRun, M8.Discovery.atLeft,\n    M8.DiscoveryResources.right_projection] using congrArg (Option.map Prod.snd) h",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.left_projection",
+          "ancestors": [
+            "right_projection"
+          ],
+          "spec_sha256": "54bc12ecd9b29fe00fd8fe61c32e61eeccf696529dca59eb08a68f0d620942e6"
+        },
+        "sha256": "175bca0000d1841c766cb5e8adc391d50ceb769964be6cf681ae4fe496c8cc78"
+      },
+      "unit_projection": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.unit_projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ e : Bool, (M8.DiscoveryResources.unitRun c e).selected.map Prod.snd = M8.Discovery.atUnit c e := by\n  intro N inst c e\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection N (M8.Discovery.Choice N)\n    (fun t : Fin N =>\n      ((M8.DiscoveryResources.leftRun c e t).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.leftRun c e t))))\n  simpa only [M8.DiscoveryResources.unitRun, M8.Discovery.atUnit,\n    M8.DiscoveryResources.left_projection] using congrArg (Option.map Prod.snd) h",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.unit_projection",
+          "ancestors": [
+            "left_projection",
+            "right_projection"
+          ],
+          "spec_sha256": "7a0e0a1831897ea9fb8453be374fa231889d50a3e90a671b084a8001b6527971"
+        },
+        "sha256": "af149fdc58575ac3edb9f636d5fe40f67e0a5565b25b8a6b61898597308d8b10"
+      },
+      "projection": {
+        "payload": {
+          "declaration": "theorem M8.DiscoveryResources.projection : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M8.DiscoveryResources.run c).selected.map Prod.snd = M8.Discovery.discover c := by\n  intro N inst c\n  have h := congrArg Prod.fst (M8.WeightedSearch.find_projection 2 (M8.Discovery.Choice N)\n    (fun e : Fin 2 =>\n      ((M8.DiscoveryResources.unitRun c (decide (e.val = 1))).selected.map Prod.snd,\n        M8.DiscoveryResources.charged N (M8.DiscoveryResources.unitRun c (decide (e.val = 1))))))\n  simpa only [M8.DiscoveryResources.run, M8.Discovery.discover,\n    M8.DiscoveryResources.unit_projection] using congrArg (Option.map Prod.snd) h",
+          "imports": [
+            "M8DiscoveryResources"
+          ],
+          "name": "M8.DiscoveryResources.projection",
+          "ancestors": [
+            "left_projection",
+            "right_projection",
+            "unit_projection"
+          ],
+          "spec_sha256": "996833d67756572fb939b7f9a9afa922a5e267eff8e0bb9913328511e4cd7110"
+        },
+        "sha256": "ca179efb86717105136617666a608417a3a1529b3b52d14a7f0e120f5d3a3e72"
+      }
+    }
+  }
+}

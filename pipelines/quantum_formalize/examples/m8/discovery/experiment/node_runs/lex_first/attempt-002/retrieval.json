@@ -1,0 +1,158 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Prod.Lex.left",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215739,
+        "name": "Prod.Lex.refl_left",
+        "module": "Mathlib.Data.Prod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Prod/Basic.lean#L144-L146",
+        "source_text": "@[refl]\ntheorem Lex.refl_left (r : α → α → Prop) (s : β → β → Prop) [Std.Refl r] : ∀ x, Prod.Lex r s x x\n  | (_, _) => Lex.left _ _ (refl _)\n\ninstance {r : α → α → Prop} {s : β → β → Prop} [Std.Refl r] : Std.Refl (Prod.Lex r s) :=",
+        "docstring": null
+      },
+      {
+        "id": 288125,
+        "name": "Prod.Lex.prodUnique",
+        "module": "Mathlib.Order.Hom.Lex",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Hom/Lex.lean#L153-L160",
+        "source_text": "/-- Lexicographic product type with `Unique` type on the right is `OrderIso` to the left. -/\ndef prodUnique [PartialOrder α] [Preorder β] [Unique β] : α ×ₗ β ≃o α where\n  toFun x := (ofLex x).1\n  invFun x := toLex (x, default)\n  left_inv x := x.rec fun (a, b) ↦ by simpa using Unique.default_eq b\n  right_inv x := by simp\n  map_rel_iff' {a b} := a.rec fun a ↦ b.rec fun b ↦ by\n    simpa [Prod.Lex.toLex_le_toLex] using le_iff_lt_or_eq\n",
+        "docstring": "Lexicographic product type with `Unique` type on the right is `OrderIso` to the left. "
+      },
+      {
+        "id": 95027,
+        "name": "isLeftRegular_toLex",
+        "module": "Mathlib.Algebra.Order.Group.Synonym",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Synonym.lean#L312-L313",
+        "source_text": "@[to_additive (attr := simp)]\nlemma isLeftRegular_toLex {a : α} : IsLeftRegular (toLex a) ↔ IsLeftRegular a := .rfl",
+        "docstring": null
+      },
+      {
+        "id": 291524,
+        "name": "Lex",
+        "module": "Mathlib.Order.Lex",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Lex.lean#L47-L49",
+        "source_text": "/-- A type synonym to equip a type with its lexicographic order. -/\ndef Lex (α : Type*) :=\n  α\n",
+        "docstring": "A type synonym to equip a type with its lexicographic order. "
+      },
+      {
+        "id": 104465,
+        "name": "Pi.isAddLeftRegular_iff",
+        "module": "Mathlib.Algebra.Regular.Pi",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Regular/Pi.lean#L23-L23",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem isLeftRegular_iff {a : ∀ i, R i} : IsLeftRegular a ↔ ∀ i, IsLeftRegular (a i) :=",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Prod.Lex.left",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391711,
+        "name": "complexLorentzTensor.leftDualLeftUnit_eq_tensor_basis",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Units/Basic.lean#L242-L251",
+        "source_text": "lemma leftDualLeftUnit_eq_tensor_basis : δL =\n    ∑ i, Tensor.basis (S := complexLorentzTensor)\n      ![Color.upL, Color.downL] (fun | 0 => i | 1 => i) := by\n  rw [leftDualLeftUnit_eq_basis]\n  conv_lhs =>\n    enter [2, x]\n    change fromPairT ((complexLorentzTensor.basis .upL x) ⊗ₜ[ℂ]\n      (complexLorentzTensor.basis .downL _))\n    rw [fromPairT_apply_basis_repr]\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 391710,
+        "name": "complexLorentzTensor.dualLeftLeftUnit_eq_tensor_basis",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Units/Basic.lean#L231-L240",
+        "source_text": "lemma dualLeftLeftUnit_eq_tensor_basis : δL' =\n    ∑ i, Tensor.basis (S := complexLorentzTensor)\n      ![Color.downL, Color.upL] (fun | 0 => i | 1 => i) := by\n  rw [dualLeftLeftUnit_eq_basis]\n  conv_lhs =>\n    enter [2, x]\n    change fromPairT ((complexLorentzTensor.basis .downL x) ⊗ₜ[ℂ]\n      (complexLorentzTensor.basis .upL _))\n    rw [fromPairT_apply_basis_repr]\n  rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Prod.Lex.right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 215741,
+        "name": "Prod.Lex.refl_right",
+        "module": "Mathlib.Data.Prod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Prod/Basic.lean#L151-L153",
+        "source_text": "@[refl]\ntheorem Lex.refl_right (r : α → α → Prop) (s : β → β → Prop) [Std.Refl s] : ∀ x, Prod.Lex r s x x\n  | (_, _) => Lex.right _ (refl _)\n\ninstance {r : α → α → Prop} {s : β → β → Prop} [Std.Refl s] : Std.Refl (Prod.Lex r s) :=",
+        "docstring": null
+      },
+      {
+        "id": 291524,
+        "name": "Lex",
+        "module": "Mathlib.Order.Lex",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Lex.lean#L47-L49",
+        "source_text": "/-- A type synonym to equip a type with its lexicographic order. -/\ndef Lex (α : Type*) :=\n  α\n",
+        "docstring": "A type synonym to equip a type with its lexicographic order. "
+      },
+      {
+        "id": 95031,
+        "name": "isRightRegular_toLex",
+        "module": "Mathlib.Algebra.Order.Group.Synonym",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Group/Synonym.lean#L318-L319",
+        "source_text": "@[to_additive (attr := simp)]\nlemma isRightRegular_toLex {a : α} : IsRightRegular (toLex a) ↔ IsRightRegular a := .rfl",
+        "docstring": null
+      },
+      {
+        "id": 96173,
+        "name": "Lex.instIsRightCancelMulZero",
+        "module": "Mathlib.Algebra.Order.GroupWithZero.Synonym",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/GroupWithZero/Synonym.lean#L76-L77",
+        "source_text": "instance [Mul α] [Zero α] [IsRightCancelMulZero α] : IsRightCancelMulZero (Lex α) :=\n  inferInstanceAs <| IsRightCancelMulZero α\n",
+        "docstring": null
+      },
+      {
+        "id": 221735,
+        "name": "Sum.inrₗ",
+        "module": "Mathlib.Data.Sum.Order",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Sum/Order.lean#L283-L286",
+        "source_text": "/-- Lexicographical `Sum.inr`. Only used for pattern matching. -/\n@[match_pattern]\nabbrev _root_.Sum.inrₗ (x : β) : α ⊕ₗ β :=\n  toLex (Sum.inr x)\n",
+        "docstring": "Lexicographical `Sum.inr`. Only used for pattern matching. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Prod.Lex.right",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391713,
+        "name": "complexLorentzTensor.rightDualRightUnit_eq_tensor_basis",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Units/Basic.lean#L264-L273",
+        "source_text": "lemma rightDualRightUnit_eq_tensor_basis : δR =\n    ∑ i, Tensor.basis (S := complexLorentzTensor)\n      ![Color.upR, Color.downR] (fun | 0 => i | 1 => i) := by\n  rw [rightDualRightUnit_eq_basis]\n  conv_lhs =>\n    enter [2, x]\n    change fromPairT ((complexLorentzTensor.basis .upR x) ⊗ₜ[ℂ]\n      (complexLorentzTensor.basis .downR _))\n    rw [fromPairT_apply_basis_repr]\n  rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 391712,
+        "name": "complexLorentzTensor.dualRightRightUnit_eq_tensor_basis",
+        "module": "Physlib.Relativity.Tensors.ComplexTensor.Units.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/ComplexTensor/Units/Basic.lean#L253-L262",
+        "source_text": "lemma dualRightRightUnit_eq_tensor_basis : δR' =\n    ∑ i, Tensor.basis (S := complexLorentzTensor)\n      ![Color.downR, Color.upR] (fun | 0 => i | 1 => i) := by\n  rw [dualRightRightUnit_eq_basis]\n  conv_lhs =>\n    enter [2, x]\n    change fromPairT ((complexLorentzTensor.basis .downR x) ⊗ₜ[ℂ]\n      (complexLorentzTensor.basis .upR _))\n    rw [fromPairT_apply_basis_repr]\n  rfl\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

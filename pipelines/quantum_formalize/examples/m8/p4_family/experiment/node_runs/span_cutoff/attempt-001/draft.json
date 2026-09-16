@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst hN\nhave hv (k : ℕ) : (k : ZMod N).val ≤ k := by\n  rw [ZMod.val_natCast]\n  exact Nat.mod_le _ _\nhave hs : ∀ i ∈ M8.P4Family.support N, i.val ≤ 3 := by\n  intro i hi\n  simp only [M8.P4Family.support, Finset.mem_insert, Finset.mem_singleton] at hi\n  rcases hi with rfl | rfl | rfl | rfl\n  · exact (hv 0).trans (by omega)\n  · exact (hv 1).trans (by omega)\n  · exact (hv 2).trans (by omega)\n  · exact hv 3\nhave hspan : M8.Anchor.span (M8.P4Family.recipe N) ≤ 3 := by\n  apply (M8.Anchor.span_le N (M8.P4Family.recipe N) 3).mpr\n  exact ⟨hs, hs⟩\napply hspan.trans\nrw [M8.Cutoff.bit_length_limit]\napply le_min (by omega)\nhave hm : Nat.log2 8 ≤ Nat.log2 (N + 1) := by\n  first\n  | exact Nat.log2_le_log2 (by omega)\n  | exact Nat.log2_mono (by omega)\n  | exact Nat.log2_monotone (by omega)\nnorm_num at hm ⊢\nexact hm",
+  "queries": [
+    "Nat.log2_le_log2",
+    "Nat.log2 monotone",
+    "ZMod.val_natCast"
+  ]
+}

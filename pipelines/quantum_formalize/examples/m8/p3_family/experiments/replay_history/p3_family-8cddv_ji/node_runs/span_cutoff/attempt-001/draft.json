@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], 3 ≤ N → M8.Anchor.span (M8.P3Family.recipe N) ≤ M8.Cutoff.limit N\nintro N inst hN\nclassical\nhave hs : ∀ i ∈ M8.P3Family.support N, i.val ≤ 2 := by\n  intro i hi\n  simp only [M8.P3Family.support, Finset.mem_insert, Finset.mem_singleton] at hi\n  rcases hi with rfl | rfl | rfl\n  · simp\n  · change ((1 : ℕ) : ZMod N).val ≤ 2\n    rw [ZMod.val_natCast]\n    exact le_trans (Nat.mod_le 1 N) (by decide)\n  · change ((2 : ℕ) : ZMod N).val ≤ 2\n    rw [ZMod.val_natCast]\n    exact Nat.mod_le 2 N\nhave hspan : M8.Anchor.span (M8.P3Family.recipe N) ≤ 2 := by\n  apply (M8.Anchor.span_le N (M8.P3Family.recipe N) 2).2\n  exact ⟨hs, hs⟩\nhave hlog : 2 ≤ Nat.log 2 (N + 1) := by\n  apply (Nat.le_log_iff_pow_le (by decide) (by omega)).2\n  norm_num\n  omega\nhave hlog2 : 2 ≤ Nat.log2 (N + 1) := by\n  first\n  | simpa only [Nat.log_two_eq_log2] using hlog\n  | simpa only [Nat.log2_eq_log] using hlog\n  | exact hlog\napply le_trans hspan\nrw [M8.Cutoff.bit_length_limit]\nexact le_min (by omega) hlog2",
+  "queries": [
+    "Nat.le_log_iff_pow_le",
+    "Nat.log_two_eq_log2",
+    "ZMod.val_natCast"
+  ]
+}

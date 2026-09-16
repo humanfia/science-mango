@@ -1,0 +1,12 @@
+{
+  "name": "M8.DiagonalPolynomial.coefficients_nonzero",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M8.DiagonalPolynomial.BP, p ≠ 0 → p.degree < (N : WithBot ℕ) → M6.Coordinates.coefficients N p ≠ 0",
+  "imports": [
+    "M8DiagonalPolynomial"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original revised M8 actual diagonal code polynomial bridge. Discharge DeltaNotImage with concrete nontrivial common polynomial divisor, no free physical correctness or distance assumption. No squarefreeness/odd N. encode_delta: coefficients N 1 = delta N 0 by function ext, Polynomial.coeff_one and ZMod.val_eq_zero; use encode_polynomial N 1, degree 1 polynomial is 0 < N since NeZero N. Or direct blockPolynomial delta sum. common_divisor_of_inverse: rewrite image p*image q as AdjoinRoot.mk modulus (p*q), and 1 as mk modulus 1; AdjoinRoot.mk_eq_mk implies modulus ∣ p*q-1. F divides p*q and p*q-1, hence F divides 1; IsUnit F and monicity force F=1. coefficients_nonzero: apply block_reconstruct p degree-bound to zero coefficients; blockPolynomial zero =0 by simp definitions. delta_not_image: apply encode to hypothetical conv=delta, rewrite encode_conv and encode_polynomial p, encode_delta, unfold encode h to image of blockPolynomial h, invoke common_divisor_of_inverse. distance_two: directly apply accepted M8.Diagonal.distance_two with coefficients_nonzero and delta_not_image. The concrete families still need exact full gcd and recognition/span proofs; this bridge is not a replacement. Tactic lines only, no leading by.\nimport M8DiagonalAccepted\n\nnamespace M8.DiagonalPolynomial\nabbrev BP := M6.Cyclic.BinaryPolynomial\nend M8.DiagonalPolynomial\n"
+}

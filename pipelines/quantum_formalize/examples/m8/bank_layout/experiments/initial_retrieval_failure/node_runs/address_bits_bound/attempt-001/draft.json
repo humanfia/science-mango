@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], (M8.BankLayout.payloadSlots N).size ≤ 32 * (N + 1)\nintro N hN\nhave hsmall : ∀ k : ℕ, k ≤ 2 ^ k := by\n  intro k\n  induction k with\n  | zero => norm_num\n  | succ k ih =>\n    rw [pow_succ]\n    have hp : 0 < (2 : ℕ) ^ k := by positivity\n    omega\nhave hc : (20000 : ℕ) < 2 ^ 15 := by norm_num\napply Nat.size_le.mpr\ncalc\n  M8.BankLayout.payloadSlots N ≤ 20000 * (N + 1) ^ 3 := M8.BankLayout.payload_bound N\n  _ ≤ 20000 * (2 ^ (N + 1)) ^ 3 := by\n    gcongr\n    exact hsmall (N + 1)\n  _ < 2 ^ 15 * (2 ^ (N + 1)) ^ 3 :=\n    mul_lt_mul_of_pos_right hc (by positivity)\n  _ = 2 ^ (15 + (N + 1) * 3) := by\n    rw [pow_add, pow_mul]\n  _ ≤ 2 ^ (32 * (N + 1)) :=\n    Nat.pow_le_pow_right (by decide) (by omega)",
+  "queries": [
+    "Nat.size_le",
+    "Nat.pow_le_pow_right"
+  ]
+}

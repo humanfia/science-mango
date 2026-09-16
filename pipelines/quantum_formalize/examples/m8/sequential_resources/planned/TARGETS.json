@@ -1,36 +1,14 @@
 [
   {
-    "id": "allocation_access",
-    "dependencies": [],
-    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (mem : List Bool), mem.length = M8.SequentialResources.slots N \u2192 \u2200 (i : Fin (M8.SequentialResources.slots N)) (bit : Bool), (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).1 = mem[i.val]? \u2227 (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).1 = M8.TaggedStore.packFrom 0 (mem.set i.val bit) \u2227 (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).2 \u2264 M8.SequentialResources.accessCharge N \u2227 (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).2 \u2264 M8.SequentialResources.accessCharge N"
-  },
-  {
-    "id": "store_space",
-    "dependencies": [],
-    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 mem : List Bool, mem.length = M8.SequentialResources.slots N \u2192 M8.SequentialResources.storeSpace N mem \u2264 2000000*(N+1)^4"
-  },
-  {
-    "id": "access_envelope",
-    "dependencies": [],
-    "statement": "\u2200 (N : \u2115) [NeZero N], M8.SequentialResources.accessCharge N \u2264 3000000*(N+1)^6"
-  },
-  {
-    "id": "tag_setup_bound",
-    "dependencies": [],
-    "statement": "\u2200 (N : \u2115) [NeZero N], M8.SequentialResources.tagSetupCharge N \u2264 11000000*(N+1)^6"
-  },
-  {
     "id": "actual_prefix_charge",
     "dependencies": [],
-    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M8.SequentialResources.prefixCharge (M8.SequentialResources.accessCharge N) (M8.WholeResources.run c).charges = M8.WholeResources.indexedWork c * M8.SequentialResources.accessCharge N"
+    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M8.SequentialStore.prefixCharge (M8.SequentialResources.primitiveCharge N) (M8.WholeResources.run c).charges = M8.WholeResources.indexedWork c * M8.SequentialResources.primitiveCharge N"
   },
   {
     "id": "sequential_bound",
     "dependencies": [
-      "access_envelope",
-      "tag_setup_bound",
       "actual_prefix_charge"
     ],
-    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (c : M7.Action.Recipe N) (w : \u2115), 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 M8.SequentialResources.sequentialCharge c \u2264 676000000000*(N+1)^12"
+    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (c : M7.Action.Recipe N) (w : \u2115), 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 M8.SequentialResources.sequentialCharge c \u2264 6000000000000*(N+1)^12"
   }
 ]

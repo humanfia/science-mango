@@ -1,0 +1,3 @@
+# Actual M8 solver
+
+Nine exact targets connect the actual Euclidean gcd, finite lexicographic anchor discovery and literal indexed-array M6 solve. The three outputs retain the original full gcd; recognition returns the inverse-transformed physical witness and actual pin count. A proof excludes the internal none fallback on any valid discovered surviving input. Exact rejection uses the analysis-only orbit span and fixed cutoff, while the operational code never enumerates that analysis-only minimum. Recognized correctness includes distance, attaining original nonboundary, no lighter original LX, lex-first accepted choice and actual rank-defined encoded qubits. Literal polynomial span is bounded by the actual support span for the downstream resource specialization.

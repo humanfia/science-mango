@@ -1,0 +1,260 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.solveStorage M6.Transfer.pairedQueryStorage definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      },
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 197286,
+        "name": "Turing.PartrecToTM2.Λ'.move",
+        "module": "Mathlib.Computability.TuringMachine.ToPartrec",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/ToPartrec.lean#L201-L201",
+        "source_text": "  | move (p : Γ' → Bool) (k₁ k₂ : K') (q : Λ')\n",
+        "docstring": null
+      },
+      {
+        "id": 197305,
+        "name": "Turing.PartrecToTM2.moveExcl",
+        "module": "Mathlib.Computability.TuringMachine.ToPartrec",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Computability/TuringMachine/ToPartrec.lean#L269-L271",
+        "source_text": "/-- Move elements from `k₁` to `k₂` while `p` holds, with the last element being left on `k₁`. -/\ndef moveExcl (p k₁ k₂ q) :=\n  Λ'.move p k₁ k₂ <| Λ'.push k₁ id q\n",
+        "docstring": "Move elements from `k₁` to `k₂` while `p` holds, with the last element being left on `k₁`. "
+      },
+      {
+        "id": 308998,
+        "name": "HahnSeries.cardSupp",
+        "module": "Mathlib.RingTheory.HahnSeries.Cardinal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Cardinal.lean#L38-L40",
+        "source_text": "/-- The cardinality of the support of a Hahn series. -/\ndef cardSupp (x : R⟦Γ⟧) : Cardinal :=\n  #x.support\n",
+        "docstring": "The cardinality of the support of a Hahn series. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.solveStorage M6.Transfer.pairedQueryStorage definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392000,
+        "name": "TensorSpecies.Tensor.toPairs",
+        "module": "Physlib.Relativity.Tensors.Elab",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Elab.lean#L248-L254",
+        "source_text": "/-- Takes a list and puts consecutive elements into pairs.\n  e.g. [0, 1, 2, 3] becomes [(0, 1), (2, 3)]. -/\ndef toPairs (l : List ℕ) : List (ℕ × ℕ) :=\n  match l with\n  | x1 :: x2 :: xs => (x1, x2) :: toPairs xs\n  | [] => []\n  | [x] => [(x, 0)]\n",
+        "docstring": "Takes a list and puts consecutive elements into pairs.\ne.g. [0, 1, 2, 3] becomes [(0, 1), (2, 3)]. "
+      },
+      {
+        "id": 386749,
+        "name": "Physlib.List.dropWhile_sorted_eq_filter_filter",
+        "module": "Physlib.Mathematics.List.InsertionSort",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/List/InsertionSort.lean#L443-L477",
+        "source_text": "lemma dropWhile_sorted_eq_filter_filter {α : Type} (r : α → α → Prop) [DecidableRel r]\n    [IsTrans α r] (a : α) :(l : List α) → (hl : l.Pairwise r) →\n    List.filter (fun c => r a c) l =\n    List.filter (fun c => r a c ∧ r c a) l ++ List.filter (fun c => r a c ∧ ¬ r c a) l\n  | [], _ => by\n    simp\n  | b :: l, hl => by\n    simp only [List.pairwise_cons] at hl\n    by_cases hb : ¬ r a b\n    · simp only [hb, decide_false, Bool.false_eq_true, not_false_eq_true, List.filter_cons_of_neg,\n      Bool.decide_and, Bool.false_and, decide_not]\n      simpa using dropWhile_sorted_eq_filter_filter r a l hl.2\n    · simp_all only [Decidable.not_not, decide_true, List.filter_cons_of_pos, Bool.decide_and,\n      decide_not]\n      by_cases hba : r b a\n      · simp only [hba, decide_true, Bool.not_true, Bool.and_false, Bool.false_eq_true,\n        not_false_eq_true, List.filter_cons_of_neg]\n        rw [List.filter_cons_of_pos, dropWhile_sorted_eq_filter_filter]\n        simp only [Bool.decide_and, decide_not, List.cons_append]\n        exact hl.2\n        simp_all\n      · simp only [hba, decide_false, Bool.and_false, Bool.false_eq_true, not_false_eq_true,\n        List.filter_cons_of_neg]\n        have h1 : List.filter (fun c => decide (r a c) && decide (r c a)) l = [] := by\n          rw [@List.filter_eq_nil_iff]\n          intro c hc\n          simp only [Bool.and_eq_true, decide_eq_true_eq, not_and]\n          intro hac hca\n          exact hba (IsTrans.trans b c a (hl.1 c hc) hca)\n        rw [h1, dropWhile_sorted_eq_filter_filter]\n        simp only [Bool.decide_and, h1, decide_not, List.nil_append]\n        rw [List.filter_cons_of_pos]\n        simp_all only [List.filter_eq_nil_iff, Bool.and_eq_true, decide_eq_true_eq, not_and,\n          decide_true, decide_false, Bool.not_false, Bool.and_self]\n        exact hl.2\n",
+        "docstring": null
+      },
+      {
+        "id": 387130,
+        "name": "transverseTactics.processCommands",
+        "module": "Physlib.Meta.TransverseTactics",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/TransverseTactics.lean#L32-L56",
+        "source_text": "/-- Takes in a file and returns the infostates of commands and the corresponding\n  environment before the command is processed. -/\npartial def processCommands : Frontend.FrontendM (List (Environment × InfoState)) := do\n  /- Very roughly, `Frontend.FrontendM (List (Environment × InfoState))` is equivalent\n    to `Frontend.Context → Frontend.state → List (Environment × InfoState)`.\n\n    The `←get` here is returning the inputted value of `Frontend.state`,\n    from which we get the environment.\n    -/\n  let env := (← get).commandState.env\n  /- Processes a single command, adding it to `env`. This is done using\n    `modify fun s => { s with commands := s.commands.push cmd }` as part of\n    `Frontend.processCommand`. -/\n  let done ← Frontend.processCommand\n  /- Gets the updated `Frontend.state`. -/\n  let st := ← get\n  /- Gets the infostate associated with the single command. -/\n  let infoState := st.commandState.infoState\n  set {st with commandState := {st.commandState with infoState := {}}}\n  if done\n  then return [(env, infoState)]\n  else\n    /- For each command, we return the environment before the command is processed,\n      and the `infoState` associated with that command. -/\n    return (env, infoState) :: (← processCommands)\n",
+        "docstring": "Takes in a file and returns the infostates of commands and the corresponding\nenvironment before the command is processed. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.actualTraceStorage M6.Transfer.traceStorageModel coefficient width definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 241614,
+        "name": "Subgroup.transferFunction",
+        "module": "Mathlib.GroupTheory.Transfer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L86-L90",
+        "source_text": "/-- The transfer transversal as a function. Given a `⟨g⟩`-orbit `q₀, g • q₀, ..., g ^ (m - 1) • q₀`\n  in `G ⧸ H`, an element `g ^ k • q₀` is mapped to `g ^ k • g₀` for a fixed choice of\n  representative `g₀` of `q₀`. -/\nnoncomputable def transferFunction : G ⧸ H → G := fun q =>\n  g ^ (cast (quotientEquivSigmaZMod H g q).2 : ℤ) * (quotientEquivSigmaZMod H g q).1.out.out\n",
+        "docstring": "The transfer transversal as a function. Given a `⟨g⟩`-orbit `q₀, g • q₀, ..., g ^ (m - 1) • q₀`\nin `G ⧸ H`, an element `g ^ k • q₀` is mapped to `g ^ k • g₀` for a fixed choice of\nrepresentative `g₀` of `q₀`. "
+      },
+      {
+        "id": 249838,
+        "name": "Matrix.trace",
+        "module": "Mathlib.LinearAlgebra.Matrix.Trace",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Trace.lean#L41-L46",
+        "source_text": "/-- The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n-/\ndef trace (A : Matrix n n R) : R :=\n  ∑ i, diag A i\n",
+        "docstring": "The trace of a square matrix. For more bundled versions, see:\n* `Matrix.traceAddMonoidHom`\n* `Matrix.traceLinearMap`\n"
+      },
+      {
+        "id": 247658,
+        "name": "Matrix.trace_eq_neg_charpoly_coeff",
+        "module": "Mathlib.LinearAlgebra.Matrix.Charpoly.Coeff",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Charpoly/Coeff.lean#L138-L143",
+        "source_text": "/-- See also `Matrix.coeff_charpolyRev_eq_neg_trace`. -/\ntheorem trace_eq_neg_charpoly_coeff [Nonempty n] (M : Matrix n n R) :\n    trace M = -M.charpoly.coeff (Fintype.card n - 1) := by\n  rw [charpoly_coeff_eq_prod_coeff_of_le _ le_rfl, Fintype.card,\n    prod_X_sub_C_coeff_card_pred univ (fun i : n => M i i) Fintype.card_pos, neg_neg, trace]\n  simp_rw [diag_apply]\n",
+        "docstring": "See also `Matrix.coeff_charpolyRev_eq_neg_trace`. "
+      },
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.actualTraceStorage M6.Transfer.traceStorageModel coefficient width definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391358,
+        "name": "PauliMatrix.σ0_σ0_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L126-L127",
+        "source_text": "/-- The trace of `σ0` multiplied by `σ0` is equal to `2`. -/\nlemma σ0_σ0_trace : Matrix.trace (σ0 * σ0) = 2 := by simp\n",
+        "docstring": "The trace of `σ0` multiplied by `σ0` is equal to `2`. "
+      },
+      {
+        "id": 391363,
+        "name": "PauliMatrix.σ1_σ1_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L141-L142",
+        "source_text": "/-- The trace of `σ1` multiplied by `σ1` is equal to `2`. -/\nlemma σ1_σ1_trace : Matrix.trace (σ1 * σ1) = 2 := by simp\n",
+        "docstring": "The trace of `σ1` multiplied by `σ1` is equal to `2`. "
+      },
+      {
+        "id": 391373,
+        "name": "PauliMatrix.σ3_σ3_trace",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L178-L179",
+        "source_text": "/-- The trace of `σ3` multiplied by `σ3` is equal to `2`. -/\nlemma σ3_σ3_trace : Matrix.trace (σ3 * σ3) = 2 := by simp\n",
+        "docstring": "The trace of `σ3` multiplied by `σ3` is equal to `2`. "
+      },
+      {
+        "id": 391356,
+        "name": "PauliMatrix.trace_σ2",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L123-L123",
+        "source_text": "@[simp] lemma trace_σ2 : Matrix.trace σ2 = 0 := by simp [pauliMatrix]\n@[simp] lemma trace_σ3 : Matrix.trace σ3 = 0 := by simp [pauliMatrix]",
+        "docstring": null
+      },
+      {
+        "id": 391357,
+        "name": "PauliMatrix.trace_σ3",
+        "module": "Physlib.Relativity.PauliMatrices.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/PauliMatrices/Basic.lean#L124-L124",
+        "source_text": "@[simp] lemma trace_σ3 : Matrix.trace σ3 = 0 := by simp [pauliMatrix]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Transfer.scatterEventList M6.Transfer.ScatterEvent M6.Transfer.state_count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 241623,
+        "name": "MonoidHom.transfer",
+        "module": "Mathlib.GroupTheory.Transfer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L144-L152",
+        "source_text": "/-- Given `ϕ : H →* A` from `H : Subgroup G` to a commutative group `A`,\nthe transfer homomorphism is `transfer ϕ : G →* A`. -/\n@[to_additive /-- Given `ϕ : H →+ A` from `H : AddSubgroup G` to an additive commutative group `A`,\nthe transfer homomorphism is `transfer ϕ : G →+ A`. -/]\nnoncomputable def transfer [FiniteIndex H] : G →* A :=\n  let T : H.LeftTransversal := default\n  { toFun := fun g => diff ϕ T (g • T)\n    map_one' := by rw [one_smul, diff_self]\n    map_mul' := fun g h => by rw [mul_smul, ← diff_mul_diff, smul_diff_smul] }\n",
+        "docstring": "Given `ϕ : H →* A` from `H : Subgroup G` to a commutative group `A`,\nthe transfer homomorphism is `transfer ϕ : G →* A`. "
+      },
+      {
+        "id": 214248,
+        "name": "ZNum.transfer_rw",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L371-L373",
+        "source_text": "scoped macro (name := transfer_rw) \"transfer_rw\" : tactic => `(tactic|\n    (repeat first | rw [← to_int_inj] | rw [← lt_to_int] | rw [← le_to_int]\n     repeat first | rw [cast_add] | rw [mul_to_int] | rw [cast_one] | rw [cast_zero]))\n",
+        "docstring": "This tactic tries to turn an (in)equality about `ZNum`s to one about `Int`s by rewriting.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer_rw\n  exact le_add_of_nonneg_right (mul_self_nonneg _)\n```\n"
+      },
+      {
+        "id": 241617,
+        "name": "Subgroup.transferSet",
+        "module": "Mathlib.GroupTheory.Transfer",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/Transfer.lean#L102-L104",
+        "source_text": "/-- The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices\nof representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. -/\ndef transferSet : Set G := Set.range (transferFunction H g)\n",
+        "docstring": "The transfer transversal as a set. Contains elements of the form `g ^ k • g₀` for fixed choices\nof representatives `g₀` of fixed choices of representatives `q₀` of `⟨g⟩`-orbits in `G ⧸ H`. "
+      },
+      {
+        "id": 214249,
+        "name": "ZNum.transfer",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L384-L385",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp [add_comm, add_left_comm, mul_comm, mul_left_comm]))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `ZNum`s by transferring them to the `Int` world and\nthen trying to call `simp`.\n```lean\nexample (n : ZNum) (m : ZNum) : n ≤ n + m * m := by\n  transfer\n  exact mul_self_nonneg _\n```\n"
+      },
+      {
+        "id": 214098,
+        "name": "Num.transfer",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L343-L344",
+        "source_text": "scoped macro (name := transfer) \"transfer\" : tactic => `(tactic|\n    (intros; transfer_rw; try simp))\n",
+        "docstring": "This tactic tries to prove (in)equalities about `Num`s by transferring them to the `Nat` world and\nthen trying to call `simp`.\n```lean\nexample (n : Num) (m : Num) : n ≤ n + m := by transfer\n```\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Transfer.scatterEventList M6.Transfer.ScatterEvent M6.Transfer.state_count",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387130,
+        "name": "transverseTactics.processCommands",
+        "module": "Physlib.Meta.TransverseTactics",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/TransverseTactics.lean#L32-L56",
+        "source_text": "/-- Takes in a file and returns the infostates of commands and the corresponding\n  environment before the command is processed. -/\npartial def processCommands : Frontend.FrontendM (List (Environment × InfoState)) := do\n  /- Very roughly, `Frontend.FrontendM (List (Environment × InfoState))` is equivalent\n    to `Frontend.Context → Frontend.state → List (Environment × InfoState)`.\n\n    The `←get` here is returning the inputted value of `Frontend.state`,\n    from which we get the environment.\n    -/\n  let env := (← get).commandState.env\n  /- Processes a single command, adding it to `env`. This is done using\n    `modify fun s => { s with commands := s.commands.push cmd }` as part of\n    `Frontend.processCommand`. -/\n  let done ← Frontend.processCommand\n  /- Gets the updated `Frontend.state`. -/\n  let st := ← get\n  /- Gets the infostate associated with the single command. -/\n  let infoState := st.commandState.infoState\n  set {st with commandState := {st.commandState with infoState := {}}}\n  if done\n  then return [(env, infoState)]\n  else\n    /- For each command, we return the environment before the command is processed,\n      and the `infoState` associated with that command. -/\n    return (env, infoState) :: (← processCommands)\n",
+        "docstring": "Takes in a file and returns the infostates of commands and the corresponding\nenvironment before the command is processed. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

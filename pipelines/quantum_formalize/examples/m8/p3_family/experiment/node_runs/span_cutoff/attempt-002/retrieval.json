@@ -1,0 +1,248 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.le_log_iff_pow_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 213102,
+        "name": "Nat.le_log_iff_pow_le",
+        "module": "Mathlib.Data.Nat.Log",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Log.lean#L156-L160",
+        "source_text": "/-- `(b ^ ·)` and `log b` (almost) form a Galois connection. See also `Nat.pow_le_of_le_log` and\n`Nat.le_log_of_pow_le` for individual implications under weaker assumptions. -/\ntheorem le_log_iff_pow_le {b : ℕ} (hb : 1 < b) {x y : ℕ} (hy : y ≠ 0) :\n    x ≤ log b y ↔ b ^ x ≤ y :=\n  le_iff_le_iff_lt_iff_lt.mpr <| log_lt_iff_lt_pow hb hy\n",
+        "docstring": "`(b ^ ·)` and `log b` (almost) form a Galois connection. See also `Nat.pow_le_of_le_log` and\n`Nat.le_log_of_pow_le` for individual implications under weaker assumptions. "
+      },
+      {
+        "id": 146241,
+        "name": "Real.lt_log_of_pow_lt",
+        "module": "Mathlib.Analysis.SpecialFunctions.Pow.Real",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Pow/Real.lean#L855-L856",
+        "source_text": "lemma lt_log_of_pow_lt (hx : 0 < x) (h : x ^ n < y) : n * log x < log y :=\n  lt_log_of_rpow_lt hx (rpow_natCast _ _ ▸ h)\n",
+        "docstring": null
+      },
+      {
+        "id": 213103,
+        "name": "Nat.pow_le_of_le_log",
+        "module": "Mathlib.Data.Nat.Log",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Log.lean#L162-L165",
+        "source_text": "theorem pow_le_of_le_log {b x y : ℕ} (hy : y ≠ 0) (h : x ≤ log b y) : b ^ x ≤ y := by\n  refine (le_or_gt b 1).elim (fun hb => ?_) fun hb => (le_log_iff_pow_le hb hy).1 h\n  rw [log_of_left_le_one hb, Nat.le_zero] at h\n  rwa [h, Nat.pow_zero, one_le_iff_ne_zero]\n",
+        "docstring": null
+      },
+      {
+        "id": 213088,
+        "name": "Nat.log",
+        "module": "Mathlib.Data.Nat.Log",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Log.lean#L59-L74",
+        "source_text": "/-- `log b n`, is the logarithm of natural number `n` in base `b`. It returns the largest `k : ℕ`\nsuch that `b^k ≤ n`, so if `b^k = n`, it returns exactly `k`. -/\n@[pp_nodot]\ndef log (b n : ℕ) : ℕ :=\n  if b ≤ 1 then 0 else (go b n).2 where\n  /-- An auxiliary definition for `Nat.log`.\n\n  For `b > 1`, `n ≠ 0`, `n < b ^ fuel`, `Nat.log.go n b fuel = (n / b ^ b.log n, b.log n)`. -/\n  go : ℕ → ℕ → ℕ × ℕ\n  | _, 0 => (n, 0)\n  | b, fuel + 1 =>\n    if n < b then\n      (n, 0)\n    else\n      let (q, e) := go (b * b) fuel\n      if q < b then (q, 2 * e) else (q / b, 2 * e + 1)\n",
+        "docstring": "`log b n`, is the logarithm of natural number `n` in base `b`. It returns the largest `k : ℕ`\nsuch that `b^k ≤ n`, so if `b^k = n`, it returns exactly `k`. "
+      },
+      {
+        "id": 146220,
+        "name": "Real.le_pow_of_log_le",
+        "module": "Mathlib.Analysis.SpecialFunctions.Pow.Real",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Pow/Real.lean#L788-L789",
+        "source_text": "lemma le_pow_of_log_le (hy : 0 < y) (h : log x ≤ n * log y) : x ≤ y ^ n :=\n  rpow_natCast _ _ ▸ le_rpow_of_log_le hy h\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Nat.le_log_iff_pow_le",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393290,
+        "name": "Space.normPowerSeries_log_le_normPowerSeries",
+        "module": "Physlib.SpaceAndTime.Space.Norm.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Norm/Basic.lean#L238-L243",
+        "source_text": "lemma normPowerSeries_log_le_normPowerSeries {d} (n : ℕ) (x : Space d) :\n    |Real.log (normPowerSeries n x)| ≤ (normPowerSeries n x)⁻¹ + (normPowerSeries n x) := by\n  rw [abs_le']\n  exact ⟨(Real.log_le_rpow_div (x := normPowerSeries n x) (by simp) one_pos).trans (by simp),\n    (neg_le.mp (Real.neg_inv_le_log (normPowerSeries_nonneg n x))).trans\n      (le_add_of_nonneg_right (normPowerSeries_nonneg n x))⟩\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.log_two_eq_log2",
+    "status": "ok",
+    "results": [
+      {
+        "id": 213705,
+        "name": "Nat.log2_two",
+        "module": "Mathlib.Data.Nat.Sqrt",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Sqrt.lean#L86-L87",
+        "source_text": "@[simp]\nlemma log2_two : (2 : ℕ).log2 = 1 := by simp [log2_def]",
+        "docstring": null
+      },
+      {
+        "id": 213131,
+        "name": "Nat.log2_eq_log_two",
+        "module": "Mathlib.Data.Nat.Log",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Log.lean#L309-L314",
+        "source_text": "lemma log2_eq_log_two {n : ℕ} : Nat.log2 n = Nat.log 2 n := by\n  rcases eq_or_ne n 0 with rfl | hn\n  · rw [log2_zero, log_zero_right]\n  apply eq_of_forall_le_iff\n  intro m\n  rw [Nat.le_log2 hn, Nat.le_log_iff_pow_le Nat.one_lt_two hn]\n",
+        "docstring": null
+      },
+      {
+        "id": 328644,
+        "name": "Mathlib.Meta.NormNum.evalNatLog",
+        "module": "Mathlib.Tactic.NormNum.NatLog",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/NatLog.lean#L60-L71",
+        "source_text": "/--\nEvaluates the `Nat.log` function.\n-/\n@[norm_num Nat.log _ _]\ndef evalNatLog : NormNumExt where eval {u α} e := do\n  let mkApp2 _ (b : Q(ℕ)) (n : Q(ℕ)) ← Meta.whnfR e | failure\n  let sℕ : Q(AddMonoidWithOne ℕ) := q(Nat.instAddMonoidWithOne)\n  let ⟨eb, pb⟩ ← deriveNat b sℕ\n  let ⟨en, pn⟩ ← deriveNat n sℕ\n  let ⟨ek, pf⟩ := proveNatLog eb en\n  let pf' : Q(IsNat (Nat.log $b $n) $ek) := q(isNat_log $pb $pn $pf)\n  return .isNat sℕ ek pf'\n",
+        "docstring": "Evaluates the `Nat.log` function.\n"
+      },
+      {
+        "id": 213088,
+        "name": "Nat.log",
+        "module": "Mathlib.Data.Nat.Log",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Log.lean#L59-L74",
+        "source_text": "/-- `log b n`, is the logarithm of natural number `n` in base `b`. It returns the largest `k : ℕ`\nsuch that `b^k ≤ n`, so if `b^k = n`, it returns exactly `k`. -/\n@[pp_nodot]\ndef log (b n : ℕ) : ℕ :=\n  if b ≤ 1 then 0 else (go b n).2 where\n  /-- An auxiliary definition for `Nat.log`.\n\n  For `b > 1`, `n ≠ 0`, `n < b ^ fuel`, `Nat.log.go n b fuel = (n / b ^ b.log n, b.log n)`. -/\n  go : ℕ → ℕ → ℕ × ℕ\n  | _, 0 => (n, 0)\n  | b, fuel + 1 =>\n    if n < b then\n      (n, 0)\n    else\n      let (q, e) := go (b * b) fuel\n      if q < b then (q, 2 * e) else (q / b, 2 * e + 1)\n",
+        "docstring": "`log b n`, is the logarithm of natural number `n` in base `b`. It returns the largest `k : ℕ`\nsuch that `b^k ≤ n`, so if `b^k = n`, it returns exactly `k`. "
+      },
+      {
+        "id": 128314,
+        "name": "Real.log_four_eq",
+        "module": "Mathlib.Analysis.Complex.ExponentialBounds",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Complex/ExponentialBounds.lean#L107-L107",
+        "source_text": "theorem log_four_eq : log 4 = 2 * log 2 := by norm_num [← log_rpow]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "Nat.log_two_eq_log2",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "Nat.log_two_eq_log2",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.val_natCast",
+    "status": "ok",
+    "results": [
+      {
+        "id": 222987,
+        "name": "ZMod.val_natCast",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L88-L93",
+        "source_text": "@[simp]\ntheorem val_natCast (n a : ℕ) : (a : ZMod n).val = a % n := by\n  cases n\n  · rw [Nat.mod_zero]\n    exact Int.natAbs_natCast a\n  · apply Fin.val_natCast",
+        "docstring": null
+      },
+      {
+        "id": 222980,
+        "name": "ZMod.val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L51-L59",
+        "source_text": "/-- `val a` is a natural number defined as:\n  - for `a : ZMod 0` it is the absolute value of `a`\n  - for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n-/\ndef val : ∀ {n : ℕ}, ZMod n → ℕ\n  | 0 => Int.natAbs\n  | n + 1 => ((↑) : Fin (n + 1) → ℕ)\n",
+        "docstring": "`val a` is a natural number defined as:\n- for `a : ZMod 0` it is the absolute value of `a`\n- for `a : ZMod n` with `0 < n` it is the least natural number in the equivalence class\n\nSee `ZMod.valMinAbs` for a variant that takes values in the integers.\n"
+      },
+      {
+        "id": 223006,
+        "name": "ZMod.natCast_zmod_val",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L203-L208",
+        "source_text": "/-- So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. -/\ntheorem natCast_zmod_val {n : ℕ} [NeZero n] (a : ZMod n) : (a.val : ZMod n) = a := by\n  cases n\n  · cases NeZero.ne 0 rfl\n  · apply Fin.cast_val_eq_self\n",
+        "docstring": "So-named because the coercion is `Nat.cast` into `ZMod`. For `Nat.cast` into an arbitrary ring,\nsee `ZMod.natCast_val`. "
+      },
+      {
+        "id": 328344,
+        "name": "Mathlib.Meta.NormNum.evalNatCast",
+        "module": "Mathlib.Tactic.NormNum.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/Basic.lean#L138-L145",
+        "source_text": "/-- The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. -/\n@[norm_num Nat.cast _, NatCast.natCast _] def evalNatCast : NormNumExt where eval {u α} e := do\n  let sα ← inferAddMonoidWithOne α\n  let .app n (a : Q(ℕ)) ← whnfR e | failure\n  guard <|← withNewMCtxDepth <| isDefEq n q(Nat.cast (R := $α))\n  let ⟨na, pa⟩ ← deriveNat a q(Nat.instAddMonoidWithOne)\n  haveI' : $e =Q $a := ⟨⟩\n  return .isNat sα na q(isNat_natCast $a $na $pa)\n",
+        "docstring": "The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. "
+      },
+      {
+        "id": 337463,
+        "name": "WithVal.instNatCast",
+        "module": "Mathlib.Topology.Algebra.Valued.WithVal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Algebra/Valued/WithVal.lean#L95-L95",
+        "source_text": "instance : NatCast (WithVal v) where natCast n := toVal _ n\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "ZMod.val_natCast",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393466,
+        "name": "Time.natCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L105-L106",
+        "source_text": "@[simp]\nlemma natCast_val {n : ℕ} : val n = n := rfl",
+        "docstring": null
+      },
+      {
+        "id": 393477,
+        "name": "Time.realCast_val",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L144-L144",
+        "source_text": "lemma realCast_val {r : ℝ} : (r : Time).val = r := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 393478,
+        "name": "Time.realCast_of_natCast",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L146-L147",
+        "source_text": "@[simp]\nlemma realCast_of_natCast {n : ℕ} : ((n : ℝ) : Time) = n := rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

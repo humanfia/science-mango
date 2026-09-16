@@ -1,0 +1,1 @@
+The actual allocated tagged store has verified read/write projection, concrete scan and tag-construction costs, and the original n^4 storage bound. All frozen target/axiom/assembly/environment/payload gates passed. The actual whole-stage n^12 composition remains the separate final two-target batch.

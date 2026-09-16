@@ -1,0 +1,30 @@
+import FrozenTarget_5bce3b6484378b03
+theorem M8.SequentialStore.access_envelope : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N], M8.SequentialStore.accessCharge N ≤ 3000000 * (N + 1)^6
+  intro N _
+  let n := N + 1
+  have hn : 0 < n := by dsimp [n]; omega
+  have hs : M8.SequentialStore.slots N ≤ 20000 * n^3 := by
+    exact M8.BankLayout.payload_bound N
+  have hb : M8.SequentialStore.addressBits N ≤ 32 * n := by
+    exact M8.BankLayout.address_bits_bound N
+  have hf : 4 * (M8.SequentialStore.addressBits N + 1) ≤ 132 * n := by
+    omega
+  have h2 : 1 ≤ n^2 := by
+    have h := pow_pos hn 2
+    omega
+  have h4 : 1 ≤ n^4 := by
+    have h := pow_pos hn 4
+    omega
+  have h46 : n^4 ≤ n^6 := by
+    calc
+      n^4 = n^4 * 1 := by simp
+      _ ≤ n^4 * n^2 := Nat.mul_le_mul_left _ h2
+      _ = n^6 := by ring
+  change M8.SequentialStore.slots N * (4 * (M8.SequentialStore.addressBits N + 1)) + 1 ≤ 3000000 * n^6
+  calc
+    M8.SequentialStore.slots N * (4 * (M8.SequentialStore.addressBits N + 1)) + 1
+        ≤ (20000 * n^3) * (132 * n) + 1 :=
+      Nat.add_le_add_right (Nat.mul_le_mul hs hf) 1
+    _ = 2640000 * n^4 + 1 := by ring
+    _ ≤ 3000000 * n^6 := by omega

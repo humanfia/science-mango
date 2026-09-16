@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N inst hN hEven\nhave h0 : 0 < N := by omega\nhave h1 : 1 < N := by omega\nhave hh : N / 2 < N := by omega\nhave hs : N / 2 + 1 < N := by omega\nhave hv : ∀ k : ℕ, k < N → (k : ZMod N).val = k := by\n  intro k hk\n  simp [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\nhave hn : ∀ a b : ℕ, a < N → b < N → a ≠ b → (a : ZMod N) ≠ (b : ZMod N) := by\n  intro a b ha hb hab he\n  have he' := congrArg (fun z : ZMod N => z.val) he\n  rw [hv a ha, hv b hb] at he'\n  exact hab he'\nhave h01 : (0 : ZMod N) ≠ 1 := by\n  exact hn 0 1 h0 h1 (by omega)\nhave h0h : (0 : ZMod N) ≠ (N / 2 : ℕ) := by\n  exact hn 0 (N / 2) h0 hh (by omega)\nhave h0s : (0 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n  exact hn 0 (N / 2 + 1) h0 hs (by omega)\nhave h1h : (1 : ZMod N) ≠ (N / 2 : ℕ) := by\n  exact hn 1 (N / 2) h1 hh (by omega)\nhave h1s : (1 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n  exact hn 1 (N / 2 + 1) h1 hs (by omega)\nhave hhs : ((N / 2 : ℕ) : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n  exact hn (N / 2) (N / 2 + 1) hh hs (by omega)\nhave v1 : (1 : ZMod N).val = 1 := by\n  simpa using hv 1 h1\nsimp [M7.Supports.polynomial, M7.Supports.natSupport,\n  M8.AntipodalFamily.support, M8.AntipodalFamily.polynomial,\n  h01, h0h, h0s, h1h, h1s, hhs, v1, hv (N / 2) hh,\n  hv (N / 2 + 1) hs, ← Polynomial.X_pow_eq_monomial,\n  pow_succ, Nat.ne_of_lt (show 1 < N / 2 by omega),\n  Nat.ne_of_lt (show 0 < N / 2 by omega)] <;> ring",
+  "queries": [
+    "M7.Supports.polynomial M7.Supports.natSupport definitions",
+    "ZMod.val_natCast",
+    "Polynomial.X_pow_eq_monomial"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "degree_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.degree_bound",
+    "spec_sha256": "41e78ae0f54b3009b99fc3264b8b1867ed36c12f7fa1895e19c0693352801838",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb/attempt-001/Candidate_76ea45a9d18f25e8.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb/attempt-001/FrozenTarget_76ea45a9d18f25e8.lean",
+        "feedback": "",
+        "target_sha256": "f7183fb681b79f4254722bf8266077dc7351d424ad2714b5469be651a9a99ffe",
+        "target_olean_sha256": "cd33e0dc8439bf4534de6423ee57140ec04afbe6052da542df557e6b8cc2dd22",
+        "source_sha256": "1ca163130fad893a13da441cc42f87897b986218e0e7473e363d0beede790e13",
+        "olean_sha256": "b08a885466e76b56a0655db738327db2b2735ee5db2045ea33d90bcacb14c6e0",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:43:07.384782+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-s2auu2sb/attempt-001/Candidate_76ea45a9d18f25e8.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "nontrivial": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.nontrivial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).Monic ∧ M8.AntipodalFamily.polynomial N ≠ 1 ∧ M8.AntipodalFamily.polynomial N ≠ 0 ∧ (M8.AntipodalFamily.polynomial N).natDegree = N/2+1 := by\n  intro N inst hN hEven\n  have hhalf : 0 < N / 2 := by omega\n  have monic_binomial : ∀ (R : Type) [CommRing R] (k : ℕ), 0 < k → (1 + (Polynomial.X : Polynomial R) ^ k).Monic := by\n    intro R _ k hk\n    first\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) (ne_of_gt hk) 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 (ne_of_gt hk))\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) hk 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 hk)\n  have h₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).Monic := by\n    simpa using monic_binomial _ 1 (by omega)\n  have h₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).Monic :=\n    monic_binomial _ _ hhalf\n  have hm : (M8.AntipodalFamily.polynomial N).Monic := by\n    exact h₁.mul h₂\n  have hd₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).natDegree = 1 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n    simp\n  have hd₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).natDegree = N / 2 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simpa using hhalf)]\n    simp\n  have hd : (M8.AntipodalFamily.polynomial N).natDegree = N / 2 + 1 := by\n    unfold M8.AntipodalFamily.polynomial\n    rw [Polynomial.natDegree_mul h₁.ne_zero h₂.ne_zero, hd₁, hd₂]\n    omega\n  refine ⟨hm, ?_, hm.ne_zero, hd⟩\n  intro heq\n  rw [heq, Polynomial.natDegree_one] at hd\n  omega",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.nontrivial",
+          "ancestors": [],
+          "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd"
+        },
+        "sha256": "e036f80b8bb405832356e601e23b6bb90b881180cd759d58d09b547e91de42be"
+      },
+      "degree_bound": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.degree_bound : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).degree < (N : WithBot ℕ) := by\n  intro N inst hN hEven\n  obtain ⟨hm, hne_one, hne_zero, hd⟩ := M8.AntipodalFamily.nontrivial N hN hEven\n  rw [Polynomial.degree_eq_natDegree hne_zero, hd]\n  exact_mod_cast (show N / 2 + 1 < N by omega)",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.degree_bound",
+          "ancestors": [
+            "nontrivial"
+          ],
+          "spec_sha256": "599ac7d7c78c3e802ce731eac53bd5ac99dda56fd0a1b89b086e6fd48bb047f3"
+        },
+        "sha256": "626a81888f036bd860cde3bfbddf1fd3526df73a8f07ae54247f9b75a939e846"
+      }
+    }
+  }
+}

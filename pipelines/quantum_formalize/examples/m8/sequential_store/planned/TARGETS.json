@@ -1,0 +1,22 @@
+[
+  {
+    "id": "allocation_access",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (mem : List Bool), mem.length = M8.SequentialStore.slots N \u2192 \u2200 (i : Fin (M8.SequentialStore.slots N)) (bit : Bool), (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).1 = mem[i.val]? \u2227 (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).1 = M8.TaggedStore.packFrom 0 (mem.set i.val bit) \u2227 (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).2 \u2264 M8.SequentialStore.accessCharge N \u2227 (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).2 \u2264 M8.SequentialStore.accessCharge N"
+  },
+  {
+    "id": "store_space",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 mem : List Bool, mem.length = M8.SequentialStore.slots N \u2192 M8.SequentialStore.storeSpace N mem \u2264 2000000*(N+1)^4"
+  },
+  {
+    "id": "access_envelope",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N], M8.SequentialStore.accessCharge N \u2264 3000000*(N+1)^6"
+  },
+  {
+    "id": "tag_setup_bound",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N], M8.SequentialStore.tagSetupCharge N \u2264 11000000*(N+1)^6"
+  }
+]

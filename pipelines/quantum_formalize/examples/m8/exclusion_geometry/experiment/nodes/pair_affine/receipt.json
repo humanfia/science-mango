@@ -1,0 +1,69 @@
+{
+  "id": "pair_affine",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.ExclusionGeometry.pair_affine",
+    "spec_sha256": "6d340434c26f9273753357f45af7b388c9afaf733e0d0218d86969a15a4fcd27",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9w7lilvz/attempt-001/Candidate_721184d762fd4714.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9w7lilvz/attempt-001/FrozenTarget_721184d762fd4714.lean",
+        "feedback": "",
+        "target_sha256": "75d42d9be30829aae68c4339fce32f6a9133d42f60886cf308e08c1c6380c550",
+        "target_olean_sha256": "a368cc941589f2612f17e83c1d8888f2a12e7073d4259c2a7af0228b1a44f31c",
+        "source_sha256": "a0563e1d39a705a4ed3249e04c65b8d1c6446c578621b39b4563b97a1139fcd6",
+        "olean_sha256": "cb3e6607ce704e3aa696fb2d0e383a0fa50d3b48c7b4bc24de005f9ede3bafeb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:23:13.829928+00:00",
+    "work": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9w7lilvz",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "8afe9c7e471e16165800372a93c24218722144be962fb7f9a194b1fc38f9254f",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-geometry-formalization/.humanize-formal-runs/run-9w7lilvz/attempt-001/Candidate_721184d762fd4714.lean",
+    "environment_sha256": "b26d1ee653ba909f9adbec0d55038a46a037fcad8a0cd41d5615bf8b218c292d",
+    "artifacts": {
+      "unit_half": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.unit_half : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (u : (ZMod N)ˣ), N = 2*h → (u : ZMod N) * (h : ZMod N) = (h : ZMod N) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (u : (ZMod N)ˣ), N = 2 * h → (u : ZMod N) * (h : ZMod N) = (h : ZMod N)\n  intro N _ h u hN\n  have hc := ZMod.val_coe_unit_coprime u\n  have hc2 : Nat.Coprime (u : ZMod N).val 2 :=\n    hc.of_dvd_right ⟨h, hN⟩\n  have ho : Odd (u : ZMod N).val := Nat.coprime_two_right.mp hc2\n  obtain ⟨k, hk⟩ := ho\n  have hk' : (u : ZMod N).val = 2 * k + 1 := by omega\n  have hu : (u : ZMod N) = 2 * (k : ZMod N) + 1 := by\n    simpa using congrArg (fun n : ℕ => (n : ZMod N)) hk'\n  have hz : (2 : ZMod N) * (h : ZMod N) = 0 := by\n    have he := congrArg (fun n : ℕ => (n : ZMod N)) hN\n    simpa using he.symm\n  rw [hu]\n  calc\n    (2 * (k : ZMod N) + 1) * (h : ZMod N) =\n        (k : ZMod N) * (2 * (h : ZMod N)) + (h : ZMod N) := by ring\n    _ = (h : ZMod N) := by rw [hz]; simp",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.unit_half",
+          "ancestors": [],
+          "spec_sha256": "e0c3e26491d6c8e79f21ae2d4a224113fc9ce3c90d8a186eeb06e2efffb0b550"
+        },
+        "sha256": "518224138bff9438ba552ad21e97486c019e8d160b011258443dd4e92e9cd68c"
+      },
+      "pair_affine": {
+        "payload": {
+          "declaration": "theorem M8.ExclusionGeometry.pair_affine : ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), N = 2*h → M8.ExclusionGeometry.Antipodal h B → M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s)) := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), N = 2 * h → M8.ExclusionGeometry.Antipodal h B → M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s))\n  intro N _ h B u s hN hB\n  classical\n  rcases hB with ⟨x, hx, hxh⟩\n  refine ⟨M7.Action.affine u s x, Finset.mem_image.mpr ⟨x, hx, rfl⟩, ?_⟩\n  apply Finset.mem_image.mpr\n  refine ⟨x + (h : ZMod N), hxh, ?_⟩\n  simp [M7.Action.affine, mul_add, M8.ExclusionGeometry.unit_half N h u hN, add_assoc, add_comm, add_left_comm]",
+          "imports": [
+            "M8ExclusionGeometry"
+          ],
+          "name": "M8.ExclusionGeometry.pair_affine",
+          "ancestors": [
+            "unit_half"
+          ],
+          "spec_sha256": "1b54a341e8a6512ac875fa6e57b40d728a718099824025d8b7240d5de13d1c6e"
+        },
+        "sha256": "27e7e719db7e59b1781eb39e8f11d9f21d0862d1615c2e8a9f323a3b62c020bd"
+      }
+    }
+  }
+}
