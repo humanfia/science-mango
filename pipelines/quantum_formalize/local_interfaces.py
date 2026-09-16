@@ -1,4 +1,4 @@
-"""Bounded, untrusted source-header references from imported local M5/M6/M7 modules.
+"""Bounded, untrusted source-header references from imported local M5/M6/M7/M8 modules.
 
 This is deliberately not a Lean parser. Headers are conservative excerpts; no
 elaboration or proof acceptance depends on them. Stop before implementation
@@ -44,7 +44,7 @@ def local_interfaces(project, imports, fingerprints, *, max_files=64, max_source
     truncated = False
     while queue:
         module = queue.pop(0)
-        if len(module) > 200 or module in seen or not MODULE.fullmatch(module) or not module.startswith(('M5', 'M6', 'M7')):
+        if len(module) > 200 or module in seen or not MODULE.fullmatch(module) or not module.startswith(('M5', 'M6', 'M7', 'M8')):
             continue
         seen.add(module)
         relative = module.replace('.', '/') + '.lean'

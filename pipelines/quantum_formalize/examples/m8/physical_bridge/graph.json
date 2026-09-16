@@ -1,0 +1,75 @@
+{
+  "title": "M8 closed actual physical optimizer and inverse-coordinate witness bridge",
+  "nodes": [
+    {
+      "id": "signature_transport_degree",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.PhysicalBridge.signature_transport_degree",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), (M8.PhysicalBridge.signature (M7.Action.act g c)).natDegree = (M8.PhysicalBridge.signature c).natDegree",
+        "imports": [
+          "M8PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original accepted M8 sections 4\u20136 physical correctness only. Raw c is not necessarily anchored; actual act g c is anchored as supplied by discovery. Do not assume a correctness oracle or change definitions. Pointwise: use Action.support_cards, Connectivity.connected_action and ClosedSolve.closed_pointwise. Signature uses full RecipeSignature.action_signature_degree. noLogical: sealed PointwiseCorrect AnswerCorrect.1, ActualCounts.f and Domain/RecipeSignature definitions identify degree; monic signature degree zero iff signature=1 via Polynomial.Monic.natDegree_eq_zero. For witness obtain actual some from noLogical and Option cases. Apply Transport.actual_witness to transformed recipe and inverse g, with Connectivity.anchored_gcd; simplify Action.act_inverse. Obtain lower bound from Pinned.solve_exact with PointwiseCorrect.CountingCorrect or ActualResult.solve_exact, then transport any original LX with Transport.x_logical and action_isometry weight. Alternatively common_quantum_distance plus Pinned.distance_spec gives the lower bound directly on original c. Original LX is cycleWords minus boundaryWords; Domain.coefficients_indicator makes actual M6 definitions agree. No root/log-span/family assumptions: those are downstream restrictions of these general physical interfaces. Return tactic lines only.\nimport M7ClosedSolveAccepted\nimport M7RecipeSignatureAccepted\nnamespace M8.PhysicalBridge\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\nnoncomputable def signature {N : \u2115} [NeZero N] (c : Recipe N) := M7.RecipeSignature.signature c\nnoncomputable def solve {N : \u2115} [NeZero N] (c : Recipe N) :=\n  M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)\ndef Valid {N : \u2115} (w : \u2115) (c : Recipe N) : Prop :=\n  c.1.card = w \u2227 c.2.card = w \u2227 M7.Connectivity.connected c\ndef Anchored {N : \u2115} (c : Recipe N) : Prop := (0 : ZMod N) \u2208 c.1 \u2227 (0 : ZMod N) \u2208 c.2\nnoncomputable def undo {N : \u2115} [NeZero N] (g : M7.Action.Record N) := M7.Transport.Xmap (M7.Action.inverse g)\nend M8.PhysicalBridge\n"
+      }
+    },
+    {
+      "id": "pointwise_optimizer",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.PhysicalBridge.pointwise_optimizer",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), \u2200 w : \u2115, M8.PhysicalBridge.Valid w c \u2192 M8.PhysicalBridge.Anchored (M7.Action.act g c) \u2192 M6.Final.PointwiseCorrect N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2)",
+        "imports": [
+          "M8PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original accepted M8 sections 4\u20136 physical correctness only. Raw c is not necessarily anchored; actual act g c is anchored as supplied by discovery. Do not assume a correctness oracle or change definitions. Pointwise: use Action.support_cards, Connectivity.connected_action and ClosedSolve.closed_pointwise. Signature uses full RecipeSignature.action_signature_degree. noLogical: sealed PointwiseCorrect AnswerCorrect.1, ActualCounts.f and Domain/RecipeSignature definitions identify degree; monic signature degree zero iff signature=1 via Polynomial.Monic.natDegree_eq_zero. For witness obtain actual some from noLogical and Option cases. Apply Transport.actual_witness to transformed recipe and inverse g, with Connectivity.anchored_gcd; simplify Action.act_inverse. Obtain lower bound from Pinned.solve_exact with PointwiseCorrect.CountingCorrect or ActualResult.solve_exact, then transport any original LX with Transport.x_logical and action_isometry weight. Alternatively common_quantum_distance plus Pinned.distance_spec gives the lower bound directly on original c. Original LX is cycleWords minus boundaryWords; Domain.coefficients_indicator makes actual M6 definitions agree. No root/log-span/family assumptions: those are downstream restrictions of these general physical interfaces. Return tactic lines only.\nimport M7ClosedSolveAccepted\nimport M7RecipeSignatureAccepted\nnamespace M8.PhysicalBridge\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\nnoncomputable def signature {N : \u2115} [NeZero N] (c : Recipe N) := M7.RecipeSignature.signature c\nnoncomputable def solve {N : \u2115} [NeZero N] (c : Recipe N) :=\n  M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)\ndef Valid {N : \u2115} (w : \u2115) (c : Recipe N) : Prop :=\n  c.1.card = w \u2227 c.2.card = w \u2227 M7.Connectivity.connected c\ndef Anchored {N : \u2115} (c : Recipe N) : Prop := (0 : ZMod N) \u2208 c.1 \u2227 (0 : ZMod N) \u2208 c.2\nnoncomputable def undo {N : \u2115} [NeZero N] (g : M7.Action.Record N) := M7.Transport.Xmap (M7.Action.inverse g)\nend M8.PhysicalBridge\n"
+      }
+    },
+    {
+      "id": "noLogical",
+      "dependencies": [
+        "signature_transport_degree",
+        "pointwise_optimizer"
+      ],
+      "spec": {
+        "name": "M8.PhysicalBridge.noLogical",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), \u2200 w : \u2115, M8.PhysicalBridge.Valid w c \u2192 M8.PhysicalBridge.Anchored (M7.Action.act g c) \u2192 (M8.PhysicalBridge.solve (M7.Action.act g c) = none \u2194 M8.PhysicalBridge.signature c = 1)",
+        "imports": [
+          "M8PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original accepted M8 sections 4\u20136 physical correctness only. Raw c is not necessarily anchored; actual act g c is anchored as supplied by discovery. Do not assume a correctness oracle or change definitions. Pointwise: use Action.support_cards, Connectivity.connected_action and ClosedSolve.closed_pointwise. Signature uses full RecipeSignature.action_signature_degree. noLogical: sealed PointwiseCorrect AnswerCorrect.1, ActualCounts.f and Domain/RecipeSignature definitions identify degree; monic signature degree zero iff signature=1 via Polynomial.Monic.natDegree_eq_zero. For witness obtain actual some from noLogical and Option cases. Apply Transport.actual_witness to transformed recipe and inverse g, with Connectivity.anchored_gcd; simplify Action.act_inverse. Obtain lower bound from Pinned.solve_exact with PointwiseCorrect.CountingCorrect or ActualResult.solve_exact, then transport any original LX with Transport.x_logical and action_isometry weight. Alternatively common_quantum_distance plus Pinned.distance_spec gives the lower bound directly on original c. Original LX is cycleWords minus boundaryWords; Domain.coefficients_indicator makes actual M6 definitions agree. No root/log-span/family assumptions: those are downstream restrictions of these general physical interfaces. Return tactic lines only.\nimport M7ClosedSolveAccepted\nimport M7RecipeSignatureAccepted\nnamespace M8.PhysicalBridge\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\nnoncomputable def signature {N : \u2115} [NeZero N] (c : Recipe N) := M7.RecipeSignature.signature c\nnoncomputable def solve {N : \u2115} [NeZero N] (c : Recipe N) :=\n  M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)\ndef Valid {N : \u2115} (w : \u2115) (c : Recipe N) : Prop :=\n  c.1.card = w \u2227 c.2.card = w \u2227 M7.Connectivity.connected c\ndef Anchored {N : \u2115} (c : Recipe N) : Prop := (0 : ZMod N) \u2208 c.1 \u2227 (0 : ZMod N) \u2208 c.2\nnoncomputable def undo {N : \u2115} [NeZero N] (g : M7.Action.Record N) := M7.Transport.Xmap (M7.Action.inverse g)\nend M8.PhysicalBridge\n"
+      }
+    },
+    {
+      "id": "minimum_original_witness",
+      "dependencies": [
+        "pointwise_optimizer",
+        "noLogical"
+      ],
+      "spec": {
+        "name": "M8.PhysicalBridge.minimum_original_witness",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), \u2200 w : \u2115, M8.PhysicalBridge.Valid w c \u2192 M8.PhysicalBridge.Anchored (M7.Action.act g c) \u2192 M8.PhysicalBridge.signature c \u2260 1 \u2192 \u2203 (d : \u2115) (v : M6.Pinned.Vector (2*N)) (k : \u2115), M8.PhysicalBridge.solve (M7.Action.act g c) = some (d,v,k) \u2227 M7.Transport.distance c = some d \u2227 M8.PhysicalBridge.undo g v \u2208 M7.Transport.LX c \u2227 M6.Pinned.weight (M8.PhysicalBridge.undo g v) = d \u2227 (\u2200 u \u2208 M7.Transport.LX c, d \u2264 M6.Pinned.weight u) \u2227 k \u2264 2*N",
+        "imports": [
+          "M8PhysicalBridge"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original accepted M8 sections 4\u20136 physical correctness only. Raw c is not necessarily anchored; actual act g c is anchored as supplied by discovery. Do not assume a correctness oracle or change definitions. Pointwise: use Action.support_cards, Connectivity.connected_action and ClosedSolve.closed_pointwise. Signature uses full RecipeSignature.action_signature_degree. noLogical: sealed PointwiseCorrect AnswerCorrect.1, ActualCounts.f and Domain/RecipeSignature definitions identify degree; monic signature degree zero iff signature=1 via Polynomial.Monic.natDegree_eq_zero. For witness obtain actual some from noLogical and Option cases. Apply Transport.actual_witness to transformed recipe and inverse g, with Connectivity.anchored_gcd; simplify Action.act_inverse. Obtain lower bound from Pinned.solve_exact with PointwiseCorrect.CountingCorrect or ActualResult.solve_exact, then transport any original LX with Transport.x_logical and action_isometry weight. Alternatively common_quantum_distance plus Pinned.distance_spec gives the lower bound directly on original c. Original LX is cycleWords minus boundaryWords; Domain.coefficients_indicator makes actual M6 definitions agree. No root/log-span/family assumptions: those are downstream restrictions of these general physical interfaces. Return tactic lines only.\nimport M7ClosedSolveAccepted\nimport M7RecipeSignatureAccepted\nnamespace M8.PhysicalBridge\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\nnoncomputable def signature {N : \u2115} [NeZero N] (c : Recipe N) := M7.RecipeSignature.signature c\nnoncomputable def solve {N : \u2115} [NeZero N] (c : Recipe N) :=\n  M6.ActualTransfer.solve N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)\ndef Valid {N : \u2115} (w : \u2115) (c : Recipe N) : Prop :=\n  c.1.card = w \u2227 c.2.card = w \u2227 M7.Connectivity.connected c\ndef Anchored {N : \u2115} (c : Recipe N) : Prop := (0 : ZMod N) \u2208 c.1 \u2227 (0 : ZMod N) \u2208 c.2\nnoncomputable def undo {N : \u2115} [NeZero N] (g : M7.Action.Record N) := M7.Transport.Xmap (M7.Action.inverse g)\nend M8.PhysicalBridge\n"
+      }
+    }
+  ]
+}

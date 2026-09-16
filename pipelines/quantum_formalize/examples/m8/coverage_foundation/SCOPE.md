@@ -1,0 +1,1 @@
+Revised M8 §8: exact recipe-orbit separated-direction obstruction from a full within-block difference subgroup. One full block suffices and exchange is included. No Clifford or arbitrary tensor inequivalence claim. Actual diagonal CSS distance and explicit family arithmetic are downstream obligations, not assumed here.

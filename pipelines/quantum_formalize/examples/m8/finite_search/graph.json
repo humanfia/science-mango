@@ -1,0 +1,139 @@
+{
+  "title": "M8 explicit finite first-success cursor and measured visits",
+  "nodes": [
+    {
+      "id": "calls_bound",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.FiniteSearch.calls_bound",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1) (start fuel : \u2115), (M8.FiniteSearch.walk test start fuel).2 \u2264 fuel",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "none_iff",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.FiniteSearch.none_iff",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1) (start fuel : \u2115), ((M8.FiniteSearch.walk test start fuel).1 = none \u2194 \u2200 i : Fin n, start \u2264 i.val \u2192 i.val < start+fuel \u2192 test i = none)",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "some_iff",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.FiniteSearch.some_iff",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1) (start fuel : \u2115), \u2200 (i : Fin n) (a : \u03b1), (M8.FiniteSearch.walk test start fuel).1 = some (i,a) \u2194 M8.FiniteSearch.First test start fuel i a",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "successful_calls",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.FiniteSearch.successful_calls",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1) (start fuel : \u2115), \u2200 (i : Fin n) (a : \u03b1), (M8.FiniteSearch.walk test start fuel).1 = some (i,a) \u2192 (M8.FiniteSearch.walk test start fuel).2 = i.val-start+1",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "find_none",
+      "dependencies": [
+        "none_iff"
+      ],
+      "spec": {
+        "name": "M8.FiniteSearch.find_none",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1), (M8.FiniteSearch.find test).1 = none \u2194 \u2200 i, test i = none",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "find_some",
+      "dependencies": [
+        "some_iff"
+      ],
+      "spec": {
+        "name": "M8.FiniteSearch.find_some",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1) (i : Fin n) (a : \u03b1), (M8.FiniteSearch.find test).1 = some (i,a) \u2194 test i = some a \u2227 \u2200 j : Fin n, j.val < i.val \u2192 test j = none",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "find_bound",
+      "dependencies": [
+        "calls_bound"
+      ],
+      "spec": {
+        "name": "M8.FiniteSearch.find_bound",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1), (M8.FiniteSearch.find test).2 \u2264 n",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    },
+    {
+      "id": "exhaustion_calls",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.FiniteSearch.exhaustion_calls",
+        "statement": "\u2200 (n : \u2115) (\u03b1 : Type) (test : Fin n \u2192 Option \u03b1) (start fuel : \u2115), start+fuel \u2264 n \u2192 (M8.FiniteSearch.walk test start fuel).1 = none \u2192 (M8.FiniteSearch.walk test start fuel).2 = fuel",
+        "imports": [
+          "M8FiniteSearch"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start : \u2115) : \u2115 \u2192 Option (Fin n \u00d7 \u03b1) \u00d7 \u2115\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f \u27e8start,h\u27e9 with\n      | some a => (some (\u27e8start,h\u27e9,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) := walk f 0 n\ndef First {n : \u2115} {\u03b1 : Type} (f : Fin n \u2192 Option \u03b1) (start fuel : \u2115) (i : Fin n) (a : \u03b1) : Prop :=\n  start \u2264 i.val \u2227 i.val < start+fuel \u2227 f i = some a \u2227\n    \u2200 j : Fin n, start \u2264 j.val \u2192 j.val < i.val \u2192 f j = none\nend M8.FiniteSearch\n"
+      }
+    }
+  ]
+}

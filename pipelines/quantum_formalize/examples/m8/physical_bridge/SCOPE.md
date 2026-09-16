@@ -1,0 +1,3 @@
+# M8 physical bridge
+
+Four exact targets specialize the sealed all-order M6 optimizer to the literal transformed support arrays and undo the actual recipe action. Full signature degree is preserved without radical reduction. NoLogical is exact F=1; a surviving input yields the actual physical quantum minimum and attaining original-coordinate LX witness with the original pin-query bound. Raw input is not assumed anchored. Actual transformed anchors are discharged by the parent discovery batch. The fixed logarithmic cutoff and common sequential cost are parent obligations; no arbitrary-span M8 resource claim or M9 claim is made. Section 8 families may instantiate these same interfaces without introducing a separate optimizer.

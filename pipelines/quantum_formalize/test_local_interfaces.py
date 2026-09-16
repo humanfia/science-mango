@@ -28,6 +28,19 @@ class LocalInterfaceTests(unittest.TestCase):
         self.assertEqual(result['entries'][0]['header'], 'def winner : Prop')
         self.assertNotIn('trivial', str(result['entries']))
 
+    def test_m8_root_traverses_frozen_m7_and_m6_interfaces(self):
+        result = self.collect({
+            'M5Main.lean': 'import M8Anchor\n',
+            'M8Anchor.lean': 'import M7Action\nnamespace M8.Anchor\ndef recognized : Prop := True\nend M8.Anchor\n',
+            'M7Action.lean': 'import M6Cyclic\ntheorem action : True := by trivial\n',
+            'M6Cyclic.lean': 'theorem cyclic : True := by trivial\n',
+        })
+        self.assertEqual([f['module'] for f in result['files']],
+                         ['M5Main', 'M8Anchor', 'M7Action', 'M6Cyclic'])
+        self.assertEqual(result['entries'][0]['namespace_context'], ['M8.Anchor'])
+        self.assertEqual(result['entries'][0]['header'], 'def recognized : Prop')
+        self.assertNotIn('trivial', str(result['entries']))
+
     def collect(self, sources, **kwargs):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); hashes={}

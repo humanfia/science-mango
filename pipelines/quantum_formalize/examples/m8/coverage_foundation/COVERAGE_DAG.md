@@ -1,0 +1,21 @@
+# Revised M8 §§8–9 coverage and exclusion plan
+
+The authoritative frozen proof hash is `fd39ff50501693e6b53e63ed7894079b5b460ebe19bca306d225282dc8e3fd91`; its decoded argument matches `SOURCE_ARGUMENT.md`. The current first batch has six frozen direction targets; later rows below are planned obligations, not accepted conclusions.
+
+| Component | Concrete interface and dependency | Required outcome |
+|---|---|---|
+| Direction foundation (current 6) | Actual `M7.Connectivity.differences`, actual `Action.act`, subgroup cosets for the two proper coprime directions | A full direction in either block forbids separated directions in every permitted recipe presentation, including exchange. |
+| Diagonal physical foundation | Actual `M6.Physical.conv/syndrome/boundary/wordWeight`, `Spaces.logicalWords`, `ActualCSS.common_quantum_distance` | For nonzero p whose convolution image excludes delta at zero, `(delta0,delta0)` is a weight-two cycle outside the boundary, every weight-one word has nonzero syndrome, and actual physical distance is two. The image exclusion must be proved for each polynomial family. |
+| Three-term diagonal family | Actual supports `{0,1,2}` at N=3t, t≥1; polynomial p=1+X+X² | Equal weight three, direction one, connectedness, literal gcd p with full multiplicities, identity trial span two passing the actual cutoff, distance two. Odd and even infinite subfamilies are retained. |
+| Four-term diagonal family | Actual supports `{0,1,2,3}` at even N≥8; q=1+X+X²+X³=(X+1)³ | Weight four, full direction, identity span three; exact gcd `(X+1)^min(3,2^v)` for N=2^v m and odd m, then the all-even-order specialization. No radical replacement. Actual recognition and distance two follow. |
+| Unequal-polynomial equal-weight family | Supports `{0,1}` and `{0,2}`, N≥7 | Gcd X+1, equal weight two, connectedness from the first block’s direction, identity span two and actual recognition. The same orbit-direction obstruction applies although only the first block is full. |
+| Separate product-cycle obstruction | Actual cycle space for a=1+X, b=1+X² | `(a,b)` is a cycle but `(a,0)` is not since ab=1+X+X²+X³ is nonzero modulo X^N+1. Therefore cycles are not a product of independent two-block spaces. Preserve this property under permitted blockwise permutations/exchange. This is distinct from separated directions. |
+| Antipodal family | N=2^v, v≥3; support `{0,1,N/2,N/2+1}` in both blocks | Weight four, full direction/connectedness; actual polynomial a=(1+X)(1+X^(N/2))=(X+1)^(N/2+1), full gcd a≠1. |
+| Antipodal invariant and rejection | Actual units and shifts, `Anchor.trial/span`, actual cutoff | Every unit fixes the antipodal difference N/2. Every transformed support contains an antipodal pair, hence every trial span is at least N/2; cutoff v is smaller. Actual discovery returns Unrecognized. The same diagonal physical theorem still gives distance two. |
+| Weight-cap exclusion | Actual trial support cardinality and interval `[0,L]` | w>L+1 prevents every trial from passing, without claiming difficulty of the rejected code. |
+
+Discovery/cutoff interfaces are supplied by the root and cutoff agents after their actual canonical acceptance. Exact optimizer and physical transport are supplied through the existing frozen M6/M7 interfaces and the M8 physical bridge. Family predicates will use the actual support polynomials and actual discovery outcomes; no free recognition, gcd, physical-distance, or cost oracle is introduced.
+
+A useful bounded next diagonal DAG is: convolution by delta is an actual cyclic shift; weight zero/one characterizes zero/delta over GF(2); diagonal delta-pair has zero syndrome and weight two; a boundary pair would put delta in the convolution image; nonzero p excludes weight-one cycles; the actual CSS minimum is therefore two. Exact family nonunit/gcd arguments discharge its algebraic premises.
+
+The proposed direction notion concerns only the source’s permitted recipe group and proper coprime separated directions. It does not claim Clifford inequivalence or exclude arbitrary tensor descriptions. The product-cycle statement is proved separately. Rejection is not a distance assertion or a hardness assertion. No M9/all-input completeness or practical-performance gate is added.

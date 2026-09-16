@@ -1,0 +1,136 @@
+{
+  "title": "M8 actual anchor discovery and translation equivalence",
+  "nodes": [
+    {
+      "id": "trial_formula",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.trial_formula",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N), M8.Anchor.trial c e u a b = ((M8.Anchor.left c e).image (fun i => (u : ZMod N)*(i-a)), (M8.Anchor.right c e).image (fun i => (u : ZMod N)*(i-b)))",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "anchored",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.anchored",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N), M8.Anchor.Eligible c e a b \u2192 M8.Anchor.Anchored (M8.Anchor.trial c e u a b)",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "translation_reconstruction",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.translation_reconstruction",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N) (g : M7.Action.Record N), M8.Anchor.Anchored (M7.Action.act g c) \u2192 \u2203 a b : ZMod N, M8.Anchor.Eligible c g.exchange a b \u2227 M8.Anchor.record g.exchange g.unit a b = g",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "record_injective",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.record_injective",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b a1 b1 : ZMod N), M8.Anchor.record e u a b = M8.Anchor.record e u a1 b1 \u2192 a = a1 \u2227 b = b1",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "span_le",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.span_le",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N) (L : \u2115), M8.Anchor.span c \u2264 L \u2194 (\u2200 i \u2208 c.1, i.val \u2264 L) \u2227 (\u2200 i \u2208 c.2, i.val \u2264 L)",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "span_lt_order",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.span_lt_order",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N), M8.Anchor.span c < N",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "inverse_trial",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Anchor.inverse_trial",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N), M7.Action.act (M7.Action.inverse (M8.Anchor.record e u a b)) (M8.Anchor.trial c e u a b) = c",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    },
+    {
+      "id": "passing_presentations",
+      "dependencies": [
+        "anchored",
+        "translation_reconstruction"
+      ],
+      "spec": {
+        "name": "M8.Anchor.passing_presentations",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (c : M8.Anchor.Recipe N) (L : \u2115), (\u2203 (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N), M8.Anchor.Eligible c e a b \u2227 M8.Anchor.span (M8.Anchor.trial c e u a b) \u2264 L) \u2194 \u2203 g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) \u2227 M8.Anchor.span (M7.Action.act g c) \u2264 L",
+        "imports": [
+          "M8Anchor"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : \u2115) := M7.Action.Recipe N\ndef left {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : \u2115} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : \u2115} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a \u2208 left c e \u2227 b \u2208 right c e\ndef record {N : \u2115} [NeZero N] (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : M7.Action.Record N :=\n  \u27e8u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)\u27e9\nnoncomputable def trial {N : \u2115} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)\u02e3) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : \u2115} (c : Recipe N) : \u2115 :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : \u2115} [NeZero N] (c : Recipe N) : Prop := 0 \u2208 c.1 \u2227 0 \u2208 c.2\nend M8.Anchor\n"
+      }
+    }
+  ]
+}
