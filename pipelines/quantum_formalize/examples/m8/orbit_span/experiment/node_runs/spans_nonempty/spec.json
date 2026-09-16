@@ -1,0 +1,12 @@
+{
+  "name": "M8.OrbitSpan.spans_nonempty",
+  "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → (M8.OrbitSpan.spans c).Nonempty",
+  "imports": [
+    "M8OrbitSpan"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original M8 R_orb minimum, analysis-only. The runtime discovery does not calculate/store this Finset or receive a minimum-span oracle. Nonempty supports give arbitrary anchors with e=false,u=1, actual Anchor.anchored. Finset.min membership/min_le supplies attained/small iff, Anchor.passing_presentations equates the anchor and translation parameterizations. span_lt_order gives final bound. Preserve exact original nonempty domain and actual action. Tactic lines only.\nimport M8AnchorAccepted\n\nnamespace M8.OrbitSpan\n/-- Analysis-only finite set, not materialized by the discovery algorithm. -/\nnoncomputable def spans {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Finset ℕ := by\n  classical\n  exact (Finset.univ.filter (fun g : M7.Action.Record N => M8.Anchor.Anchored (M7.Action.act g c))).image\n    (fun g => M8.Anchor.span (M7.Action.act g c))\nnoncomputable def value {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : ℕ :=\n  if h : (spans c).Nonempty then (spans c).min' h else 0\nend M8.OrbitSpan\n"
+}

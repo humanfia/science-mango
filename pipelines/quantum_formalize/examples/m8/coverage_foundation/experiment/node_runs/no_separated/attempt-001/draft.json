@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M8.CoverageFoundation.FullDirection c.1 ∨ M8.CoverageFoundation.FullDirection c.2) → ¬ M8.CoverageFoundation.Separated c\nintro N inst c hfull hsep\nrcases hsep with ⟨m, q, hm, hq, hN, hcop, hA, hB⟩\nrcases hfull with hAfull | hBfull\n· have hdiv : q ∣ N := ⟨m, by simpa [Nat.mul_comm] using hN⟩\n  have hle := M8.CoverageFoundation.coset_direction N c.1 (AddSubgroup.zmultiples (q : ZMod N)) hA\n  change M8.CoverageFoundation.direction c.1 = ⊤ at hAfull\n  rw [hAfull] at hle\n  exact M8.CoverageFoundation.proper_multiples N q hq hdiv (le_antisymm le_top hle)\n· have hdiv : m ∣ N := ⟨q, hN⟩\n  have hle := M8.CoverageFoundation.coset_direction N c.2 (AddSubgroup.zmultiples (m : ZMod N)) hB\n  change M8.CoverageFoundation.direction c.2 = ⊤ at hBfull\n  rw [hBfull] at hle\n  exact M8.CoverageFoundation.proper_multiples N m hm hdiv (le_antisymm le_top hle)",
+  "queries": []
+}

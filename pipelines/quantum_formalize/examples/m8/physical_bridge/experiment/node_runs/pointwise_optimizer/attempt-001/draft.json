@@ -1,0 +1,6 @@
+{
+  "proof": "intro N inst c g w hv ha\nrcases hv with ⟨hA, hB, hc⟩\nrcases ha with ⟨haA, haB⟩\nhave hcards : (M7.Action.act g c).1.card = w ∧ (M7.Action.act g c).2.card = w := by\n  first\n  | solve_by_elim [M7.Action.support_cards]\n  | simpa [hA, hB] using M7.Action.support_cards N g c\n  | simpa [hA, hB] using M7.Action.support_cards N c g\nexact M7.ClosedSolve.closed_pointwise N w (M7.Action.act g c)\n  hcards.1 hcards.2 haA haB\n  ((M7.Connectivity.connected_action N g c).mpr hc)",
+  "queries": [
+    "M7.Action.support_cards"
+  ]
+}

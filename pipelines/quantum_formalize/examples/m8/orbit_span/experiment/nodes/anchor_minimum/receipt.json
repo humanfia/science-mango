@@ -1,0 +1,84 @@
+{
+  "id": "anchor_minimum",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.OrbitSpan.anchor_minimum",
+    "spec_sha256": "c646e3287e74dee88867b243ec3edf736f0fda6449372530cfffe06f40047f7c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-2707fhc2/attempt-001/Candidate_c09212b9df4e9aa2.lean",
+        "target_path": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-2707fhc2/attempt-001/FrozenTarget_c09212b9df4e9aa2.lean",
+        "feedback": "",
+        "target_sha256": "5bbf602dc236e71dc3dd2a5fa5ecb7411ccd13d394afa92b8a93c93aaeb4a205",
+        "target_olean_sha256": "bf2b9fa60258ea434ecc2a2650a90f81896e6fe85e60c952ea4b20b331d5165b",
+        "source_sha256": "0bc9d888f8cab70b9d8fce7dc0c797b2d80701a89ed00e237a7fa6896b791fed",
+        "olean_sha256": "d6ee3cb0f3e1a0ef35ac22ebee945a505e28644621312b32fa644d4499ae9c86",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:51:41.691608+00:00",
+    "work": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-2707fhc2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a5fbc3620664e686a830b97f54ffb3e50b2677e1c7087c0422a00151c8445711",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-2707fhc2/attempt-001/Candidate_c09212b9df4e9aa2.lean",
+    "environment_sha256": "f9f8a2c9726efbf1847bac6b4bdcb1f4a764763dff202f00610f2950cb9f7522",
+    "artifacts": {
+      "spans_nonempty": {
+        "payload": {
+          "declaration": "theorem M8.OrbitSpan.spans_nonempty : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → (M8.OrbitSpan.spans c).Nonempty := by\n  classical\n  intro N inst c hc₁ hc₂\n  rcases hc₁ with ⟨a, ha⟩\n  rcases hc₂ with ⟨b, hb⟩\n  have hel : M8.Anchor.Eligible c false a b := by\n    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right] using And.intro ha hb\n  unfold M8.OrbitSpan.spans\n  apply Finset.Nonempty.image\n  refine ⟨M8.Anchor.record false 1 a b, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩⟩\n  simpa only [M8.Anchor.trial] using M8.Anchor.anchored N c false 1 a b hel",
+          "imports": [
+            "M8OrbitSpan"
+          ],
+          "name": "M8.OrbitSpan.spans_nonempty",
+          "ancestors": [],
+          "spec_sha256": "964969824319e11429ba0c9cac5c0bd0c7a5bbf98c25946bd1518db235028a6e"
+        },
+        "sha256": "594784fdcb52fbf9eae4a21ee3705b638386064a4cd8e9695c69afc387ff4dea"
+      },
+      "small_iff": {
+        "payload": {
+          "declaration": "theorem M8.OrbitSpan.small_iff : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → ∀ L : ℕ, M8.OrbitSpan.value c ≤ L ↔ ∃ g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) ∧ M8.Anchor.span (M7.Action.act g c) ≤ L := by\n  classical\n  intro N inst c hc₁ hc₂ L\n  have hn := M8.OrbitSpan.spans_nonempty N c hc₁ hc₂\n  rw [M8.OrbitSpan.value, dif_pos hn]\n  constructor\n  · intro h\n    have hm := Finset.min'_mem (M8.OrbitSpan.spans c) hn\n    unfold M8.OrbitSpan.spans at hm\n    rcases Finset.mem_image.mp hm with ⟨g, hg, heq⟩\n    exact ⟨g, (Finset.mem_filter.mp hg).2, heq.trans_le h⟩\n  · rintro ⟨g, hg, hL⟩\n    have hm : M8.Anchor.span (M7.Action.act g c) ∈ M8.OrbitSpan.spans c := by\n      unfold M8.OrbitSpan.spans\n      exact Finset.mem_image.mpr ⟨g, Finset.mem_filter.mpr ⟨Finset.mem_univ g, hg⟩, rfl⟩\n    exact le_trans (Finset.min'_le _ _ hm) hL",
+          "imports": [
+            "M8OrbitSpan"
+          ],
+          "name": "M8.OrbitSpan.small_iff",
+          "ancestors": [
+            "spans_nonempty"
+          ],
+          "spec_sha256": "fce60aaa51863283f9b37e4aef7beb8b0ccb522d0b7360ea1d64807461d17e69"
+        },
+        "sha256": "daa851489c2c0bcb01c612446de21f0f7e0a3c551699e3e12a7cb89b9c00af1b"
+      },
+      "anchor_minimum": {
+        "payload": {
+          "declaration": "theorem M8.OrbitSpan.anchor_minimum : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → ∀ L : ℕ, M8.OrbitSpan.value c ≤ L ↔ ∃ (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b ∧ M8.Anchor.span (M8.Anchor.trial c e u a b) ≤ L := by\n  intro N inst c hc₁ hc₂ L\n  exact (M8.OrbitSpan.small_iff N c hc₁ hc₂ L).trans (M8.Anchor.passing_presentations N c L).symm",
+          "imports": [
+            "M8OrbitSpan"
+          ],
+          "name": "M8.OrbitSpan.anchor_minimum",
+          "ancestors": [
+            "small_iff",
+            "spans_nonempty"
+          ],
+          "spec_sha256": "c7aba047724636c729eeb88a17568d0228def74215c76f4aaea491803262eec0"
+        },
+        "sha256": "977979dfe1caa459bda719fed12841ec0a024ccc68a7e22fda51be61412096cf"
+      }
+    }
+  }
+}

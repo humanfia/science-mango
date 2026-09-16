@@ -1,0 +1,4 @@
+{
+  "proof": "  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), _\n  intro n α test start fuel\n  induction fuel generalizing start with\n  | zero =>\n      rfl\n  | succ fuel ih =>\n      by_cases h : start < n\n      · cases e : (test ⟨start, h⟩).1 with\n        | none =>\n            simpa only [M8.WeightedSearch.walk, M8.FiniteSearch.walk, dif_pos h, e, Prod.fst, Prod.snd] using\n              congrArg (fun r : Option (Fin n × α) × ℕ => (r.1, r.2 + 1)) (ih (start + 1))\n        | some a =>\n            simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h, e]\n      · simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h]",
+  "queries": []
+}

@@ -1,0 +1,111 @@
+[
+  {
+    "queries": [
+      "polynomial coefficient bounds"
+    ],
+    "receipts": [
+      {
+        "library": "Mathlib",
+        "indexed_package": "Mathlib",
+        "query": "polynomial coefficient bounds",
+        "status": "ok",
+        "results": [
+          {
+            "id": 100995,
+            "name": "Polynomial.coeff",
+            "module": "Mathlib.Algebra.Polynomial.Basic",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Basic.lean#L562-L564",
+            "source_text": "/-- `coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. -/\ndef coeff : R[X] → ℕ → R\n  | ⟨p⟩ => p.coeff\n",
+            "docstring": "`coeff p n` (often denoted `p.coeff n`) is the coefficient of `X^n` in `p`. "
+          },
+          {
+            "id": 147080,
+            "name": "Polynomial.Chebyshev.coeff_le_of_forall_abs_le_one",
+            "module": "Mathlib.Analysis.SpecialFunctions.Trigonometric.Chebyshev.Extremal",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/Trigonometric/Chebyshev/Extremal.lean#L194-L199",
+            "source_text": "theorem coeff_le_of_forall_abs_le_one {n : ℕ} {P : ℝ[X]}\n    (hPdeg : P.degree ≤ n) (hPbnd : ∀ x ∈ Set.Icc (-1) 1, |P.eval x| ≤ 1) :\n    P.coeff n ≤ 2 ^ (n - 1) := by\n  convert! sumNodes_le_sumNodes_T (fun i hi => le_of_lt <| negOnePow_mul_leadingCoeffC_pos hi) hPbnd\n  · rw [sumNodes_eq_coeff hPdeg]\n  · rw [sumNodes_T_eq]\n",
+            "docstring": null
+          },
+          {
+            "id": 279648,
+            "name": "upperBounds",
+            "module": "Mathlib.Order.Bounds.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L32-L35",
+            "source_text": "/-- The set of upper bounds of a set. -/\n@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=\n  { x | ∀ ⦃a⦄, a ∈ s → a ≤ x }\n",
+            "docstring": "The set of upper bounds of a set. "
+          },
+          {
+            "id": 279649,
+            "name": "lowerBounds",
+            "module": "Mathlib.Order.Bounds.Defs",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Bounds/Defs.lean#L33-L33",
+            "source_text": "@[to_dual /-- The set of lower bounds of a set. -/]\ndef upperBounds (s : Set α) : Set α :=",
+            "docstring": "The set of lower bounds of a set. "
+          },
+          {
+            "id": 145500,
+            "name": "ordinaryHypergeometricCoefficient",
+            "module": "Mathlib.Analysis.SpecialFunctions.OrdinaryHypergeometric",
+            "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/SpecialFunctions/OrdinaryHypergeometric.lean#L64-L66",
+            "source_text": "/-- The coefficients in the ordinary hypergeometric sum. -/\nnoncomputable abbrev ordinaryHypergeometricCoefficient (a b c : 𝕂) (n : ℕ) := ((n !⁻¹ : 𝕂) *\n    (ascPochhammer 𝕂 n).eval a * (ascPochhammer 𝕂 n).eval b * ((ascPochhammer 𝕂 n).eval c)⁻¹)\n",
+            "docstring": "The coefficients in the ordinary hypergeometric sum. "
+          }
+        ],
+        "packages_applied": [
+          "Mathlib"
+        ]
+      },
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "polynomial coefficient bounds",
+        "status": "ok",
+        "results": [
+          {
+            "id": 394087,
+            "name": "FTheory.SU5.Quanta.HuAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L240-L244",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hu` particle. -/\ndef HuAnomalyCoefficient [CommRing 𝓩] (qHu : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHu with\n  | none => (0, 0)\n  | some qHu => (-qHu, -qHu ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hu` particle. "
+          },
+          {
+            "id": 394195,
+            "name": "FTheory.SU5.TenQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L1052-L1061",
+            "source_text": "/--\n  The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n    see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : TenQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, 3 * (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `TenQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, 3 * ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394136,
+            "name": "FTheory.SU5.FiveQuanta.anomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L909-L918",
+            "source_text": "/--\n  The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n  `(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\n  The first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\n  The second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\n  see equation (23) of arXiv:1401.5084.\n-/\ndef anomalyCoefficient (F : FiveQuanta 𝓩) : 𝓩 × 𝓩 :=\n  ((F.map fun x => x.2.2 • x.1).sum, (F.map fun x => x.2.2 • (x.1 * x.1)).sum)\n",
+            "docstring": "The anomaly coefficient of a `FiveQuanta` is given by the pair of integers:\n`(∑ᵢ qᵢ Nᵢ, ∑ᵢ qᵢ² Nᵢ)`.\n\nThe first components is for the mixed U(1)-MSSM, see equation (22) of arXiv:1401.5084.\nThe second component is for the mixed U(1)Y-U(1)-U(1) gauge anomaly,\nsee equation (23) of arXiv:1401.5084.\n"
+          },
+          {
+            "id": 394088,
+            "name": "FTheory.SU5.Quanta.HuAnomalyCoefficient_map",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L246-L250",
+            "source_text": "@[simp]\nlemma HuAnomalyCoefficient_map {𝓩 𝓩1 : Type} [CommRing 𝓩] [CommRing 𝓩1]\n    (f : 𝓩 →+* 𝓩1) (qHu : Option 𝓩) :\n    HuAnomalyCoefficient (qHu.map f) = (f.prodMap f) (HuAnomalyCoefficient qHu) := by\n  cases qHu <;> simp [HuAnomalyCoefficient]",
+            "docstring": null
+          },
+          {
+            "id": 394085,
+            "name": "FTheory.SU5.Quanta.HdAnomalyCoefficient",
+            "module": "Physlib.StringTheory.FTheory.SU5.Quanta.Basic",
+            "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/Basic.lean#L222-L226",
+            "source_text": "/-- The pair of anomaly cancellation coefficients associated with the `Hd` particle. -/\ndef HdAnomalyCoefficient [CommRing 𝓩] (qHd : Option 𝓩) : 𝓩 × 𝓩 :=\n  match qHd with\n  | none => (0, 0)\n  | some qHd => (qHd, qHd ^ 2)\n",
+            "docstring": "The pair of anomaly cancellation coefficients associated with the `Hd` particle. "
+          }
+        ],
+        "packages_applied": [
+          "Physlib"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "id": "calls_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.FiniteSearch.calls_bound",
+    "spec_sha256": "df9d2f9da92dacf10849df1076ad03d8162d6fd5bf47e93a5805bfb730dc93ec",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-d5n5lzem/attempt-001/Candidate_efd411398f646042.lean",
+        "target_path": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-d5n5lzem/attempt-001/FrozenTarget_efd411398f646042.lean",
+        "feedback": "",
+        "target_sha256": "1854f688726c56d4c82f754076fd421a2a8e4f3de04f7e4c0d986d14c670ce4d",
+        "target_olean_sha256": "ba8b6686e48334853849e4d5992f7258045801bf29a5d4837ffced0c13352d8c",
+        "source_sha256": "2e31d8cfd60237931dd6a644fe85763a92d73920cb4000f96edcc4f3a0ba715a",
+        "olean_sha256": "ec41b3d85bae2f25b2ddd9a19ae7aad56b512108f9f66e12c03b2ea2c21234c4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:31:15.887893+00:00",
+    "work": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-d5n5lzem",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "87f97390dfd3fd4d32a542e07758c78edb72d7a1967a685747a2dc560ed46c79",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-d5n5lzem/attempt-001/Candidate_efd411398f646042.lean",
+    "environment_sha256": "14369440cdd8956c97dbc8f458cebbcd8f0d46a6c3af31ef9bab3f77e5877018",
+    "artifacts": {
+      "calls_bound": {
+        "payload": {
+          "declaration": "theorem M8.FiniteSearch.calls_bound : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).2 ≤ fuel := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).2 ≤ fuel\n  intro n α test start fuel\n  induction fuel generalizing start with\n  | zero => simp [M8.FiniteSearch.walk]\n  | succ fuel ih =>\n      by_cases h : start < n\n      · cases ht : test ⟨start, h⟩ with\n        | none =>\n            simpa [M8.FiniteSearch.walk, h, ht] using\n              Nat.add_le_add_right (ih (start + 1)) 1\n        | some a =>\n            simp [M8.FiniteSearch.walk, h, ht]\n      · simp [M8.FiniteSearch.walk, h]",
+          "imports": [
+            "M8FiniteSearch"
+          ],
+          "name": "M8.FiniteSearch.calls_bound",
+          "ancestors": [],
+          "spec_sha256": "df9d2f9da92dacf10849df1076ad03d8162d6fd5bf47e93a5805bfb730dc93ec"
+        },
+        "sha256": "05671f94228f1c9759478e45fb0520bfcfd0a2013727297614b6651e6166de97"
+      }
+    }
+  }
+}

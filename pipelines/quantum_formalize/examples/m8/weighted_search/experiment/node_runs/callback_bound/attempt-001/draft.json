@@ -1,0 +1,4 @@
+{
+  "proof": "intro n α test start fuel C hC\ninduction fuel generalizing start with\n| zero =>\n    simp [M8.WeightedSearch.walk]\n| succ fuel ih =>\n    by_cases h : start < n\n    · cases e : (test ⟨start, h⟩).1 with\n      | none =>\n          simpa [M8.WeightedSearch.walk, h, e, Nat.add_mul, Nat.add_comm] using\n            (Nat.add_le_add (hC ⟨start, h⟩) (ih (start + 1)))\n      | some a =>\n          simpa [M8.WeightedSearch.walk, h, e] using (hC ⟨start, h⟩)\n    · simp [M8.WeightedSearch.walk, h]",
+  "queries": []
+}

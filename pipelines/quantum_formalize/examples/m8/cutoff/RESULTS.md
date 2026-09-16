@@ -1,0 +1,3 @@
+Eight exact cutoff arithmetic targets are accepted: fixed min(N-1, floor(log2(N+1))), state-count and squared-state bounds, indexed work/storage envelopes, signed-magnitude capacity, and the arithmetic anchor-trial envelope. These are arithmetic foundations; actual discovery instrumentation and sequential resource composition remain separate obligations.
+
+All frozen targets passed normal independent exact-type and axiom audits, full assembly and unchanged-environment checks. Original drafts, rendered candidate/target hashes, receipts and portable payloads were checked again during archive; full candidate histories are retained.

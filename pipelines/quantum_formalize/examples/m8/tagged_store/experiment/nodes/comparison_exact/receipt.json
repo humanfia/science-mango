@@ -1,0 +1,55 @@
+{
+  "id": "comparison_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.TaggedStore.comparison_exact",
+    "spec_sha256": "d9ff001cad58e160bb9480d0d9e5f3d5ffc7761e37d559739c60d3a5f3a9177d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-zuqxoho5/attempt-001/Candidate_1cf1462753d8448e.lean",
+        "target_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-zuqxoho5/attempt-001/FrozenTarget_1cf1462753d8448e.lean",
+        "feedback": "",
+        "target_sha256": "d7aeef09857f186f4950068fbc6521fd7d0f9d9af560746fee868fb67ba75d07",
+        "target_olean_sha256": "934707f14e501be16caba43561d7a05be0c513ad61cd8586846e38744e5988a3",
+        "source_sha256": "9c0a22c5a419fe5565d6d8014837453a07d6474d30a0c1dc0ac9578e0be2b0ff",
+        "olean_sha256": "efd8ddd0091538ea389b9f724c9b6037950fce9d87943e76ae89fec987448794",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:52:13.974175+00:00",
+    "work": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-zuqxoho5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "64639dd1bcfc0daf0d98d978b0730b444ac4ebfd1420d0ad8d1a0c9cd87813ed",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-zuqxoho5/attempt-001/Candidate_1cf1462753d8448e.lean",
+    "environment_sha256": "d2741b62aa8698c60bd67a08e235aceb7ca63db8645aa1d3766aebddf73082fe",
+    "artifacts": {
+      "comparison_exact": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.comparison_exact : ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a=b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length+1 := by\n  change ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a = b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length + 1\n  intro a\n  induction a with\n  | nil =>\n      intro b\n      cases b <;> simp [M8.TaggedStore.compare]\n  | cons x xs ih =>\n      intro b\n      cases b with\n      | nil => simp [M8.TaggedStore.compare]\n      | cons y ys =>\n          by_cases h : x = y\n          · subst y\n            simpa [M8.TaggedStore.compare] using ih ys\n          · simp [M8.TaggedStore.compare, h]",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.comparison_exact",
+          "ancestors": [],
+          "spec_sha256": "d9ff001cad58e160bb9480d0d9e5f3d5ffc7761e37d559739c60d3a5f3a9177d"
+        },
+        "sha256": "2cee7514ffbebe5f7515602ceb52118f12006e6cee60a32e2c2ae587193b2f7d"
+      }
+    }
+  }
+}

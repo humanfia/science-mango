@@ -1,0 +1,12 @@
+{
+  "name": "M8.Cutoff.indexed_work_envelopes",
+  "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^3 * 4^R ≤ (N+1)^5 ∧ N^4 * 4^R ≤ (N+1)^6",
+  "imports": [
+    "M8Cutoff"
+  ],
+  "context": "theorem M8.Cutoff.limit_bounds : ∀ N : ℕ, M8.Cutoff.limit N ≤ N-1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N+1) ∧ (0 < N → M8.Cutoff.limit N < N) := by\n  change ∀ N : ℕ, M8.Cutoff.limit N ≤ N - 1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) ∧ (0 < N → M8.Cutoff.limit N < N)\n  intro N\n  have h₁ : M8.Cutoff.limit N ≤ N - 1 := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_left _ _ | exact min_le_right _ _\n  have h₂ : M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_right _ _ | exact min_le_left _ _\n  refine ⟨h₁, h₂, ?_⟩\n  intro hN\n  exact lt_of_le_of_lt h₁ (Nat.sub_lt hN (by decide))\n\ntheorem M8.Cutoff.state_bound : ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R ≤ N+1 := by\n  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2 ^ R ≤ N + 1\n  intro N R hR\n  have hlog : R ≤ Nat.log 2 (N + 1) := le_trans hR (M8.Cutoff.limit_bounds N).2.1\n  exact Nat.pow_le_of_le_log (by simp) hlog\n\ntheorem M8.Cutoff.state_square : ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 4^R ≤ (N+1)^2 := by\n  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 4 ^ R ≤ (N + 1) ^ 2\n  intro N R hR\n  have h := M8.Cutoff.state_bound N R hR\n  calc\n    4 ^ R = 2 ^ R * 2 ^ R := by rw [← mul_pow]; rfl\n    _ ≤ (N + 1) * (N + 1) := Nat.mul_le_mul h h\n    _ = (N + 1) ^ 2 := (pow_two (N + 1)).symm",
+  "queries": [
+    "Nat log powers inequalities"
+  ],
+  "guidance": "Multiply accepted state_square by N^3/N^4, bound N by N+1, and normalize powers. These bound existing M6 work expressions; they are not new cost definitions. Return tactic lines only; no leading by."
+}

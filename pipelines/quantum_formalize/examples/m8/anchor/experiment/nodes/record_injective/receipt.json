@@ -1,0 +1,54 @@
+{
+  "id": "record_injective",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Anchor.record_injective",
+    "spec_sha256": "5c6a6ff52434ea00d9478f9cf671cac858a96387944a60007807111c7a274703",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-8ax71vk5/attempt-001/Candidate_595ceec5265177ed.lean",
+        "target_path": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-8ax71vk5/attempt-001/FrozenTarget_595ceec5265177ed.lean",
+        "feedback": "",
+        "target_sha256": "2509788c057066391dc57f27ff069bc81e91b6462b6680bb7f41fd8da3989b59",
+        "target_olean_sha256": "938cd727f050a997acfb3d8745e660b67f771c5e0d1b408eca92e11ca1766c0e",
+        "source_sha256": "8d98821802ac7ecd0cf5bdcd25bd85e9cbb29a48da174b73aeaa0ad669ab7bf1",
+        "olean_sha256": "bc25933fc7f628e180338f06963d99a33844f69b2c061cb92c1a683e4c832ebb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:30:55.327497+00:00",
+    "work": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-8ax71vk5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "dcdb5b6772d9dfe34947af7ae6ddd8b4bb3fb5ca379578bdbf8409d649c82f2b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-8ax71vk5/attempt-001/Candidate_595ceec5265177ed.lean",
+    "environment_sha256": "f29c5bc27b77b066566760799a4ff46ca0a19917e4e17a979c4152491b9e11e0",
+    "artifacts": {
+      "record_injective": {
+        "payload": {
+          "declaration": "theorem M8.Anchor.record_injective : ∀ (N : ℕ) [NeZero N] (e : Bool) (u : (ZMod N)ˣ) (a b a1 b1 : ZMod N), M8.Anchor.record e u a b = M8.Anchor.record e u a1 b1 → a = a1 ∧ b = b1 := by\n  intro N _ e u a b a1 b1 h\n  have ha := congrArg M7.Action.Record.leftShift h\n  have hb := congrArg M7.Action.Record.rightShift h\n  change -((u : ZMod N) * a) = -((u : ZMod N) * a1) at ha\n  change -((u : ZMod N) * b) = -((u : ZMod N) * b1) at hb\n  constructor\n  · have h' := congrArg (fun x : ZMod N => (↑(u⁻¹) : ZMod N) * (-x)) ha\n    simpa [← mul_assoc] using h'\n  · have h' := congrArg (fun x : ZMod N => (↑(u⁻¹) : ZMod N) * (-x)) hb\n    simpa [← mul_assoc] using h'",
+          "imports": [
+            "M8Anchor"
+          ],
+          "name": "M8.Anchor.record_injective",
+          "ancestors": [],
+          "spec_sha256": "5c6a6ff52434ea00d9478f9cf671cac858a96387944a60007807111c7a274703"
+        },
+        "sha256": "1d8c6e7f751c7c8470bdde692cad88c9655ca7a089f72c01e5a62ab4b58aa48a"
+      }
+    }
+  }
+}

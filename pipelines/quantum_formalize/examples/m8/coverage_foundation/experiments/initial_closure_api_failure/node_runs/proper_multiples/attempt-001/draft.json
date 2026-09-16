@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ q : ℕ, 2 ≤ q → q ∣ N → AddSubgroup.zmultiples (q : ZMod N) ≠ ⊤\nintro N inst q hq hdiv htop\nhave hg : Nat.gcd N q = 1 := by\n  have h := (M7.Connectivity.finite_generation_gcd N ({q} : Finset ℕ)).mp (by\n    simpa [AddSubgroup.zmultiples_eq_closure] using htop)\n  simpa using h\nhave hd : q ∣ Nat.gcd N q := Nat.dvd_gcd hdiv (dvd_refl q)\nrw [hg] at hd\nhave hl : q ≤ 1 := Nat.le_of_dvd (by decide) hd\nomega",
+  "queries": []
+}

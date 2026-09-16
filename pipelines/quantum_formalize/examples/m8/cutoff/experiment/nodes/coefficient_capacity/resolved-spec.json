@@ -1,0 +1,12 @@
+{
+  "name": "M8.Cutoff.coefficient_capacity",
+  "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R * 8^N < 2^(4*(N+1))",
+  "imports": [
+    "M8Cutoff"
+  ],
+  "context": "theorem M8.Cutoff.limit_bounds : ∀ N : ℕ, M8.Cutoff.limit N ≤ N-1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N+1) ∧ (0 < N → M8.Cutoff.limit N < N) := by\n  change ∀ N : ℕ, M8.Cutoff.limit N ≤ N - 1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) ∧ (0 < N → M8.Cutoff.limit N < N)\n  intro N\n  have h₁ : M8.Cutoff.limit N ≤ N - 1 := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_left _ _ | exact min_le_right _ _\n  have h₂ : M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_right _ _ | exact min_le_left _ _\n  refine ⟨h₁, h₂, ?_⟩\n  intro hN\n  exact lt_of_le_of_lt h₁ (Nat.sub_lt hN (by decide))",
+  "queries": [
+    "Nat log powers inequalities"
+  ],
+  "guidance": "Rewrite 8=2^3 and product powers as 2^(R+3*N). limit_bounds implies R≤N. Strict exponent bound follows by omega; apply pow_lt_pow_right for base2. This bounds the actual coefficient envelope, including signed intermediate magnitudes. Return tactic lines only; no leading by."
+}

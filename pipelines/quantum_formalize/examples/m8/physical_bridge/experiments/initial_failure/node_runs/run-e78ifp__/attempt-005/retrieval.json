@@ -1,0 +1,276 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Flatten.common_quantum_distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 348062,
+        "name": "Metric.Sum.dist_eq_glueDist",
+        "module": "Mathlib.Topology.MetricSpace.Gluing",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Gluing.lean#L228-L232",
+        "source_text": "theorem Sum.dist_eq_glueDist {p q : X ⊕ Y} (x : X) (y : Y) :\n    Sum.dist p q =\n      glueDist (fun _ : Unit => Nonempty.some ⟨x⟩) (fun _ : Unit => Nonempty.some ⟨y⟩) 1 p q := by\n  cases p <;> cases q <;> first | rfl | simp [Sum.dist, glueDist, dist_comm, add_comm,\n    add_left_comm, add_assoc]\n",
+        "docstring": null
+      },
+      {
+        "id": 138735,
+        "name": "dist_div_div_le",
+        "module": "Mathlib.Analysis.Normed.Group.Uniform",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Uniform.lean#L239-L241",
+        "source_text": "@[to_additive]\ntheorem dist_div_div_le (a₁ a₂ b₁ b₂ : E) : dist (a₁ / a₂) (b₁ / b₂) ≤ dist a₁ b₁ + dist a₂ b₂ := by\n  simpa only [div_eq_mul_inv, dist_inv_inv] using dist_mul_mul_le a₁ a₂⁻¹ b₁ b₂⁻¹",
+        "docstring": null
+      },
+      {
+        "id": 349720,
+        "name": "Metric.Snowflaking.dist_toSnowflaking_toSnowflaking",
+        "module": "Mathlib.Topology.MetricSpace.Snowflaking",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Snowflaking.lean#L425-L428",
+        "source_text": "@[simp]\ntheorem dist_toSnowflaking_toSnowflaking [Dist X] (x y : X) :\n    dist (toSnowflaking x : Snowflaking X α hα₀ hα₁) (toSnowflaking y) = dist x y ^ α :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 138737,
+        "name": "dist_div_div_le_of_le",
+        "module": "Mathlib.Analysis.Normed.Group.Uniform",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Uniform.lean#L243-L246",
+        "source_text": "@[to_additive]\ntheorem dist_div_div_le_of_le (h₁ : dist a₁ b₁ ≤ r₁) (h₂ : dist a₂ b₂ ≤ r₂) :\n    dist (a₁ / a₂) (b₁ / b₂) ≤ r₁ + r₂ :=\n  (dist_div_div_le a₁ a₂ b₁ b₂).trans <| add_le_add h₁ h₂",
+        "docstring": null
+      },
+      {
+        "id": 349695,
+        "name": "Metric.Snowflaking.edist_toSnowflaking_toSnowflaking",
+        "module": "Mathlib.Topology.MetricSpace.Snowflaking",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Snowflaking.lean#L281-L284",
+        "source_text": "@[simp]\ntheorem edist_toSnowflaking_toSnowflaking (x y : X) :\n    edist (toSnowflaking x : Snowflaking X α hα₀ hα₁) (toSnowflaking y) = edist x y ^ α :=\n  rfl",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Flatten.common_quantum_distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394153,
+        "name": "FTheory.SU5.TenQuanta.toChargeMap",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L131-L134",
+        "source_text": "/-- The map which takes a charge to the overall flux it\n  corresponds to in a `TenQuanta`. -/\ndef toChargeMap [DecidableEq 𝓩] (x : TenQuanta 𝓩) : 𝓩 → Fluxes :=\n  fun z => ((x.filter fun p => p.1 = z).map Prod.snd).sum\n",
+        "docstring": "The map which takes a charge to the overall flux it\ncorresponds to in a `TenQuanta`. "
+      },
+      {
+        "id": 394177,
+        "name": "FTheory.SU5.TenQuanta.decompose",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L602-L607",
+        "source_text": "/-- The decomposition of a `TenQuanta` into a `TenQuanta` which has the\n  same `reduce` by has fluxes `{⟨1, 0⟩, ⟨1, 0⟩, ⟨1, 0⟩}` or `{⟨1, 1⟩, ⟨1, -1⟩, ⟨1, 0⟩}` only.\n\n  This only works for fluxes which have no exotics or zeros. -/\ndef decompose (x : TenQuanta 𝓩) : TenQuanta 𝓩 :=\n  x.bind fun p => (decomposeFluxes p.2).map fun f => (p.1, f)\n",
+        "docstring": "The decomposition of a `TenQuanta` into a `TenQuanta` which has the\nsame `reduce` by has fluxes `{⟨1, 0⟩, ⟨1, 0⟩, ⟨1, 0⟩}` or `{⟨1, 1⟩, ⟨1, -1⟩, ⟨1, 0⟩}` only.\n\nThis only works for fluxes which have no exotics or zeros. "
+      },
+      {
+        "id": 394094,
+        "name": "FTheory.SU5.FiveQuanta.toFluxesFive",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L111-L112",
+        "source_text": "/-- The underlying `FluxesFive` from a `FiveQuanta`. -/\ndef toFluxesFive (x : FiveQuanta 𝓩) : FluxesFive := x.map Prod.snd\n",
+        "docstring": "The underlying `FluxesFive` from a `FiveQuanta`. "
+      },
+      {
+        "id": 394102,
+        "name": "FTheory.SU5.FiveQuanta.mem_reduce_iff",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L186-L190",
+        "source_text": "lemma mem_reduce_iff (x : FiveQuanta 𝓩) (p : 𝓩 × Fluxes) :\n    p ∈ x.reduce ↔ p.1 ∈ x.toCharges ∧\n      p.2 = ((x.filter (fun f => f.1 = p.1)).map (fun y => y.2)).sum := by\n  simp [reduce]\n  aesop\n",
+        "docstring": null
+      },
+      {
+        "id": 394129,
+        "name": "FTheory.SU5.FiveQuanta.mem_liftCharge_of_exists_toCharges_toFluxesFive",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L747-L796",
+        "source_text": "lemma mem_liftCharge_of_exists_toCharges_toFluxesFive (c : Finset 𝓩) {x : FiveQuanta 𝓩}\n    (h : ∃ a : FiveQuanta 𝓩, a.reduce = x ∧ a.toCharges.toFinset = c ∧ a.toFluxesFive =\n      {⟨1, -1⟩, ⟨1, -1⟩, ⟨1, -1⟩, ⟨0, 1⟩, ⟨0, 1⟩, ⟨0, 1⟩}) :\n    x ∈ liftCharge c := by\n  obtain ⟨x, rfl, h, h2⟩ := h\n  rw [liftCharge, Multiset.mem_map]\n  use x\n  simp only [Int.reduceNeg, Multiset.mem_map, Multiset.mem_filter, Multiset.mem_product,\n    mem_toMultisetsThree_iff, Prod.exists, and_true]\n  let s1 := (x.filter (fun y => y.2 = ⟨1, -1⟩)).map Prod.fst\n  let s2 := (x.filter (fun y => y.2 = ⟨0, 1⟩)).map Prod.fst\n  use s1, s2\n  have hcard : ∀ v : Fluxes, (x.filter (fun y => y.2 = v)).card =\n      (x.toFluxesFive.filter (fun y => y = v)).card := by\n    intro v\n    rw [toFluxesFive, Multiset.filter_map]\n    simp\n  have hmap : ∀ v : Fluxes, Multiset.map (fun y => (y.1, v)) (x.filter (fun y => y.2 = v)) =\n      x.filter (fun y => y.2 = v) := by\n    intro v\n    refine (Multiset.map_congr rfl fun y hy => ?_).trans (Multiset.map_id _)\n    simp [← (Multiset.mem_filter.mp hy).2]\n  have hx : Multiset.filter (fun y => y.2 = ⟨0, 1⟩) x\n        = Multiset.filter (fun y => ¬ y.2 = ⟨1, -1⟩) x := by\n    refine Multiset.filter_congr ?_\n    intro p hp\n    have h1 : p.2 ∈ x.toFluxesFive := by simp [toFluxesFive]; use p.1\n    rw [h2] at h1\n    simp_all\n    rcases h1 with hp | hp <;> simp [hp]\n  refine ⟨⟨⟨⟨?_, ?_⟩, ⟨?_, ?_⟩⟩, ?_⟩, ?_⟩\n  · simp [s1, ← h, toCharges]\n  · simp [s1]\n    rw [hcard ⟨1, -1⟩, h2]\n    decide\n  · simp [s2, ← h, toCharges]\n  · simp [s2]\n    rw [hcard ⟨0, 1⟩, h2]\n    decide\n  · rw [← h]\n    simp [s1, s2, toCharges]\n    rw [← Multiset.map_add]\n    refine (Multiset.le_iff_subset (Multiset.nodup_dedup (Multiset.map Prod.fst x))).mpr ?_\n    simp only [Multiset.dedup_subset']\n    refine Multiset.map_subset_map ?_\n    rw [hx, Multiset.filter_add_not]\n    exact fun ⦃a⦄ a => a\n  · simp [s1, s2]\n    rw [hmap ⟨1, -1⟩, hmap ⟨0, 1⟩, hx]\n    exact Multiset.filter_add_not (fun y => y.2 = ⟨1, -1⟩) x\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Pinned.distance_spec",
+    "status": "ok",
+    "results": [
+      {
+        "id": 348225,
+        "name": "Metric.infEDist",
+        "module": "Mathlib.Topology.MetricSpace.HausdorffDistance",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/HausdorffDistance.lean#L73-L75",
+        "source_text": "/-- The minimal edistance of a point to a set -/\ndef infEDist (x : α) (s : Set α) : ℝ≥0∞ :=\n  ⨅ y ∈ s, edist x y\n",
+        "docstring": "The minimal edistance of a point to a set "
+      },
+      {
+        "id": 349347,
+        "name": "dist_edist",
+        "module": "Mathlib.Topology.MetricSpace.Pseudo.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Pseudo/Defs.lean#L359-L361",
+        "source_text": "/-- Express `dist` in terms of `edist` -/\ntheorem dist_edist (x y : α) : dist x y = (edist x y).toReal := by\n  rw [edist_dist, ENNReal.toReal_ofReal dist_nonneg]\n",
+        "docstring": "Express `dist` in terms of `edist` "
+      },
+      {
+        "id": 344259,
+        "name": "Option.edist_none_none",
+        "module": "Mathlib.Topology.EMetricSpace.Weak",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/EMetricSpace/Weak.lean#L61-L63",
+        "source_text": "@[simp]\ntheorem edist_none_none : edist (self := Option.toEDist (α := α))\n    none none = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 114643,
+        "name": "AlgebraicGeometry.Spec.map",
+        "module": "Mathlib.AlgebraicGeometry.Scheme",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/AlgebraicGeometry/Scheme.lean#L498-L500",
+        "source_text": "/-- The induced map of a ring homomorphism on the ring spectra, as a morphism of schemes. -/\ndef Spec.map {R S : CommRingCat} (f : R ⟶ S) : Spec S ⟶ Spec R :=\n  ⟨Spec.locallyRingedSpaceMap f⟩\n",
+        "docstring": "The induced map of a ring homomorphism on the ring spectra, as a morphism of schemes. "
+      },
+      {
+        "id": 114640,
+        "name": "AlgebraicGeometry.Spec",
+        "module": "Mathlib.AlgebraicGeometry.Scheme",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/AlgebraicGeometry/Scheme.lean#L467-L484",
+        "source_text": "/-- The spectrum of a commutative ring, as a scheme.\n\nThe notation `Spec(R)` for `(R : Type*) [CommRing R]` to mean `Spec (CommRingCat.of R)` is\nenabled in the scope `SpecOfNotation`. Please do not use it within Mathlib, but it can be\nused in downstream projects if desired. To use this, do:\n```lean\nimport Mathlib.AlgebraicGeometry.Scheme\n\nvariable (R : Type*) [CommRing R]\n\nopen scoped SpecOfNotation\n\n#check Spec(R)\n```\n-/\ndef Spec (R : CommRingCat) : Scheme where\n  local_affine _ := ⟨⟨⊤, trivial⟩, R, ⟨(Spec.toLocallyRingedSpace.obj (op R)).restrictTopIso⟩⟩\n  toLocallyRingedSpace := Spec.locallyRingedSpaceObj R\n",
+        "docstring": "The spectrum of a commutative ring, as a scheme.\n\nThe notation `Spec(R)` for `(R : Type*) [CommRing R]` to mean `Spec (CommRingCat.of R)` is\nenabled in the scope `SpecOfNotation`. Please do not use it within Mathlib, but it can be\nused in downstream projects if desired. To use this, do:\n```lean\nimport Mathlib.AlgebraicGeometry.Scheme\n\nvariable (R : Type*) [CommRing R]\n\nopen scoped SpecOfNotation\n\n#check Spec(R)\n```\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Pinned.distance_spec",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393169,
+        "name": "LengthUnit.miles",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L201-L202",
+        "source_text": "/-- The length unit of a mile (1609.344 meters). -/\nnoncomputable def miles : LengthUnit := scale (1609.344) meters\n",
+        "docstring": "The length unit of a mile (1609.344 meters). "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Transport.distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 346184,
+        "name": "Int.dist_eq'",
+        "module": "Mathlib.Topology.Instances.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Int.lean#L36-L36",
+        "source_text": "theorem dist_eq' (m n : ℤ) : dist m n = |m - n| := by rw [dist_eq]; norm_cast\n",
+        "docstring": null
+      },
+      {
+        "id": 266688,
+        "name": "MeasureTheory.MeasuredSets.dist_def",
+        "module": "Mathlib.MeasureTheory.Measure.MeasuredSets",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasuredSets.lean#L71-L72",
+        "source_text": "lemma MeasuredSets.dist_def [IsFiniteMeasure μ] (s t : MeasuredSets μ) :\n    dist s t = μ.real ((s : Set α) ∆ t) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 266684,
+        "name": "MeasureTheory.MeasuredSets.edist_def",
+        "module": "Mathlib.MeasureTheory.Measure.MeasuredSets",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/MeasuredSets.lean#L53-L53",
+        "source_text": "lemma MeasuredSets.edist_def (s t : MeasuredSets μ) : edist s t = μ ((s : Set α) ∆ t) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 155547,
+        "name": "CategoryTheory.TransportEnrichment",
+        "module": "Mathlib.CategoryTheory.Enriched.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/CategoryTheory/Enriched/Basic.lean#L110-L116",
+        "source_text": "/-- A type synonym for `C`, which should come equipped with a `V`-enriched category structure.\nIn a moment we will equip this with the `W`-enriched category structure\nobtained by applying the functor `F : LaxMonoidalFunctor V W` to each hom object.\n-/\n@[nolint unusedArguments]\ndef TransportEnrichment (F : V ⥤ W) [F.LaxMonoidal] (C : Type u₁) :=\n  C\n",
+        "docstring": "A type synonym for `C`, which should come equipped with a `V`-enriched category structure.\nIn a moment we will equip this with the `W`-enriched category structure\nobtained by applying the functor `F : LaxMonoidalFunctor V W` to each hom object.\n"
+      },
+      {
+        "id": 348913,
+        "name": "Fin.edist_append_eq_max_edist",
+        "module": "Mathlib.Topology.MetricSpace.Isometry",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Isometry.lean#L634-L637",
+        "source_text": "theorem _root_.Fin.edist_append_eq_max_edist (m n : ℕ) {x x2 : Fin m → α} {y y2 : Fin n → α} :\n    edist (Fin.append x y) (Fin.append x2 y2) = max (edist x x2) (edist y y2) := by\n  simp [edist_pi_def, Finset.sup_univ_eq_iSup, ← Equiv.iSup_comp (e := finSumFinEquiv),\n    iSup_sum]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Transport.distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393498,
+        "name": "Time.instDist",
+        "module": "Physlib.SpaceAndTime.Time.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Basic.lean#L271-L272",
+        "source_text": "instance : Dist Time where\n  dist t1 t2 := ‖t1 - t2‖\n",
+        "docstring": null
+      },
+      {
+        "id": 394344,
+        "name": "UnitExamples.SpeedEq",
+        "module": "Physlib.Units.Examples",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/Examples.lean#L70-L72",
+        "source_text": "/-- An example of dimensions corresponding to `s = d/t` using `WithDim`. -/\ndef SpeedEq (s : WithDim (L𝓭 * T𝓭⁻¹) ℝ) (d : WithDim L𝓭 ℝ) (t : WithDim T𝓭 ℝ) : Prop :=\n  s = cast (d / t)\n",
+        "docstring": "An example of dimensions corresponding to `s = d/t` using `WithDim`. "
+      },
+      {
+        "id": 393169,
+        "name": "LengthUnit.miles",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L201-L202",
+        "source_text": "/-- The length unit of a mile (1609.344 meters). -/\nnoncomputable def miles : LengthUnit := scale (1609.344) meters\n",
+        "docstring": "The length unit of a mile (1609.344 meters). "
+      },
+      {
+        "id": 394494,
+        "name": "DimSpeed.oneMeterPerSecond_eq_mul_oneMilePerHour",
+        "module": "Physlib.Units.WithDim.Speed",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Speed.lean#L113-L117",
+        "source_text": "lemma oneMeterPerSecond_eq_mul_oneMilePerHour :\n    oneMeterPerSecond = (3125/1397 : ℝ≥0) • oneMilePerHour := by\n  apply (toDimensionful SI).symm.injective\n  ext\n  norm_num [toDimensionful]\n",
+        "docstring": null
+      },
+      {
+        "id": 393174,
+        "name": "LengthUnit.miles_div_yards",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L223-L225",
+        "source_text": "/-- There are exactly 1760 yards in a mile. -/\nlemma miles_div_yards : miles / yards = (⟨1760, by norm_num⟩ : ℝ≥0) :=\n  NNReal.eq <| by simp [miles, yards]; rw [toReal]; norm_num\n",
+        "docstring": "There are exactly 1760 yards in a mile. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

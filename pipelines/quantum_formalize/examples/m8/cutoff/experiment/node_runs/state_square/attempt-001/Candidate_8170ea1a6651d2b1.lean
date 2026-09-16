@@ -1,0 +1,9 @@
+import FrozenTarget_8170ea1a6651d2b1
+theorem M8.Cutoff.state_square : QuantumHarnessFrozenTarget := by
+  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 4 ^ R ≤ (N + 1) ^ 2
+  intro N R hR
+  have h := M8.Cutoff.state_bound N R hR
+  calc
+    4 ^ R = 2 ^ R * 2 ^ R := by rw [← mul_pow]; rfl
+    _ ≤ (N + 1) * (N + 1) := Nat.mul_le_mul h h
+    _ = (N + 1) ^ 2 := (pow_two (N + 1)).symm

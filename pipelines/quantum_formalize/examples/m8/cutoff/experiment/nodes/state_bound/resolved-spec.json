@@ -1,0 +1,12 @@
+{
+  "name": "M8.Cutoff.state_bound",
+  "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R ≤ N+1",
+  "imports": [
+    "M8Cutoff"
+  ],
+  "context": "theorem M8.Cutoff.limit_bounds : ∀ N : ℕ, M8.Cutoff.limit N ≤ N-1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N+1) ∧ (0 < N → M8.Cutoff.limit N < N) := by\n  change ∀ N : ℕ, M8.Cutoff.limit N ≤ N - 1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) ∧ (0 < N → M8.Cutoff.limit N < N)\n  intro N\n  have h₁ : M8.Cutoff.limit N ≤ N - 1 := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_left _ _ | exact min_le_right _ _\n  have h₂ : M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_right _ _ | exact min_le_left _ _\n  refine ⟨h₁, h₂, ?_⟩\n  intro hN\n  exact lt_of_le_of_lt h₁ (Nat.sub_lt hN (by decide))",
+  "queries": [
+    "Nat log powers inequalities"
+  ],
+  "guidance": "Use Nat.le_log_iff_pow_le with base2 and nonzero N+1, or pow monotonicity and Nat.pow_log_le_self. Return tactic lines only; no leading by."
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b ≤ M8.Cutoff.limit N → M6.ActualTransfer.actualSolveStorage N a b ≤ 16384 * (N + 1)^3\nintro N inst a b h\nhave hspan : M6.ActualTransfer.span a b < N :=\n  lt_of_le_of_lt h ((M8.Cutoff.limit_bounds N).2.2 (NeZero.pos N))\ncalc\n  M6.ActualTransfer.actualSolveStorage N a b ≤ 16384 * N^2 * 2^(M6.ActualTransfer.span a b) :=\n    M6.ActualTransfer.actual_solve_storage N a b hspan\n  _ ≤ 16384 * (N + 1)^3 := by\n    simpa only [mul_assoc] using\n      Nat.mul_le_mul_left 16384 (M8.Cutoff.indexed_storage_envelope N (M6.ActualTransfer.span a b) h)",
+  "queries": []
+}

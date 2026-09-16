@@ -1,0 +1,12 @@
+{
+  "name": "M8.WeightedSearch.projection",
+  "statement": "∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), ((M8.WeightedSearch.walk test start fuel).selected, (M8.WeightedSearch.walk test start fuel).calls) = M8.FiniteSearch.walk (fun i => (test i).1) start fuel",
+  "imports": [
+    "M8WeightedSearch"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Instrumented actual first-success cursor. Separate actual callback invocation count from accumulated callback charges. A later M8 discovery instance must supply real test cost and counter/comparison bit charge; this generic theorem alone is not an M8 resource bound. Structural induction fuel generalizing start, split actual Option result. projection includes both selected result and calls, proving actual evaluation schedule matches canonical FiniteSearch. Nat inequalities via monotonicity/nlinarith; no target edits or assumed total bounds. Tactic lines only.\nimport M8FiniteSearchAccepted\n\nnamespace M8.WeightedSearch\nstructure Run (n : ℕ) (α : Type) where\n  selected : Option (Fin n × α)\n  calls : ℕ\n  work : ℕ\n/-- Calls and callback charges are accumulated only along the executed prefix. -/\ndef walk {n : ℕ} {α : Type} (f : Fin n → Option α × ℕ) (start : ℕ) : ℕ → Run n α\n  | 0 => ⟨none,0,0⟩\n  | fuel+1 => if h : start < n then\n      let q := f ⟨start,h⟩\n      match q.1 with\n      | some a => ⟨some (⟨start,h⟩,a),1,q.2⟩\n      | none => let r := walk f (start+1) fuel; ⟨r.selected,r.calls+1,q.2+r.work⟩\n    else ⟨none,0,0⟩\ndef find {n : ℕ} {α : Type} (f : Fin n → Option α × ℕ) := walk f 0 n\nend M8.WeightedSearch\n"
+}

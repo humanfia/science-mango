@@ -1,0 +1,185 @@
+{
+  "title": "M8 concrete sequential tagged-bit-store scan primitives",
+  "nodes": [
+    {
+      "id": "address_representation",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.TaggedStore.address_representation",
+        "statement": "Function.Injective M8.TaggedStore.address \u2227 \u2200 i : \u2115, (M8.TaggedStore.address i).length = i.size",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "comparison_exact",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.TaggedStore.comparison_exact",
+        "statement": "\u2200 a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a=b) \u2227 (M8.TaggedStore.compare a b).2 \u2264 a.length+1",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "read_work",
+      "dependencies": [
+        "comparison_exact"
+      ],
+      "spec": {
+        "name": "M8.TaggedStore.read_work",
+        "statement": "\u2200 (B : \u2115) (key : M8.TaggedStore.Tag) (s : M8.TaggedStore.Store), key.length \u2264 B \u2192 (\u2200 r \u2208 s, r.1.length \u2264 B) \u2192 (M8.TaggedStore.read key s).2 \u2264 s.length*(4*(B+1))+1",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "write_work",
+      "dependencies": [
+        "comparison_exact"
+      ],
+      "spec": {
+        "name": "M8.TaggedStore.write_work",
+        "statement": "\u2200 (B : \u2115) (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), key.length \u2264 B \u2192 (\u2200 r \u2208 s, r.1.length \u2264 B) \u2192 (M8.TaggedStore.write key bit s).2 \u2264 s.length*(4*(B+1))+1",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "write_layout",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.TaggedStore.write_layout",
+        "statement": "\u2200 (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), ((M8.TaggedStore.write key bit s).1.map Prod.fst) = s.map Prod.fst \u2227 (M8.TaggedStore.tapeBits (M8.TaggedStore.write key bit s).1).length = (M8.TaggedStore.tapeBits s).length",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "packed_layout",
+      "dependencies": [
+        "address_representation"
+      ],
+      "spec": {
+        "name": "M8.TaggedStore.packed_layout",
+        "statement": "\u2200 (start : \u2115) (mem : List Bool), (M8.TaggedStore.packFrom start mem).length = mem.length \u2227 (\u2200 r \u2208 M8.TaggedStore.packFrom start mem, r.1.length \u2264 (start+mem.length).size) \u2227 (M8.TaggedStore.tapeBits (M8.TaggedStore.packFrom start mem)).length \u2264 mem.length*(2*(start+mem.length).size+2)",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "indexed_read",
+      "dependencies": [
+        "address_representation",
+        "comparison_exact"
+      ],
+      "spec": {
+        "name": "M8.TaggedStore.indexed_read",
+        "statement": "\u2200 (start i : \u2115) (mem : List Bool), (M8.TaggedStore.read (M8.TaggedStore.address (start+i)) (M8.TaggedStore.packFrom start mem)).1 = mem[i]?",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    },
+    {
+      "id": "indexed_write",
+      "dependencies": [
+        "address_representation",
+        "comparison_exact"
+      ],
+      "spec": {
+        "name": "M8.TaggedStore.indexed_write",
+        "statement": "\u2200 (start i : \u2115) (bit : Bool) (mem : List Bool), (M8.TaggedStore.write (M8.TaggedStore.address (start+i)) bit (M8.TaggedStore.packFrom start mem)).1 = M8.TaggedStore.packFrom start (mem.set i bit)",
+        "imports": [
+          "M8TaggedStore"
+        ],
+        "context": "",
+        "queries": [
+          "Nat bits List set"
+        ],
+        "guidance": "Original M8 common sequential tagged-store primitive model, not a Lean runtime or full extracted-machine implementation. Nat.bits gives real binary tags, with testBit_eq_inth + eq_of_testBit_eq proving injectivity; size_eq_bits_len gives lengths. compare is short-circuit bit comparison. read/write charge the actual visited record's explicit encoding length, actual comparison steps and cursor control; costs are not defined by polynomial envelopes. Induct on the store for work/layout; recordBits length=2*tag.length+2. For indexed_read/write induct on mem generalizing start i; split i zero/succ; address injectivity separates start from start+i+1; align start+(i+1)=(start+1)+i by omega. List.set outside length is unchanged. Packed layout uses address size monotonicity Nat.size_le_size and start+tail lengths. Preserve empty stores, zero addresses, missing indices. Generic layout bounds are intermediate; final M8 must instantiate the actual optimizer/discovery allocation, not assume an oracle. Return tactic lines only.\nimport Mathlib\n\nnamespace M8.TaggedStore\nabbrev Tag := List Bool\nabbrev Store := List (Tag \u00d7 Bool)\ndef address (n : \u2115) : Tag := n.bits\ndef recordBits (r : Tag \u00d7 Bool) : List Bool :=\n  r.1.flatMap (fun b => [true,b]) ++ [false,r.2]\ndef tapeBits (s : Store) : List Bool := s.flatMap recordBits\n-- A compared bit or end marker is one primitive Boolean comparison.\ndef compare : Tag \u2192 Tag \u2192 Bool \u00d7 \u2115\n  | [], [] => (true,1)\n  | [], _::_ => (false,1)\n  | _::_, [] => (false,1)\n  | a::as, b::bs =>\n    if a = b then let q := compare as bs; (q.1,q.2+1)\n    else (false,1)\n-- Each visited record is scanned in its explicit tagged encoding, then its\n-- buffered tag is compared. One extra primitive advances/tests the cursor.\ndef read (key : Tag) : Store \u2192 Option Bool \u00d7 \u2115\n  | [] => (none,1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then (some r.2,charge)\n    else let rest := read key rs; (rest.1,charge+rest.2)\n-- This denotes an in-place payload write at the first matching record. The\n-- structural returned list is the post-state, not an allocated copy of tape.\ndef write (key : Tag) (bit : Bool) : Store \u2192 Store \u00d7 \u2115\n  | [] => ([],1)\n  | r::rs =>\n    let q := compare key r.1\n    let charge := (recordBits r).length + q.2 + 1\n    if q.1 then ((r.1,bit)::rs,charge)\n    else let rest := write key bit rs; (r::rest.1,charge+rest.2)\ndef packFrom (start : \u2115) : List Bool \u2192 Store\n  | [] => []\n  | b::bs => (address start,b)::packFrom (start+1) bs\nend M8.TaggedStore\n"
+      },
+      "metadata": {
+        "fallback_queries": [
+          "algebra"
+        ]
+      }
+    }
+  ]
+}

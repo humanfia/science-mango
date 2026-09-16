@@ -1,0 +1,110 @@
+[
+  {
+    "id": "coset_direction",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.CoverageFoundation.coset_direction",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)), M8.CoverageFoundation.InCoset A H → M8.CoverageFoundation.direction A ≤ H",
+      "imports": [
+        "M8CoverageFoundation"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Revised original M8 §8 precise separated-direction obstruction, not Clifford inequivalence or arbitrary tensor inequivalence. direction uses the unique accepted M7 differences definition. coset_direction: closure_le, express x-y=(x-a)-(y-a) in H. consecutive_full: the difference (a+1)-a=1 belongs to closure, then accepted M7.Connectivity.one_mem_top. affine_full can use accepted M7.Connectivity.connected_action on the diagonal recipe (A,A) and Record ⟨u,false,s,s⟩: connected (A,A) simplifies to direction A=top since union_self; this avoids introducing an abstract/free automorphism. Or use difference_affine and explicit unit AddEquiv. proper_multiples: AddSubgroup.zmultiples_eq_closure and M7.Connectivity.finite_generation_gcd applied to singleton Finset {q}; Nat.gcd_eq_right from q|N gives q=1 contradiction. q=N is permitted and proper, no q<N assumption. no_separated: actual N=m*q yields q|N and m|N; full direction of either block forces corresponding subgroup top via coset_direction, contradict proper_multiples. orbit_no_separated: actual Action.act, split exchange, affine_full preserves the OR of full directions even if only one original block is full (the mixed two-term family). No squarefree/odd-order assumption, no stronger equivalence claim. Return tactic lines only, no leading by.\nimport M7ConnectivityAccepted\nimport Mathlib.Algebra.Group.Subgroup.ZPowers.Basic\n\nnamespace M8.CoverageFoundation\nnoncomputable def direction {N : ℕ} (A : Finset (ZMod N)) : AddSubgroup (ZMod N) :=\n  AddSubgroup.closure (M7.Connectivity.differences A)\ndef FullDirection {N : ℕ} (A : Finset (ZMod N)) : Prop := direction A = ⊤\ndef InCoset {N : ℕ} (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)) : Prop :=\n  ∃ a : ZMod N, ∀ x ∈ A, x - a ∈ H\n/-- Exactly the proper coprime separated directions of the revised M8 source. -/\ndef Separated {N : ℕ} (c : M7.Action.Recipe N) : Prop :=\n  ∃ m q : ℕ, 2 ≤ m ∧ 2 ≤ q ∧ N = m*q ∧ Nat.Coprime m q ∧\n    InCoset c.1 (AddSubgroup.zmultiples (q : ZMod N)) ∧\n    InCoset c.2 (AddSubgroup.zmultiples (m : ZMod N))\nend M8.CoverageFoundation\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "consecutive_full",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.CoverageFoundation.consecutive_full",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (A : Finset (ZMod N)) (a : ZMod N), a ∈ A → a+1 ∈ A → M8.CoverageFoundation.FullDirection A",
+      "imports": [
+        "M8CoverageFoundation"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Revised original M8 §8 precise separated-direction obstruction, not Clifford inequivalence or arbitrary tensor inequivalence. direction uses the unique accepted M7 differences definition. coset_direction: closure_le, express x-y=(x-a)-(y-a) in H. consecutive_full: the difference (a+1)-a=1 belongs to closure, then accepted M7.Connectivity.one_mem_top. affine_full can use accepted M7.Connectivity.connected_action on the diagonal recipe (A,A) and Record ⟨u,false,s,s⟩: connected (A,A) simplifies to direction A=top since union_self; this avoids introducing an abstract/free automorphism. Or use difference_affine and explicit unit AddEquiv. proper_multiples: AddSubgroup.zmultiples_eq_closure and M7.Connectivity.finite_generation_gcd applied to singleton Finset {q}; Nat.gcd_eq_right from q|N gives q=1 contradiction. q=N is permitted and proper, no q<N assumption. no_separated: actual N=m*q yields q|N and m|N; full direction of either block forces corresponding subgroup top via coset_direction, contradict proper_multiples. orbit_no_separated: actual Action.act, split exchange, affine_full preserves the OR of full directions even if only one original block is full (the mixed two-term family). No squarefree/odd-order assumption, no stronger equivalence claim. Return tactic lines only, no leading by.\nimport M7ConnectivityAccepted\nimport Mathlib.Algebra.Group.Subgroup.ZPowers.Basic\n\nnamespace M8.CoverageFoundation\nnoncomputable def direction {N : ℕ} (A : Finset (ZMod N)) : AddSubgroup (ZMod N) :=\n  AddSubgroup.closure (M7.Connectivity.differences A)\ndef FullDirection {N : ℕ} (A : Finset (ZMod N)) : Prop := direction A = ⊤\ndef InCoset {N : ℕ} (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)) : Prop :=\n  ∃ a : ZMod N, ∀ x ∈ A, x - a ∈ H\n/-- Exactly the proper coprime separated directions of the revised M8 source. -/\ndef Separated {N : ℕ} (c : M7.Action.Recipe N) : Prop :=\n  ∃ m q : ℕ, 2 ≤ m ∧ 2 ≤ q ∧ N = m*q ∧ Nat.Coprime m q ∧\n    InCoset c.1 (AddSubgroup.zmultiples (q : ZMod N)) ∧\n    InCoset c.2 (AddSubgroup.zmultiples (m : ZMod N))\nend M8.CoverageFoundation\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "affine_full",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.CoverageFoundation.affine_full",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M8.CoverageFoundation.FullDirection (A.image (M7.Action.affine u s)) ↔ M8.CoverageFoundation.FullDirection A",
+      "imports": [
+        "M8CoverageFoundation"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Revised original M8 §8 precise separated-direction obstruction, not Clifford inequivalence or arbitrary tensor inequivalence. direction uses the unique accepted M7 differences definition. coset_direction: closure_le, express x-y=(x-a)-(y-a) in H. consecutive_full: the difference (a+1)-a=1 belongs to closure, then accepted M7.Connectivity.one_mem_top. affine_full can use accepted M7.Connectivity.connected_action on the diagonal recipe (A,A) and Record ⟨u,false,s,s⟩: connected (A,A) simplifies to direction A=top since union_self; this avoids introducing an abstract/free automorphism. Or use difference_affine and explicit unit AddEquiv. proper_multiples: AddSubgroup.zmultiples_eq_closure and M7.Connectivity.finite_generation_gcd applied to singleton Finset {q}; Nat.gcd_eq_right from q|N gives q=1 contradiction. q=N is permitted and proper, no q<N assumption. no_separated: actual N=m*q yields q|N and m|N; full direction of either block forces corresponding subgroup top via coset_direction, contradict proper_multiples. orbit_no_separated: actual Action.act, split exchange, affine_full preserves the OR of full directions even if only one original block is full (the mixed two-term family). No squarefree/odd-order assumption, no stronger equivalence claim. Return tactic lines only, no leading by.\nimport M7ConnectivityAccepted\nimport Mathlib.Algebra.Group.Subgroup.ZPowers.Basic\n\nnamespace M8.CoverageFoundation\nnoncomputable def direction {N : ℕ} (A : Finset (ZMod N)) : AddSubgroup (ZMod N) :=\n  AddSubgroup.closure (M7.Connectivity.differences A)\ndef FullDirection {N : ℕ} (A : Finset (ZMod N)) : Prop := direction A = ⊤\ndef InCoset {N : ℕ} (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)) : Prop :=\n  ∃ a : ZMod N, ∀ x ∈ A, x - a ∈ H\n/-- Exactly the proper coprime separated directions of the revised M8 source. -/\ndef Separated {N : ℕ} (c : M7.Action.Recipe N) : Prop :=\n  ∃ m q : ℕ, 2 ≤ m ∧ 2 ≤ q ∧ N = m*q ∧ Nat.Coprime m q ∧\n    InCoset c.1 (AddSubgroup.zmultiples (q : ZMod N)) ∧\n    InCoset c.2 (AddSubgroup.zmultiples (m : ZMod N))\nend M8.CoverageFoundation\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "proper_multiples",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.CoverageFoundation.proper_multiples",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ q : ℕ, 2 ≤ q → q ∣ N → AddSubgroup.zmultiples (q : ZMod N) ≠ ⊤",
+      "imports": [
+        "M8CoverageFoundation"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Revised original M8 §8 precise separated-direction obstruction, not Clifford inequivalence or arbitrary tensor inequivalence. direction uses the unique accepted M7 differences definition. coset_direction: closure_le, express x-y=(x-a)-(y-a) in H. consecutive_full: the difference (a+1)-a=1 belongs to closure, then accepted M7.Connectivity.one_mem_top. affine_full can use accepted M7.Connectivity.connected_action on the diagonal recipe (A,A) and Record ⟨u,false,s,s⟩: connected (A,A) simplifies to direction A=top since union_self; this avoids introducing an abstract/free automorphism. Or use difference_affine and explicit unit AddEquiv. proper_multiples: AddSubgroup.zmultiples_eq_closure and M7.Connectivity.finite_generation_gcd applied to singleton Finset {q}; Nat.gcd_eq_right from q|N gives q=1 contradiction. q=N is permitted and proper, no q<N assumption. no_separated: actual N=m*q yields q|N and m|N; full direction of either block forces corresponding subgroup top via coset_direction, contradict proper_multiples. orbit_no_separated: actual Action.act, split exchange, affine_full preserves the OR of full directions even if only one original block is full (the mixed two-term family). No squarefree/odd-order assumption, no stronger equivalence claim. Return tactic lines only, no leading by.\nimport M7ConnectivityAccepted\nimport Mathlib.Algebra.Group.Subgroup.ZPowers.Basic\n\nnamespace M8.CoverageFoundation\nnoncomputable def direction {N : ℕ} (A : Finset (ZMod N)) : AddSubgroup (ZMod N) :=\n  AddSubgroup.closure (M7.Connectivity.differences A)\ndef FullDirection {N : ℕ} (A : Finset (ZMod N)) : Prop := direction A = ⊤\ndef InCoset {N : ℕ} (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)) : Prop :=\n  ∃ a : ZMod N, ∀ x ∈ A, x - a ∈ H\n/-- Exactly the proper coprime separated directions of the revised M8 source. -/\ndef Separated {N : ℕ} (c : M7.Action.Recipe N) : Prop :=\n  ∃ m q : ℕ, 2 ≤ m ∧ 2 ≤ q ∧ N = m*q ∧ Nat.Coprime m q ∧\n    InCoset c.1 (AddSubgroup.zmultiples (q : ZMod N)) ∧\n    InCoset c.2 (AddSubgroup.zmultiples (m : ZMod N))\nend M8.CoverageFoundation\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "no_separated",
+    "dependencies": [
+      "coset_direction",
+      "proper_multiples"
+    ],
+    "spec": {
+      "name": "M8.CoverageFoundation.no_separated",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M8.CoverageFoundation.FullDirection c.1 ∨ M8.CoverageFoundation.FullDirection c.2) → ¬ M8.CoverageFoundation.Separated c",
+      "imports": [
+        "M8CoverageFoundation"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Revised original M8 §8 precise separated-direction obstruction, not Clifford inequivalence or arbitrary tensor inequivalence. direction uses the unique accepted M7 differences definition. coset_direction: closure_le, express x-y=(x-a)-(y-a) in H. consecutive_full: the difference (a+1)-a=1 belongs to closure, then accepted M7.Connectivity.one_mem_top. affine_full can use accepted M7.Connectivity.connected_action on the diagonal recipe (A,A) and Record ⟨u,false,s,s⟩: connected (A,A) simplifies to direction A=top since union_self; this avoids introducing an abstract/free automorphism. Or use difference_affine and explicit unit AddEquiv. proper_multiples: AddSubgroup.zmultiples_eq_closure and M7.Connectivity.finite_generation_gcd applied to singleton Finset {q}; Nat.gcd_eq_right from q|N gives q=1 contradiction. q=N is permitted and proper, no q<N assumption. no_separated: actual N=m*q yields q|N and m|N; full direction of either block forces corresponding subgroup top via coset_direction, contradict proper_multiples. orbit_no_separated: actual Action.act, split exchange, affine_full preserves the OR of full directions even if only one original block is full (the mixed two-term family). No squarefree/odd-order assumption, no stronger equivalence claim. Return tactic lines only, no leading by.\nimport M7ConnectivityAccepted\nimport Mathlib.Algebra.Group.Subgroup.ZPowers.Basic\n\nnamespace M8.CoverageFoundation\nnoncomputable def direction {N : ℕ} (A : Finset (ZMod N)) : AddSubgroup (ZMod N) :=\n  AddSubgroup.closure (M7.Connectivity.differences A)\ndef FullDirection {N : ℕ} (A : Finset (ZMod N)) : Prop := direction A = ⊤\ndef InCoset {N : ℕ} (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)) : Prop :=\n  ∃ a : ZMod N, ∀ x ∈ A, x - a ∈ H\n/-- Exactly the proper coprime separated directions of the revised M8 source. -/\ndef Separated {N : ℕ} (c : M7.Action.Recipe N) : Prop :=\n  ∃ m q : ℕ, 2 ≤ m ∧ 2 ≤ q ∧ N = m*q ∧ Nat.Coprime m q ∧\n    InCoset c.1 (AddSubgroup.zmultiples (q : ZMod N)) ∧\n    InCoset c.2 (AddSubgroup.zmultiples (m : ZMod N))\nend M8.CoverageFoundation\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "orbit_no_separated",
+    "dependencies": [
+      "affine_full",
+      "no_separated"
+    ],
+    "spec": {
+      "name": "M8.CoverageFoundation.orbit_no_separated",
+      "statement": "∀ (N : ℕ) [NeZero N], ∀ (c : M7.Action.Recipe N) (g : M7.Action.Record N), (M8.CoverageFoundation.FullDirection c.1 ∨ M8.CoverageFoundation.FullDirection c.2) → ¬ M8.CoverageFoundation.Separated (M7.Action.act g c)",
+      "imports": [
+        "M8CoverageFoundation"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Revised original M8 §8 precise separated-direction obstruction, not Clifford inequivalence or arbitrary tensor inequivalence. direction uses the unique accepted M7 differences definition. coset_direction: closure_le, express x-y=(x-a)-(y-a) in H. consecutive_full: the difference (a+1)-a=1 belongs to closure, then accepted M7.Connectivity.one_mem_top. affine_full can use accepted M7.Connectivity.connected_action on the diagonal recipe (A,A) and Record ⟨u,false,s,s⟩: connected (A,A) simplifies to direction A=top since union_self; this avoids introducing an abstract/free automorphism. Or use difference_affine and explicit unit AddEquiv. proper_multiples: AddSubgroup.zmultiples_eq_closure and M7.Connectivity.finite_generation_gcd applied to singleton Finset {q}; Nat.gcd_eq_right from q|N gives q=1 contradiction. q=N is permitted and proper, no q<N assumption. no_separated: actual N=m*q yields q|N and m|N; full direction of either block forces corresponding subgroup top via coset_direction, contradict proper_multiples. orbit_no_separated: actual Action.act, split exchange, affine_full preserves the OR of full directions even if only one original block is full (the mixed two-term family). No squarefree/odd-order assumption, no stronger equivalence claim. Return tactic lines only, no leading by.\nimport M7ConnectivityAccepted\nimport Mathlib.Algebra.Group.Subgroup.ZPowers.Basic\n\nnamespace M8.CoverageFoundation\nnoncomputable def direction {N : ℕ} (A : Finset (ZMod N)) : AddSubgroup (ZMod N) :=\n  AddSubgroup.closure (M7.Connectivity.differences A)\ndef FullDirection {N : ℕ} (A : Finset (ZMod N)) : Prop := direction A = ⊤\ndef InCoset {N : ℕ} (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)) : Prop :=\n  ∃ a : ZMod N, ∀ x ∈ A, x - a ∈ H\n/-- Exactly the proper coprime separated directions of the revised M8 source. -/\ndef Separated {N : ℕ} (c : M7.Action.Recipe N) : Prop :=\n  ∃ m q : ℕ, 2 ≤ m ∧ 2 ≤ q ∧ N = m*q ∧ Nat.Coprime m q ∧\n    InCoset c.1 (AddSubgroup.zmultiples (q : ZMod N)) ∧\n    InCoset c.2 (AddSubgroup.zmultiples (m : ZMod N))\nend M8.CoverageFoundation\n"
+    },
+    "metadata": {}
+  }
+]

@@ -1,0 +1,82 @@
+{
+  "id": "no_separated",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.CoverageFoundation.no_separated",
+    "spec_sha256": "8a6f98c23e8e4a1b68756f98508fac8cfd48ed196ed8212defa67c3cb9f3fd79",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-coverage-foundation-formalization/.humanize-formal-runs/run-4y7az8h8/attempt-001/Candidate_7ea968095d7ddd60.lean",
+        "target_path": "/home/jing/m8-lean-coverage-foundation-formalization/.humanize-formal-runs/run-4y7az8h8/attempt-001/FrozenTarget_7ea968095d7ddd60.lean",
+        "feedback": "",
+        "target_sha256": "633be029637726079e10b2d5f90d4fc9b0c1c5b4481824bbfcf22e5b1c939478",
+        "target_olean_sha256": "b6ac6f688d822613c1ccbdcd0706c8276dcfdb9ba58ccd2ccb09d41397f9ace4",
+        "source_sha256": "a7b5795c99415a82524fb0e4669f7c833b10d180f29032f935c069ed991331de",
+        "olean_sha256": "ba7055c9250be1b9c657143de32e647c5b76cf9623f091287f399f453d711df1",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:51:56.785255+00:00",
+    "work": "/home/jing/m8-lean-coverage-foundation-formalization/.humanize-formal-runs/run-4y7az8h8",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0ff1b7a31db89e34324dd04a71bcefaf99bcc7f1ac14b4c4342793de09479c9d",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-coverage-foundation-formalization/.humanize-formal-runs/run-4y7az8h8/attempt-001/Candidate_7ea968095d7ddd60.lean",
+    "environment_sha256": "510908a2323553e1ba2c3ef8e46aa2b722649f309b2cba505cf334e44c5dde76",
+    "artifacts": {
+      "coset_direction": {
+        "payload": {
+          "declaration": "theorem M8.CoverageFoundation.coset_direction : ∀ (N : ℕ) [NeZero N], ∀ (A : Finset (ZMod N)) (H : AddSubgroup (ZMod N)), M8.CoverageFoundation.InCoset A H → M8.CoverageFoundation.direction A ≤ H := by\n  intro N inst A H hA\n  rcases hA with ⟨a, ha⟩\n  change AddSubgroup.closure (M7.Connectivity.differences A) ≤ H\n  apply (AddSubgroup.closure_le H).2\n  intro z hz\n  rcases hz with ⟨x, hx, y, hy, rfl⟩\n  change x - y ∈ H\n  have he : x - y = (x - a) - (y - a) := by abel\n  rw [he]\n  exact H.sub_mem (ha x hx) (ha y hy)",
+          "imports": [
+            "M8CoverageFoundation"
+          ],
+          "name": "M8.CoverageFoundation.coset_direction",
+          "ancestors": [],
+          "spec_sha256": "1d97474478db680c77e198c227a3d5d3925e5025c3dbc321301ad46d6fad8029"
+        },
+        "sha256": "dc8647308b710c0a3e3507deb923297b8ae95e04f6b0106d9ec890acd80bb553"
+      },
+      "proper_multiples": {
+        "payload": {
+          "declaration": "theorem M8.CoverageFoundation.proper_multiples : ∀ (N : ℕ) [NeZero N], ∀ q : ℕ, 2 ≤ q → q ∣ N → AddSubgroup.zmultiples (q : ZMod N) ≠ ⊤ := by\n  change ∀ (N : ℕ) [NeZero N], ∀ q : ℕ, 2 ≤ q → q ∣ N → AddSubgroup.zmultiples (q : ZMod N) ≠ ⊤\n  intro N inst q hq hdiv htop\n  have hg : Nat.gcd N q = 1 := by\n    have h := (M7.Connectivity.finite_generation_gcd N ({q} : Finset ℕ)).mp (by\n      simpa [AddSubgroup.zmultiples_eq_closure] using htop)\n    simpa using h\n  have hd : q ∣ Nat.gcd N q := Nat.dvd_gcd hdiv (dvd_refl q)\n  rw [hg] at hd\n  have hl : q ≤ 1 := Nat.le_of_dvd (by decide) hd\n  omega",
+          "imports": [
+            "M8CoverageFoundation"
+          ],
+          "name": "M8.CoverageFoundation.proper_multiples",
+          "ancestors": [],
+          "spec_sha256": "91a440f94e08147797978116c3c326a63ba78ba7cea9684e65dc845f298ffbbd"
+        },
+        "sha256": "bdd370d5aafaef28e0eb989f770866f99093cd23819070aaa4ec6e19e5493634"
+      },
+      "no_separated": {
+        "payload": {
+          "declaration": "theorem M8.CoverageFoundation.no_separated : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M8.CoverageFoundation.FullDirection c.1 ∨ M8.CoverageFoundation.FullDirection c.2) → ¬ M8.CoverageFoundation.Separated c := by\n  change ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, (M8.CoverageFoundation.FullDirection c.1 ∨ M8.CoverageFoundation.FullDirection c.2) → ¬ M8.CoverageFoundation.Separated c\n  intro N inst c hfull hsep\n  rcases hsep with ⟨m, q, hm, hq, hN, hcop, hA, hB⟩\n  rcases hfull with hAfull | hBfull\n  · have hdiv : q ∣ N := ⟨m, by simpa [Nat.mul_comm] using hN⟩\n    have hle := M8.CoverageFoundation.coset_direction N c.1 (AddSubgroup.zmultiples (q : ZMod N)) hA\n    change M8.CoverageFoundation.direction c.1 = ⊤ at hAfull\n    rw [hAfull] at hle\n    exact M8.CoverageFoundation.proper_multiples N q hq hdiv (le_antisymm le_top hle)\n  · have hdiv : m ∣ N := ⟨q, hN⟩\n    have hle := M8.CoverageFoundation.coset_direction N c.2 (AddSubgroup.zmultiples (m : ZMod N)) hB\n    change M8.CoverageFoundation.direction c.2 = ⊤ at hBfull\n    rw [hBfull] at hle\n    exact M8.CoverageFoundation.proper_multiples N m hm hdiv (le_antisymm le_top hle)",
+          "imports": [
+            "M8CoverageFoundation"
+          ],
+          "name": "M8.CoverageFoundation.no_separated",
+          "ancestors": [
+            "coset_direction",
+            "proper_multiples"
+          ],
+          "spec_sha256": "290b6a4e79fb8636a30b286007008760ec418e3563f91038acfca74910c5e79a"
+        },
+        "sha256": "ee612651c690c9449013779729b57a4baa00b75dd7102fd0b376dc2aae09bdb5"
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+theorem M8.OrbitSpan.anchor_minimum : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → ∀ L : ℕ, M8.OrbitSpan.value c ≤ L ↔ ∃ (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b ∧ M8.Anchor.span (M8.Anchor.trial c e u a b) ≤ L := by
+  intro N inst c hc₁ hc₂ L
+  exact (M8.OrbitSpan.small_iff N c hc₁ hc₂ L).trans (M8.Anchor.passing_presentations N c L).symm

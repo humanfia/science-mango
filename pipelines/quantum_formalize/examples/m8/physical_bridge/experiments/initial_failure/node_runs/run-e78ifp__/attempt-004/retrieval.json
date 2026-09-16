@@ -1,0 +1,276 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6Flatten common_quantum_distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 349720,
+        "name": "Metric.Snowflaking.dist_toSnowflaking_toSnowflaking",
+        "module": "Mathlib.Topology.MetricSpace.Snowflaking",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Snowflaking.lean#L425-L428",
+        "source_text": "@[simp]\ntheorem dist_toSnowflaking_toSnowflaking [Dist X] (x y : X) :\n    dist (toSnowflaking x : Snowflaking X α hα₀ hα₁) (toSnowflaking y) = dist x y ^ α :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 349695,
+        "name": "Metric.Snowflaking.edist_toSnowflaking_toSnowflaking",
+        "module": "Mathlib.Topology.MetricSpace.Snowflaking",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Snowflaking.lean#L281-L284",
+        "source_text": "@[simp]\ntheorem edist_toSnowflaking_toSnowflaking (x y : X) :\n    edist (toSnowflaking x : Snowflaking X α hα₀ hα₁) (toSnowflaking y) = edist x y ^ α :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 329232,
+        "name": "Mathlib.Tactic.Ring.Common.ExSum",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L243-L251",
+        "source_text": "/-- `ExSum BaseType sα e` stores the structure of a normalized polynomial expression `e`, which is\na sum of monomials. -/\nmeta inductive ExSum {u : Lean.Level} {α : Q(Type u)} (BaseType : Q($α) → Type)\n    (sα : Q(CommSemiring $α)) : (e : Q($α)) → Type\n  /-- Zero is a polynomial. `e` is the expression `0`. -/\n  | zero : ExSum BaseType sα q(0 : $α)\n  /-- A sum `a + b` is a polynomial if `a` is a monomial and `b` is another polynomial. -/\n  | add {a b : Q($α)} :\n    ExProd BaseType sα a → ExSum BaseType sα b → ExSum BaseType sα q($a + $b)\n",
+        "docstring": "`ExSum BaseType sα e` stores the structure of a normalized polynomial expression `e`, which is\na sum of monomials. "
+      },
+      {
+        "id": 192169,
+        "name": "SimpleGraph.commonNeighbors",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Basic.lean#L863-L866",
+        "source_text": "/-- The set of common neighbors between two vertices `v` and `w` in a graph `G` is the\nintersection of the neighbor sets of `v` and `w`. -/\ndef commonNeighbors (v w : V) : Set V :=\n  G.neighborSet v ∩ G.neighborSet w\n",
+        "docstring": "The set of common neighbors between two vertices `v` and `w` in a graph `G` is the\nintersection of the neighbor sets of `v` and `w`. "
+      },
+      {
+        "id": 329235,
+        "name": "Mathlib.Tactic.Ring.Common.Result",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L257-L268",
+        "source_text": "/--\nThe result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n-/\nstructure Result {α : Q(Type u)} (E : Q($α) → Type*) (e : Q($α)) where\n  /-- The normalized result. -/\n  expr : Q($α)\n  /-- The data associated to the normalization. -/\n  val : E expr\n  /-- A proof that the original expression is equal to the normalized result. -/\n  proof : Q($e = $expr)\n",
+        "docstring": "The result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6Flatten common_quantum_distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390506,
+        "name": "QuantumMechanics.positionCLM",
+        "module": "Physlib.QuantumMechanics.Operators.Position",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Position.lean#L74-L77",
+        "source_text": "/-- Component `i` of the position operator is the continuous linear map\n  from `𝓢(Space d, ℂ)` to itself which maps `ψ` to `xᵢψ`. -/\ndef positionCLM : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=\n  SchwartzMap.smulLeftCLM ℂ (Complex.ofRealCLM ∘L coordCLM i)\n",
+        "docstring": "Component `i` of the position operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself which maps `ψ` to `xᵢψ`. "
+      },
+      {
+        "id": 394094,
+        "name": "FTheory.SU5.FiveQuanta.toFluxesFive",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L111-L112",
+        "source_text": "/-- The underlying `FluxesFive` from a `FiveQuanta`. -/\ndef toFluxesFive (x : FiveQuanta 𝓩) : FluxesFive := x.map Prod.snd\n",
+        "docstring": "The underlying `FluxesFive` from a `FiveQuanta`. "
+      },
+      {
+        "id": 394153,
+        "name": "FTheory.SU5.TenQuanta.toChargeMap",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.TenQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/TenQuanta.lean#L131-L134",
+        "source_text": "/-- The map which takes a charge to the overall flux it\n  corresponds to in a `TenQuanta`. -/\ndef toChargeMap [DecidableEq 𝓩] (x : TenQuanta 𝓩) : 𝓩 → Fluxes :=\n  fun z => ((x.filter fun p => p.1 = z).map Prod.snd).sum\n",
+        "docstring": "The map which takes a charge to the overall flux it\ncorresponds to in a `TenQuanta`. "
+      },
+      {
+        "id": 390444,
+        "name": "QuantumMechanics.momentumCLM",
+        "module": "Physlib.QuantumMechanics.Operators.Momentum",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Momentum.lean#L61-L65",
+        "source_text": "/-- Component `i` of the momentum operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself which maps `ψ` to `-iℏ ∂ᵢψ`. -/\ndef momentumCLM : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=\n  (- Complex.I * ℏ) • (SchwartzMap.evalCLM ℂ (Space d) ℂ (basis i)) ∘L\n    (SchwartzMap.fderivCLM ℂ (Space d) ℂ)\n",
+        "docstring": "Component `i` of the momentum operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself which maps `ψ` to `-iℏ ∂ᵢψ`. "
+      },
+      {
+        "id": 394095,
+        "name": "FTheory.SU5.FiveQuanta.toCharges",
+        "module": "Physlib.StringTheory.FTheory.SU5.Quanta.FiveQuanta",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StringTheory/FTheory/SU5/Quanta/FiveQuanta.lean#L120-L121",
+        "source_text": "/-- The underlying Multiset charges from a `FiveQuanta`. -/\ndef toCharges (x : FiveQuanta 𝓩) : Multiset 𝓩 := x.map Prod.fst\n",
+        "docstring": "The underlying Multiset charges from a `FiveQuanta`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6CSSDistance common_quantum_distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 138735,
+        "name": "dist_div_div_le",
+        "module": "Mathlib.Analysis.Normed.Group.Uniform",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Analysis/Normed/Group/Uniform.lean#L239-L241",
+        "source_text": "@[to_additive]\ntheorem dist_div_div_le (a₁ a₂ b₁ b₂ : E) : dist (a₁ / a₂) (b₁ / b₂) ≤ dist a₁ b₁ + dist a₂ b₂ := by\n  simpa only [div_eq_mul_inv, dist_inv_inv] using dist_mul_mul_le a₁ a₂⁻¹ b₁ b₂⁻¹",
+        "docstring": null
+      },
+      {
+        "id": 329232,
+        "name": "Mathlib.Tactic.Ring.Common.ExSum",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L243-L251",
+        "source_text": "/-- `ExSum BaseType sα e` stores the structure of a normalized polynomial expression `e`, which is\na sum of monomials. -/\nmeta inductive ExSum {u : Lean.Level} {α : Q(Type u)} (BaseType : Q($α) → Type)\n    (sα : Q(CommSemiring $α)) : (e : Q($α)) → Type\n  /-- Zero is a polynomial. `e` is the expression `0`. -/\n  | zero : ExSum BaseType sα q(0 : $α)\n  /-- A sum `a + b` is a polynomial if `a` is a monomial and `b` is another polynomial. -/\n  | add {a b : Q($α)} :\n    ExProd BaseType sα a → ExSum BaseType sα b → ExSum BaseType sα q($a + $b)\n",
+        "docstring": "`ExSum BaseType sα e` stores the structure of a normalized polynomial expression `e`, which is\na sum of monomials. "
+      },
+      {
+        "id": 192169,
+        "name": "SimpleGraph.commonNeighbors",
+        "module": "Mathlib.Combinatorics.SimpleGraph.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/SimpleGraph/Basic.lean#L863-L866",
+        "source_text": "/-- The set of common neighbors between two vertices `v` and `w` in a graph `G` is the\nintersection of the neighbor sets of `v` and `w`. -/\ndef commonNeighbors (v w : V) : Set V :=\n  G.neighborSet v ∩ G.neighborSet w\n",
+        "docstring": "The set of common neighbors between two vertices `v` and `w` in a graph `G` is the\nintersection of the neighbor sets of `v` and `w`. "
+      },
+      {
+        "id": 266256,
+        "name": "MeasureTheory.levyProkhorovEDist",
+        "module": "Mathlib.MeasureTheory.Measure.LevyProkhorovMetric",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Measure/LevyProkhorovMetric.lean#L51-L55",
+        "source_text": "/-- The Lévy-Prokhorov edistance between measures:\n`d(μ,ν) = inf {r ≥ 0 | ∀ B, μ B ≤ ν Bᵣ + r ∧ ν B ≤ μ Bᵣ + r}`. -/\nnoncomputable def levyProkhorovEDist (μ ν : Measure Ω) : ℝ≥0∞ :=\n  sInf {ε | ∀ B, MeasurableSet B →\n            μ B ≤ ν (thickening ε.toReal B) + ε ∧ ν B ≤ μ (thickening ε.toReal B) + ε}\n",
+        "docstring": "The Lévy-Prokhorov edistance between measures:\n`d(μ,ν) = inf {r ≥ 0 | ∀ B, μ B ≤ ν Bᵣ + r ∧ ν B ≤ μ Bᵣ + r}`. "
+      },
+      {
+        "id": 329235,
+        "name": "Mathlib.Tactic.Ring.Common.Result",
+        "module": "Mathlib.Tactic.Ring.Common",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Ring/Common.lean#L257-L268",
+        "source_text": "/--\nThe result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n-/\nstructure Result {α : Q(Type u)} (E : Q($α) → Type*) (e : Q($α)) where\n  /-- The normalized result. -/\n  expr : Q($α)\n  /-- The data associated to the normalization. -/\n  val : E expr\n  /-- A proof that the original expression is equal to the normalized result. -/\n  proof : Q($e = $expr)\n",
+        "docstring": "The result of evaluating an (unnormalized) expression `e` into the type family `E`\n(typically one of `ExSum`, `ExProd`, `ExBase` or `BaseType`) is a (normalized) element `e'`\nand a representation `E e'` for it, and a proof of `e = e'`.\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6CSSDistance common_quantum_distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390305,
+        "name": "QuantumMechanics.SpaceDHilbertSpace",
+        "module": "Physlib.QuantumMechanics.HilbertSpaces.SpaceD.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/HilbertSpaces/SpaceD/Basic.lean#L74-L77",
+        "source_text": "/-- The Hilbert space for single-particle quantum mechanics on `Space d` with measure `μ`\n  is defined to be `L²(Space d, ℂ; μ)`, the space of `μ`-a.e. equal equivalence classes\n  of functions `f : Space d → ℂ` for which `∫ x, ‖f x‖² ∂μ` is finite. -/\nabbrev SpaceDHilbertSpace (d : ℕ) (μ : Measure (Space d) := volume) := Lp ℂ 2 μ\n",
+        "docstring": "The Hilbert space for single-particle quantum mechanics on `Space d` with measure `μ`\nis defined to be `L²(Space d, ℂ; μ)`, the space of `μ`-a.e. equal equivalence classes\nof functions `f : Space d → ℂ` for which `∫ x, ‖f x‖² ∂μ` is finite. "
+      },
+      {
+        "id": 390391,
+        "name": "QuantumMechanics.angularMomentumOperator",
+        "module": "Physlib.QuantumMechanics.Operators.AngularMomentum",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/AngularMomentum.lean#L56-L59",
+        "source_text": "/-- Component `i j` of the angular momentum operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself defined by `𝐋ᵢⱼ ≔ 𝐱ᵢ∘𝐩ⱼ - 𝐱ⱼ∘𝐩ᵢ`. -/\ndef angularMomentumOperator {d : ℕ} (i j : Fin d) : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=\n  𝐱 i ∘L 𝐩 j - 𝐱 j ∘L 𝐩 i\n",
+        "docstring": "Component `i j` of the angular momentum operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself defined by `𝐋ᵢⱼ ≔ 𝐱ᵢ∘𝐩ⱼ - 𝐱ⱼ∘𝐩ᵢ`. "
+      },
+      {
+        "id": 390449,
+        "name": "QuantumMechanics.momentumOperator",
+        "module": "Physlib.QuantumMechanics.Operators.Momentum",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Momentum.lean#L90-L93",
+        "source_text": "/-- The momentum operator as a LinearPMap with domain the Schwartz submodule. -/\ndef momentumOperator : SpaceDHilbertSpace d →ₗ.[ℂ] SpaceDHilbertSpace d where\n  domain := SchwartzSubmodule d\n  toFun := schwartzIncl.toLinearMap ∘ₗ (𝐩 i).toLinearMap ∘ₗ schwartzEquiv.symm.toLinearMap\n",
+        "docstring": "The momentum operator as a LinearPMap with domain the Schwartz submodule. "
+      },
+      {
+        "id": 390506,
+        "name": "QuantumMechanics.positionCLM",
+        "module": "Physlib.QuantumMechanics.Operators.Position",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Position.lean#L74-L77",
+        "source_text": "/-- Component `i` of the position operator is the continuous linear map\n  from `𝓢(Space d, ℂ)` to itself which maps `ψ` to `xᵢψ`. -/\ndef positionCLM : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=\n  SchwartzMap.smulLeftCLM ℂ (Complex.ofRealCLM ∘L coordCLM i)\n",
+        "docstring": "Component `i` of the position operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself which maps `ψ` to `xᵢψ`. "
+      },
+      {
+        "id": 390444,
+        "name": "QuantumMechanics.momentumCLM",
+        "module": "Physlib.QuantumMechanics.Operators.Momentum",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/QuantumMechanics/Operators/Momentum.lean#L61-L65",
+        "source_text": "/-- Component `i` of the momentum operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself which maps `ψ` to `-iℏ ∂ᵢψ`. -/\ndef momentumCLM : 𝓢(Space d, ℂ) →L[ℂ] 𝓢(Space d, ℂ) :=\n  (- Complex.I * ℏ) • (SchwartzMap.evalCLM ℂ (Space d) ℂ (basis i)) ∘L\n    (SchwartzMap.fderivCLM ℂ (Space d) ℂ)\n",
+        "docstring": "Component `i` of the momentum operator is the continuous linear map\nfrom `𝓢(Space d, ℂ)` to itself which maps `ψ` to `-iℏ ∂ᵢψ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Pinned.distance_spec",
+    "status": "ok",
+    "results": [
+      {
+        "id": 348225,
+        "name": "Metric.infEDist",
+        "module": "Mathlib.Topology.MetricSpace.HausdorffDistance",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/HausdorffDistance.lean#L73-L75",
+        "source_text": "/-- The minimal edistance of a point to a set -/\ndef infEDist (x : α) (s : Set α) : ℝ≥0∞ :=\n  ⨅ y ∈ s, edist x y\n",
+        "docstring": "The minimal edistance of a point to a set "
+      },
+      {
+        "id": 349347,
+        "name": "dist_edist",
+        "module": "Mathlib.Topology.MetricSpace.Pseudo.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/MetricSpace/Pseudo/Defs.lean#L359-L361",
+        "source_text": "/-- Express `dist` in terms of `edist` -/\ntheorem dist_edist (x y : α) : dist x y = (edist x y).toReal := by\n  rw [edist_dist, ENNReal.toReal_ofReal dist_nonneg]\n",
+        "docstring": "Express `dist` in terms of `edist` "
+      },
+      {
+        "id": 344259,
+        "name": "Option.edist_none_none",
+        "module": "Mathlib.Topology.EMetricSpace.Weak",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/EMetricSpace/Weak.lean#L61-L63",
+        "source_text": "@[simp]\ntheorem edist_none_none : edist (self := Option.toEDist (α := α))\n    none none = 0 := rfl",
+        "docstring": null
+      },
+      {
+        "id": 114643,
+        "name": "AlgebraicGeometry.Spec.map",
+        "module": "Mathlib.AlgebraicGeometry.Scheme",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/AlgebraicGeometry/Scheme.lean#L498-L500",
+        "source_text": "/-- The induced map of a ring homomorphism on the ring spectra, as a morphism of schemes. -/\ndef Spec.map {R S : CommRingCat} (f : R ⟶ S) : Spec S ⟶ Spec R :=\n  ⟨Spec.locallyRingedSpaceMap f⟩\n",
+        "docstring": "The induced map of a ring homomorphism on the ring spectra, as a morphism of schemes. "
+      },
+      {
+        "id": 114640,
+        "name": "AlgebraicGeometry.Spec",
+        "module": "Mathlib.AlgebraicGeometry.Scheme",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/AlgebraicGeometry/Scheme.lean#L467-L484",
+        "source_text": "/-- The spectrum of a commutative ring, as a scheme.\n\nThe notation `Spec(R)` for `(R : Type*) [CommRing R]` to mean `Spec (CommRingCat.of R)` is\nenabled in the scope `SpecOfNotation`. Please do not use it within Mathlib, but it can be\nused in downstream projects if desired. To use this, do:\n```lean\nimport Mathlib.AlgebraicGeometry.Scheme\n\nvariable (R : Type*) [CommRing R]\n\nopen scoped SpecOfNotation\n\n#check Spec(R)\n```\n-/\ndef Spec (R : CommRingCat) : Scheme where\n  local_affine _ := ⟨⟨⊤, trivial⟩, R, ⟨(Spec.toLocallyRingedSpace.obj (op R)).restrictTopIso⟩⟩\n  toLocallyRingedSpace := Spec.locallyRingedSpaceObj R\n",
+        "docstring": "The spectrum of a commutative ring, as a scheme.\n\nThe notation `Spec(R)` for `(R : Type*) [CommRing R]` to mean `Spec (CommRingCat.of R)` is\nenabled in the scope `SpecOfNotation`. Please do not use it within Mathlib, but it can be\nused in downstream projects if desired. To use this, do:\n```lean\nimport Mathlib.AlgebraicGeometry.Scheme\n\nvariable (R : Type*) [CommRing R]\n\nopen scoped SpecOfNotation\n\n#check Spec(R)\n```\n"
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Pinned.distance_spec",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393169,
+        "name": "LengthUnit.miles",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L201-L202",
+        "source_text": "/-- The length unit of a mile (1609.344 meters). -/\nnoncomputable def miles : LengthUnit := scale (1609.344) meters\n",
+        "docstring": "The length unit of a mile (1609.344 meters). "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

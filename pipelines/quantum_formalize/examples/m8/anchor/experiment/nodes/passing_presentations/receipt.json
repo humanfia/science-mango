@@ -1,0 +1,82 @@
+{
+  "id": "passing_presentations",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Anchor.passing_presentations",
+    "spec_sha256": "0ee794fb14505475a6f98453e2dc1388bae22b0d612b1b5486c5aa627c26fd9b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-6ut_li2c/attempt-001/Candidate_44670b45cb4bea0f.lean",
+        "target_path": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-6ut_li2c/attempt-001/FrozenTarget_44670b45cb4bea0f.lean",
+        "feedback": "",
+        "target_sha256": "3d601c2a560946842b25a575221b61839fc7d3eac5112b6b266ee5ae222895bc",
+        "target_olean_sha256": "1610f85fbdec92f468a83492177bf928c027bed19933e2ff0f44c8768840e05a",
+        "source_sha256": "fd5486458f8b199d680ff1927ecf43e74aa7aa09ee57d4fedd9951afc17104d5",
+        "olean_sha256": "a0376f3eca463230755bf7bcde87b7ca2430f083e8d1cd74f6b5ee62b5c93fef",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:34:58.139571+00:00",
+    "work": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-6ut_li2c",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "dcdb5b6772d9dfe34947af7ae6ddd8b4bb3fb5ca379578bdbf8409d649c82f2b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-6ut_li2c/attempt-001/Candidate_44670b45cb4bea0f.lean",
+    "environment_sha256": "f29c5bc27b77b066566760799a4ff46ca0a19917e4e17a979c4152491b9e11e0",
+    "artifacts": {
+      "anchored": {
+        "payload": {
+          "declaration": "theorem M8.Anchor.anchored : ∀ (N : ℕ) [NeZero N] (c : M8.Anchor.Recipe N) (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b → M8.Anchor.Anchored (M8.Anchor.trial c e u a b) := by\n  intro N _ c e u a b h\n  cases e <;> simp only [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right, Bool.false_eq_true, if_false, if_true] at h\n  all_goals\n    rcases h with ⟨ha, hb⟩\n    dsimp [M8.Anchor.Anchored, M8.Anchor.trial, M8.Anchor.record, M7.Action.act]\n    constructor\n  all_goals\n    first\n    | exact Finset.mem_image.mpr ⟨a, ha, by simp [M7.Action.affine]⟩\n    | exact Finset.mem_image.mpr ⟨b, hb, by simp [M7.Action.affine]⟩",
+          "imports": [
+            "M8Anchor"
+          ],
+          "name": "M8.Anchor.anchored",
+          "ancestors": [],
+          "spec_sha256": "bb9dafebc591e6b53a18cb4fa1c64c251e16e8d298a656601d3e961de3b15081"
+        },
+        "sha256": "e02ace45ea9004008f47158d1719a6f46c373ca90992682f1b79830df2e8b795"
+      },
+      "translation_reconstruction": {
+        "payload": {
+          "declaration": "theorem M8.Anchor.translation_reconstruction : ∀ (N : ℕ) [NeZero N] (c : M8.Anchor.Recipe N) (g : M7.Action.Record N), M8.Anchor.Anchored (M7.Action.act g c) → ∃ a b : ZMod N, M8.Anchor.Eligible c g.exchange a b ∧ M8.Anchor.record g.exchange g.unit a b = g := by\n  intro N inst c g h\n  classical\n  rcases g with ⟨u, e, s, t⟩\n  cases e <;> simp [M8.Anchor.Anchored, M7.Action.act, M7.Action.affine, Finset.mem_image] at h\n  all_goals\n    rcases h with ⟨⟨a, ha, hsa⟩, ⟨b, hb, htb⟩⟩\n    have hs : -((u : ZMod N) * a) = s := by\n      linear_combination -hsa\n    have ht : -((u : ZMod N) * b) = t := by\n      linear_combination -htb\n    refine ⟨a, b, ?_, ?_⟩\n    · exact ⟨ha, hb⟩\n    · simp [M8.Anchor.record, hs, ht]",
+          "imports": [
+            "M8Anchor"
+          ],
+          "name": "M8.Anchor.translation_reconstruction",
+          "ancestors": [],
+          "spec_sha256": "4ec684919a1d2acc0f0ce47a9cfc2ddff477725faf08347fd2aebdb5b4957f0b"
+        },
+        "sha256": "8a3b35180ee6167e6f92413192646bef68d2d2c1e6fb8873bfb9ade86cc84813"
+      },
+      "passing_presentations": {
+        "payload": {
+          "declaration": "theorem M8.Anchor.passing_presentations : ∀ (N : ℕ) [NeZero N] (c : M8.Anchor.Recipe N) (L : ℕ), (∃ (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b ∧ M8.Anchor.span (M8.Anchor.trial c e u a b) ≤ L) ↔ ∃ g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) ∧ M8.Anchor.span (M7.Action.act g c) ≤ L := by\n  intro N inst c L\n  constructor\n  · rintro ⟨e, u, a, b, hEligible, hSpan⟩\n    refine ⟨M8.Anchor.record e u a b, ?_, hSpan⟩\n    exact M8.Anchor.anchored N c e u a b hEligible\n  · rintro ⟨g, hAnchored, hSpan⟩\n    rcases M8.Anchor.translation_reconstruction N c g hAnchored with ⟨a, b, hEligible, hRecord⟩\n    refine ⟨g.exchange, g.unit, a, b, hEligible, ?_⟩\n    simpa only [M8.Anchor.trial, hRecord] using hSpan",
+          "imports": [
+            "M8Anchor"
+          ],
+          "name": "M8.Anchor.passing_presentations",
+          "ancestors": [
+            "anchored",
+            "translation_reconstruction"
+          ],
+          "spec_sha256": "acf4b91ebf99c2bde5cb9cd4171f81eaa5a2c184fa850f26adc6305442130ddd"
+        },
+        "sha256": "0d5c814a3d68a1d69465430653782126914ceeec701d42c88530feba6358ae9b"
+      }
+    }
+  }
+}

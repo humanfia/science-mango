@@ -1,0 +1,18 @@
+import FrozenTarget_bdeef5fe31f96272
+theorem M8.Cutoff.indexed_work_envelopes : QuantumHarnessFrozenTarget := by
+  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^3 * 4^R ≤ (N+1)^5 ∧ N^4 * 4^R ≤ (N+1)^6
+  intro N R hR
+  have hs := M8.Cutoff.state_square N R hR
+  have hp : ∀ k : ℕ, N ^ k ≤ (N + 1) ^ k := by
+    intro k
+    induction k with
+    | zero => simp
+    | succ k ih =>
+      simpa only [pow_succ] using Nat.mul_le_mul ih (Nat.le_succ N)
+  constructor
+  · calc
+      N ^ 3 * 4 ^ R ≤ (N + 1) ^ 3 * (N + 1) ^ 2 := Nat.mul_le_mul (hp 3) hs
+      _ = (N + 1) ^ 5 := by ring
+  · calc
+      N ^ 4 * 4 ^ R ≤ (N + 1) ^ 4 * (N + 1) ^ 2 := Nat.mul_le_mul (hp 4) hs
+      _ = (N + 1) ^ 6 := by ring

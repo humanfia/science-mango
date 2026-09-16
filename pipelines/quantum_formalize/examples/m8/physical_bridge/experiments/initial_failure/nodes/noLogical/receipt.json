@@ -1,0 +1,82 @@
+{
+  "id": "noLogical",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.PhysicalBridge.noLogical",
+    "spec_sha256": "d359e7185055f7cc8a8bb12c8bec6e78679a3110ce09a21af5ee538b928eba71",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-physical-bridge-formalization/.humanize-formal-runs/run-60axqqtr/attempt-001/Candidate_1f13f3cba2c3d853.lean",
+        "target_path": "/home/jing/m8-lean-physical-bridge-formalization/.humanize-formal-runs/run-60axqqtr/attempt-001/FrozenTarget_1f13f3cba2c3d853.lean",
+        "feedback": "",
+        "target_sha256": "5d6f10a83d7fcef9710865b3889ff868d1fb1ab0b0733018a56de563c77dda30",
+        "target_olean_sha256": "a446854d482bdc05dd78cae3771c0f48851500496d0814093c190bffedb0622d",
+        "source_sha256": "8de297d4a18d4b8ede8fe9414dcc254e876f995faf0d4ccf031eb152a3f378f5",
+        "olean_sha256": "d226da21239b7fc504c324731a029cf566bc04a49ae7dfbc6e22da2ed9d9dcd7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:36:37.237309+00:00",
+    "work": "/home/jing/m8-lean-physical-bridge-formalization/.humanize-formal-runs/run-60axqqtr",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "78dfd4de1c891bf952d23bd322cea35632040531294f44adce3d8aad62c37fda",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-physical-bridge-formalization/.humanize-formal-runs/run-60axqqtr/attempt-001/Candidate_1f13f3cba2c3d853.lean",
+    "environment_sha256": "51c8278f21c3426e82254ec665e3c6914db47ba2e5c9127b42912836a5b27093",
+    "artifacts": {
+      "signature_transport_degree": {
+        "payload": {
+          "declaration": "theorem M8.PhysicalBridge.signature_transport_degree : ∀ (N : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), (M8.PhysicalBridge.signature (M7.Action.act g c)).natDegree = (M8.PhysicalBridge.signature c).natDegree := by\n  intro N inst c g\n  change (M7.RecipeSignature.signature (M7.Action.act g c)).natDegree = (M7.RecipeSignature.signature c).natDegree\n  exact M7.RecipeSignature.action_signature_degree N c g",
+          "imports": [
+            "M8PhysicalBridge"
+          ],
+          "name": "M8.PhysicalBridge.signature_transport_degree",
+          "ancestors": [],
+          "spec_sha256": "9f2b6d40c16b98713255cfd0e6407a9a969ec0e8493cfb80378656b82ae388d5"
+        },
+        "sha256": "97235562adbc49478065c11aaf15ec3797ec67b9139f98de602ac00337757c17"
+      },
+      "pointwise_optimizer": {
+        "payload": {
+          "declaration": "theorem M8.PhysicalBridge.pointwise_optimizer : ∀ (N : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), ∀ w : ℕ, M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.Anchored (M7.Action.act g c) → M6.Final.PointwiseCorrect N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2) := by\n  intro N inst c g w hv ha\n  rcases hv with ⟨hA, hB, hc⟩\n  rcases ha with ⟨haA, haB⟩\n  have hcards : (M7.Action.act g c).1.card = w ∧ (M7.Action.act g c).2.card = w := by\n    first\n    | solve_by_elim [M7.Action.support_cards]\n    | simpa [hA, hB] using M7.Action.support_cards N g c\n    | simpa [hA, hB] using M7.Action.support_cards N c g\n  exact M7.ClosedSolve.closed_pointwise N w (M7.Action.act g c)\n    hcards.1 hcards.2 haA haB\n    ((M7.Connectivity.connected_action N g c).mpr hc)",
+          "imports": [
+            "M8PhysicalBridge"
+          ],
+          "name": "M8.PhysicalBridge.pointwise_optimizer",
+          "ancestors": [],
+          "spec_sha256": "c2c7ddc6d920bf3e688d0c262ccfe01a597548a103e9f52b2f0cf27b9e2c9eb3"
+        },
+        "sha256": "5dbdac35e581380f9729693c06a175bc67478fa5714d953f9aaf26c2a0a99481"
+      },
+      "noLogical": {
+        "payload": {
+          "declaration": "theorem M8.PhysicalBridge.noLogical : ∀ (N : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N) (g : M7.Action.Record N), ∀ w : ℕ, M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.Anchored (M7.Action.act g c) → (M8.PhysicalBridge.solve (M7.Action.act g c) = none ↔ M8.PhysicalBridge.signature c = 1) := by\n  intro N inst c g w hv ha\n  have hp := M8.PhysicalBridge.pointwise_optimizer N c g w hv ha\n  have hanswer : M6.Final.AnswerCorrect N\n      (M7.Supports.polynomial (M7.Action.act g c).1)\n      (M7.Supports.polynomial (M7.Action.act g c).2) := by\n    unfold M6.Final.PointwiseCorrect at hp\n    tauto\n  have hnone := hanswer.1\n  change (M8.PhysicalBridge.solve (M7.Action.act g c) = none ↔\n    (M8.PhysicalBridge.signature (M7.Action.act g c)).natDegree = 0) at hnone\n  rw [M8.PhysicalBridge.signature_transport_degree N c g] at hnone\n  have hm : (M8.PhysicalBridge.signature c).Monic :=\n    (M7.RecipeSignature.signature_properties N c).1\n  exact hnone.trans hm.natDegree_eq_zero",
+          "imports": [
+            "M8PhysicalBridge"
+          ],
+          "name": "M8.PhysicalBridge.noLogical",
+          "ancestors": [
+            "pointwise_optimizer",
+            "signature_transport_degree"
+          ],
+          "spec_sha256": "3e4ced3c67c2b6a6e906cdc00bdd0e1748e7ca866f694e2a2546cc41fde2f2ea"
+        },
+        "sha256": "30968831511585b053c64c1e0524fb8b76f6ea90e59f8e055ade004297999118"
+      }
+    }
+  }
+}

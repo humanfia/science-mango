@@ -1,0 +1,82 @@
+{
+  "id": "indexed_write",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.TaggedStore.indexed_write",
+    "spec_sha256": "1cd236fcec5e8ed9fd521178dcbcb7b2446e6c2b4e3a32d44145e0c13f8b4578",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-xt4iy02f/attempt-001/Candidate_3b875a943638fde3.lean",
+        "target_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-xt4iy02f/attempt-001/FrozenTarget_3b875a943638fde3.lean",
+        "feedback": "",
+        "target_sha256": "7681ffdfa6de6f3c92ce4549e6b775427469b1daf9342deb7cd0417dbabf79df",
+        "target_olean_sha256": "807d942ad86567d345a8bf27907906ed622e43836f96a96206ca00fd5717fb6e",
+        "source_sha256": "0510ee74defce069256c45cde9b6548a060e78af8062537e12efae4e701e9346",
+        "olean_sha256": "c2713c15937819417f86c2cfc43875cca6afcf2615d272ed75099c96cd073028",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:58:05.597508+00:00",
+    "work": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-xt4iy02f",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "64639dd1bcfc0daf0d98d978b0730b444ac4ebfd1420d0ad8d1a0c9cd87813ed",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-xt4iy02f/attempt-001/Candidate_3b875a943638fde3.lean",
+    "environment_sha256": "d2741b62aa8698c60bd67a08e235aceb7ca63db8645aa1d3766aebddf73082fe",
+    "artifacts": {
+      "address_representation": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.address_representation : Function.Injective M8.TaggedStore.address ∧ ∀ i : ℕ, (M8.TaggedStore.address i).length = i.size := by\n  change Function.Injective M8.TaggedStore.address ∧ ∀ i : ℕ, (M8.TaggedStore.address i).length = i.size\n  constructor\n  · intro a b h\n    change a.bits = b.bits at h\n    apply Nat.eq_of_testBit_eq\n    intro i\n    rw [Nat.testBit_eq_inth, Nat.testBit_eq_inth, h]\n  · intro i\n    change i.bits.length = i.size\n    exact Nat.size_eq_bits_len i",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.address_representation",
+          "ancestors": [],
+          "spec_sha256": "56f4ede1663bb08a2071e7c95969c49a2bcd8b8dcbd23369d7a833697851dfd2"
+        },
+        "sha256": "bd203569e7b3b76c771329b27ac78642d8a154f4f5f58cd3c15bb65392c2e16c"
+      },
+      "comparison_exact": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.comparison_exact : ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a=b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length+1 := by\n  change ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a = b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length + 1\n  intro a\n  induction a with\n  | nil =>\n      intro b\n      cases b <;> simp [M8.TaggedStore.compare]\n  | cons x xs ih =>\n      intro b\n      cases b with\n      | nil => simp [M8.TaggedStore.compare]\n      | cons y ys =>\n          by_cases h : x = y\n          · subst y\n            simpa [M8.TaggedStore.compare] using ih ys\n          · simp [M8.TaggedStore.compare, h]",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.comparison_exact",
+          "ancestors": [],
+          "spec_sha256": "d9ff001cad58e160bb9480d0d9e5f3d5ffc7761e37d559739c60d3a5f3a9177d"
+        },
+        "sha256": "2cee7514ffbebe5f7515602ceb52118f12006e6cee60a32e2c2ae587193b2f7d"
+      },
+      "indexed_write": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.indexed_write : ∀ (start i : ℕ) (bit : Bool) (mem : List Bool), (M8.TaggedStore.write (M8.TaggedStore.address (start+i)) bit (M8.TaggedStore.packFrom start mem)).1 = M8.TaggedStore.packFrom start (mem.set i bit) := by\n  change ∀ (start i : ℕ) (bit : Bool) (mem : List Bool), (M8.TaggedStore.write (M8.TaggedStore.address (start + i)) bit (M8.TaggedStore.packFrom start mem)).1 = M8.TaggedStore.packFrom start (mem.set i bit)\n  intro start i bit mem\n  induction mem generalizing start i with\n  | nil =>\n      simp [M8.TaggedStore.packFrom, M8.TaggedStore.write]\n  | cons b bs ih =>\n      cases i with\n      | zero =>\n          simp [M8.TaggedStore.packFrom, M8.TaggedStore.write,\n            (M8.TaggedStore.comparison_exact (M8.TaggedStore.address start) (M8.TaggedStore.address start)).1]\n      | succ i =>\n          have hne : M8.TaggedStore.address (start + Nat.succ i) ≠ M8.TaggedStore.address start := by\n            intro h\n            have he := M8.TaggedStore.address_representation.1 h\n            omega\n          have hc : (M8.TaggedStore.compare (M8.TaggedStore.address (start + Nat.succ i)) (M8.TaggedStore.address start)).1 = false := by\n            rw [(M8.TaggedStore.comparison_exact _ _).1]\n            simp [hne]\n          have hshift : start + Nat.succ i = (start + 1) + i := by omega\n          simpa [M8.TaggedStore.packFrom, M8.TaggedStore.write, hc, ← hshift] using\n            congrArg (fun s : M8.TaggedStore.Store => (M8.TaggedStore.address start, b) :: s) (ih (start + 1) i)",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.indexed_write",
+          "ancestors": [
+            "address_representation",
+            "comparison_exact"
+          ],
+          "spec_sha256": "953c3d9d990f0bc33b6b3dbfcaabf13be3004c5b7ad5009953b3454963b138f9"
+        },
+        "sha256": "2ded5cccafaf266251cbfab3701bbefa882e63f52251af499b9f8b1d39abe9ca"
+      }
+    }
+  }
+}

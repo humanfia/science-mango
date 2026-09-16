@@ -1,0 +1,188 @@
+[
+  {
+    "id": "limit_bounds",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Cutoff.limit_bounds",
+      "statement": "∀ N : ℕ, M8.Cutoff.limit N ≤ N-1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N+1) ∧ (0 < N → M8.Cutoff.limit N < N)",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Unfold limit; min_le_left/right, Nat.sub_lt for positive N. Includes N=1 cutoff0 and total N=0 definition, no higher-span assumption. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "bit_length_limit",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Cutoff.bit_length_limit",
+      "statement": "∀ N : ℕ, M8.Cutoff.limit N = min (N-1) (Nat.log2 (N+1))",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Unfold limit and use Nat.log2_eq_log_two. This is the exact integer bit-length/logarithm interface. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "state_bound",
+    "dependencies": [
+      "limit_bounds"
+    ],
+    "spec": {
+      "name": "M8.Cutoff.state_bound",
+      "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R ≤ N+1",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Use Nat.le_log_iff_pow_le with base2 and nonzero N+1, or pow monotonicity and Nat.pow_log_le_self. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "state_square",
+    "dependencies": [
+      "state_bound"
+    ],
+    "spec": {
+      "name": "M8.Cutoff.state_square",
+      "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 4^R ≤ (N+1)^2",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Rewrite 4^R=(2^R)^2 using pow_mul and bound the square of state_bound. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "indexed_work_envelopes",
+    "dependencies": [
+      "state_square"
+    ],
+    "spec": {
+      "name": "M8.Cutoff.indexed_work_envelopes",
+      "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^3 * 4^R ≤ (N+1)^5 ∧ N^4 * 4^R ≤ (N+1)^6",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Multiply accepted state_square by N^3/N^4, bound N by N+1, and normalize powers. These bound existing M6 work expressions; they are not new cost definitions. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "indexed_storage_envelope",
+    "dependencies": [
+      "state_bound"
+    ],
+    "spec": {
+      "name": "M8.Cutoff.indexed_storage_envelope",
+      "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^2 * 2^R ≤ (N+1)^3",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Multiply state_bound by N^2≤(N+1)^2 and normalize powers. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "coefficient_capacity",
+    "dependencies": [
+      "limit_bounds"
+    ],
+    "spec": {
+      "name": "M8.Cutoff.coefficient_capacity",
+      "statement": "∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R * 8^N < 2^(4*(N+1))",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Rewrite 8=2^3 and product powers as 2^(R+3*N). limit_bounds implies R≤N. Strict exponent bound follows by omega; apply pow_lt_pow_right for base2. This bounds the actual coefficient envelope, including signed intermediate magnitudes. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  },
+  {
+    "id": "anchor_trial_envelope",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Cutoff.anchor_trial_envelope",
+      "statement": "∀ (N a b : ℕ), a ≤ N → b ≤ N → 2*N*a*b ≤ 2*N^3",
+      "imports": [
+        "M8Cutoff"
+      ],
+      "context": "",
+      "queries": [
+        "Nat log powers inequalities"
+      ],
+      "guidance": "Natural multiplication monotonicity and ring normalization. Root must independently identify actual anchor trials with <=2*N*|A|*|B|; this helper alone is not a discovery-cost proof. Return tactic lines only; no leading by."
+    },
+    "metadata": {
+      "fallback_queries": [
+        "algebra"
+      ],
+      "source_section": "Revised M8 §7 fixed logarithmic cutoff resource arithmetic"
+    }
+  }
+]

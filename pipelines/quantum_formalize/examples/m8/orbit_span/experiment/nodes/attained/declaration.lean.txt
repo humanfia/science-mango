@@ -1,0 +1,9 @@
+theorem M8.OrbitSpan.attained : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → ∃ g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) ∧ M8.Anchor.span (M7.Action.act g c) = M8.OrbitSpan.value c := by
+  classical
+  intro N inst c hc₁ hc₂
+  have hne := M8.OrbitSpan.spans_nonempty N c hc₁ hc₂
+  have hm : M8.OrbitSpan.value c ∈ M8.OrbitSpan.spans c := by
+    simpa [M8.OrbitSpan.value, hne] using Finset.min'_mem (M8.OrbitSpan.spans c) hne
+  unfold M8.OrbitSpan.spans at hm
+  rcases Finset.mem_image.mp hm with ⟨g, hg, heq⟩
+  exact ⟨g, (Finset.mem_filter.mp hg).2, heq⟩

@@ -1,0 +1,67 @@
+{
+  "id": "find_projection",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.WeightedSearch.find_projection",
+    "spec_sha256": "4d376074702bf14ecc31ca53bb5cae210f02ca4ffca3c1531485bc9e33f1ce4e",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext"
+        ],
+        "proof_path": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-zjzo90o6/attempt-001/Candidate_a5a239cf52aafeac.lean",
+        "target_path": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-zjzo90o6/attempt-001/FrozenTarget_a5a239cf52aafeac.lean",
+        "feedback": "",
+        "target_sha256": "01460e688b74ac96468f18c83e5381cb0e3cb32310d3094bc39466331ed306a9",
+        "target_olean_sha256": "d4476c4f1c11e47a07e88834b3df581af88a8a10e03fb227f12f8cf845aa4d70",
+        "source_sha256": "6309d1b6821d994f6b5d0b84ff09d806f40a614326015bd504f731ae7803911d",
+        "olean_sha256": "294e9192b2a0718d05526097c1aaf43145ab91bd8f6bf1e53c63cb471e16f009",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:57:42.189397+00:00",
+    "work": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-zjzo90o6",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "cf294f4be6c8a9fac423f2e9e01af030fa495c392a8627c8f43ff2608b6b8278",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-zjzo90o6/attempt-001/Candidate_a5a239cf52aafeac.lean",
+    "environment_sha256": "596b1041a080d49bc3da1132c29b3c398df203d0267508967ecb1bd3099a5ff1",
+    "artifacts": {
+      "projection": {
+        "payload": {
+          "declaration": "theorem M8.WeightedSearch.projection : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), ((M8.WeightedSearch.walk test start fuel).selected, (M8.WeightedSearch.walk test start fuel).calls) = M8.FiniteSearch.walk (fun i => (test i).1) start fuel := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), _\n  intro n α test start fuel\n  induction fuel generalizing start with\n  | zero =>\n      rfl\n  | succ fuel ih =>\n      by_cases h : start < n\n      · cases e : (test ⟨start, h⟩).1 with\n        | none =>\n            simpa only [M8.WeightedSearch.walk, M8.FiniteSearch.walk, dif_pos h, e, Prod.fst, Prod.snd] using\n              congrArg (fun r : Option (Fin n × α) × ℕ => (r.1, r.2 + 1)) (ih (start + 1))\n        | some a =>\n            simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h, e]\n      · simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h]",
+          "imports": [
+            "M8WeightedSearch"
+          ],
+          "name": "M8.WeightedSearch.projection",
+          "ancestors": [],
+          "spec_sha256": "a2142beef88162ea356a67fb770afebf1705c94e561a04818c4121fb80ca4946"
+        },
+        "sha256": "7afaccd764bf7949a5f360d36f6ade926b223f488e52431dc3d7f1a9ecba24ca"
+      },
+      "find_projection": {
+        "payload": {
+          "declaration": "theorem M8.WeightedSearch.find_projection : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), ((M8.WeightedSearch.find test).selected,(M8.WeightedSearch.find test).calls) = M8.FiniteSearch.find (fun i => (test i).1) := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), _\n  intro n α test\n  simpa only [M8.WeightedSearch.find, M8.FiniteSearch.find] using\n    M8.WeightedSearch.projection n α test 0 n",
+          "imports": [
+            "M8WeightedSearch"
+          ],
+          "name": "M8.WeightedSearch.find_projection",
+          "ancestors": [
+            "projection"
+          ],
+          "spec_sha256": "b94f5698a83626364d6d93d188bac248d6356ab012143fa540a505adf1644edb"
+        },
+        "sha256": "50c903a10d66a34b74741c6c667a82933869a047c0426e617a5566a01bd9145d"
+      }
+    }
+  }
+}

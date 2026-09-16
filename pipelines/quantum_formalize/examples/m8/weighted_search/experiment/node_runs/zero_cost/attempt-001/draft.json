@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), (∀ i, (test i).2 = 0) → (M8.WeightedSearch.walk test start fuel).work = 0\nintro n α test start fuel hzero\ninduction fuel generalizing start with\n| zero => rfl\n| succ fuel ih =>\n    by_cases h : start < n\n    · cases hq : (test ⟨start, h⟩).1 <;>\n        simp [M8.WeightedSearch.walk, h, hq, hzero, ih]\n    · simp [M8.WeightedSearch.walk, h]",
+  "queries": []
+}

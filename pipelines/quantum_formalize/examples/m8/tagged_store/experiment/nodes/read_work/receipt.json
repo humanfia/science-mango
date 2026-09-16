@@ -1,0 +1,75 @@
+{
+  "id": "read_work",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.TaggedStore.read_work",
+    "spec_sha256": "2b2d0249040f2cd8f8825cdc2da199da1813202c27462147226d55be4b1d1d69",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-001/Candidate_43f713ae3cfa3372.lean:8:19: error: unsolved goals\ncase cons\nb : Bool\nbs : List Bool\nih : (List.flatMap (fun b => [true, b]) bs).length = 2 * bs.length\n⊢ 1 + (1 + 2 * bs.length) = 2 + 2 * bs.length\n/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-001/Candidate_43f713ae3cfa3372.lean:9:64: warning: This simp argument is unused:\n  Nat.add_left_comm\n\nHint: Omit it from the simp argument list.\n  [apply] simp [List.flatMap_cons, ih, Nat.mul_add, Nat.add_comm, Nat.add_assoc]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-001/Candidate_43f713ae3cfa3372.lean:9:83: warning: This simp argument is unused:\n  Nat.add_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp [List.flatMap_cons, ih, Nat.mul_add, Nat.add_comm, Nat.add_left_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-001/Candidate_43f713ae3cfa3372.lean:25:27: warning: This simp argument is unused:\n  Prod.snd\n\nHint: Omit it from the simp argument list.\n  [apply] simp only\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-002/Candidate_df1b71daeda429fb.lean",
+        "target_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-002/FrozenTarget_df1b71daeda429fb.lean",
+        "feedback": "",
+        "target_sha256": "5fd17d2f8f94262f0fc395cef10c7ff9eddb4a4138760c0e9234ddeebb5835a0",
+        "target_olean_sha256": "c3a8e38a750ccbfd2178f02e04824d120c215c18644282ddb988159d46b5f7a8",
+        "source_sha256": "e1840372f84631ddf37bdcb6c25f444cb00a6654b43eddc73ad32024401fef5d",
+        "olean_sha256": "29c6841d070b1b709683beb56394474d39459b5cc0a31cffeb6405707fa07813",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T12:55:16.570562+00:00",
+    "work": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "64639dd1bcfc0daf0d98d978b0730b444ac4ebfd1420d0ad8d1a0c9cd87813ed",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-cqnj_y5b/attempt-002/Candidate_df1b71daeda429fb.lean",
+    "environment_sha256": "d2741b62aa8698c60bd67a08e235aceb7ca63db8645aa1d3766aebddf73082fe",
+    "artifacts": {
+      "comparison_exact": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.comparison_exact : ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a=b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length+1 := by\n  change ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a = b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length + 1\n  intro a\n  induction a with\n  | nil =>\n      intro b\n      cases b <;> simp [M8.TaggedStore.compare]\n  | cons x xs ih =>\n      intro b\n      cases b with\n      | nil => simp [M8.TaggedStore.compare]\n      | cons y ys =>\n          by_cases h : x = y\n          · subst y\n            simpa [M8.TaggedStore.compare] using ih ys\n          · simp [M8.TaggedStore.compare, h]",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.comparison_exact",
+          "ancestors": [],
+          "spec_sha256": "d9ff001cad58e160bb9480d0d9e5f3d5ffc7761e37d559739c60d3a5f3a9177d"
+        },
+        "sha256": "2cee7514ffbebe5f7515602ceb52118f12006e6cee60a32e2c2ae587193b2f7d"
+      },
+      "read_work": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.read_work : ∀ (B : ℕ) (key : M8.TaggedStore.Tag) (s : M8.TaggedStore.Store), key.length ≤ B → (∀ r ∈ s, r.1.length ≤ B) → (M8.TaggedStore.read key s).2 ≤ s.length*(4*(B+1))+1 := by\n  change ∀ (B : ℕ) (key : M8.TaggedStore.Tag) (s : M8.TaggedStore.Store), key.length ≤ B → (∀ r ∈ s, r.1.length ≤ B) → (M8.TaggedStore.read key s).2 ≤ s.length * (4 * (B + 1)) + 1\n  have hflat : ∀ t : List Bool, (t.flatMap (fun b => [true, b])).length = 2 * t.length := by\n    intro t\n    induction t with\n    | nil => simp\n    | cons b bs ih =>\n        simp only [List.flatMap_cons, List.length_append, List.length_cons, List.length_nil, ih]\n        omega\n  intro B key s hk\n  induction s with\n  | nil => simp [M8.TaggedStore.read]\n  | cons r rs ih =>\n      intro hs\n      have hr : r.1.length ≤ B := hs r (by simp)\n      have ht : ∀ t ∈ rs, t.1.length ≤ B := by\n        intro t ht\n        exact hs t (by simp [ht])\n      have hrest := ih ht\n      have hc := (M8.TaggedStore.comparison_exact key r.1).2\n      have hl : (M8.TaggedStore.recordBits r).length = 2 * r.1.length + 2 := by\n        simp [M8.TaggedStore.recordBits, hflat]\n      have hcharge : (M8.TaggedStore.recordBits r).length + (M8.TaggedStore.compare key r.1).2 + 1 ≤ 4 * (B + 1) := by\n        omega\n      simp only [List.length_cons, Nat.add_mul, Nat.one_mul]\n      simp only [M8.TaggedStore.read]\n      split <;> simp only [Prod.snd] <;> omega",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.read_work",
+          "ancestors": [
+            "comparison_exact"
+          ],
+          "spec_sha256": "580607106fff8f17eb9db5aaff56820dbf5df73112fd4eed89fe29fbda1ad55f"
+        },
+        "sha256": "95f999741cd84e540c9b12cc74a0f332b470bc211f0a90c3eae596e278dc9f82"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst c hc₁ hc₂\nrcases hc₁ with ⟨a, ha⟩\nrcases hc₂ with ⟨b, hb⟩\nhave hel : M8.Anchor.Eligible c false a b := by\n  simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right] using And.intro ha hb\nunfold M8.OrbitSpan.spans\napply Finset.Nonempty.image\nrefine ⟨M8.Anchor.record false 1 a b, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩⟩\nsimpa only [M8.Anchor.trial] using M8.Anchor.anchored N c false 1 a b hel",
+  "queries": []
+}

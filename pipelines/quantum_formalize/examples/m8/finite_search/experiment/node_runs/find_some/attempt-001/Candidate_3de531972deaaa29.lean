@@ -1,0 +1,15 @@
+import FrozenTarget_3de531972deaaa29
+theorem M8.FiniteSearch.find_some : QuantumHarnessFrozenTarget := by
+  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (i : Fin n) (a : α), (M8.FiniteSearch.find test).1 = some (i, a) ↔ test i = some a ∧ ∀ j : Fin n, j.val < i.val → test j = none
+  intro n α test i a
+  change (M8.FiniteSearch.walk test 0 n).1 = some (i, a) ↔ _
+  rw [M8.FiniteSearch.some_iff n α test 0 n i a]
+  unfold M8.FiniteSearch.First
+  constructor
+  · rintro ⟨hl, hu, ht, hall⟩
+    exact ⟨ht, fun j hj => hall j (Nat.zero_le _) hj⟩
+  · rintro ⟨ht, hall⟩
+    refine ⟨Nat.zero_le _, ?_, ht, ?_⟩
+    · simpa only [Nat.zero_add] using i.isLt
+    · intro j hj hji
+      exact hall j hji

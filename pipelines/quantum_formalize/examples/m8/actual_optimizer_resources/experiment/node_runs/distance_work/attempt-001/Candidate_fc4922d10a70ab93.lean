@@ -1,0 +1,9 @@
+import FrozenTarget_fc4922d10a70ab93
+theorem M8.OptimizerResources.distance_work : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b ≤ M8.Cutoff.limit N → M6.ActualTransfer.actualDistanceWork N a b ≤ 50000 * (N + 1)^5
+  intro N inst a b h
+  have hspan : M6.ActualTransfer.span a b < N :=
+    lt_of_le_of_lt h ((M8.Cutoff.limit_bounds N).2.2 (NeZero.pos N))
+  apply le_trans (M6.ActualTransfer.actual_distance_work N a b hspan)
+  simpa only [Nat.mul_assoc] using
+    Nat.mul_le_mul_left 50000 ((M8.Cutoff.indexed_work_envelopes N (M6.ActualTransfer.span a b) h).1)

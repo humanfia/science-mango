@@ -1,0 +1,12 @@
+{
+  "name": "M8.FiniteSearch.find_bound",
+  "statement": "∀ (n : ℕ) (α : Type) (test : Fin n → Option α), (M8.FiniteSearch.find test).2 ≤ n",
+  "imports": [
+    "M8FiniteSearch"
+  ],
+  "context": "theorem M8.FiniteSearch.calls_bound : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).2 ≤ fuel := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).2 ≤ fuel\n  intro n α test start fuel\n  induction fuel generalizing start with\n  | zero => simp [M8.FiniteSearch.walk]\n  | succ fuel ih =>\n      by_cases h : start < n\n      · cases ht : test ⟨start, h⟩ with\n        | none =>\n            simpa [M8.FiniteSearch.walk, h, ht] using\n              Nat.add_le_add_right (ih (start + 1)) 1\n        | some a =>\n            simp [M8.FiniteSearch.walk, h, ht]\n      · simp [M8.FiniteSearch.walk, h]",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "M8 concrete finite first-success counter loop. This is an operational cursor with counted actual callback invocations, not an assumed search oracle. Structural induction on fuel generalizing start; split start<n and actual Option test result. Fin index proof irrelevance via Fin.ext, arithmetic via omega. Later M8 discovery supplies actual eligibility/span tests with separate bit-work bounds. Preserve definitions and exact targets; tactic body only.\nimport Mathlib\n\nnamespace M8.FiniteSearch\n/-- Count actual tested indices; stop at the first value. No materialized index list. -/\ndef walk {n : ℕ} {α : Type} (f : Fin n → Option α) (start : ℕ) : ℕ → Option (Fin n × α) × ℕ\n  | 0 => (none, 0)\n  | fuel+1 => if h : start < n then\n      match f ⟨start,h⟩ with\n      | some a => (some (⟨start,h⟩,a), 1)\n      | none => let r := walk f (start+1) fuel; (r.1, r.2+1)\n    else (none, 0)\ndef find {n : ℕ} {α : Type} (f : Fin n → Option α) := walk f 0 n\ndef First {n : ℕ} {α : Type} (f : Fin n → Option α) (start fuel : ℕ) (i : Fin n) (a : α) : Prop :=\n  start ≤ i.val ∧ i.val < start+fuel ∧ f i = some a ∧\n    ∀ j : Fin n, start ≤ j.val → j.val < i.val → f j = none\nend M8.FiniteSearch\n"
+}

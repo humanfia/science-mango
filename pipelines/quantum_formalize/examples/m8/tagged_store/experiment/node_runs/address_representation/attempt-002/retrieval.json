@@ -1,0 +1,201 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.testBit_eq_inth",
+    "status": "ok",
+    "results": [
+      {
+        "id": 211908,
+        "name": "Nat.testBit_eq_inth",
+        "module": "Mathlib.Data.Nat.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bitwise.lean#L164-L174",
+        "source_text": "/-- The ith bit is the ith element of `n.bits`. -/\ntheorem testBit_eq_inth (n i : ℕ) : n.testBit i = n.bits.getI i := by\n  induction i generalizing n with\n  | zero =>\n    simp only [testBit, shiftRight_zero, one_and_eq_mod_two, mod_two_of_bodd,\n      bodd_eq_bits_head, List.getI_zero_eq_headI]\n    cases List.headI (bits n) <;> rfl\n  | succ i ih =>\n    conv_lhs => rw [← bit_bodd_div2 n]\n    rw [testBit_bit_succ, ih n.div2, div2_bits_eq_tail]\n    cases n.bits <;> simp\n",
+        "docstring": "The ith bit is the ith element of `n.bits`. "
+      },
+      {
+        "id": 213969,
+        "name": "PosNum.testBit",
+        "module": "Mathlib.Data.Num.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L91-L99",
+        "source_text": "/-- `a.testBit n` is `true` iff the `n`-th bit (starting from the LSB) in the binary representation\nof `a` is active. If the size of `a` is less than `n`, this evaluates to `false`. -/\ndef testBit : PosNum → Nat → Bool\n  | 1, 0 => true\n  | 1, _ => false\n  | bit0 _, 0 => false\n  | bit0 p, n + 1 => testBit p n\n  | bit1 _, 0 => true\n  | bit1 p, n + 1 => testBit p n\n",
+        "docstring": "`a.testBit n` is `true` iff the `n`-th bit (starting from the LSB) in the binary representation\nof `a` is active. If the size of `a` is less than `n`, this evaluates to `false`. "
+      },
+      {
+        "id": 211903,
+        "name": "Nat.testBit_ldiff",
+        "module": "Mathlib.Data.Nat.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bitwise.lean#L121-L123",
+        "source_text": "@[simp]\ntheorem testBit_ldiff : ∀ m n k, testBit (ldiff m n) k = (testBit m k && not (testBit n k)) :=\n  testBit_bitwise rfl",
+        "docstring": null
+      },
+      {
+        "id": 213994,
+        "name": "Num.testBit",
+        "module": "Mathlib.Data.Num.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L198-L202",
+        "source_text": "/-- `a.testBit n` is `true` iff the `n`-th bit (starting from the LSB) in the binary representation\nof `a` is active. If the size of `a` is less than `n`, this evaluates to `false`. -/\ndef testBit : Num → Nat → Bool\n  | 0, _ => false\n  | pos p, n => p.testBit n\n",
+        "docstring": "`a.testBit n` is `true` iff the `n`-th bit (starting from the LSB) in the binary representation\nof `a` is active. If the size of `a` is less than `n`, this evaluates to `false`. "
+      },
+      {
+        "id": 214034,
+        "name": "SNum.testBit",
+        "module": "Mathlib.Data.Num.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L385-L389",
+        "source_text": "/-- `SNum.testBit n a` is `true` iff the `n`-th bit (starting from the LSB) of `a` is active.\nIf the size of `a` is less than `n`, this evaluates to `false`. -/\ndef testBit : Nat → SNum → Bool\n  | 0, p => head p\n  | n + 1, p => testBit n (tail p)\n",
+        "docstring": "`SNum.testBit n a` is `true` iff the `n`-th bit (starting from the LSB) of `a` is active.\nIf the size of `a` is less than `n`, this evaluates to `false`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "Nat.testBit_eq_inth",
+    "status": "ok",
+    "results": [
+      {
+        "id": 386993,
+        "name": "IsTestFunction",
+        "module": "Physlib.Mathematics.VariationalCalculus.IsTestFunction",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Mathematics/VariationalCalculus/IsTestFunction.lean#L26-L30",
+        "source_text": "/-- A test function is a smooth function with compact support. -/\n@[fun_prop]\nstructure IsTestFunction (f : X → U) where\n  smooth : ContDiff ℝ ∞ f\n  supp : HasCompactSupport f\n",
+        "docstring": "A test function is a smooth function with compact support. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.eq_of_testBit_eq",
+    "status": "ok",
+    "results": [
+      {
+        "id": 211908,
+        "name": "Nat.testBit_eq_inth",
+        "module": "Mathlib.Data.Nat.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bitwise.lean#L164-L174",
+        "source_text": "/-- The ith bit is the ith element of `n.bits`. -/\ntheorem testBit_eq_inth (n i : ℕ) : n.testBit i = n.bits.getI i := by\n  induction i generalizing n with\n  | zero =>\n    simp only [testBit, shiftRight_zero, one_and_eq_mod_two, mod_two_of_bodd,\n      bodd_eq_bits_head, List.getI_zero_eq_headI]\n    cases List.headI (bits n) <;> rfl\n  | succ i ih =>\n    conv_lhs => rw [← bit_bodd_div2 n]\n    rw [testBit_bit_succ, ih n.div2, div2_bits_eq_tail]\n    cases n.bits <;> simp\n",
+        "docstring": "The ith bit is the ith element of `n.bits`. "
+      },
+      {
+        "id": 211906,
+        "name": "Nat.zero_of_testBit_eq_false",
+        "module": "Mathlib.Data.Nat.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bitwise.lean#L156-L159",
+        "source_text": "theorem zero_of_testBit_eq_false {n : ℕ} (h : ∀ i, testBit n i = false) : n = 0 := by\n  induction n using Nat.binaryRec with | zero => rfl | bit b n hn => ?_\n  have : b = false := by simpa using h 0\n  rw [this, bit_false, hn fun i => by rw [← h (i + 1), testBit_bit_succ]]\n",
+        "docstring": null
+      },
+      {
+        "id": 213994,
+        "name": "Num.testBit",
+        "module": "Mathlib.Data.Num.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L198-L202",
+        "source_text": "/-- `a.testBit n` is `true` iff the `n`-th bit (starting from the LSB) in the binary representation\nof `a` is active. If the size of `a` is less than `n`, this evaluates to `false`. -/\ndef testBit : Num → Nat → Bool\n  | 0, _ => false\n  | pos p, n => p.testBit n\n",
+        "docstring": "`a.testBit n` is `true` iff the `n`-th bit (starting from the LSB) in the binary representation\nof `a` is active. If the size of `a` is less than `n`, this evaluates to `false`. "
+      },
+      {
+        "id": 214034,
+        "name": "SNum.testBit",
+        "module": "Mathlib.Data.Num.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Bitwise.lean#L385-L389",
+        "source_text": "/-- `SNum.testBit n a` is `true` iff the `n`-th bit (starting from the LSB) of `a` is active.\nIf the size of `a` is less than `n`, this evaluates to `false`. -/\ndef testBit : Nat → SNum → Bool\n  | 0, p => head p\n  | n + 1, p => testBit n (tail p)\n",
+        "docstring": "`SNum.testBit n a` is `true` iff the `n`-th bit (starting from the LSB) of `a` is active.\nIf the size of `a` is less than `n`, this evaluates to `false`. "
+      },
+      {
+        "id": 211907,
+        "name": "Nat.testBit_eq_false_of_lt",
+        "module": "Mathlib.Data.Nat.Bitwise",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bitwise.lean#L161-L162",
+        "source_text": "theorem testBit_eq_false_of_lt {n i} (h : n < 2 ^ i) : n.testBit i = false := by\n  simp [testBit, shiftRight_eq_div_pow, Nat.div_eq_of_lt h]\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "Nat.size_eq_bits_len",
+    "status": "ok",
+    "results": [
+      {
+        "id": 213685,
+        "name": "Nat.size_eq_bits_len",
+        "module": "Mathlib.Data.Nat.Size",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Size.lean#L104-L110",
+        "source_text": "theorem size_eq_bits_len (n : ℕ) : n.bits.length = n.size := by\n  induction n using Nat.binaryRec' with\n  | zero => simp\n  | bit _ _ h ih =>\n    rw [size_bit, bits_append_bit _ _ h]\n    · simp [ih]\n    · simpa [bit_eq_zero_iff]\n",
+        "docstring": null
+      },
+      {
+        "id": 211862,
+        "name": "Nat.size",
+        "module": "Mathlib.Data.Nat.Bits",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L134-L137",
+        "source_text": "/-- `size n` : Returns the size of a natural number in\nbits i.e. the length of its binary representation -/\ndef size : ℕ → ℕ :=\n  binaryRec 0 fun _ _ => succ\n",
+        "docstring": "`size n` : Returns the size of a natural number in\nbits i.e. the length of its binary representation "
+      },
+      {
+        "id": 214150,
+        "name": "Num.size_eq_natSize",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L651-L653",
+        "source_text": "theorem size_eq_natSize : ∀ n, (size n : ℕ) = natSize n\n  | 0 => rfl\n  | pos p => p.size_eq_natSize\n",
+        "docstring": null
+      },
+      {
+        "id": 214149,
+        "name": "Num.size_to_nat",
+        "module": "Mathlib.Data.Num.Lemmas",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/Lemmas.lean#L647-L649",
+        "source_text": "theorem size_to_nat : ∀ n, (size n : ℕ) = Nat.size n\n  | 0 => Nat.size_zero.symm\n  | pos p => p.size_to_nat\n",
+        "docstring": null
+      },
+      {
+        "id": 211863,
+        "name": "Nat.bits",
+        "module": "Mathlib.Data.Nat.Bits",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Nat/Bits.lean#L139-L142",
+        "source_text": "/-- `bits n` returns a list of Bools which correspond to the binary representation of n, where\nthe head of the list represents the least significant bit -/\ndef bits : ℕ → List Bool :=\n  binaryRec [] fun b _ IH => b :: IH\n",
+        "docstring": "`bits n` returns a list of Bools which correspond to the binary representation of n, where\nthe head of the list represents the least significant bit "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

@@ -9,7 +9,7 @@
       "metadata": {
         "scope": "Actual anchor presentations and exact equivalence to zero-containing translation presentations",
         "module_graph": "anchor/graph.json",
-        "status": "proof experiment running"
+        "status": "canonical accepted"
       }
     },
     {
@@ -19,7 +19,7 @@
       "metadata": {
         "scope": "Fixed cutoff and parameter-free arithmetic envelopes",
         "module_graph": "cutoff/graph.json",
-        "status": "proof experiment running"
+        "status": "canonical accepted"
       }
     },
     {
@@ -29,7 +29,7 @@
       "metadata": {
         "scope": "Actual all-order M6 optimizer, gcd degree and inverse physical witness transport",
         "module_graph": "physical_bridge/graph.json",
-        "status": "preflight"
+        "status": "canonical accepted"
       }
     },
     {
@@ -39,7 +39,7 @@
       "metadata": {
         "scope": "Actual first-success counter loop, exact lexicographic selection and measured callback visits",
         "module_graph": "finite_search/graph.json",
-        "status": "preflight"
+        "status": "canonical accepted"
       }
     },
     {
@@ -52,97 +52,104 @@
       "spec": null,
       "metadata": {
         "scope": "Lexicographic finite enumeration, first passing tuple, exact failure and actual visited-trial bound",
-        "module_graph": null,
-        "status": "planned"
+        "module_graph": "discovery/graph.json",
+        "status": "proof experiment or preflight active"
       }
     },
     {
       "id": "solver",
       "dependencies": [
         "discovery",
-        "physical_bridge"
+        "orbit_span",
+        "physical_bridge",
+        "raw_parameters"
       ],
       "spec": null,
       "metadata": {
         "scope": "Three actual outcomes; NoLogical iff F=1; recognized iff full gcd nontrivial and orbit span within cutoff",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
       "id": "signed_trace",
       "dependencies": [
-        "physical_bridge"
+        "actual_optimizer_resources"
       ],
       "spec": null,
       "metadata": {
         "scope": "Actual recurrence coefficient magnitude, bit width, exact division and pinned query interface",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
       "id": "indexed_resources",
       "dependencies": [
-        "discovery",
-        "cutoff",
-        "signed_trace"
+        "solver",
+        "discovery_resources",
+        "actual_optimizer_resources"
       ],
       "spec": null,
       "metadata": {
         "scope": "Actual discovery, Euclid, trace and witness indexed-bit work and reusable storage",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
       "id": "sequential_resources",
       "dependencies": [
-        "indexed_resources"
+        "indexed_resources",
+        "tagged_store"
       ],
       "spec": null,
       "metadata": {
         "scope": "Tagged sequential-store simulation with original n^12 time and n^4 bit-space guarantees",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
       "id": "direction_invariant",
       "dependencies": [
-        "anchor"
+        "coverage_foundation"
       ],
       "spec": null,
       "metadata": {
         "scope": "Within-block generated subgroup invariant and proper separated-direction obstruction",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
       "id": "coverage",
       "dependencies": [
         "solver",
-        "direction_invariant"
+        "coverage_foundation",
+        "diagonal"
       ],
       "spec": null,
       "metadata": {
         "scope": "All three admitted infinite families, odd/even orders, full multiplicities, diagonal minimum distance and distinct nonproduct claim",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
       "id": "exclusion",
       "dependencies": [
+        "solver",
         "anchor",
-        "cutoff"
+        "cutoff",
+        "coverage_foundation",
+        "diagonal"
       ],
       "spec": null,
       "metadata": {
         "scope": "Exact surviving complement; cardinality rejection; power-two antipodal rejected family",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
       }
     },
     {
@@ -157,7 +164,99 @@
       "metadata": {
         "scope": "Complete revised M8 source-bound closed root; no M9 or correctness/cost oracle",
         "module_graph": null,
-        "status": "planned"
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "orbit_span",
+      "dependencies": [
+        "anchor"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Finite minimum of actual anchored orbit spans",
+        "module_graph": "orbit_span/graph.json",
+        "status": "canonical accepted"
+      }
+    },
+    {
+      "id": "weighted_search",
+      "dependencies": [
+        "finite_search"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Exact executed-prefix callback and charge accumulation",
+        "module_graph": "weighted_search/graph.json",
+        "status": "proof experiment or preflight active"
+      }
+    },
+    {
+      "id": "raw_parameters",
+      "dependencies": [
+        "physical_bridge",
+        "anchor"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Raw unanchored physical no-logical and encoded-dimension statements",
+        "module_graph": "raw_parameters/graph.json",
+        "status": "proof experiment or preflight active"
+      }
+    },
+    {
+      "id": "actual_optimizer_resources",
+      "dependencies": [
+        "cutoff"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual M6 optimizer work, storage and signed coefficient bounds",
+        "module_graph": "actual_optimizer_resources/graph.json",
+        "status": "canonical accepted"
+      }
+    },
+    {
+      "id": "tagged_store",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "scope": "Concrete binary tags and sequential read/write scans",
+        "module_graph": "tagged_store/graph.json",
+        "status": "proof experiment or preflight active"
+      }
+    },
+    {
+      "id": "discovery_resources",
+      "dependencies": [
+        "discovery",
+        "weighted_search"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual nested discovery schedule and binary upper-charge accumulation",
+        "module_graph": null,
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "coverage_foundation",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual within-block direction and proper-coset obstruction",
+        "module_graph": "coverage_foundation/graph.json",
+        "status": "canonical accepted"
+      }
+    },
+    {
+      "id": "diagonal",
+      "dependencies": [],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual physical diagonal distance-two foundation",
+        "module_graph": "diagonal/graph.json",
+        "status": "proof experiment or preflight active"
       }
     }
   ]

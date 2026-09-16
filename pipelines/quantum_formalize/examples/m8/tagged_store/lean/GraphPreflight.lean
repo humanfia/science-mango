@@ -1,0 +1,9 @@
+import M8TaggedStore
+def M8.TaggedStoreTarget.address_representation : Prop := Function.Injective M8.TaggedStore.address ∧ ∀ i : ℕ, (M8.TaggedStore.address i).length = i.size
+def M8.TaggedStoreTarget.comparison_exact : Prop := ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a=b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length+1
+def M8.TaggedStoreTarget.read_work : Prop := ∀ (B : ℕ) (key : M8.TaggedStore.Tag) (s : M8.TaggedStore.Store), key.length ≤ B → (∀ r ∈ s, r.1.length ≤ B) → (M8.TaggedStore.read key s).2 ≤ s.length*(4*(B+1))+1
+def M8.TaggedStoreTarget.write_work : Prop := ∀ (B : ℕ) (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), key.length ≤ B → (∀ r ∈ s, r.1.length ≤ B) → (M8.TaggedStore.write key bit s).2 ≤ s.length*(4*(B+1))+1
+def M8.TaggedStoreTarget.write_layout : Prop := ∀ (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), ((M8.TaggedStore.write key bit s).1.map Prod.fst) = s.map Prod.fst ∧ (M8.TaggedStore.tapeBits (M8.TaggedStore.write key bit s).1).length = (M8.TaggedStore.tapeBits s).length
+def M8.TaggedStoreTarget.packed_layout : Prop := ∀ (start : ℕ) (mem : List Bool), (M8.TaggedStore.packFrom start mem).length = mem.length ∧ (∀ r ∈ M8.TaggedStore.packFrom start mem, r.1.length ≤ (start+mem.length).size) ∧ (M8.TaggedStore.tapeBits (M8.TaggedStore.packFrom start mem)).length ≤ mem.length*(2*(start+mem.length).size+2)
+def M8.TaggedStoreTarget.indexed_read : Prop := ∀ (start i : ℕ) (mem : List Bool), (M8.TaggedStore.read (M8.TaggedStore.address (start+i)) (M8.TaggedStore.packFrom start mem)).1 = mem[i]?
+def M8.TaggedStoreTarget.indexed_write : Prop := ∀ (start i : ℕ) (bit : Bool) (mem : List Bool), (M8.TaggedStore.write (M8.TaggedStore.address (start+i)) bit (M8.TaggedStore.packFrom start mem)).1 = M8.TaggedStore.packFrom start (mem.set i bit)

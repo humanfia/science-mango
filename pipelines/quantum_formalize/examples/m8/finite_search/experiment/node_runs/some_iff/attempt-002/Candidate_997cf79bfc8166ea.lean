@@ -1,0 +1,79 @@
+import FrozenTarget_997cf79bfc8166ea
+theorem M8.FiniteSearch.some_iff : QuantumHarnessFrozenTarget := by
+  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ) (i : Fin n) (a : α), (M8.FiniteSearch.walk test start fuel).1 = some (i, a) ↔ M8.FiniteSearch.First test start fuel i a
+  intro n α test start fuel
+  induction fuel generalizing start with
+  | zero =>
+      intro i a
+      change (none : Option (Fin n × α)) = some (i, a) ↔ M8.FiniteSearch.First test start 0 i a
+      constructor
+      · intro he
+        cases he
+      · intro hf
+        rcases hf with ⟨hl, hu, ht, hall⟩
+        omega
+  | succ fuel ih =>
+      intro i a
+      by_cases h : start < n
+      · cases ht : test ⟨start, h⟩ with
+        | none =>
+            simp only [M8.FiniteSearch.walk, dif_pos h, ht]
+            rw [ih]
+            unfold M8.FiniteSearch.First
+            constructor
+            · rintro ⟨hl, hu, hv, hall⟩
+              refine ⟨by omega, by omega, hv, ?_⟩
+              intro j hj hji
+              by_cases he : j.val = start
+              · have ej : j = ⟨start, h⟩ := Fin.ext he
+                rw [ej]
+                exact ht
+              · exact hall j (by omega) hji
+            · rintro ⟨hl, hu, hv, hall⟩
+              have hne : i.val ≠ start := by
+                intro he
+                have ei : i = ⟨start, h⟩ := Fin.ext he
+                rw [ei, ht] at hv
+                cases hv
+              refine ⟨by omega, by omega, hv, ?_⟩
+              intro j hj hji
+              exact hall j (by omega) hji
+        | some b =>
+            simp only [M8.FiniteSearch.walk, dif_pos h, ht]
+            change some ((⟨start, h⟩ : Fin n), b) = some (i, a) ↔ M8.FiniteSearch.First test start (fuel + 1) i a
+            constructor
+            · intro he
+              have hp := Option.some.inj he
+              have hi : (⟨start, h⟩ : Fin n) = i := congrArg Prod.fst hp
+              have ha : b = a := congrArg Prod.snd hp
+              subst i
+              subst a
+              unfold M8.FiniteSearch.First
+              dsimp only
+              refine ⟨le_rfl, by omega, ht, ?_⟩
+              intro j hj hji
+              omega
+            · intro hf
+              rcases hf with ⟨hl, hu, hv, hall⟩
+              have hi : i = ⟨start, h⟩ := by
+                apply Fin.ext
+                change i.val = start
+                by_contra hne
+                have hlt : start < i.val := by omega
+                have hn := hall ⟨start, h⟩ (by simp) (by simpa only using hlt)
+                rw [ht] at hn
+                cases hn
+              subst i
+              rw [ht] at hv
+              have ha : b = a := Option.some.inj hv
+              cases ha
+              rfl
+      · rw [M8.FiniteSearch.walk, dif_neg h]
+        change (none : Option (Fin n × α)) = some (i, a) ↔ M8.FiniteSearch.First test start (fuel + 1) i a
+        constructor
+        · intro he
+          cases he
+        · intro hf
+          rcases hf with ⟨hl, hu, hv, hall⟩
+          have hi := i.isLt
+          omega

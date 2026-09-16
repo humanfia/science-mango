@@ -1,0 +1,5 @@
+theorem M8.OrbitSpan.less_than_order : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → M8.OrbitSpan.value c < N := by
+  intro N inst c hc₁ hc₂
+  rcases M8.OrbitSpan.attained N c hc₁ hc₂ with ⟨g, hg, heq⟩
+  rw [← heq]
+  exact M8.Anchor.span_lt_order N (M7.Action.act g c)

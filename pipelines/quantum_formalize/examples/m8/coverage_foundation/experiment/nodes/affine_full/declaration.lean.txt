@@ -1,0 +1,5 @@
+theorem M8.CoverageFoundation.affine_full : ∀ (N : ℕ) [NeZero N], ∀ (A : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), M8.CoverageFoundation.FullDirection (A.image (M7.Action.affine u s)) ↔ M8.CoverageFoundation.FullDirection A := by
+  intro N inst A u s
+  simpa [M8.CoverageFoundation.FullDirection, M8.CoverageFoundation.direction,
+    M7.Connectivity.connected, M7.Action.act] using
+    (M7.Connectivity.connected_action N (⟨u, false, s, s⟩ : M7.Action.Record N) (A, A))

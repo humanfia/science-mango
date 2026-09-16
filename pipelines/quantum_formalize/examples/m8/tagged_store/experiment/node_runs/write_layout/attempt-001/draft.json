@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), _\nintro key bit s\ninduction s with\n| nil =>\n    simp [M8.TaggedStore.write, M8.TaggedStore.tapeBits]\n| cons r rs ih =>\n    simp only [M8.TaggedStore.write]\n    split\n    · simp [M8.TaggedStore.tapeBits, M8.TaggedStore.recordBits]\n    · constructor\n      · simpa using congrArg (List.cons r.1) ih.1\n      · change (M8.TaggedStore.recordBits r ++ M8.TaggedStore.tapeBits (M8.TaggedStore.write key bit rs).1).length = (M8.TaggedStore.recordBits r ++ M8.TaggedStore.tapeBits rs).length\n        simpa only [List.length_append] using congrArg (fun n : ℕ => (M8.TaggedStore.recordBits r).length + n) ih.2",
+  "queries": []
+}

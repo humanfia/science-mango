@@ -1,0 +1,69 @@
+{
+  "id": "attained",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.OrbitSpan.attained",
+    "spec_sha256": "bb1e57218a4a70ee2f403cc3322fe684a23fd5545a34eb91ff747d56830658d4",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-7pvud2d7/attempt-001/Candidate_14db3f321d527989.lean",
+        "target_path": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-7pvud2d7/attempt-001/FrozenTarget_14db3f321d527989.lean",
+        "feedback": "",
+        "target_sha256": "32cf7261d4e40e08c7b7c3da0723b9972fc2ca84f556405ae1ea78e5ec3bf9c2",
+        "target_olean_sha256": "49a17325f816f21c8771737bf9c996039b75e74005e52aaee4d1a2466c9be330",
+        "source_sha256": "0200cc1b4768a6b8fb8fdc809911a353e3f8a21361dbcec1de92a584fc72af8f",
+        "olean_sha256": "1388cba6ef908be42d8fba579c41c6f35a4360b9bcb733530edb1c7e7c0fff72",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:49:51.949104+00:00",
+    "work": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-7pvud2d7",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "a5fbc3620664e686a830b97f54ffb3e50b2677e1c7087c0422a00151c8445711",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-orbit-span-formalization/.humanize-formal-runs/run-7pvud2d7/attempt-001/Candidate_14db3f321d527989.lean",
+    "environment_sha256": "f9f8a2c9726efbf1847bac6b4bdcb1f4a764763dff202f00610f2950cb9f7522",
+    "artifacts": {
+      "spans_nonempty": {
+        "payload": {
+          "declaration": "theorem M8.OrbitSpan.spans_nonempty : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → (M8.OrbitSpan.spans c).Nonempty := by\n  classical\n  intro N inst c hc₁ hc₂\n  rcases hc₁ with ⟨a, ha⟩\n  rcases hc₂ with ⟨b, hb⟩\n  have hel : M8.Anchor.Eligible c false a b := by\n    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right] using And.intro ha hb\n  unfold M8.OrbitSpan.spans\n  apply Finset.Nonempty.image\n  refine ⟨M8.Anchor.record false 1 a b, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩⟩\n  simpa only [M8.Anchor.trial] using M8.Anchor.anchored N c false 1 a b hel",
+          "imports": [
+            "M8OrbitSpan"
+          ],
+          "name": "M8.OrbitSpan.spans_nonempty",
+          "ancestors": [],
+          "spec_sha256": "964969824319e11429ba0c9cac5c0bd0c7a5bbf98c25946bd1518db235028a6e"
+        },
+        "sha256": "594784fdcb52fbf9eae4a21ee3705b638386064a4cd8e9695c69afc387ff4dea"
+      },
+      "attained": {
+        "payload": {
+          "declaration": "theorem M8.OrbitSpan.attained : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), c.1.Nonempty → c.2.Nonempty → ∃ g : M7.Action.Record N, M8.Anchor.Anchored (M7.Action.act g c) ∧ M8.Anchor.span (M7.Action.act g c) = M8.OrbitSpan.value c := by\n  classical\n  intro N inst c hc₁ hc₂\n  have hne := M8.OrbitSpan.spans_nonempty N c hc₁ hc₂\n  have hm : M8.OrbitSpan.value c ∈ M8.OrbitSpan.spans c := by\n    simpa [M8.OrbitSpan.value, hne] using Finset.min'_mem (M8.OrbitSpan.spans c) hne\n  unfold M8.OrbitSpan.spans at hm\n  rcases Finset.mem_image.mp hm with ⟨g, hg, heq⟩\n  exact ⟨g, (Finset.mem_filter.mp hg).2, heq⟩",
+          "imports": [
+            "M8OrbitSpan"
+          ],
+          "name": "M8.OrbitSpan.attained",
+          "ancestors": [
+            "spans_nonempty"
+          ],
+          "spec_sha256": "e67d6876703f48c35835f31221cd1af8baf939635ec06305f0a4ccb66dd82032"
+        },
+        "sha256": "aa40fcbeed816fa56b9965aec7db15434a5a51d3cc85f530271eadae8c251269"
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (C overhead : ℕ), (∀ i, (test i).2 ≤ C) → (M8.WeightedSearch.find test).calls * overhead + (M8.WeightedSearch.find test).work ≤ n * (overhead + C)\nintro n α test C overhead hC\nhave hcalls : (M8.WeightedSearch.find test).calls ≤ n := by\n  calc\n    (M8.WeightedSearch.find test).calls = (M8.FiniteSearch.find (fun i => (test i).1)).2 :=\n      congrArg Prod.snd (M8.WeightedSearch.find_projection n α test)\n    _ ≤ n := M8.FiniteSearch.find_bound n α (fun i => (test i).1)\ncalc\n  (M8.WeightedSearch.find test).calls * overhead + (M8.WeightedSearch.find test).work ≤ n * overhead + n * C :=\n    Nat.add_le_add (Nat.mul_le_mul_right overhead hcalls) (M8.WeightedSearch.find_callback_bound n α test C hC)\n  _ = n * (overhead + C) := (Nat.mul_add n overhead C).symm",
+  "queries": []
+}

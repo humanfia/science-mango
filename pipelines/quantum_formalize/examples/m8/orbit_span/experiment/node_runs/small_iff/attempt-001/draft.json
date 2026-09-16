@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst c hc₁ hc₂ L\nhave hn := M8.OrbitSpan.spans_nonempty N c hc₁ hc₂\nrw [M8.OrbitSpan.value, dif_pos hn]\nconstructor\n· intro h\n  have hm := Finset.min'_mem (M8.OrbitSpan.spans c) hn\n  unfold M8.OrbitSpan.spans at hm\n  rcases Finset.mem_image.mp hm with ⟨g, hg, heq⟩\n  exact ⟨g, (Finset.mem_filter.mp hg).2, heq.trans_le h⟩\n· rintro ⟨g, hg, hL⟩\n  have hm : M8.Anchor.span (M7.Action.act g c) ∈ M8.OrbitSpan.spans c := by\n    unfold M8.OrbitSpan.spans\n    exact Finset.mem_image.mpr ⟨g, Finset.mem_filter.mpr ⟨Finset.mem_univ g, hg⟩, rfl⟩\n  exact le_trans (Finset.min'_le _ _ hm) hL",
+  "queries": []
+}

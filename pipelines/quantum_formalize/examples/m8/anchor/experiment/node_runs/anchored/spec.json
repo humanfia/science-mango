@@ -1,0 +1,12 @@
+{
+  "name": "M8.Anchor.anchored",
+  "statement": "∀ (N : ℕ) [NeZero N] (c : M8.Anchor.Recipe N) (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b → M8.Anchor.Anchored (M8.Anchor.trial c e u a b)",
+  "imports": [
+    "M8Anchor"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original revised M8 sections2-3 anchor discovery, arbitrary cutoff parameter L in this foundational batch. Actual M7.Action.Record and act; never assume supplied optimal presentation or canonical-minimum span. Image-membership at zero supplies anchors and shift equations; reconstruction record equality uses Record.ext/cases. Unit multiplication is injective even at N=1 (unique residue automorphism). span uses standard residues and finite sup; use ZMod.val_lt. inverse_trial reuses the accepted actual action inverse law. Return tactic lines only, no target/definition edits or new premises.\nimport M7ActionAccepted\n\nnamespace M8.Anchor\nabbrev Recipe (N : ℕ) := M7.Action.Recipe N\ndef left {N : ℕ} (c : Recipe N) (e : Bool) := if e then c.2 else c.1\ndef right {N : ℕ} (c : Recipe N) (e : Bool) := if e then c.1 else c.2\ndef Eligible {N : ℕ} (c : Recipe N) (e : Bool) (a b : ZMod N) : Prop :=\n  a ∈ left c e ∧ b ∈ right c e\ndef record {N : ℕ} [NeZero N] (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N) : M7.Action.Record N :=\n  ⟨u, e, -((u : ZMod N)*a), -((u : ZMod N)*b)⟩\nnoncomputable def trial {N : ℕ} [NeZero N] (c : Recipe N) (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N) : Recipe N :=\n  M7.Action.act (record e u a b) c\nnoncomputable def span {N : ℕ} (c : Recipe N) : ℕ :=\n  max (c.1.sup ZMod.val) (c.2.sup ZMod.val)\ndef Anchored {N : ℕ} [NeZero N] (c : Recipe N) : Prop := 0 ∈ c.1 ∧ 0 ∈ c.2\nend M8.Anchor\n"
+}

@@ -1,0 +1,9 @@
+import FrozenTarget_215ff37980178af5
+theorem M8.Cutoff.coefficient_capacity : QuantumHarnessFrozenTarget := by
+  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2 ^ R * 8 ^ N < 2 ^ (4 * (N + 1))
+  intro N R hR
+  have hlimit := (M8.Cutoff.limit_bounds N).1
+  have hRN : R ≤ N := by omega
+  have h8 : (8 : ℕ) = 2 ^ 3 := by norm_num
+  rw [h8, ← pow_mul, ← pow_add]
+  exact Nat.pow_lt_pow_right (by decide) (by omega)

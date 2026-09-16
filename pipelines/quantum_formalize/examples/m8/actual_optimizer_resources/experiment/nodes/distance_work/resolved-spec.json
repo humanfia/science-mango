@@ -1,0 +1,12 @@
+{
+  "name": "M8.OptimizerResources.distance_work",
+  "statement": "∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), M6.ActualTransfer.span a b ≤ M8.Cutoff.limit N → M6.ActualTransfer.actualDistanceWork N a b ≤ 50000*(N+1)^5",
+  "imports": [
+    "M8OptimizerResources"
+  ],
+  "context": "",
+  "queries": [
+    "polynomial coefficient bounds"
+  ],
+  "guidance": "Bind every resource conclusion to the actual M6 optimizer or its actual boundary/character transfer, not a free evaluator. The Bool selects precisely the two actual physical weights. Cutoff.limit_bounds gives span<N using NeZero.pos N. Use accepted actual_distance_work/actual_witness_work/actual_solve_storage then cutoff indexed_work_envelopes/indexed_storage_envelope. Weight bounds: cases character; unfold weight, boundaryWeight/characterWeight and use Transfer.boundary_edge_bounds/character_edge_bounds. Indexed guarantee directly uses corresponding ActualTransfer.*_indexed_resources. Trace and prefix capacity use Transfer.trace_coefficient_bound and actual_trace_intermediates with weight_bounds projections, then Cutoff.coefficient_capacity. Scatter/event: actual_layer_intermediates gives ≤8^(i+1); i<N gives ≤8^N≤2^span*8^N and hence strict capacity. Preserve arbitrary pins, negative character coefficients, all partial updates and N=1/R=0. Return tactic lines only.\nimport M8CutoffAccepted\nimport M6SolveResourcesAccepted\nimport M6SolveStorageAccepted\nimport M6WeightResourcesAccepted\nimport M6TransferPartialResourcesAccepted\n\nnamespace M8.OptimizerResources\nnoncomputable def weight (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP)\n    (pins : M6.Pinned.Pins (2*N)) (character : Bool) :\n    ℕ → M6.Transfer.Memory (M6.ActualTransfer.span a b) → M6.Transfer.Bit → Polynomial ℤ :=\n  if character then\n    M6.ActualTransfer.characterWeight (M6.ActualTransfer.span a b) N a b pins\n  else M6.ActualTransfer.boundaryWeight (M6.ActualTransfer.span a b) N a b pins\nend M8.OptimizerResources\n"
+}

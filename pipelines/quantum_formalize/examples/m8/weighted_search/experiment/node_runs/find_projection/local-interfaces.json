@@ -1,0 +1,146 @@
+{
+  "kind": "untrusted_local_source_header_references",
+  "files": [
+    {
+      "module": "M8WeightedSearch",
+      "path": "M8WeightedSearch.lean",
+      "source_sha256": "a114307d6a1095db52f6663f4cb6d01213be818c2a6d1fcc4e32a745cb6fb390"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "path": "M8FiniteSearchAccepted.lean",
+      "source_sha256": "4c6976186fa049f35a58cc717dab1a1ba6063c471966b006f1fe01e6e6b12ff9"
+    },
+    {
+      "module": "M8FiniteSearch",
+      "path": "M8FiniteSearch.lean",
+      "source_sha256": "678b45587b05aa4269aa1400f1a332829f64e8c20ea09bbb095827e758abbad6"
+    }
+  ],
+  "entries": [
+    {
+      "module": "M8WeightedSearch",
+      "line": 9,
+      "namespace_context": [
+        "M8.WeightedSearch"
+      ],
+      "header": "def walk {n : ℕ} {α : Type} (f : Fin n → Option α × ℕ) (start : ℕ) : ℕ → Run n α",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M8WeightedSearch",
+      "line": 17,
+      "namespace_context": [
+        "M8.WeightedSearch"
+      ],
+      "header": "def find {n : ℕ} {α : Type} (f : Fin n → Option α × ℕ)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 3,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.calls_bound : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).2 ≤ fuel",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 18,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.exhaustion_calls : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), start+fuel ≤ n → (M8.FiniteSearch.walk test start fuel).1 = none → (M8.FiniteSearch.walk test start fuel).2 = fuel",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 35,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.none_iff : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), ((M8.FiniteSearch.walk test start fuel).1 = none ↔ ∀ i : Fin n, start ≤ i.val → i.val < start+fuel → test i = none)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 76,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.some_iff : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), ∀ (i : Fin n) (a : α), (M8.FiniteSearch.walk test start fuel).1 = some (i,a) ↔ M8.FiniteSearch.First test start fuel i a",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 155,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.successful_calls : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), ∀ (i : Fin n) (a : α), (M8.FiniteSearch.walk test start fuel).1 = some (i,a) → (M8.FiniteSearch.walk test start fuel).2 = i.val-start+1",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 183,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.find_bound : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α), (M8.FiniteSearch.find test).2 ≤ n",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 188,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.find_none : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α), (M8.FiniteSearch.find test).1 = none ↔ ∀ i, test i = none",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearchAccepted",
+      "line": 198,
+      "namespace_context": [],
+      "header": "theorem M8.FiniteSearch.find_some : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (i : Fin n) (a : α), (M8.FiniteSearch.find test).1 = some (i,a) ↔ test i = some a ∧ ∀ j : Fin n, j.val < i.val → test j = none",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearch",
+      "line": 5,
+      "namespace_context": [
+        "M8.FiniteSearch"
+      ],
+      "header": "def walk {n : ℕ} {α : Type} (f : Fin n → Option α) (start : ℕ) : ℕ → Option (Fin n × α) × ℕ",
+      "complete_header": false,
+      "note": "incomplete source-header excerpt; do not infer missing type text"
+    },
+    {
+      "module": "M8FiniteSearch",
+      "line": 12,
+      "namespace_context": [
+        "M8.FiniteSearch"
+      ],
+      "header": "def find {n : ℕ} {α : Type} (f : Fin n → Option α)",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    },
+    {
+      "module": "M8FiniteSearch",
+      "line": 13,
+      "namespace_context": [
+        "M8.FiniteSearch"
+      ],
+      "header": "def First {n : ℕ} {α : Type} (f : Fin n → Option α) (start fuel : ℕ) (i : Fin n) (a : α) : Prop",
+      "complete_header": true,
+      "note": "source header, not elaborated; implementation omitted"
+    }
+  ],
+  "truncated": false,
+  "skipped": [],
+  "limits": {
+    "files": 64,
+    "source_bytes": 2000000,
+    "header_chars": 24000,
+    "entries": 256,
+    "per_header_chars": 2400,
+    "prompt_chars": 48000
+  }
+}

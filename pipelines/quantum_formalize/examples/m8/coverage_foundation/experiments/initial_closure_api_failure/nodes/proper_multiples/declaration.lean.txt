@@ -1,0 +1,11 @@
+theorem M8.CoverageFoundation.proper_multiples : ∀ (N : ℕ) [NeZero N], ∀ q : ℕ, 2 ≤ q → q ∣ N → AddSubgroup.zmultiples (q : ZMod N) ≠ ⊤ := by
+  change ∀ (N : ℕ) [NeZero N], ∀ q : ℕ, 2 ≤ q → q ∣ N → AddSubgroup.zmultiples (q : ZMod N) ≠ ⊤
+  intro N inst q hq hdiv htop
+  have hg : Nat.gcd N q = 1 := by
+    have h := (M7.Connectivity.finite_generation_gcd N ({q} : Finset ℕ)).mp (by
+      simpa [AddSubgroup.zmultiples_eq_closure] using htop)
+    simpa using h
+  have hd : q ∣ Nat.gcd N q := Nat.dvd_gcd hdiv (dvd_refl q)
+  rw [hg] at hd
+  have hl : q ≤ 1 := Nat.le_of_dvd (by decide) hd
+  omega

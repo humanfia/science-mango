@@ -1,0 +1,55 @@
+{
+  "id": "translation_reconstruction",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Anchor.translation_reconstruction",
+    "spec_sha256": "4ec684919a1d2acc0f0ce47a9cfc2ddff477725faf08347fd2aebdb5b4957f0b",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-q8jvcfdf/attempt-001/Candidate_b824e5ff67ebe481.lean",
+        "target_path": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-q8jvcfdf/attempt-001/FrozenTarget_b824e5ff67ebe481.lean",
+        "feedback": "",
+        "target_sha256": "30da8db37e6d929ea7dc3aa9d049b896f3d3a199e0e8c9b9ec86165280056548",
+        "target_olean_sha256": "d62913b03105205e531d6782a3023454898ccc88cec52da08d1024fe3c2ef840",
+        "source_sha256": "84d7db2f2bc0ad30fde35482a502227637948dae02220e206a69a369cd14ea40",
+        "olean_sha256": "b2dbc809b4fba1e4e5232abaed1b25be7d4ef2d230cd78859bd8faa26384d847",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:33:02.139906+00:00",
+    "work": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-q8jvcfdf",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "dcdb5b6772d9dfe34947af7ae6ddd8b4bb3fb5ca379578bdbf8409d649c82f2b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-anchor-formalization/.humanize-formal-runs/run-q8jvcfdf/attempt-001/Candidate_b824e5ff67ebe481.lean",
+    "environment_sha256": "f29c5bc27b77b066566760799a4ff46ca0a19917e4e17a979c4152491b9e11e0",
+    "artifacts": {
+      "translation_reconstruction": {
+        "payload": {
+          "declaration": "theorem M8.Anchor.translation_reconstruction : ∀ (N : ℕ) [NeZero N] (c : M8.Anchor.Recipe N) (g : M7.Action.Record N), M8.Anchor.Anchored (M7.Action.act g c) → ∃ a b : ZMod N, M8.Anchor.Eligible c g.exchange a b ∧ M8.Anchor.record g.exchange g.unit a b = g := by\n  intro N inst c g h\n  classical\n  rcases g with ⟨u, e, s, t⟩\n  cases e <;> simp [M8.Anchor.Anchored, M7.Action.act, M7.Action.affine, Finset.mem_image] at h\n  all_goals\n    rcases h with ⟨⟨a, ha, hsa⟩, ⟨b, hb, htb⟩⟩\n    have hs : -((u : ZMod N) * a) = s := by\n      linear_combination -hsa\n    have ht : -((u : ZMod N) * b) = t := by\n      linear_combination -htb\n    refine ⟨a, b, ?_, ?_⟩\n    · exact ⟨ha, hb⟩\n    · simp [M8.Anchor.record, hs, ht]",
+          "imports": [
+            "M8Anchor"
+          ],
+          "name": "M8.Anchor.translation_reconstruction",
+          "ancestors": [],
+          "spec_sha256": "4ec684919a1d2acc0f0ce47a9cfc2ddff477725faf08347fd2aebdb5b4957f0b"
+        },
+        "sha256": "8a3b35180ee6167e6f92413192646bef68d2d2c1e6fb8873bfb9ade86cc84813"
+      }
+    }
+  }
+}

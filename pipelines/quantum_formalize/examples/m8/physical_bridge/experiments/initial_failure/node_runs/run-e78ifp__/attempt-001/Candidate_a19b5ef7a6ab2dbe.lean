@@ -1,0 +1,42 @@
+import FrozenTarget_a19b5ef7a6ab2dbe
+theorem M8.PhysicalBridge.minimum_original_witness : QuantumHarnessFrozenTarget := by
+  intro N inst c g w hv ha hsig
+  classical
+  have hne : M8.PhysicalBridge.solve (M7.Action.act g c) ≠ none := by
+    intro h
+    exact hsig ((M8.PhysicalBridge.noLogical N c g w hv ha).mp h)
+  cases hs : M8.PhysicalBridge.solve (M7.Action.act g c) with
+  | none => exact False.elim (hne hs)
+  | some result =>
+    rcases result with ⟨d, v, k⟩
+    rcases hv with ⟨hA, hB, hc⟩
+    rcases ha with ⟨haA, haB⟩
+    have hcards : (M7.Action.act g c).1.card = w ∧ (M7.Action.act g c).2.card = w := by
+      first
+      | solve_by_elim [M7.Action.support_cards]
+      | simpa [hA, hB] using M7.Action.support_cards N g c
+      | simpa [hA, hB] using M7.Action.support_cards N c g
+    have hconn := (M7.Connectivity.connected_action N g c).mpr hc
+    have hgcd := (M7.Connectivity.anchored_gcd N
+      (M7.Action.act g c).1 (M7.Action.act g c).2 haA haB).mp hconn
+    have hw := M7.Transport.actual_witness N w (M7.Action.inverse g)
+      (M7.Action.act g c) d k v hcards.1 hcards.2 haA haB hgcd hs
+    simp only [M7.Action.act_inverse] at hw
+    rcases hw with ⟨hd, hmem, hweight, hz, hzw, hk⟩
+    refine ⟨d, v, k, hs, hd, hmem, hweight, ?_, hk⟩
+    intro u hu
+    unfold M7.Transport.LX M7.Transport.CX M7.Transport.BX at hu
+    unfold M7.Transport.distance at hd
+    first
+    | solve
+        simp only [M6.Flatten.common_quantum_distance, M6.Pinned.distance_spec] at hd
+        aesop (add safe forward M6.Pinned.distance_spec)
+    | solve
+        simp only [M6.CSSDistance.common_quantum_distance, M6.Pinned.distance_spec] at hd
+        aesop (add safe forward M6.Pinned.distance_spec)
+    | solve
+        simp only [M6.Pinned.common_quantum_distance, M6.Pinned.distance_spec] at hd
+        aesop (add safe forward M6.Pinned.distance_spec)
+    | solve
+        simp only [M6.CSS.common_quantum_distance, M6.Pinned.distance_spec] at hd
+        aesop (add safe forward M6.Pinned.distance_spec)

@@ -1,0 +1,6 @@
+import FrozenTarget_e251571282577c98
+theorem M8.Cutoff.state_bound : QuantumHarnessFrozenTarget := by
+  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2 ^ R ≤ N + 1
+  intro N R hR
+  have hlog : R ≤ Nat.log 2 (N + 1) := le_trans hR (M8.Cutoff.limit_bounds N).2.1
+  exact Nat.pow_le_of_le_log (by simp) hlog

@@ -1,0 +1,69 @@
+{
+  "id": "coefficient_capacity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Cutoff.coefficient_capacity",
+    "spec_sha256": "1b1b3d9ccdfa5d56f7b32a495840b29f471b170cd66667360925fbb34ddbe46a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-d_rsufze/attempt-001/Candidate_215ff37980178af5.lean",
+        "target_path": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-d_rsufze/attempt-001/FrozenTarget_215ff37980178af5.lean",
+        "feedback": "",
+        "target_sha256": "5a5da516c08e83628fefa339bd8dcd2e0b96ad6ddf2a10d007ebcefe2e897a70",
+        "target_olean_sha256": "3fa36ad6d4002260c8f0c252e9c7e1ce7b0ebb39a78817a291b874a80d87323a",
+        "source_sha256": "6dec9a4b5895e8dd942f606e2f5176efe0acef36b655a285f07d70ed62a42c97",
+        "olean_sha256": "10b977cf4d6cda84e36181d0e88e98406781e4a3f1368ea4cb57411d3fc75d86",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:34:14.195029+00:00",
+    "work": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-d_rsufze",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f5600f887aaa17e963992d3361303b00bfbafe29eb2e6a060a14c1ed62010c77",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-d_rsufze/attempt-001/Candidate_215ff37980178af5.lean",
+    "environment_sha256": "be41c352a31dad7bf3a573583556215dbb5f39c04091e2ceadbd60c7671919fa",
+    "artifacts": {
+      "limit_bounds": {
+        "payload": {
+          "declaration": "theorem M8.Cutoff.limit_bounds : ∀ N : ℕ, M8.Cutoff.limit N ≤ N-1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N+1) ∧ (0 < N → M8.Cutoff.limit N < N) := by\n  change ∀ N : ℕ, M8.Cutoff.limit N ≤ N - 1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) ∧ (0 < N → M8.Cutoff.limit N < N)\n  intro N\n  have h₁ : M8.Cutoff.limit N ≤ N - 1 := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_left _ _ | exact min_le_right _ _\n  have h₂ : M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_right _ _ | exact min_le_left _ _\n  refine ⟨h₁, h₂, ?_⟩\n  intro hN\n  exact lt_of_le_of_lt h₁ (Nat.sub_lt hN (by decide))",
+          "imports": [
+            "M8Cutoff"
+          ],
+          "name": "M8.Cutoff.limit_bounds",
+          "ancestors": [],
+          "spec_sha256": "efb81d3acd6363dcbf90b58dc6fa1b3d880a293f9b0fcb8c88300b757504e918"
+        },
+        "sha256": "06cdf0990f711abd05c4f9f0973e839c55df4d815d3dbbd8633e616beeffbd37"
+      },
+      "coefficient_capacity": {
+        "payload": {
+          "declaration": "theorem M8.Cutoff.coefficient_capacity : ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R * 8^N < 2^(4*(N+1)) := by\n  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2 ^ R * 8 ^ N < 2 ^ (4 * (N + 1))\n  intro N R hR\n  have hlimit := (M8.Cutoff.limit_bounds N).1\n  have hRN : R ≤ N := by omega\n  have h8 : (8 : ℕ) = 2 ^ 3 := by norm_num\n  rw [h8, ← pow_mul, ← pow_add]\n  exact Nat.pow_lt_pow_right (by decide) (by omega)",
+          "imports": [
+            "M8Cutoff"
+          ],
+          "name": "M8.Cutoff.coefficient_capacity",
+          "ancestors": [
+            "limit_bounds"
+          ],
+          "spec_sha256": "e5af4c99e3b39b1d3248fde3d0167fd14086938a05b14f77d934ac558025623f"
+        },
+        "sha256": "6e36eb522718ad4409b88c659b80361eae6b821383bf8a4122415733a3eaceb2"
+      }
+    }
+  }
+}

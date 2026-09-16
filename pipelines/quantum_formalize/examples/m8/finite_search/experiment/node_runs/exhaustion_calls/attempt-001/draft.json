@@ -1,0 +1,4 @@
+{
+  "proof": "intro n α test start fuel\ninduction fuel generalizing start with\n| zero =>\n    intro hbound hnone\n    rfl\n| succ fuel ih =>\n    intro hbound hnone\n    have hs : start < n := by omega\n    cases ht : test ⟨start, hs⟩ with\n    | none =>\n        simp only [M8.FiniteSearch.walk, dif_pos hs, ht] at hnone ⊢\n        have hbound' : start + 1 + fuel ≤ n := by omega\n        exact congrArg (fun k : ℕ => k + 1) (ih (start + 1) hbound' hnone)\n    | some a =>\n        simp [M8.FiniteSearch.walk, hs, ht] at hnone",
+  "queries": []
+}

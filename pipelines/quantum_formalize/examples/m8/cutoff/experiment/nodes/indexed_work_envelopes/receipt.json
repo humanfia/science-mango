@@ -1,0 +1,100 @@
+{
+  "id": "indexed_work_envelopes",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Cutoff.indexed_work_envelopes",
+    "spec_sha256": "9012d2ba39cd5f2cfea8a177f3ee0e2d6159b34e536a8fe16cb67ade6ec3f4aa",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-8a1br97q/attempt-001/Candidate_bdeef5fe31f96272.lean",
+        "target_path": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-8a1br97q/attempt-001/FrozenTarget_bdeef5fe31f96272.lean",
+        "feedback": "",
+        "target_sha256": "6f5985e1bee8c47394d7291d661125d5430e92a8c10b5573323e0ba3fbf7b95b",
+        "target_olean_sha256": "0131e2332987e03b6b71d8ce10cac1c4ad22731bc3ebd9e2430673b55167e035",
+        "source_sha256": "16af83a59a40e66e1fe49d5008ada4da8063246780e2032fc6d7b51a03b84678",
+        "olean_sha256": "ede98ecbbe19c191d2dc91cbebc14ef9175b251cf7fb854c578972e42880dffb",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:38:21.396431+00:00",
+    "work": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-8a1br97q",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "f5600f887aaa17e963992d3361303b00bfbafe29eb2e6a060a14c1ed62010c77",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-cutoff-formalization/.humanize-formal-runs/run-8a1br97q/attempt-001/Candidate_bdeef5fe31f96272.lean",
+    "environment_sha256": "be41c352a31dad7bf3a573583556215dbb5f39c04091e2ceadbd60c7671919fa",
+    "artifacts": {
+      "limit_bounds": {
+        "payload": {
+          "declaration": "theorem M8.Cutoff.limit_bounds : ∀ N : ℕ, M8.Cutoff.limit N ≤ N-1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N+1) ∧ (0 < N → M8.Cutoff.limit N < N) := by\n  change ∀ N : ℕ, M8.Cutoff.limit N ≤ N - 1 ∧ M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) ∧ (0 < N → M8.Cutoff.limit N < N)\n  intro N\n  have h₁ : M8.Cutoff.limit N ≤ N - 1 := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_left _ _ | exact min_le_right _ _\n  have h₂ : M8.Cutoff.limit N ≤ Nat.log 2 (N + 1) := by\n    unfold M8.Cutoff.limit\n    first | exact min_le_right _ _ | exact min_le_left _ _\n  refine ⟨h₁, h₂, ?_⟩\n  intro hN\n  exact lt_of_le_of_lt h₁ (Nat.sub_lt hN (by decide))",
+          "imports": [
+            "M8Cutoff"
+          ],
+          "name": "M8.Cutoff.limit_bounds",
+          "ancestors": [],
+          "spec_sha256": "efb81d3acd6363dcbf90b58dc6fa1b3d880a293f9b0fcb8c88300b757504e918"
+        },
+        "sha256": "06cdf0990f711abd05c4f9f0973e839c55df4d815d3dbbd8633e616beeffbd37"
+      },
+      "state_bound": {
+        "payload": {
+          "declaration": "theorem M8.Cutoff.state_bound : ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2^R ≤ N+1 := by\n  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 2 ^ R ≤ N + 1\n  intro N R hR\n  have hlog : R ≤ Nat.log 2 (N + 1) := le_trans hR (M8.Cutoff.limit_bounds N).2.1\n  exact Nat.pow_le_of_le_log (by simp) hlog",
+          "imports": [
+            "M8Cutoff"
+          ],
+          "name": "M8.Cutoff.state_bound",
+          "ancestors": [
+            "limit_bounds"
+          ],
+          "spec_sha256": "d1c3c5d851fe207e4f82e0c2d88a94c102e500f8ddaa0c685bc3fc719723f279"
+        },
+        "sha256": "44490d861aedcd77d08995856f418ca114bae80dc30835a8d905f8bb164845f4"
+      },
+      "state_square": {
+        "payload": {
+          "declaration": "theorem M8.Cutoff.state_square : ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 4^R ≤ (N+1)^2 := by\n  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → 4 ^ R ≤ (N + 1) ^ 2\n  intro N R hR\n  have h := M8.Cutoff.state_bound N R hR\n  calc\n    4 ^ R = 2 ^ R * 2 ^ R := by rw [← mul_pow]; rfl\n    _ ≤ (N + 1) * (N + 1) := Nat.mul_le_mul h h\n    _ = (N + 1) ^ 2 := (pow_two (N + 1)).symm",
+          "imports": [
+            "M8Cutoff"
+          ],
+          "name": "M8.Cutoff.state_square",
+          "ancestors": [
+            "limit_bounds",
+            "state_bound"
+          ],
+          "spec_sha256": "40899b3ebd4cc753bb61446ebefb0ec2df8321b9bc2e6741c1871b880e339b6b"
+        },
+        "sha256": "d32fb65959d7d27da8655b101bd294f253f0cc861c858ea99de9f1eb4ae9122d"
+      },
+      "indexed_work_envelopes": {
+        "payload": {
+          "declaration": "theorem M8.Cutoff.indexed_work_envelopes : ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^3 * 4^R ≤ (N+1)^5 ∧ N^4 * 4^R ≤ (N+1)^6 := by\n  change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^3 * 4^R ≤ (N+1)^5 ∧ N^4 * 4^R ≤ (N+1)^6\n  intro N R hR\n  have hs := M8.Cutoff.state_square N R hR\n  have hp : ∀ k : ℕ, N ^ k ≤ (N + 1) ^ k := by\n    intro k\n    induction k with\n    | zero => simp\n    | succ k ih =>\n      simpa only [pow_succ] using Nat.mul_le_mul ih (Nat.le_succ N)\n  constructor\n  · calc\n      N ^ 3 * 4 ^ R ≤ (N + 1) ^ 3 * (N + 1) ^ 2 := Nat.mul_le_mul (hp 3) hs\n      _ = (N + 1) ^ 5 := by ring\n  · calc\n      N ^ 4 * 4 ^ R ≤ (N + 1) ^ 4 * (N + 1) ^ 2 := Nat.mul_le_mul (hp 4) hs\n      _ = (N + 1) ^ 6 := by ring",
+          "imports": [
+            "M8Cutoff"
+          ],
+          "name": "M8.Cutoff.indexed_work_envelopes",
+          "ancestors": [
+            "limit_bounds",
+            "state_bound",
+            "state_square"
+          ],
+          "spec_sha256": "33aaf445f88a5d5626493ea1d9711a72d71f5cf11782853188822cc8c6364d2f"
+        },
+        "sha256": "2bd8be7d6ef4c88cd06237b04d80cf16c8b89c83be1d288abb17caf097638ce1"
+      }
+    }
+  }
+}

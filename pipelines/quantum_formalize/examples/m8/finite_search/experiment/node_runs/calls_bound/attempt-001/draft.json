@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).2 ≤ fuel\nintro n α test start fuel\ninduction fuel generalizing start with\n| zero => simp [M8.FiniteSearch.walk]\n| succ fuel ih =>\n    by_cases h : start < n\n    · cases ht : test ⟨start, h⟩ with\n      | none =>\n          simpa [M8.FiniteSearch.walk, h, ht] using\n            Nat.add_le_add_right (ih (start + 1)) 1\n      | some a =>\n          simp [M8.FiniteSearch.walk, h, ht]\n    · simp [M8.FiniteSearch.walk, h]",
+  "queries": []
+}

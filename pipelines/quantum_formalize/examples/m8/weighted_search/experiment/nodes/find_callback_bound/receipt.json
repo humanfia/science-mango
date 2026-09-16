@@ -1,0 +1,97 @@
+{
+  "id": "find_callback_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.WeightedSearch.find_callback_bound",
+    "spec_sha256": "8258860227ed5b4e5882d16c8ce2075f83fd31c092404b8020996b176fcceaf5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-rhj_3j7u/attempt-001/Candidate_ae4c80616ab2a9a6.lean",
+        "target_path": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-rhj_3j7u/attempt-001/FrozenTarget_ae4c80616ab2a9a6.lean",
+        "feedback": "",
+        "target_sha256": "53d622724192eeffc3be8795f907b8dc2cb4701c5e2dd725405d480e08085de6",
+        "target_olean_sha256": "8f17c9bb10ba252947ab356b80b8f99d5cf04c00ad08d0722214f11391f40953",
+        "source_sha256": "9d4e6f1e344e4ebd17324dfe9c0325996f9e3395065956b104b68879acf930d3",
+        "olean_sha256": "faac0bf2ca0634c7caf3a08ad59e36b05c398e543295470c66871f176be4c592",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:58:58.417500+00:00",
+    "work": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-rhj_3j7u",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "cf294f4be6c8a9fac423f2e9e01af030fa495c392a8627c8f43ff2608b6b8278",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-weighted-search-formalization/.humanize-formal-runs/run-rhj_3j7u/attempt-001/Candidate_ae4c80616ab2a9a6.lean",
+    "environment_sha256": "596b1041a080d49bc3da1132c29b3c398df203d0267508967ecb1bd3099a5ff1",
+    "artifacts": {
+      "callback_bound": {
+        "payload": {
+          "declaration": "theorem M8.WeightedSearch.callback_bound : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), ∀ C : ℕ, (∀ i, (test i).2 ≤ C) → (M8.WeightedSearch.walk test start fuel).work ≤ (M8.WeightedSearch.walk test start fuel).calls*C := by\n  intro n α test start fuel C hC\n  induction fuel generalizing start with\n  | zero =>\n      simp [M8.WeightedSearch.walk]\n  | succ fuel ih =>\n      by_cases h : start < n\n      · cases e : (test ⟨start, h⟩).1 with\n        | none =>\n            simpa [M8.WeightedSearch.walk, h, e, Nat.add_mul, Nat.add_comm] using\n              (Nat.add_le_add (hC ⟨start, h⟩) (ih (start + 1)))\n        | some a =>\n            simpa [M8.WeightedSearch.walk, h, e] using (hC ⟨start, h⟩)\n      · simp [M8.WeightedSearch.walk, h]",
+          "imports": [
+            "M8WeightedSearch"
+          ],
+          "name": "M8.WeightedSearch.callback_bound",
+          "ancestors": [],
+          "spec_sha256": "20fb96e327bb184426671fcf10287630b2e91cdf1ddddbbb4a9c7da057ebcd9a"
+        },
+        "sha256": "ebc4d593e606b658675dbe1b658c6bcd0a6d70879c0ab97fbf4c2d801e232f12"
+      },
+      "projection": {
+        "payload": {
+          "declaration": "theorem M8.WeightedSearch.projection : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), ((M8.WeightedSearch.walk test start fuel).selected, (M8.WeightedSearch.walk test start fuel).calls) = M8.FiniteSearch.walk (fun i => (test i).1) start fuel := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), _\n  intro n α test start fuel\n  induction fuel generalizing start with\n  | zero =>\n      rfl\n  | succ fuel ih =>\n      by_cases h : start < n\n      · cases e : (test ⟨start, h⟩).1 with\n        | none =>\n            simpa only [M8.WeightedSearch.walk, M8.FiniteSearch.walk, dif_pos h, e, Prod.fst, Prod.snd] using\n              congrArg (fun r : Option (Fin n × α) × ℕ => (r.1, r.2 + 1)) (ih (start + 1))\n        | some a =>\n            simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h, e]\n      · simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h]",
+          "imports": [
+            "M8WeightedSearch"
+          ],
+          "name": "M8.WeightedSearch.projection",
+          "ancestors": [],
+          "spec_sha256": "a2142beef88162ea356a67fb770afebf1705c94e561a04818c4121fb80ca4946"
+        },
+        "sha256": "7afaccd764bf7949a5f360d36f6ade926b223f488e52431dc3d7f1a9ecba24ca"
+      },
+      "find_projection": {
+        "payload": {
+          "declaration": "theorem M8.WeightedSearch.find_projection : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), ((M8.WeightedSearch.find test).selected,(M8.WeightedSearch.find test).calls) = M8.FiniteSearch.find (fun i => (test i).1) := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), _\n  intro n α test\n  simpa only [M8.WeightedSearch.find, M8.FiniteSearch.find] using\n    M8.WeightedSearch.projection n α test 0 n",
+          "imports": [
+            "M8WeightedSearch"
+          ],
+          "name": "M8.WeightedSearch.find_projection",
+          "ancestors": [
+            "projection"
+          ],
+          "spec_sha256": "b94f5698a83626364d6d93d188bac248d6356ab012143fa540a505adf1644edb"
+        },
+        "sha256": "50c903a10d66a34b74741c6c667a82933869a047c0426e617a5566a01bd9145d"
+      },
+      "find_callback_bound": {
+        "payload": {
+          "declaration": "theorem M8.WeightedSearch.find_callback_bound : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (C : ℕ), (∀ i, (test i).2 ≤ C) → (M8.WeightedSearch.find test).work ≤ n*C := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (C : ℕ), (∀ i, (test i).2 ≤ C) → (M8.WeightedSearch.find test).work ≤ n * C\n  intro n α test C hC\n  have hcalls : (M8.WeightedSearch.find test).calls ≤ n := by\n    calc\n      (M8.WeightedSearch.find test).calls = (M8.FiniteSearch.find (fun i => (test i).1)).2 :=\n        congrArg Prod.snd (M8.WeightedSearch.find_projection n α test)\n      _ ≤ n := M8.FiniteSearch.find_bound n α (fun i => (test i).1)\n  exact le_trans (M8.WeightedSearch.callback_bound n α test 0 n C hC)\n    (Nat.mul_le_mul_right C hcalls)",
+          "imports": [
+            "M8WeightedSearch"
+          ],
+          "name": "M8.WeightedSearch.find_callback_bound",
+          "ancestors": [
+            "callback_bound",
+            "find_projection",
+            "projection"
+          ],
+          "spec_sha256": "aa4f83cf0bd5dd9508d5e3e74f35f139065ba638ab9c38406369cf64c3829656"
+        },
+        "sha256": "e978794dcc7be6dbf3c44d14c795a1f8242af8fd7d1225b3cbd473c536b1a7dc"
+      }
+    }
+  }
+}

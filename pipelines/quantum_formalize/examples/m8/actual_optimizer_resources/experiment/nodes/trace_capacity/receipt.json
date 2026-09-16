@@ -1,0 +1,69 @@
+{
+  "id": "trace_capacity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.OptimizerResources.trace_capacity",
+    "spec_sha256": "327cf9137b8d6d1de28b4213596902ef83bd9a13ec191a0e238f557d653d08f9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-csnaspds/attempt-001/Candidate_c84f2cbe1b69cfb1.lean",
+        "target_path": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-csnaspds/attempt-001/FrozenTarget_c84f2cbe1b69cfb1.lean",
+        "feedback": "",
+        "target_sha256": "6e1b16cd5752eaf80e599adbcd9ca6c78bebc41d5a96b722bed4831b24653271",
+        "target_olean_sha256": "284f7b95afd3b0fd584719da4661b05e70d38d71769f29922d278d7279fb4818",
+        "source_sha256": "5b7fa587e7a5e65cfef251a3404039ea7c451236a10f2f53d8dc2ab76a086ed0",
+        "olean_sha256": "3a9ed380ee3999bf57532a88be1241b5582f6520099dc64f205c0eac6fd2f72f",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:50:44.003224+00:00",
+    "work": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-csnaspds",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "28b8e0b580790fe15e05341827885f5bff713b16a370a7e3b08140e7a7d42598",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-csnaspds/attempt-001/Candidate_c84f2cbe1b69cfb1.lean",
+    "environment_sha256": "46d6dd108f4ab7441e504d3001b26a38fad52273dc139e19824fc8e7124108a1",
+    "artifacts": {
+      "weight_bounds": {
+        "payload": {
+          "declaration": "theorem M8.OptimizerResources.weight_bounds : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), ∀ (pins : M6.Pinned.Pins (2*N)) (character : Bool), ∀ i m t, M6.Transfer.polynomialMass ((M8.OptimizerResources.weight N a b pins character) i m t) ≤ 4 ∧ ((M8.OptimizerResources.weight N a b pins character) i m t).natDegree ≤ 2 := by\n  intro N inst a b pins character i m t\n  cases character with\n  | false =>\n      simp only [M8.OptimizerResources.weight, Bool.false_eq_true, if_false,\n        M6.ActualTransfer.boundaryWeight]\n      apply M6.Transfer.boundary_edge_bounds\n  | true =>\n      simp only [M8.OptimizerResources.weight, if_true,\n        M6.ActualTransfer.characterWeight]\n      apply M6.Transfer.character_edge_bounds",
+          "imports": [
+            "M8OptimizerResources"
+          ],
+          "name": "M8.OptimizerResources.weight_bounds",
+          "ancestors": [],
+          "spec_sha256": "fe06d8779f38a0be77ae3faaf0e204f9aa9f7a54251ebecce9734be842a0f214"
+        },
+        "sha256": "6949a46298e75a477fa47fb1d5a116b3b2960718b2c239eeb20a628684196b58"
+      },
+      "trace_capacity": {
+        "payload": {
+          "declaration": "theorem M8.OptimizerResources.trace_capacity : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), ∀ (pins : M6.Pinned.Pins (2*N)) (character : Bool), M6.ActualTransfer.span a b ≤ M8.Cutoff.limit N → ∀ d : ℕ, ((M6.Transfer.arrayTrace (M8.OptimizerResources.weight N a b pins character) N).coeff d).natAbs ≤ 2^(M6.ActualTransfer.span a b) * 8^N ∧ ((M6.Transfer.arrayTrace (M8.OptimizerResources.weight N a b pins character) N).coeff d).natAbs < 2^(4*(N+1)) := by\n  intro N inst a b pins character hcut d\n  have hbound : ((M6.Transfer.arrayTrace (M8.OptimizerResources.weight N a b pins character) N).coeff d).natAbs ≤ 2^(M6.ActualTransfer.span a b) * 8^N := by\n    apply M6.Transfer.trace_coefficient_bound\n    all_goals\n      intros\n      first\n      | exact (M8.OptimizerResources.weight_bounds N a b pins character _ _ _).1\n      | exact (M8.OptimizerResources.weight_bounds N a b pins character _ _ _).2\n  exact ⟨hbound, lt_of_le_of_lt hbound (M8.Cutoff.coefficient_capacity N (M6.ActualTransfer.span a b) hcut)⟩",
+          "imports": [
+            "M8OptimizerResources"
+          ],
+          "name": "M8.OptimizerResources.trace_capacity",
+          "ancestors": [
+            "weight_bounds"
+          ],
+          "spec_sha256": "323db73fa35d6566cddd46c3bb4714697f9e4da1fe3cf68143222e5721688ef9"
+        },
+        "sha256": "41f919393aa154a43882acee9cfc2e1655507b0caa031acf3a71e4de6bbf4514"
+      }
+    }
+  }
+}

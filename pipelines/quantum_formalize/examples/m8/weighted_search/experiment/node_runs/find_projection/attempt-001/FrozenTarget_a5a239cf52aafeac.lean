@@ -1,0 +1,19 @@
+import M8WeightedSearch
+
+theorem M8.WeightedSearch.projection : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), ((M8.WeightedSearch.walk test start fuel).selected, (M8.WeightedSearch.walk test start fuel).calls) = M8.FiniteSearch.walk (fun i => (test i).1) start fuel := by
+  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ) (start fuel : ℕ), _
+  intro n α test start fuel
+  induction fuel generalizing start with
+  | zero =>
+      rfl
+  | succ fuel ih =>
+      by_cases h : start < n
+      · cases e : (test ⟨start, h⟩).1 with
+        | none =>
+            simpa only [M8.WeightedSearch.walk, M8.FiniteSearch.walk, dif_pos h, e, Prod.fst, Prod.snd] using
+              congrArg (fun r : Option (Fin n × α) × ℕ => (r.1, r.2 + 1)) (ih (start + 1))
+        | some a =>
+            simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h, e]
+      · simp [M8.WeightedSearch.walk, M8.FiniteSearch.walk, h]
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), ((M8.WeightedSearch.find test).selected,(M8.WeightedSearch.find test).calls) = M8.FiniteSearch.find (fun i => (test i).1)

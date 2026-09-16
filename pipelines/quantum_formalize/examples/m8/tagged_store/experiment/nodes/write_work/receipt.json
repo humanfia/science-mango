@@ -1,0 +1,69 @@
+{
+  "id": "write_work",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.TaggedStore.write_work",
+    "spec_sha256": "0c1f825037e76eef9628342730ab5eee5b8d83575bee8fcf4b4e0e62b3181a69",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-jj61z5n4/attempt-001/Candidate_efae437201237844.lean",
+        "target_path": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-jj61z5n4/attempt-001/FrozenTarget_efae437201237844.lean",
+        "feedback": "",
+        "target_sha256": "ae95fbc84f456c475a5df523927ea4aa5bf7f20420aea6cc2b5edb768a0c063f",
+        "target_olean_sha256": "d7d5c2cf08adcf21946e8bbd4b6873345bad282be2156cbd50bb5291fc794564",
+        "source_sha256": "2c1143cc965d6c16e62ccbf59edc11bd142941c86e42481b8f4e7375cc626083",
+        "olean_sha256": "3030223a3b86da680a33bd08fcfa7f98503219ac5dbb53e6fcc44f629608f457",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:00:34.590826+00:00",
+    "work": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-jj61z5n4",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "64639dd1bcfc0daf0d98d978b0730b444ac4ebfd1420d0ad8d1a0c9cd87813ed",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-tagged-store-formalization/.humanize-formal-runs/run-jj61z5n4/attempt-001/Candidate_efae437201237844.lean",
+    "environment_sha256": "d2741b62aa8698c60bd67a08e235aceb7ca63db8645aa1d3766aebddf73082fe",
+    "artifacts": {
+      "comparison_exact": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.comparison_exact : ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a=b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length+1 := by\n  change ∀ a b : M8.TaggedStore.Tag, (M8.TaggedStore.compare a b).1 = decide (a = b) ∧ (M8.TaggedStore.compare a b).2 ≤ a.length + 1\n  intro a\n  induction a with\n  | nil =>\n      intro b\n      cases b <;> simp [M8.TaggedStore.compare]\n  | cons x xs ih =>\n      intro b\n      cases b with\n      | nil => simp [M8.TaggedStore.compare]\n      | cons y ys =>\n          by_cases h : x = y\n          · subst y\n            simpa [M8.TaggedStore.compare] using ih ys\n          · simp [M8.TaggedStore.compare, h]",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.comparison_exact",
+          "ancestors": [],
+          "spec_sha256": "d9ff001cad58e160bb9480d0d9e5f3d5ffc7761e37d559739c60d3a5f3a9177d"
+        },
+        "sha256": "2cee7514ffbebe5f7515602ceb52118f12006e6cee60a32e2c2ae587193b2f7d"
+      },
+      "write_work": {
+        "payload": {
+          "declaration": "theorem M8.TaggedStore.write_work : ∀ (B : ℕ) (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), key.length ≤ B → (∀ r ∈ s, r.1.length ≤ B) → (M8.TaggedStore.write key bit s).2 ≤ s.length*(4*(B+1))+1 := by\n  change ∀ (B : ℕ) (key : M8.TaggedStore.Tag) (bit : Bool) (s : M8.TaggedStore.Store), key.length ≤ B → (∀ r ∈ s, r.1.length ≤ B) → (M8.TaggedStore.write key bit s).2 ≤ s.length * (4 * (B + 1)) + 1\n  intro B key bit s hk\n  have hflat : ∀ t : List Bool, (t.flatMap (fun b => [true, b])).length = 2 * t.length := by\n    intro t\n    induction t with\n    | nil => simp\n    | cons b t ih =>\n        simp only [List.flatMap_cons, List.length_append, List.length_cons, List.length_nil, ih]\n        omega\n  induction s with\n  | nil =>\n      intro hs\n      simp [M8.TaggedStore.write]\n  | cons r rs ih =>\n      intro hs\n      have hr : r.1.length ≤ B := hs r (by simp)\n      have ht : ∀ x ∈ rs, x.1.length ≤ B := by\n        intro x hx\n        exact hs x (by simp [hx])\n      have hi := ih ht\n      have hc := (M8.TaggedStore.comparison_exact key r.1).2\n      have hl : (M8.TaggedStore.recordBits r).length = 2 * r.1.length + 2 := by\n        simp [M8.TaggedStore.recordBits, hflat]\n      have hcharge : (M8.TaggedStore.recordBits r).length + (M8.TaggedStore.compare key r.1).2 + 1 ≤ 4 * (B + 1) := by\n        omega\n      simp only [M8.TaggedStore.write, List.length_cons, Nat.add_mul, Nat.one_mul]\n      split <;> dsimp only <;> omega",
+          "imports": [
+            "M8TaggedStore"
+          ],
+          "name": "M8.TaggedStore.write_work",
+          "ancestors": [
+            "comparison_exact"
+          ],
+          "spec_sha256": "423ace010cf01a1a1acdbb65d52337b04be0331403ca9cab9d383a079b551c33"
+        },
+        "sha256": "87f86e1eeeeab767e59731cba8d6887a26283a0e57fa569e00a8cb43e0fd350e"
+      }
+    }
+  }
+}

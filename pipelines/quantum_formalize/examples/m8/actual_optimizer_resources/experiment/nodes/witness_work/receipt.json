@@ -1,0 +1,55 @@
+{
+  "id": "witness_work",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.OptimizerResources.witness_work",
+    "spec_sha256": "f558c2665cfc5a0ed813744b13233bc180e99c2281888e06f1cb46bbd1c8366c",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-s51tnyi5/attempt-001/Candidate_f0c1eddf37004271.lean",
+        "target_path": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-s51tnyi5/attempt-001/FrozenTarget_f0c1eddf37004271.lean",
+        "feedback": "",
+        "target_sha256": "385f8a59089132e3edb6f801f3a217f96362441644bf84457de0b9c4d4f7b723",
+        "target_olean_sha256": "f87c145e4377e6b71497c5bb621b30150a79aaaa34c10608546715f807924a86",
+        "source_sha256": "3c7078b8ea5a190b8427c7af96ab316db053cccfbcf1852268312ca389291e0f",
+        "olean_sha256": "9b18fd2450eac287eb8cc597db12decab80136c073ec7a1a2c0ed75b15acc7d9",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:55:16.597758+00:00",
+    "work": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-s51tnyi5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "28b8e0b580790fe15e05341827885f5bff713b16a370a7e3b08140e7a7d42598",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-actual-optimizer-resources-formalization/.humanize-formal-runs/run-s51tnyi5/attempt-001/Candidate_f0c1eddf37004271.lean",
+    "environment_sha256": "46d6dd108f4ab7441e504d3001b26a38fad52273dc139e19824fc8e7124108a1",
+    "artifacts": {
+      "witness_work": {
+        "payload": {
+          "declaration": "theorem M8.OptimizerResources.witness_work : ∀ (N : ℕ) [NeZero N] (a b : M6.ActualTransfer.BP), ∀ (d : ℕ) (v : M6.Pinned.Vector (2*N)) (k : ℕ), M6.ActualTransfer.span a b ≤ M8.Cutoff.limit N → M6.ActualTransfer.solve N a b = some (d,v,k) → M6.ActualTransfer.actualWitnessWork N a b k ≤ 200000*(N+1)^6 := by\n  intro N inst a b d v k hcut hsolve\n  have hspan : M6.ActualTransfer.span a b < N :=\n    lt_of_le_of_lt hcut ((M8.Cutoff.limit_bounds N).2.2 (NeZero.pos N))\n  refine le_trans (M6.ActualTransfer.actual_witness_work N a b d v k hspan hsolve) ?_\n  simpa only [Nat.mul_assoc] using\n    Nat.mul_le_mul_left 200000\n      ((M8.Cutoff.indexed_work_envelopes N (M6.ActualTransfer.span a b) hcut).2)",
+          "imports": [
+            "M8OptimizerResources"
+          ],
+          "name": "M8.OptimizerResources.witness_work",
+          "ancestors": [],
+          "spec_sha256": "f558c2665cfc5a0ed813744b13233bc180e99c2281888e06f1cb46bbd1c8366c"
+        },
+        "sha256": "761b5daa1e25eba0732e794781ab5c9b9a91dc156cd4c7330e6f6e254636f16c"
+      }
+    }
+  }
+}

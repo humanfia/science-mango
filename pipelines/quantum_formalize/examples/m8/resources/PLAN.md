@@ -16,8 +16,8 @@ All paths below are under `pipelines/quantum_formalize/examples/m6`; their canon
 
 | Existing module / archive | Useful public API | M8 use |
 |---|---|---|
-| `M6TransferCoefficientsAccepted`, `transfer/coefficients/experiment` | `Transfer.layers_mass`, `trace_coefficient_bound`, `actual_trace_intermediates` | One-start mass ≤8^i; complete and partial trace coefficients ≤`2^R*8^N`. |
-| `M6TransferPartialResourcesAccepted`, `transfer/partial_resources/experiment` | `scatter_prefix_magnitude`, `actual_layer_intermediates` | Bounds every partial scatter update and event term, including cancellation. |
+| `M6TransferCoefficientsAccepted`, `transfer/coefficients/experiment` | `Transfer.layers_mass`, `trace_coefficient_bound` | One-start mass ≤8^i and complete trace coefficients ≤`2^R*8^N`. |
+| `M6TransferPartialResourcesAccepted`, `transfer/partial_resources/experiment` | `actual_trace_intermediates`, `scatter_prefix_magnitude`, `actual_layer_intermediates` | Bounds partial trace sums, every partial scatter update and event term, including cancellation. |
 | `M6WeightResourcesAccepted`, `transfer/weight_resources/experiment` | `ActualTransfer.boundary_indexed_resources`, `character_indexed_resources` | Instantiate resource guarantees with the actual physical pinned boundary and character weights, eliminating arbitrary W/weight-cost assumptions. |
 | `M6TransferActualResourcesAccepted`, `transfer/actual_resources/experiment` | `Transfer.actual_signed_capacity`, `actual_trace_work_bound`, `actual_trace_storage_bound` | Existing actual scatter layout, accumulator widths, address and local-weight charges. |
 | `M6SolveResourcesAccepted`, `transfer/solve_resources/experiment` | `ActualTransfer.actual_distance_work`, `actual_witness_work` | Actual counters ≤`50000*N³*4^R` and `200000*N⁴*4^R`; the latter uses an actual `solve=some(d,v,k)` result, not a supplied query-budget oracle. |
@@ -48,3 +48,10 @@ Dependency order: cutoff and measured discovery can run independently; physical 
 - A theorem bounding `discoveryTrials=N³`, `sequentialWork=n¹²`, or an arbitrary evaluator's supplied cost would be circular. These are forbidden shortcuts.
 - Do not replace the source's authoritative anchors by translation-pair enumeration and assert identical first results. The recognized sets agree; their first lexicographic witnesses may differ.
 - The explicit input length is N, not log N. Even orders, repeated polynomial factors, N=1 and R=0 remain present. The original all-input solver and M9 are excluded.
+
+## Concrete batch status
+
+- `cutoff/experiment`: eight targets canonical, complete assembly/environment gates and original portable payload audit passed.
+- `actual_optimizer_resources/experiment`: eight targets canonical, complete assembly/environment gates and original portable payload audit passed; five canonical parent archives and nineteen direct parent proof payloads were verified.
+- `tagged_store`: eight closed primitive targets have passed definition/type preflight and are running normal frozen proof acceptance. They instantiate binary address tags and actual short-circuit record scan charges; the packed-memory read/write projection is a theorem goal, not an assumed oracle.
+- Final actual discovery plus optimizer plus sequential operation-sequence/resource composition is still downstream. These component statuses do not claim revised M8 completion.

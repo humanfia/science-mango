@@ -1,0 +1,12 @@
+import FrozenTarget_cd88cb9c5ce3c4c3
+theorem M8.Anchor.span_lt_order : QuantumHarnessFrozenTarget := by
+  change ∀ (N : ℕ) [NeZero N] (c : M8.Anchor.Recipe N), M8.Anchor.span c < N
+  intro N inst c
+  have hN : 0 < N := Nat.pos_of_ne_zero (NeZero.ne N)
+  unfold M8.Anchor.span
+  apply max_lt_iff.mpr
+  constructor
+  all_goals
+    apply (Finset.sup_lt_iff hN).mpr
+    intro a ha
+    exact ZMod.val_lt a

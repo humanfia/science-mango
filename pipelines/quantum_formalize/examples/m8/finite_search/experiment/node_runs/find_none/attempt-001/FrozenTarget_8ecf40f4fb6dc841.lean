@@ -1,0 +1,44 @@
+import M8FiniteSearch
+
+theorem M8.FiniteSearch.none_iff : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), ((M8.FiniteSearch.walk test start fuel).1 = none ↔ ∀ i : Fin n, start ≤ i.val → i.val < start+fuel → test i = none) := by
+  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), (M8.FiniteSearch.walk test start fuel).1 = none ↔ ∀ i : Fin n, start ≤ i.val → i.val < start + fuel → test i = none
+  intro n α test start fuel
+  induction fuel generalizing start with
+  | zero =>
+      constructor
+      · intro _ i hlo hhi
+        omega
+      · intro _
+        rfl
+  | succ fuel ih =>
+      by_cases hs : start < n
+      · cases ht : test ⟨start, hs⟩ with
+        | none =>
+            simp only [M8.FiniteSearch.walk, dif_pos hs, ht, Prod.fst]
+            rw [ih]
+            constructor
+            · intro hall i hlo hhi
+              by_cases heq : i.val = start
+              · have hi : i = ⟨start, hs⟩ := Fin.ext heq
+                simpa only [hi] using ht
+              · exact hall i (by omega) (by omega)
+            · intro hall i hlo hhi
+              exact hall i (by omega) (by omega)
+        | some a =>
+            constructor
+            · intro hw
+              have hf : False := by
+                simpa [M8.FiniteSearch.walk, hs, ht] using hw
+              exact hf.elim
+            · intro hall
+              have hn : test ⟨start, hs⟩ = none :=
+                hall ⟨start, hs⟩ (by simp) (by dsimp; omega)
+              simp [ht] at hn
+      · constructor
+        · intro _ i hlo _
+          have hi := i.isLt
+          omega
+        · intro _
+          simp [M8.FiniteSearch.walk, hs]
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (n : ℕ) (α : Type) (test : Fin n → Option α), (M8.FiniteSearch.find test).1 = none ↔ ∀ i, test i = none

@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst c g w hv ha hs\nclassical\nhave hn := M8.PhysicalBridge.noLogical N c g w hv ha\ncases he : M8.PhysicalBridge.solve (M7.Action.act g c) with\n| none => exact False.elim (hs (hn.mp he))\n| some result =>\n  rcases result with ⟨d, v, k⟩\n  have hcards : (M7.Action.act g c).1.card = w ∧ (M7.Action.act g c).2.card = w := by\n    rcases hv with ⟨hA, hB, hc⟩\n    first\n    | solve_by_elim [M7.Action.support_cards]\n    | simpa [hA, hB] using M7.Action.support_cards N g c\n    | simpa [hA, hB] using M7.Action.support_cards N c g\n  have hc := (M7.Connectivity.connected_action N g c).mpr hv.2.2\n  have hgcd := (M7.Connectivity.anchored_gcd N\n    (M7.Action.act g c).1 (M7.Action.act g c).2 ha.1 ha.2).mp hc\n  have hw := M7.Transport.actual_witness N w (M7.Action.inverse g)\n    (M7.Action.act g c) d k v hcards.1 hcards.2 ha.1 ha.2 hgcd he\n  simp only [M7.Action.act_inverse] at hw\n  refine ⟨d, v, k, he, hw.1, hw.2.1, hw.2.2.1, ?_, hw.2.2.2.2.2⟩\n  have hd := hw.1\n  have hspec := M6.Pinned.distance_spec (2*N) (M7.Transport.LX c)\n  simp only [M7.Transport.distance, M6.Final.quantumDistance,\n    M6.Flatten.common_quantum_distance, M7.Domain.coefficients_indicator] at hd\n  first\n  | rw [M6.Pinned.distance_spec] at hd\n    simpa only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX] at hd ⊢\n    aesop\n  | simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX] at hspec ⊢\n    aesop",
+  "queries": [
+    "M6.Pinned.distance_spec",
+    "M6.Flatten.common_quantum_distance",
+    "M6.Final.quantumDistance"
+  ]
+}

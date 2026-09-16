@@ -1,0 +1,43 @@
+import M6TransferScatterReady
+
+theorem M6.Transfer.scalar_trace_polynomial : ∀ (R N : ℕ) (W : ℕ → M6.Transfer.Memory R → M6.Transfer.Bit → Polynomial ℤ), (∀ i m t, (W i m t).natDegree ≤ 2) → M6.Transfer.scalarTracePolynomial W N = M6.Transfer.arrayTrace W N := by
+  classical
+  intro R N W hW
+  change M6.Transfer.scalarTracePolynomial W N = M6.Transfer.arrayTrace W N
+  apply Polynomial.ext
+  intro d
+  rw [M6.Transfer.scalarTracePolynomial, Polynomial.finset_sum_coeff]
+  by_cases hd : d < 2 * N + 1
+  · let j : Fin (2 * N + 1) := ⟨d, hd⟩
+    calc
+      _ = (Polynomial.monomial j.val (M6.Transfer.scalarTraceCoefficient W N j)).coeff d := by
+        apply Finset.sum_eq_single j
+        · intro i hi hij
+          have hv : i.val ≠ d := by
+            intro he
+            apply hij
+            apply Fin.ext
+            exact he
+          simp [Polynomial.coeff_monomial, hv, Ne.symm hv]
+        · simp
+      _ = M6.Transfer.scalarTraceCoefficient W N j := by
+        simp [j]
+      _ = (M6.Transfer.arrayTrace W N).coeff d :=
+        M6.Transfer.scalar_trace_coefficient R N W j hW
+  · have hleft : (∑ i : Fin (2 * N + 1),
+        (Polynomial.monomial i.val (M6.Transfer.scalarTraceCoefficient W N i)).coeff d) = 0 := by
+      apply Finset.sum_eq_zero
+      intro i hi
+      have hv : i.val ≠ d := by
+        have := i.isLt
+        omega
+      simp [Polynomial.coeff_monomial, hv, Ne.symm hv]
+    rw [hleft]
+    symm
+    rw [M6.Transfer.arrayTrace, Polynomial.finset_sum_coeff]
+    apply Finset.sum_eq_zero
+    intro start hstart
+    apply Polynomial.coeff_eq_zero_of_natDegree_lt
+    have hdeg := M6.Transfer.layers_degree R W start start N hW
+    omega
+#print axioms M6.Transfer.scalar_trace_polynomial

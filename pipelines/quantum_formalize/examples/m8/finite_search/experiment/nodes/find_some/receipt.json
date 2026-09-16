@@ -1,0 +1,68 @@
+{
+  "id": "find_some",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.FiniteSearch.find_some",
+    "spec_sha256": "693269a9ec9a98f302cfdeced27317de9b1922770978eea52c227d7437622a74",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-dhw7pk4b/attempt-001/Candidate_3de531972deaaa29.lean",
+        "target_path": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-dhw7pk4b/attempt-001/FrozenTarget_3de531972deaaa29.lean",
+        "feedback": "",
+        "target_sha256": "a67ceeb89b5f161cf8a947d0703805b735c99b8aacd914cd91aa67197d97d806",
+        "target_olean_sha256": "98d7084c2ab007263a9438ba3d265716647929eb55d456bc9a8793dc1ea720db",
+        "source_sha256": "19321262184f6397486176f243366f20edaadcd98f423d5c5b0f2e21d129477c",
+        "olean_sha256": "19df1de83164da32437d09f494a64b08ecce5fd12febc81c7d3c397556220476",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T12:38:40.253028+00:00",
+    "work": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-dhw7pk4b",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "87f97390dfd3fd4d32a542e07758c78edb72d7a1967a685747a2dc560ed46c79",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-finite-search-formalization/.humanize-formal-runs/run-dhw7pk4b/attempt-001/Candidate_3de531972deaaa29.lean",
+    "environment_sha256": "14369440cdd8956c97dbc8f458cebbcd8f0d46a6c3af31ef9bab3f77e5877018",
+    "artifacts": {
+      "some_iff": {
+        "payload": {
+          "declaration": "theorem M8.FiniteSearch.some_iff : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ), ∀ (i : Fin n) (a : α), (M8.FiniteSearch.walk test start fuel).1 = some (i,a) ↔ M8.FiniteSearch.First test start fuel i a := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (start fuel : ℕ) (i : Fin n) (a : α), (M8.FiniteSearch.walk test start fuel).1 = some (i, a) ↔ M8.FiniteSearch.First test start fuel i a\n  intro n α test start fuel\n  induction fuel generalizing start with\n  | zero =>\n      intro i a\n      change (none : Option (Fin n × α)) = some (i, a) ↔ M8.FiniteSearch.First test start 0 i a\n      constructor\n      · intro he\n        cases he\n      · intro hf\n        rcases hf with ⟨hl, hu, ht, hall⟩\n        omega\n  | succ fuel ih =>\n      intro i a\n      by_cases h : start < n\n      · cases ht : test ⟨start, h⟩ with\n        | none =>\n            simp only [M8.FiniteSearch.walk, dif_pos h, ht]\n            rw [ih]\n            unfold M8.FiniteSearch.First\n            constructor\n            · rintro ⟨hl, hu, hv, hall⟩\n              refine ⟨by omega, by omega, hv, ?_⟩\n              intro j hj hji\n              by_cases he : j.val = start\n              · have ej : j = ⟨start, h⟩ := Fin.ext he\n                rw [ej]\n                exact ht\n              · exact hall j (by omega) hji\n            · rintro ⟨hl, hu, hv, hall⟩\n              have hne : i.val ≠ start := by\n                intro he\n                have ei : i = ⟨start, h⟩ := Fin.ext he\n                rw [ei, ht] at hv\n                cases hv\n              refine ⟨by omega, by omega, hv, ?_⟩\n              intro j hj hji\n              exact hall j (by omega) hji\n        | some b =>\n            simp only [M8.FiniteSearch.walk, dif_pos h, ht]\n            change some ((⟨start, h⟩ : Fin n), b) = some (i, a) ↔ M8.FiniteSearch.First test start (fuel + 1) i a\n            constructor\n            · intro he\n              have hp := Option.some.inj he\n              have hi : (⟨start, h⟩ : Fin n) = i := congrArg Prod.fst hp\n              have ha : b = a := congrArg Prod.snd hp\n              subst i\n              subst a\n              unfold M8.FiniteSearch.First\n              dsimp only\n              refine ⟨le_rfl, by omega, ht, ?_⟩\n              intro j hj hji\n              omega\n            · intro hf\n              rcases hf with ⟨hl, hu, hv, hall⟩\n              have hi : i = ⟨start, h⟩ := by\n                apply Fin.ext\n                change i.val = start\n                by_contra hne\n                have hlt : start < i.val := by omega\n                have hn := hall ⟨start, h⟩ (by simp) (by simpa only using hlt)\n                rw [ht] at hn\n                cases hn\n              subst i\n              rw [ht] at hv\n              have ha : b = a := Option.some.inj hv\n              cases ha\n              rfl\n      · rw [M8.FiniteSearch.walk, dif_neg h]\n        change (none : Option (Fin n × α)) = some (i, a) ↔ M8.FiniteSearch.First test start (fuel + 1) i a\n        constructor\n        · intro he\n          cases he\n        · intro hf\n          rcases hf with ⟨hl, hu, hv, hall⟩\n          have hi := i.isLt\n          omega",
+          "imports": [
+            "M8FiniteSearch"
+          ],
+          "name": "M8.FiniteSearch.some_iff",
+          "ancestors": [],
+          "spec_sha256": "fafb477e25437c6e9e281be74c0b0ddf1c46f2c4c2f4b06d88577c3f2b1eaef8"
+        },
+        "sha256": "b5e9e2c8f42ef54c8fe8330416b226b476492338364bb9d93a5c4cee09f2d24f"
+      },
+      "find_some": {
+        "payload": {
+          "declaration": "theorem M8.FiniteSearch.find_some : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (i : Fin n) (a : α), (M8.FiniteSearch.find test).1 = some (i,a) ↔ test i = some a ∧ ∀ j : Fin n, j.val < i.val → test j = none := by\n  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α) (i : Fin n) (a : α), (M8.FiniteSearch.find test).1 = some (i, a) ↔ test i = some a ∧ ∀ j : Fin n, j.val < i.val → test j = none\n  intro n α test i a\n  change (M8.FiniteSearch.walk test 0 n).1 = some (i, a) ↔ _\n  rw [M8.FiniteSearch.some_iff n α test 0 n i a]\n  unfold M8.FiniteSearch.First\n  constructor\n  · rintro ⟨hl, hu, ht, hall⟩\n    exact ⟨ht, fun j hj => hall j (Nat.zero_le _) hj⟩\n  · rintro ⟨ht, hall⟩\n    refine ⟨Nat.zero_le _, ?_, ht, ?_⟩\n    · simpa only [Nat.zero_add] using i.isLt\n    · intro j hj hji\n      exact hall j hji",
+          "imports": [
+            "M8FiniteSearch"
+          ],
+          "name": "M8.FiniteSearch.find_some",
+          "ancestors": [
+            "some_iff"
+          ],
+          "spec_sha256": "232347a7bd41410156803b1adb01b026a32291428661e31976ec3cb1ca115278"
+        },
+        "sha256": "10a10d7a908f829fb7e9207bd92a76e0954bc062254fc7904f240476bbb3e3b6"
+      }
+    }
+  }
+}

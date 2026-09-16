@@ -1,0 +1,5 @@
+theorem M8.WeightedSearch.find_projection : ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), ((M8.WeightedSearch.find test).selected,(M8.WeightedSearch.find test).calls) = M8.FiniteSearch.find (fun i => (test i).1) := by
+  change ∀ (n : ℕ) (α : Type) (test : Fin n → Option α × ℕ), _
+  intro n α test
+  simpa only [M8.WeightedSearch.find, M8.FiniteSearch.find] using
+    M8.WeightedSearch.projection n α test 0 n

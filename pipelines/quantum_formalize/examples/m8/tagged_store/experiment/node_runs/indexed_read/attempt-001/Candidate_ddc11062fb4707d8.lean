@@ -1,0 +1,24 @@
+import FrozenTarget_ddc11062fb4707d8
+theorem M8.TaggedStore.indexed_read : QuantumHarnessFrozenTarget := by
+  change ∀ (start i : ℕ) (mem : List Bool), (M8.TaggedStore.read (M8.TaggedStore.address (start + i)) (M8.TaggedStore.packFrom start mem)).1 = mem[i]?
+  intro start i mem
+  induction mem generalizing start i with
+  | nil =>
+      simp [M8.TaggedStore.packFrom, M8.TaggedStore.read]
+  | cons b bs ih =>
+      cases i with
+      | zero =>
+          have hc : (M8.TaggedStore.compare (M8.TaggedStore.address start) (M8.TaggedStore.address start)).1 = true := by
+            simpa using (M8.TaggedStore.comparison_exact (M8.TaggedStore.address start) (M8.TaggedStore.address start)).1
+          simp [M8.TaggedStore.packFrom, M8.TaggedStore.read, hc]
+      | succ i =>
+          have hne : M8.TaggedStore.address (start + Nat.succ i) ≠ M8.TaggedStore.address start := by
+            intro h
+            have := M8.TaggedStore.address_representation.1 h
+            omega
+          have hc : (M8.TaggedStore.compare (M8.TaggedStore.address (start + Nat.succ i)) (M8.TaggedStore.address start)).1 = false := by
+            simpa [hne] using (M8.TaggedStore.comparison_exact (M8.TaggedStore.address (start + Nat.succ i)) (M8.TaggedStore.address start)).1
+          have ht : (M8.TaggedStore.read (M8.TaggedStore.address (start + Nat.succ i)) (M8.TaggedStore.packFrom (start + 1) bs)).1 = bs[i]? := by
+            rw [show start + Nat.succ i = (start + 1) + i by omega]
+            exact ih (start + 1) i
+          simpa [M8.TaggedStore.packFrom, M8.TaggedStore.read, hc] using ht

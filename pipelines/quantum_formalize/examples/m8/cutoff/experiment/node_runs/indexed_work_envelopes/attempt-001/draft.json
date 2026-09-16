@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ (N R : ℕ), R ≤ M8.Cutoff.limit N → N^3 * 4^R ≤ (N+1)^5 ∧ N^4 * 4^R ≤ (N+1)^6\nintro N R hR\nhave hs := M8.Cutoff.state_square N R hR\nhave hp : ∀ k : ℕ, N ^ k ≤ (N + 1) ^ k := by\n  intro k\n  induction k with\n  | zero => simp\n  | succ k ih =>\n    simpa only [pow_succ] using Nat.mul_le_mul ih (Nat.le_succ N)\nconstructor\n· calc\n    N ^ 3 * 4 ^ R ≤ (N + 1) ^ 3 * (N + 1) ^ 2 := Nat.mul_le_mul (hp 3) hs\n    _ = (N + 1) ^ 5 := by ring\n· calc\n    N ^ 4 * 4 ^ R ≤ (N + 1) ^ 4 * (N + 1) ^ 2 := Nat.mul_le_mul (hp 4) hs\n    _ = (N + 1) ^ 6 := by ring",
+  "queries": []
+}
