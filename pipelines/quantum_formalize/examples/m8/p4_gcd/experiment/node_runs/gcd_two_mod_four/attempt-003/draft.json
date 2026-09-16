@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 800000 in\n  change ∀ m : ℕ, gcd M8.P4Family.polynomial (M6.Cyclic.modulus (4*m+2)) = (Polynomial.X+1)^2\n  intro m\n  rw [M8.P4Family.power_identity, M8.P4Gcd.factorization]\n  let a : M6.Cyclic.BinaryPolynomial := Polynomial.X + 1\n  let H := M8.P4Gcd.oddCofactor m\n  change gcd (a^3) (a^2 * H) = a^2\n  let d := gcd (a^3) (a^2 * H)\n  have hdu : d ∣ a^3 := gcd_dvd_left _ _\n  have hdv : d ∣ a^2 * H := gcd_dvd_right _ _\n  rcases hdu with ⟨u, hu⟩\n  rcases hdv with ⟨v, hv⟩\n  rcases M8.P4Gcd.cofactor_coprime m with ⟨r, s, hrs⟩\n  change r * a + s * H = 1 at hrs\n  have hd : d ∣ a^2 := by\n    refine ⟨r*u + s*v, ?_⟩\n    calc\n      a^2 = a^2 * (r*a + s*H) := by rw [hrs]; ring\n      _ = r * a^3 + s * (a^2 * H) := by ring\n      _ = d * (r*u + s*v) := by rw [hu, hv]; ring\n  have ha : a^2 ∣ gcd (a^3) (a^2 * H) := by\n    apply dvd_gcd\n    · exact ⟨a, by ring⟩\n    · exact ⟨H, rfl⟩\n  have hm : a.Monic := by\n    simpa [a] using (Polynomial.monic_X_add_C (1 : ZMod 2))\n  exact (gcd_eq_normalize hd ha).trans ((hm.pow 2).normalize)",
+  "queries": [
+    "Polynomial.Monic.normalize",
+    "Polynomial.monic_X_add_C",
+    "gcd_eq_normalize"
+  ]
+}

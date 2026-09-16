@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N inst v hv hNv\nhave hN : 8 ≤ N := by\n  rw [hNv]\n  exact pow_le_pow_right' (by decide : 1 ≤ (2 : ℕ)) hv\nhave hp : 2 ^ v = 2 ^ (v - 1) * 2 := by\n  rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\nhave hEven : Even N := by\n  refine ⟨2 ^ (v - 1), ?_⟩\n  omega\nhave hl := M8.AntipodalFamily.literal_polynomial N hN hEven\nhave hm := (M8.AntipodalFamily.nontrivial N hN hEven).1\nhave hd : M8.AntipodalFamily.polynomial N ∣ M6.Cyclic.modulus N := by\n  rw [hNv]\n  exact M8.AntipodalFamily.divides_modulus v hv\nunfold M7.RecipeSignature.signature M8.AntipodalFamily.recipe\nsimp only [Prod.fst, Prod.snd, hl]\nfirst\n| change gcd (gcd (M8.AntipodalFamily.polynomial N) (M8.AntipodalFamily.polynomial N)) (M6.Cyclic.modulus N) = M8.AntipodalFamily.polynomial N\n| change gcd (M8.AntipodalFamily.polynomial N) (gcd (M8.AntipodalFamily.polynomial N) (M6.Cyclic.modulus N)) = M8.AntipodalFamily.polynomial N\n| change gcd (M6.Cyclic.modulus N) (gcd (M8.AntipodalFamily.polynomial N) (M8.AntipodalFamily.polynomial N)) = M8.AntipodalFamily.polynomial N\nsimp [gcd_self, gcd_eq_left hd, gcd_comm, hm.normalize_eq]",
+  "queries": [
+    "gcd_eq_left normalize polynomial",
+    "Polynomial.Monic.normalize_eq",
+    "EuclideanDomain.gcd_eq_left"
+  ]
+}

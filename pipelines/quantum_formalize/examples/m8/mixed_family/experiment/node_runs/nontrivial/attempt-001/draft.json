@@ -1,0 +1,7 @@
+{
+  "proof": "change M8.MixedFamily.a ≠ 1 ∧ M8.MixedFamily.a ≠ 0 ∧ (M8.MixedFamily.a * M8.MixedFamily.b).natDegree = 3\nhave ha : M8.MixedFamily.a.natDegree = 1 := by\n  unfold M8.MixedFamily.a\n  rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n  simp\nhave hb : M8.MixedFamily.b.natDegree = 2 := by\n  unfold M8.MixedFamily.b\n  rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n  simp\nhave ha1 : M8.MixedFamily.a ≠ 1 := by\n  intro h\n  rw [h] at ha\n  simp at ha\nhave ha0 : M8.MixedFamily.a ≠ 0 := by\n  intro h\n  rw [h] at ha\n  simp at ha\nhave hb0 : M8.MixedFamily.b ≠ 0 := by\n  intro h\n  rw [h] at hb\n  simp at hb\nrefine ⟨ha1, ha0, ?_⟩\nrw [Polynomial.natDegree_mul ha0 hb0, ha, hb]",
+  "queries": [
+    "Polynomial.natDegree_add_eq_right_of_natDegree_lt",
+    "Polynomial.natDegree_mul"
+  ]
+}

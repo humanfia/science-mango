@@ -1,0 +1,7 @@
+{
+  "proof": "  classical\n  intro N inst v hv hNv\n  have hN : 8 ≤ N := by\n    rw [hNv]\n    have h : (2 : ℕ) ^ 3 ≤ 2 ^ v := Nat.pow_le_pow_right (by decide) hv\n    norm_num at h ⊢\n    exact h\n  have hp : 2 ^ v = 2 ^ (v - 1) * 2 := by\n    rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n  have hEven : Even N := by\n    refine ⟨2 ^ (v - 1), ?_⟩\n    rw [hNv, hp]\n    omega\n  have hl := M8.AntipodalFamily.literal_polynomial N hN hEven\n  have hm := (M8.AntipodalFamily.nontrivial N hN hEven).1\n  have hd : M8.AntipodalFamily.polynomial N ∣ M6.Cyclic.modulus N := by\n    rw [hNv]\n    exact M8.AntipodalFamily.divides_modulus v hv\n  let p := M8.AntipodalFamily.polynomial N\n  have hn : normalize p = p := hm.normalize_eq_self\n  have hg : gcd p (M6.Cyclic.modulus N) = p := by\n    rw [gcd_eq_normalize (gcd_dvd_left _ _) (dvd_gcd (dvd_refl _) hd), hn]\n  have he : EuclideanDomain.gcd p (M6.Cyclic.modulus N) = p :=\n    EuclideanDomain.gcd_eq_left.mpr hd\n  have heSelf : EuclideanDomain.gcd p p = p :=\n    EuclideanDomain.gcd_eq_left.mpr (dvd_refl _)\n  unfold M7.RecipeSignature.signature M8.AntipodalFamily.recipe\n  simp only [hl]\n  unfold M6.Cyclic.signature\n  first\n  | simpa only [← show M8.AntipodalFamily.polynomial N = p from rfl,\n      gcd_self, hn, hg, heSelf, he]\n  | simpa only [← show M8.AntipodalFamily.polynomial N = p from rfl,\n      gcd_self, hn, gcd_comm (M6.Cyclic.modulus N) p, hg, heSelf, he]",
+  "queries": [
+    "M6.Cyclic.signature definition",
+    "EuclideanDomain.gcd_eq_right"
+  ]
+}

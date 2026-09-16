@@ -1,0 +1,132 @@
+{
+  "id": "full_multiplicity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P4Gcd.full_multiplicity",
+    "spec_sha256": "fda9b914caab940b9f1e98055923127d660db756e3fbf2a3d560a4e25a681375",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-nz0mxpy1/attempt-001/Candidate_a22f2170fee806de.lean",
+        "target_path": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-nz0mxpy1/attempt-001/FrozenTarget_a22f2170fee806de.lean",
+        "feedback": "",
+        "target_sha256": "001123c0f2553a5ca7dfa2bf1da3a49845550c310a2cb4836fd0c08992cd1e3b",
+        "target_olean_sha256": "1c4e1a7f4e4a719149ad55d4edc7a6e9bb98bac1a5d4b7ff3cdfde2f8f49a3a5",
+        "source_sha256": "9a99083f9881ac6bde35ee66b43e3d112324c94d98168e5a407dee3018b24416",
+        "olean_sha256": "0334c17bd3feff918451c48c9c66d647128479dd8a277dcbce7eba3a41f214ee",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:10:14.119006+00:00",
+    "work": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-nz0mxpy1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7b0ba002b343e23dcd222b60e0f224971ba14cd40f9fb04e355c41442014b647",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-nz0mxpy1/attempt-001/Candidate_a22f2170fee806de.lean",
+    "environment_sha256": "2d069ebe13608f28a7680e392886c4f6a6095e3574567e7e080e51cc7f3f98a2",
+    "artifacts": {
+      "factorization": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.factorization : ∀ m : ℕ, M6.Cyclic.modulus (4*m+2) = (Polynomial.X+1)^2 * M8.P4Gcd.oddCofactor m := by\n  intro m\n  have htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 := by\n    simpa only [map_ofNat, map_zero] using\n      congrArg (Polynomial.C : ZMod 2 → Polynomial (ZMod 2))\n        (show (2 : ZMod 2) = 0 by decide)\n  have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n    linear_combination -htwo\n  have hsquare : ((Polynomial.X : M6.Cyclic.BinaryPolynomial) + 1)^2 = Polynomial.X^2 - 1 := by\n    linear_combination (Polynomial.X + 1) * htwo\n  have hgeom : ∀ n : ℕ,\n      ((Polynomial.X : M6.Cyclic.BinaryPolynomial)^2 - 1) *\n        (Finset.range n).sum (fun i => Polynomial.X^(2*i)) =\n          Polynomial.X^(2*n) - 1 := by\n    intro n\n    induction n with\n    | zero => simp\n    | succ n ih =>\n      rw [Finset.sum_range_succ, mul_add, ih]\n      rw [Nat.mul_succ, pow_add]\n      ring\n  have hexp : 2 * (2*m+1) = 4*m+2 := by omega\n  simpa [M6.Cyclic.modulus, M8.P4Gcd.oddCofactor, hsquare,\n    hexp, sub_eq_add_neg, hneg] using (hgeom (2*m+1)).symm",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.factorization",
+          "ancestors": [],
+          "spec_sha256": "f32a55df6ece72b1b20140428dfce61f90f69925e2ff0a7dd6731601bcf82732"
+        },
+        "sha256": "a7c310610ab5c786da77d71da315d90b32ce09e63674248856759d60c24e9625"
+      },
+      "cofactor_eval": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.cofactor_eval : ∀ m : ℕ, Polynomial.eval 1 (M8.P4Gcd.oddCofactor m) = 1 := by\n  change ∀ m : ℕ, Polynomial.eval 1 (M8.P4Gcd.oddCofactor m) = 1\n  intro m\n  have htwo : (2 : ZMod 2) = 0 := by decide\n  simp [M8.P4Gcd.oddCofactor, Polynomial.eval_finset_sum, Nat.cast_add, Nat.cast_mul, htwo]",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.cofactor_eval",
+          "ancestors": [],
+          "spec_sha256": "27bc5b80ee8fd868873aac1dfa81b81f69784634f92237e16b4ea7f6f4f79f37"
+        },
+        "sha256": "408941561641d56add8010ff81625ffe117bd20980ef26b2d87efb82e3e4b1ab"
+      },
+      "cofactor_coprime": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.cofactor_coprime : ∀ m : ℕ, IsCoprime (Polynomial.X+1) (M8.P4Gcd.oddCofactor m) := by\n  change ∀ m : ℕ, IsCoprime (Polynomial.X + 1) (M8.P4Gcd.oddCofactor m)\n  intro m\n  have hneg : (-1 : ZMod 2) = 1 := by decide\n  have hr : Polynomial.IsRoot (M8.P4Gcd.oddCofactor m - 1) (-1 : ZMod 2) := by\n    change Polynomial.eval (-1) (M8.P4Gcd.oddCofactor m - 1) = 0\n    rw [hneg]\n    simp [M8.P4Gcd.cofactor_eval]\n  have hd : Polynomial.X + 1 ∣ M8.P4Gcd.oddCofactor m - 1 := by\n    simpa only [map_neg, map_one, sub_neg_eq_add] using\n      (Polynomial.dvd_iff_isRoot.mpr hr)\n  rcases hd with ⟨q, hq⟩\n  refine ⟨-q, 1, ?_⟩\n  calc\n    -q * (Polynomial.X + 1) + 1 * M8.P4Gcd.oddCofactor m =\n        M8.P4Gcd.oddCofactor m - (Polynomial.X + 1) * q := by ring\n    _ = 1 := by rw [← hq]; ring",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.cofactor_coprime",
+          "ancestors": [
+            "cofactor_eval"
+          ],
+          "spec_sha256": "0c7ff286249da2f8be2f0667442b138655944af3f27b4bf9aad790bffe8234b6"
+        },
+        "sha256": "9936de4058a87a6c25c554692c7fb0b681363383ef9fc9dd195d12585a6796c6"
+      },
+      "gcd_two_mod_four": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.gcd_two_mod_four : ∀ m : ℕ, gcd M8.P4Family.polynomial (M6.Cyclic.modulus (4*m+2)) = (Polynomial.X+1)^2 := by\n  change ∀ m : ℕ, gcd M8.P4Family.polynomial (M6.Cyclic.modulus (4*m+2)) = (Polynomial.X+1)^2\n  intro m\n  rw [M8.P4Family.power_identity, M8.P4Gcd.factorization]\n  let p : M6.Cyclic.BinaryPolynomial := Polynomial.X + 1\n  let H := M8.P4Gcd.oddCofactor m\n  change gcd (p^3) (p^2 * H) = p^2\n  have hm : p.Monic := by\n    simpa only [p, Polynomial.C_1] using (Polynomial.monic_X_add_C (1 : ZMod 2))\n  have hc : IsCoprime p H := M8.P4Gcd.cofactor_coprime m\n  rcases hc with ⟨a, b, hab⟩\n  let d := gcd (p^3) (p^2 * H)\n  have hd₁ : d ∣ p^3 := gcd_dvd_left _ _\n  have hd₂ : d ∣ p^2 * H := gcd_dvd_right _ _\n  have hd : d ∣ p^2 := by\n    rcases hd₁ with ⟨u, hu⟩\n    rcases hd₂ with ⟨v, hv⟩\n    refine ⟨a*u + b*v, ?_⟩\n    calc\n      p^2 = p^2 * (a*p + b*H) := by rw [hab, mul_one]\n      _ = a*p^3 + b*(p^2*H) := by ring\n      _ = d * (a*u + b*v) := by rw [hu, hv]; ring\n  have hl : p^2 ∣ p^3 := by\n    refine ⟨p, ?_⟩\n    ring\n  have hr : p^2 ∣ p^2 * H := ⟨H, rfl⟩\n  exact (gcd_eq_normalize hd (dvd_gcd hl hr)).trans ((hm.pow 2).normalize_eq_self)",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.gcd_two_mod_four",
+          "ancestors": [
+            "cofactor_coprime",
+            "cofactor_eval",
+            "factorization"
+          ],
+          "spec_sha256": "cf637a8cd1148dc2fdc9da5bb37a60b40a64466ef465021d8cd7bbfb33609a6a"
+        },
+        "sha256": "ea64f3ade32bd382023a1a75b0699f4b5069c49ed510b0dceae1ada066b48a1f"
+      },
+      "signature_even": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.signature_even : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M7.RecipeSignature.signature (M8.P4Family.recipe N) = if 4 ∣ N then M8.P4Family.polynomial else (Polynomial.X+1)^2 := by\n  change ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M7.RecipeSignature.signature (M8.P4Family.recipe N) = if 4 ∣ N then M8.P4Family.polynomial else (Polynomial.X + 1)^2\n  intro N _ hN heven\n  have hs : M7.RecipeSignature.signature (M8.P4Family.recipe N) =\n      EuclideanDomain.gcd M8.P4Family.polynomial (M6.Cyclic.modulus N) := by\n    simp only [M7.RecipeSignature.signature, M8.P4Family.recipe,\n      M6.Cyclic.signature, M8.P4Family.literal_polynomial N hN,\n      EuclideanDomain.gcd_self]\n  have hmonic := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).1\n  rw [hs] at hmonic ⊢\n  have hp : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial).Monic := by\n    simpa only [Polynomial.C_1] using Polynomial.monic_X_add_C (1 : ZMod 2)\n  by_cases hfour : 4 ∣ N\n  · rw [if_pos hfour]\n    have hd := M8.P4Family.divides_four N hfour\n    have hm : M8.P4Family.polynomial.Monic := by\n      rw [M8.P4Family.power_identity]\n      exact hp.pow 3\n    apply Polynomial.eq_of_monic_of_associated hmonic hm\n    exact associated_of_dvd_dvd\n      (EuclideanDomain.gcd_dvd_left _ _)\n      (EuclideanDomain.dvd_gcd (dvd_refl _) hd)\n  · rw [if_neg hfour]\n    have hmod : N % 4 ≠ 0 := by\n      intro h\n      exact hfour (Nat.dvd_of_mod_eq_zero h)\n    have hrepr : N = 4 * (N / 4) + 2 := by\n      rcases heven with ⟨k, hk⟩\n      omega\n    have hg : gcd M8.P4Family.polynomial (M6.Cyclic.modulus N) =\n        (Polynomial.X + 1)^2 := by\n      rw [hrepr]\n      exact M8.P4Gcd.gcd_two_mod_four (N / 4)\n    apply Polynomial.eq_of_monic_of_associated hmonic (hp.pow 2)\n    apply associated_of_dvd_dvd\n    · rw [← hg]\n      exact dvd_gcd (EuclideanDomain.gcd_dvd_left _ _)\n        (EuclideanDomain.gcd_dvd_right _ _)\n    · apply EuclideanDomain.dvd_gcd\n      · rw [← hg]\n        exact gcd_dvd_left _ _\n      · rw [← hg]\n        exact gcd_dvd_right _ _",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.signature_even",
+          "ancestors": [
+            "cofactor_coprime",
+            "cofactor_eval",
+            "factorization",
+            "gcd_two_mod_four"
+          ],
+          "spec_sha256": "e06ea1b2b08038fe3a5e83b7830786bf1d652670158c8d340889a5d67d518158"
+        },
+        "sha256": "64347b13733edde049c41812d4f99ecb9d7fbb751c2b61147e40a6b95f59482a"
+      },
+      "full_multiplicity": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.full_multiplicity : ∀ (N : ℕ) [NeZero N], 8 ≤ N → ∀ v m : ℕ, 0 < v → Odd m → N = 2^v*m → M7.RecipeSignature.signature (M8.P4Family.recipe N) = (Polynomial.X+1)^(min 3 (2^v)) := by\n  change ∀ (N : ℕ) [NeZero N], 8 ≤ N → ∀ v m : ℕ, 0 < v → Odd m → N = 2^v*m → M7.RecipeSignature.signature (M8.P4Family.recipe N) = (Polynomial.X+1)^(min 3 (2^v))\n  intro N _ hN v m hv hm hfac\n  cases v with\n  | zero => omega\n  | succ v =>\n    cases v with\n    | zero =>\n      have hNm : N = 2 * m := by simpa using hfac\n      have heven : Even N := ⟨m, by omega⟩\n      have hfour : ¬ 4 ∣ N := by\n        intro hd\n        rcases hd with ⟨t, ht⟩\n        rcases hm with ⟨k, hk⟩\n        omega\n      rw [M8.P4Gcd.signature_even N hN heven, if_neg hfour]\n      norm_num\n    | succ v =>\n      have hpow : (2 : ℕ)^(Nat.succ (Nat.succ v)) = 4 * 2^v := by\n        simp only [pow_succ]\n        ring\n      have hNm : N = 4 * (2^v * m) := by\n        rw [hfac, hpow]\n        ring\n      have heven : Even N := ⟨2 * (2^v * m), by omega⟩\n      have hfour : 4 ∣ N := ⟨2^v * m, hNm⟩\n      have hbound : 3 ≤ (2 : ℕ)^(Nat.succ (Nat.succ v)) := by\n        rw [hpow]\n        have hp : 0 < (2 : ℕ)^v := pow_pos (by decide) v\n        omega\n      rw [M8.P4Gcd.signature_even N hN heven, if_pos hfour,\n        M8.P4Family.power_identity, min_eq_left hbound]",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.full_multiplicity",
+          "ancestors": [
+            "cofactor_coprime",
+            "cofactor_eval",
+            "factorization",
+            "gcd_two_mod_four",
+            "signature_even"
+          ],
+          "spec_sha256": "a2784b0396e00193a61bdb8484c997f140b2a56ce2e33322b0f0e0b6651b6538"
+        },
+        "sha256": "e21e0362e85330e3023bc7f1612e248646f5f2929c43a1e7f0a64ebf4bf41ad5"
+      }
+    }
+  }
+}

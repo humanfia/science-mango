@@ -1,0 +1,75 @@
+{
+  "id": "cofactor_coprime",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.P4Gcd.cofactor_coprime",
+    "spec_sha256": "98d77bb052a80fd07ad2073c9b768aa68c902ea0fce669d22f4b7c5afa9eddf5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-zil4tdha/attempt-001/Candidate_f0b0691227c5bf01.lean:7:4: error: Type mismatch: After simplification, term\n  congrArg (⇑Polynomial.C) h\n has type\n  True\nbut is expected to have type\n  -1 = 1\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-zil4tdha/attempt-002/Candidate_0ab4464a59a63198.lean",
+        "target_path": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-zil4tdha/attempt-002/FrozenTarget_0ab4464a59a63198.lean",
+        "feedback": "",
+        "target_sha256": "09ebb62fc7981a3b0e591adb0e5a06e13c84bb1eb08eb2417d2bb4f76ae49967",
+        "target_olean_sha256": "417e77913e0a7edcb0f61bd1637406226c1fa14329e166f07f5b6181770b45c2",
+        "source_sha256": "59bcf5f5ea31d743a36abbea38ef53452c92335a7f83140299016cc609b8862c",
+        "olean_sha256": "6999b0c02edc8c2f05c88c5b5cf998d5e6c3b572644e53abec1f25d87fbc4e5e",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T13:58:07.265205+00:00",
+    "work": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-zil4tdha",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "7b0ba002b343e23dcd222b60e0f224971ba14cd40f9fb04e355c41442014b647",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-p4-gcd-formalization/.humanize-formal-runs/run-zil4tdha/attempt-002/Candidate_0ab4464a59a63198.lean",
+    "environment_sha256": "2d069ebe13608f28a7680e392886c4f6a6095e3574567e7e080e51cc7f3f98a2",
+    "artifacts": {
+      "cofactor_eval": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.cofactor_eval : ∀ m : ℕ, Polynomial.eval 1 (M8.P4Gcd.oddCofactor m) = 1 := by\n  change ∀ m : ℕ, Polynomial.eval 1 (M8.P4Gcd.oddCofactor m) = 1\n  intro m\n  have htwo : (2 : ZMod 2) = 0 := by decide\n  simp [M8.P4Gcd.oddCofactor, Polynomial.eval_finset_sum, Nat.cast_add, Nat.cast_mul, htwo]",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.cofactor_eval",
+          "ancestors": [],
+          "spec_sha256": "27bc5b80ee8fd868873aac1dfa81b81f69784634f92237e16b4ea7f6f4f79f37"
+        },
+        "sha256": "408941561641d56add8010ff81625ffe117bd20980ef26b2d87efb82e3e4b1ab"
+      },
+      "cofactor_coprime": {
+        "payload": {
+          "declaration": "theorem M8.P4Gcd.cofactor_coprime : ∀ m : ℕ, IsCoprime (Polynomial.X+1) (M8.P4Gcd.oddCofactor m) := by\n  change ∀ m : ℕ, IsCoprime (Polynomial.X + 1) (M8.P4Gcd.oddCofactor m)\n  intro m\n  have hneg : (-1 : ZMod 2) = 1 := by decide\n  have hr : Polynomial.IsRoot (M8.P4Gcd.oddCofactor m - 1) (-1 : ZMod 2) := by\n    change Polynomial.eval (-1) (M8.P4Gcd.oddCofactor m - 1) = 0\n    rw [hneg]\n    simp [M8.P4Gcd.cofactor_eval]\n  have hd : Polynomial.X + 1 ∣ M8.P4Gcd.oddCofactor m - 1 := by\n    simpa only [map_neg, map_one, sub_neg_eq_add] using\n      (Polynomial.dvd_iff_isRoot.mpr hr)\n  rcases hd with ⟨q, hq⟩\n  refine ⟨-q, 1, ?_⟩\n  calc\n    -q * (Polynomial.X + 1) + 1 * M8.P4Gcd.oddCofactor m =\n        M8.P4Gcd.oddCofactor m - (Polynomial.X + 1) * q := by ring\n    _ = 1 := by rw [← hq]; ring",
+          "imports": [
+            "M8P4Gcd"
+          ],
+          "name": "M8.P4Gcd.cofactor_coprime",
+          "ancestors": [
+            "cofactor_eval"
+          ],
+          "spec_sha256": "0c7ff286249da2f8be2f0667442b138655944af3f27b4bf9aad790bffe8234b6"
+        },
+        "sha256": "9936de4058a87a6c25c554692c7fb0b681363383ef9fc9dd195d12585a6796c6"
+      }
+    }
+  }
+}

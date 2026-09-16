@@ -1,0 +1,33 @@
+theorem M8.Solver.recognized_correct : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → ∀ (F : M8.Solver.BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : ℕ), M8.Solver.run c = M8.Solver.Outcome.recognized F d z choice k → F = M8.PhysicalBridge.signature c ∧ M8.Discovery.discover c = some choice ∧ M7.Transport.distance c = some d ∧ z ∈ M7.Transport.LX c ∧ M6.Pinned.weight z = d ∧ (∀ u ∈ M7.Transport.LX c, d ≤ M6.Pinned.weight u) ∧ k ≤ 2*N ∧ (∀ j : M8.Discovery.Choice N, M8.Discovery.Good c j → M8.Discovery.key choice ≤ M8.Discovery.key j) ∧ M6.Final.encodedQubits N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) = 2*F.natDegree := by
+  classical
+  intro N inst c w hw hvalid F d z choice k hrun
+  by_cases hOne : M8.Solver.originalF c = 1
+  · simp [M8.Solver.run, hOne] at hrun
+  · simp only [M8.Solver.run, if_neg hOne] at hrun
+    cases hdiscover : M8.Discovery.discover c with
+    | none => simp [hdiscover] at hrun
+    | some chosen =>
+      have hsig : M8.PhysicalBridge.signature c ≠ 1 := by
+        intro hs
+        apply hOne
+        rw [M8.Solver.originalF_signature N c]
+        exact hs
+      have hanchor := M8.Discovery.anchored N c chosen hdiscover
+      obtain ⟨d', v, k', hsolve, hdist, hmem, hweight, hmin, hbound⟩ :=
+        M8.PhysicalBridge.minimum_original_witness N c
+          (M8.Discovery.action chosen) w hvalid hanchor hsig
+      change M8.PhysicalBridge.solve (M8.Discovery.transformed c chosen) =
+        some (d', v, k') at hsolve
+      simp only [hdiscover, hsolve] at hrun
+      injection hrun with hF hd hz hc hk
+      subst F
+      subst d
+      subst z
+      subst choice
+      subst k
+      refine ⟨M8.Solver.originalF_signature N c, ?_, hdist, hmem,
+        hweight, hmin, hbound, ?_, ?_⟩
+      · first | exact hdiscover | rfl
+      · exact M8.Discovery.lex_first N c chosen hdiscover
+      · simpa only [M8.Solver.originalF_signature N c] using
+          M8.RawParameters.encoded_dimension N w c hw hvalid

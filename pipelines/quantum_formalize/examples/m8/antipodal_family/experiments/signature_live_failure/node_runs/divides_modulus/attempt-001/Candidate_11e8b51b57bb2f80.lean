@@ -1,0 +1,11 @@
+import FrozenTarget_11e8b51b57bb2f80
+theorem M8.AntipodalFamily.divides_modulus : QuantumHarnessFrozenTarget := by
+  change ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) ∣ M6.Cyclic.modulus (2^v)
+  intro v hv
+  rw [M8.AntipodalFamily.polynomial_power v hv, M8.AntipodalFamily.modulus_power v hv]
+  have hd : 2 ^ v = 2 ^ (v - 1) * 2 := by
+    rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]
+  have hp : 0 < (2 : ℕ) ^ (v - 1) := by positivity
+  have he : 2 ^ (v - 1) + 1 ≤ 2 ^ v := by omega
+  refine ⟨(Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ v - (2 ^ (v - 1) + 1)), ?_⟩
+  rw [← pow_add, Nat.add_sub_of_le he]

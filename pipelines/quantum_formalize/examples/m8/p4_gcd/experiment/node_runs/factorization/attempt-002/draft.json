@@ -1,0 +1,7 @@
+{
+  "proof": "intro m\nhave htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 := by\n  simpa only [map_ofNat, map_zero] using\n    congrArg (Polynomial.C : ZMod 2 → Polynomial (ZMod 2))\n      (show (2 : ZMod 2) = 0 by decide)\nhave hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by\n  linear_combination -htwo\nhave hsquare : ((Polynomial.X : M6.Cyclic.BinaryPolynomial) + 1)^2 = Polynomial.X^2 - 1 := by\n  linear_combination (Polynomial.X + 1) * htwo\nhave hgeom : ∀ n : ℕ,\n    ((Polynomial.X : M6.Cyclic.BinaryPolynomial)^2 - 1) *\n      (Finset.range n).sum (fun i => Polynomial.X^(2*i)) =\n        Polynomial.X^(2*n) - 1 := by\n  intro n\n  induction n with\n  | zero => simp\n  | succ n ih =>\n    rw [Finset.sum_range_succ, mul_add, ih]\n    rw [Nat.mul_succ, pow_add]\n    ring\nhave hexp : 2 * (2*m+1) = 4*m+2 := by omega\nsimpa [M6.Cyclic.modulus, M8.P4Gcd.oddCofactor, hsquare,\n  hexp, sub_eq_add_neg, hneg] using (hgeom (2*m+1)).symm",
+  "queries": [
+    "map_ofNat",
+    "Polynomial.C ZMod characteristic two"
+  ]
+}

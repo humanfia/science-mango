@@ -1,0 +1,6 @@
+{
+  "proof": "change ∀ m : ℕ, gcd M8.P4Family.polynomial (M6.Cyclic.modulus (4*m+2)) = (Polynomial.X+1)^2\nintro m\nhave hmon : (((Polynomial.X : M6.Cyclic.BinaryPolynomial) + 1)^2).Monic := by\n  exact (Polynomial.monic_X_add_C (1 : ZMod 2)).pow 2\nhave hpow : ((Polynomial.X : M6.Cyclic.BinaryPolynomial) + 1)^3 = (Polynomial.X+1)^2 * (Polynomial.X+1) := by\n  ring\nhave hd : gcd (Polynomial.X+1) (M8.P4Gcd.oddCofactor m) ∣ 1 := by\n  obtain ⟨a, b, hab⟩ := M8.P4Gcd.cofactor_coprime m\n  rw [← hab]\n  exact dvd_add\n    (dvd_mul_of_dvd_right (gcd_dvd_left _ _) a)\n    (dvd_mul_of_dvd_right (gcd_dvd_right _ _) b)\nhave hg : gcd (Polynomial.X+1) (M8.P4Gcd.oddCofactor m) = 1 := by\n  simpa using (gcd_eq_normalize hd (one_dvd _))\nrw [M8.P4Family.power_identity, M8.P4Gcd.factorization, hpow, gcd_mul_left,\n  hmon.normalize_eq_self, hg, mul_one]",
+  "queries": [
+    "gcd_eq_normalize"
+  ]
+}

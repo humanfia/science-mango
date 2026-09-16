@@ -1,0 +1,8 @@
+{
+  "proof": "change ∀ m : ℕ, gcd M8.P4Family.polynomial (M6.Cyclic.modulus (4*m+2)) = (Polynomial.X+1)^2\nintro m\nrw [M8.P4Family.power_identity, M8.P4Gcd.factorization]\nhave hmon : (((Polynomial.X : Polynomial (ZMod 2)) + 1)^2).Monic := by\n  simpa using (Polynomial.monic_X_add_C (1 : ZMod 2)).pow 2\nhave hpow : ((Polynomial.X : Polynomial (ZMod 2)) + 1)^3 =\n    (Polynomial.X + 1)^2 * (Polynomial.X + 1) := by ring\nrw [hpow, gcd_mul_left, (M8.P4Gcd.cofactor_coprime m).gcd_eq_one, mul_one,\n  hmon.normalize_eq_self]",
+  "queries": [
+    "gcd_mul_left",
+    "IsCoprime.gcd_eq_one",
+    "Polynomial.Monic.normalize_eq_self"
+  ]
+}

@@ -1,0 +1,43 @@
+theorem M8.P4Gcd.signature_even : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M7.RecipeSignature.signature (M8.P4Family.recipe N) = if 4 ∣ N then M8.P4Family.polynomial else (Polynomial.X+1)^2 := by
+  change ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M7.RecipeSignature.signature (M8.P4Family.recipe N) = if 4 ∣ N then M8.P4Family.polynomial else (Polynomial.X + 1)^2
+  intro N _ hN heven
+  have hs : M7.RecipeSignature.signature (M8.P4Family.recipe N) =
+      EuclideanDomain.gcd M8.P4Family.polynomial (M6.Cyclic.modulus N) := by
+    simp only [M7.RecipeSignature.signature, M8.P4Family.recipe,
+      M6.Cyclic.signature, M8.P4Family.literal_polynomial N hN,
+      EuclideanDomain.gcd_self]
+  have hmonic := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).1
+  rw [hs] at hmonic ⊢
+  have hp : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial).Monic := by
+    simpa only [Polynomial.C_1] using Polynomial.monic_X_add_C (1 : ZMod 2)
+  by_cases hfour : 4 ∣ N
+  · rw [if_pos hfour]
+    have hd := M8.P4Family.divides_four N hfour
+    have hm : M8.P4Family.polynomial.Monic := by
+      rw [M8.P4Family.power_identity]
+      exact hp.pow 3
+    apply Polynomial.eq_of_monic_of_associated hmonic hm
+    exact associated_of_dvd_dvd
+      (EuclideanDomain.gcd_dvd_left _ _)
+      (EuclideanDomain.dvd_gcd (dvd_refl _) hd)
+  · rw [if_neg hfour]
+    have hmod : N % 4 ≠ 0 := by
+      intro h
+      exact hfour (Nat.dvd_of_mod_eq_zero h)
+    have hrepr : N = 4 * (N / 4) + 2 := by
+      rcases heven with ⟨k, hk⟩
+      omega
+    have hg : gcd M8.P4Family.polynomial (M6.Cyclic.modulus N) =
+        (Polynomial.X + 1)^2 := by
+      rw [hrepr]
+      exact M8.P4Gcd.gcd_two_mod_four (N / 4)
+    apply Polynomial.eq_of_monic_of_associated hmonic (hp.pow 2)
+    apply associated_of_dvd_dvd
+    · rw [← hg]
+      exact dvd_gcd (EuclideanDomain.gcd_dvd_left _ _)
+        (EuclideanDomain.gcd_dvd_right _ _)
+    · apply EuclideanDomain.dvd_gcd
+      · rw [← hg]
+        exact gcd_dvd_left _ _
+      · rw [← hg]
+        exact gcd_dvd_right _ _

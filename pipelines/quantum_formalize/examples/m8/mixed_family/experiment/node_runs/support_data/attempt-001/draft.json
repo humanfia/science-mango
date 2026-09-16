@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst hN\nhave hsmall : ∀ k : ℕ, 0 < k → k < N → (k : ZMod N) ≠ 0 := by\n  intro k hk hkN he\n  have hv := congrArg ZMod.val he\n  rw [ZMod.val_natCast, ZMod.val_zero, Nat.mod_eq_of_lt hkN] at hv\n  omega\nhave h01 : (0 : ZMod N) ≠ 1 := by\n  simpa using Ne.symm (hsmall 1 (by omega) (by omega))\nhave h02 : (0 : ZMod N) ≠ 2 := by\n  simpa using Ne.symm (hsmall 2 (by omega) (by omega))\nsimp [M8.MixedFamily.left, M8.MixedFamily.right, h01, h02]",
+  "queries": [
+    "ZMod.val_natCast",
+    "Finset.card_pair"
+  ]
+}

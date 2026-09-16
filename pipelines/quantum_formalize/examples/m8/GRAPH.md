@@ -1,6 +1,6 @@
 # M8 formalization dependencies
 
-Status refers to individual components; full M8 requires final root acceptance.
+Full M8 acceptance: pending. Component status comes from verified canonical receipts.
 
 ```mermaid
 graph TD
@@ -12,7 +12,7 @@ graph TD
   anchor --> discovery
   cutoff --> discovery
   finite_search --> discovery
-  solver["solver"]
+  solver["solver ✓"]
   discovery --> solver
   orbit_span --> solver
   physical_bridge --> solver
@@ -58,9 +58,9 @@ graph TD
   coverage_foundation --> p4_family
   cutoff --> p4_family
   anchor --> p4_family
-  p4_gcd["p4_gcd"]
+  p4_gcd["p4_gcd ✓"]
   p4_family --> p4_gcd
-  mixed_family["mixed_family"]
+  mixed_family["mixed_family ✓"]
   physical_bridge --> mixed_family
   coverage_foundation --> mixed_family
   cutoff --> mixed_family
@@ -88,6 +88,8 @@ graph TD
   solver --> final
   raw_parameters --> final
   sequential_resources --> final
+  sequential_store --> final
+  whole_resources --> final
   coverage --> final
   exclusion_conclusions --> final
   sequential_store["sequential_store ✓"]

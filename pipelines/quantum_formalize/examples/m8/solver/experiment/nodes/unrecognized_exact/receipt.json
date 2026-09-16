@@ -1,0 +1,95 @@
+{
+  "id": "unrecognized_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Solver.unrecognized_exact",
+    "spec_sha256": "e709838f4bacac2c5ed050ca94c72022426bf55d5bc4fa3f79ea413bcab513bd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ijxbqbsw/attempt-001/Candidate_13895cc7662ca74d.lean",
+        "target_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ijxbqbsw/attempt-001/FrozenTarget_13895cc7662ca74d.lean",
+        "feedback": "",
+        "target_sha256": "a9c7bf196f6eb205a09fd86914a3ccbbb5f84d00626d7e0cf24bc259236fcdb8",
+        "target_olean_sha256": "6203b70b4c8e43b3efbab68b51d14d8cbfd937fafc89abe4843e681e1c1a782a",
+        "source_sha256": "fff71c14be008a827ca0f697eb416f9a7f5aa2128a3eedeaa114620703a94f35",
+        "olean_sha256": "5f624abcd91e917b980786960b3306c3ce3d5f47d843019b508698ba885bbdda",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:05:20.825260+00:00",
+    "work": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ijxbqbsw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "89f95a915c05b0951ffc16829e6a24eea9a12a13751e386400af29bcfa03cdd7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ijxbqbsw/attempt-001/Candidate_13895cc7662ca74d.lean",
+    "environment_sha256": "5ebca4f598b3e61b56c2fb96ef67fbc1268ef1ce6ca3129883aa458c04b52810",
+    "artifacts": {
+      "originalF_signature": {
+        "payload": {
+          "declaration": "theorem M8.Solver.originalF_signature : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.originalF c = M8.PhysicalBridge.signature c := by\n  intro N inst c\n  have ha := Nat.le_of_lt (M7.Supports.degree_lt N c.1)\n  have hb := Nat.le_of_lt (M7.Supports.degree_lt N c.2)\n  have hm := le_of_eq (M6.Coordinates.modulus_monic_degree N).2\n  have h := (M6.Euclid.preprocess_correct_cost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) ha hb hm).1\n  simpa only [M8.Solver.originalF, M8.PhysicalBridge.signature, M7.RecipeSignature.signature, M6.Cyclic.signature, M6.Euclid.normalized_gcd, gcd_comm] using h",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.originalF_signature",
+          "ancestors": [],
+          "spec_sha256": "2fb3a2b02e0c50c2e6028e67d8dfd4392fd6787f22c44fdb8d8973aaea06ec0c"
+        },
+        "sha256": "04fda8a1e96d383ba6f6b365351328ed9356940d721b25aced20b4462e40961c"
+      },
+      "discovery_span": {
+        "payload": {
+          "declaration": "theorem M8.Solver.discovery_span : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Discovery.discover c ≠ none ↔ M8.OrbitSpan.value c ≤ M8.Cutoff.limit N) := by\n  intro N inst c w hw hv\n  have hleft : c.1.Nonempty := Finset.card_pos.mp (by\n    rw [hv.1]\n    exact hw)\n  have hright : c.2.Nonempty := Finset.card_pos.mp (by\n    rw [hv.2.1]\n    exact hw)\n  exact (M8.Discovery.complete N c).trans\n    (M8.OrbitSpan.small_iff N c hleft hright (M8.Cutoff.limit N)).symm",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.discovery_span",
+          "ancestors": [],
+          "spec_sha256": "35c886c85ddbdf467dd3e1418eeefaf52abd14ac6a099b9867cce6b6f42aa902"
+        },
+        "sha256": "6226f430e7ab3f63f44539a431ac0cc0d24c04cc3493109b1e8e9f73f5f168e9"
+      },
+      "optimizer_present": {
+        "payload": {
+          "declaration": "theorem M8.Solver.optimizer_present : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → ∀ choice : M8.Discovery.Choice N, M8.Discovery.discover c = some choice → M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) ≠ none := by\n  intro N inst c w hw hvalid hsignature choice hdiscover hnone\n  have hanchored : M8.PhysicalBridge.Anchored (M7.Action.act (M8.Discovery.action choice) c) :=\n    M8.Discovery.anchored N c choice hdiscover\n  exact hsignature ((M8.PhysicalBridge.noLogical N c (M8.Discovery.action choice) w hvalid hanchored).mp hnone)",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.optimizer_present",
+          "ancestors": [],
+          "spec_sha256": "c5200ec2a91ed71827bf5d9d8b6fa7afde24ac74ca8fd0e473b180612142bd65"
+        },
+        "sha256": "04146e2eb4d44aec2aea7a8ba8782971afd5e6f582d9e9b98801206328058258"
+      },
+      "unrecognized_exact": {
+        "payload": {
+          "declaration": "theorem M8.Solver.unrecognized_exact : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c ≠ 1 ∧ M8.Cutoff.limit N < M8.OrbitSpan.value c) := by\n  classical\n  intro N inst c w hw hv\n  have hF := M8.Solver.originalF_signature N c\n  have hspan := M8.Solver.discovery_span N c w hw hv\n  by_cases hs : M8.PhysicalBridge.signature c = 1\n  · simp [M8.Solver.run, hF, hs]\n  · cases hd : M8.Discovery.discover c with\n    | none =>\n        have hlt : M8.Cutoff.limit N < M8.OrbitSpan.value c := by\n          apply Nat.lt_of_not_ge\n          intro hle\n          exact (hspan.mpr hle) hd\n        simp [M8.Solver.run, hF, hs, hd, hlt]\n    | some choice =>\n        have hle : M8.OrbitSpan.value c ≤ M8.Cutoff.limit N := by\n          apply hspan.mp\n          simp [hd]\n        have hp := M8.Solver.optimizer_present N c w hw hv hs choice hd\n        cases ho : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n        | none => exact False.elim (hp ho)\n        | some result =>\n            rcases result with ⟨d, v, k⟩\n            simp [M8.Solver.run, hF, hs, hd, ho, not_lt_of_ge hle]",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.unrecognized_exact",
+          "ancestors": [
+            "discovery_span",
+            "optimizer_present",
+            "originalF_signature"
+          ],
+          "spec_sha256": "4474d1922f20c05ec04cadd9e3ab61fedf99a24d7ec1b959ec8d7a1f74d3a64e"
+        },
+        "sha256": "7f4f8b3d4c7819eb68c5386d9acd3229f6862bcf528a62c8c46324935c6ac714"
+      }
+    }
+  }
+}

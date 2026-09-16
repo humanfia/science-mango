@@ -1,0 +1,5 @@
+# M8 actual three-branch solver
+
+All nine frozen targets passed exact-target/axiom acceptance, combined assembly and unchanged-environment gates. The actual Euclidean gcd equals the full signature and is retained in every output. NoLogical, Unrecognized and Recognized have the exact original predicates. Actual successful discovery yields a nonempty actual optimizer result; the internal-none fallback is unreachable on valid surviving discovered inputs. Recognition returns the actual inverse-coordinate physical minimum, attaining LX witness, global lower bound, bounded pin count, lex-first successful choice and actual encoded qubit formula. Literal polynomial span is bounded by the support span for resource specialization.
+
+Run: `/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/solver-replay-vwu47cg8/experiment`. Accepted attempts: {'discovery_span': 1, 'literal_span_le': 1, 'optimizer_present': 1, 'originalF_signature': 1, 'noLogical_exact': 2, 'output_gcd': 3, 'recognized_correct': 2, 'recognized_exact': 1, 'unrecognized_exact': 1}. Full canonical artifacts are in experiment/.

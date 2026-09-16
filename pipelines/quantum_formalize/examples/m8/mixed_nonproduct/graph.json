@@ -1,0 +1,92 @@
+{
+  "title": "M8 mixed family actual cycle-space nonproduct obstruction and recipe invariance",
+  "nodes": [
+    {
+      "id": "product_rectangular",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedNonproduct.product_rectangular",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M8.MixedNonproduct.Product c \u2194 \u2200 z \u2208 M8.MixedNonproduct.Cycles c, \u2200 t \u2208 M8.MixedNonproduct.Cycles c, (z.1,t.2) \u2208 M8.MixedNonproduct.Cycles c",
+        "imports": [
+          "M8MixedNonproduct"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 \u00a78 third family's distinct cycle-space nonproduct property, not the separated-direction property. Cycles is literal physical syndrome kernel on unflattened two-block words. Product means exactly some U\u00d7V. product_rectangular: any set of pairs is product iff all cross combinations stay in it; use first/second projections as U,V, including empty case. word_action: this explicit translateWord/multiplyWord/exchange composition flattens to M7.Transport.Xmap; use Flatten.flatten_left/right, RecipeIsometries.lift and Spaces.cycle_words_iff with Transport.action_isometry for exact cycle equivalence and bijection. Alternatively accepted multiplied_syndrome, translated_syndrome, exchange_laws, shift_laws/multiply_laws give the word statements directly. product_action: rectangularity is preserved by independent block bijections and block exchange. For reverse implication apply the forward argument to inverse g and Action.act_inverse. In crossed pair images, split g.exchange; nonexchange maps (z.1,t.2) to crossed images, exchange uses (t.1,z.2). No arbitrary Clifford/tensor equivalence. mixed_obstruction: (a,b) is a cycle from conv_comm and characteristic2, zero is a cycle; (a,0) has syndrome conv b a, which is nonzero. Can evaluate coordinate0 using supports{0,1}/{0,2} and N\u22657, or use Coordinates.encode_conv/encode_polynomial and MixedFamily.literal_polynomials/algebra/nontrivial to get image(a*b) nonzero since degree3<N (modulus_monic_degree and AdjoinRoot.mk_eq_zero). Exact M6.ActualCSS is not needed; no mixed distance goal. Finally product_rectangular plus paired cycle and zero would force excluded (a,0), then product_action proves the entire permitted recipe orbit is nonproduct. Return tactic lines only.\nimport M8MixedFamilyAccepted\nnamespace M8.MixedNonproduct\nnoncomputable def Cycles {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Set (M6.Physical.Word N) :=\n  {z | M6.Physical.syndrome N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2) z = 0}\ndef Product {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Prop :=\n  \u2203 U V : Set (M6.Physical.Block N), Cycles c = U \u00d7\u02e2 V\ndef wordAction {N : \u2115} [NeZero N] (g : M7.Action.Record N) (z : M6.Physical.Word N) :=\n  M6.RecipeIsometries.translateWord N g.leftShift g.rightShift\n    (M6.RecipeIsometries.multiplyWord N g.unit (if g.exchange then M6.RecipeIsometries.exchange N z else z))\nend M8.MixedNonproduct\n"
+      }
+    },
+    {
+      "id": "word_action",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedNonproduct.word_action",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (g : M7.Action.Record N) (c : M7.Action.Recipe N), Function.Bijective (M8.MixedNonproduct.wordAction g) \u2227 \u2200 z : M6.Physical.Word N, M8.MixedNonproduct.wordAction g z \u2208 M8.MixedNonproduct.Cycles (M7.Action.act g c) \u2194 z \u2208 M8.MixedNonproduct.Cycles c",
+        "imports": [
+          "M8MixedNonproduct"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 \u00a78 third family's distinct cycle-space nonproduct property, not the separated-direction property. Cycles is literal physical syndrome kernel on unflattened two-block words. Product means exactly some U\u00d7V. product_rectangular: any set of pairs is product iff all cross combinations stay in it; use first/second projections as U,V, including empty case. word_action: this explicit translateWord/multiplyWord/exchange composition flattens to M7.Transport.Xmap; use Flatten.flatten_left/right, RecipeIsometries.lift and Spaces.cycle_words_iff with Transport.action_isometry for exact cycle equivalence and bijection. Alternatively accepted multiplied_syndrome, translated_syndrome, exchange_laws, shift_laws/multiply_laws give the word statements directly. product_action: rectangularity is preserved by independent block bijections and block exchange. For reverse implication apply the forward argument to inverse g and Action.act_inverse. In crossed pair images, split g.exchange; nonexchange maps (z.1,t.2) to crossed images, exchange uses (t.1,z.2). No arbitrary Clifford/tensor equivalence. mixed_obstruction: (a,b) is a cycle from conv_comm and characteristic2, zero is a cycle; (a,0) has syndrome conv b a, which is nonzero. Can evaluate coordinate0 using supports{0,1}/{0,2} and N\u22657, or use Coordinates.encode_conv/encode_polynomial and MixedFamily.literal_polynomials/algebra/nontrivial to get image(a*b) nonzero since degree3<N (modulus_monic_degree and AdjoinRoot.mk_eq_zero). Exact M6.ActualCSS is not needed; no mixed distance goal. Finally product_rectangular plus paired cycle and zero would force excluded (a,0), then product_action proves the entire permitted recipe orbit is nonproduct. Return tactic lines only.\nimport M8MixedFamilyAccepted\nnamespace M8.MixedNonproduct\nnoncomputable def Cycles {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Set (M6.Physical.Word N) :=\n  {z | M6.Physical.syndrome N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2) z = 0}\ndef Product {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Prop :=\n  \u2203 U V : Set (M6.Physical.Block N), Cycles c = U \u00d7\u02e2 V\ndef wordAction {N : \u2115} [NeZero N] (g : M7.Action.Record N) (z : M6.Physical.Word N) :=\n  M6.RecipeIsometries.translateWord N g.leftShift g.rightShift\n    (M6.RecipeIsometries.multiplyWord N g.unit (if g.exchange then M6.RecipeIsometries.exchange N z else z))\nend M8.MixedNonproduct\n"
+      }
+    },
+    {
+      "id": "product_action",
+      "dependencies": [
+        "product_rectangular",
+        "word_action"
+      ],
+      "spec": {
+        "name": "M8.MixedNonproduct.product_action",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (g : M7.Action.Record N) (c : M7.Action.Recipe N), M8.MixedNonproduct.Product (M7.Action.act g c) \u2194 M8.MixedNonproduct.Product c",
+        "imports": [
+          "M8MixedNonproduct"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 \u00a78 third family's distinct cycle-space nonproduct property, not the separated-direction property. Cycles is literal physical syndrome kernel on unflattened two-block words. Product means exactly some U\u00d7V. product_rectangular: any set of pairs is product iff all cross combinations stay in it; use first/second projections as U,V, including empty case. word_action: this explicit translateWord/multiplyWord/exchange composition flattens to M7.Transport.Xmap; use Flatten.flatten_left/right, RecipeIsometries.lift and Spaces.cycle_words_iff with Transport.action_isometry for exact cycle equivalence and bijection. Alternatively accepted multiplied_syndrome, translated_syndrome, exchange_laws, shift_laws/multiply_laws give the word statements directly. product_action: rectangularity is preserved by independent block bijections and block exchange. For reverse implication apply the forward argument to inverse g and Action.act_inverse. In crossed pair images, split g.exchange; nonexchange maps (z.1,t.2) to crossed images, exchange uses (t.1,z.2). No arbitrary Clifford/tensor equivalence. mixed_obstruction: (a,b) is a cycle from conv_comm and characteristic2, zero is a cycle; (a,0) has syndrome conv b a, which is nonzero. Can evaluate coordinate0 using supports{0,1}/{0,2} and N\u22657, or use Coordinates.encode_conv/encode_polynomial and MixedFamily.literal_polynomials/algebra/nontrivial to get image(a*b) nonzero since degree3<N (modulus_monic_degree and AdjoinRoot.mk_eq_zero). Exact M6.ActualCSS is not needed; no mixed distance goal. Finally product_rectangular plus paired cycle and zero would force excluded (a,0), then product_action proves the entire permitted recipe orbit is nonproduct. Return tactic lines only.\nimport M8MixedFamilyAccepted\nnamespace M8.MixedNonproduct\nnoncomputable def Cycles {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Set (M6.Physical.Word N) :=\n  {z | M6.Physical.syndrome N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2) z = 0}\ndef Product {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Prop :=\n  \u2203 U V : Set (M6.Physical.Block N), Cycles c = U \u00d7\u02e2 V\ndef wordAction {N : \u2115} [NeZero N] (g : M7.Action.Record N) (z : M6.Physical.Word N) :=\n  M6.RecipeIsometries.translateWord N g.leftShift g.rightShift\n    (M6.RecipeIsometries.multiplyWord N g.unit (if g.exchange then M6.RecipeIsometries.exchange N z else z))\nend M8.MixedNonproduct\n"
+      }
+    },
+    {
+      "id": "mixed_obstruction",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedNonproduct.mixed_obstruction",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 (M7.Supports.indicator (M8.MixedFamily.left N),M7.Supports.indicator (M8.MixedFamily.right N)) \u2208 M8.MixedNonproduct.Cycles (M8.MixedFamily.recipe N) \u2227 (0,0) \u2208 M8.MixedNonproduct.Cycles (M8.MixedFamily.recipe N) \u2227 (M7.Supports.indicator (M8.MixedFamily.left N),0) \u2209 M8.MixedNonproduct.Cycles (M8.MixedFamily.recipe N)",
+        "imports": [
+          "M8MixedNonproduct"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 \u00a78 third family's distinct cycle-space nonproduct property, not the separated-direction property. Cycles is literal physical syndrome kernel on unflattened two-block words. Product means exactly some U\u00d7V. product_rectangular: any set of pairs is product iff all cross combinations stay in it; use first/second projections as U,V, including empty case. word_action: this explicit translateWord/multiplyWord/exchange composition flattens to M7.Transport.Xmap; use Flatten.flatten_left/right, RecipeIsometries.lift and Spaces.cycle_words_iff with Transport.action_isometry for exact cycle equivalence and bijection. Alternatively accepted multiplied_syndrome, translated_syndrome, exchange_laws, shift_laws/multiply_laws give the word statements directly. product_action: rectangularity is preserved by independent block bijections and block exchange. For reverse implication apply the forward argument to inverse g and Action.act_inverse. In crossed pair images, split g.exchange; nonexchange maps (z.1,t.2) to crossed images, exchange uses (t.1,z.2). No arbitrary Clifford/tensor equivalence. mixed_obstruction: (a,b) is a cycle from conv_comm and characteristic2, zero is a cycle; (a,0) has syndrome conv b a, which is nonzero. Can evaluate coordinate0 using supports{0,1}/{0,2} and N\u22657, or use Coordinates.encode_conv/encode_polynomial and MixedFamily.literal_polynomials/algebra/nontrivial to get image(a*b) nonzero since degree3<N (modulus_monic_degree and AdjoinRoot.mk_eq_zero). Exact M6.ActualCSS is not needed; no mixed distance goal. Finally product_rectangular plus paired cycle and zero would force excluded (a,0), then product_action proves the entire permitted recipe orbit is nonproduct. Return tactic lines only.\nimport M8MixedFamilyAccepted\nnamespace M8.MixedNonproduct\nnoncomputable def Cycles {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Set (M6.Physical.Word N) :=\n  {z | M6.Physical.syndrome N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2) z = 0}\ndef Product {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Prop :=\n  \u2203 U V : Set (M6.Physical.Block N), Cycles c = U \u00d7\u02e2 V\ndef wordAction {N : \u2115} [NeZero N] (g : M7.Action.Record N) (z : M6.Physical.Word N) :=\n  M6.RecipeIsometries.translateWord N g.leftShift g.rightShift\n    (M6.RecipeIsometries.multiplyWord N g.unit (if g.exchange then M6.RecipeIsometries.exchange N z else z))\nend M8.MixedNonproduct\n"
+      }
+    },
+    {
+      "id": "orbit_nonproduct",
+      "dependencies": [
+        "product_rectangular",
+        "product_action",
+        "mixed_obstruction"
+      ],
+      "spec": {
+        "name": "M8.MixedNonproduct.orbit_nonproduct",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 \u2200 g : M7.Action.Record N, \u00ac M8.MixedNonproduct.Product (M7.Action.act g (M8.MixedFamily.recipe N))",
+        "imports": [
+          "M8MixedNonproduct"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 \u00a78 third family's distinct cycle-space nonproduct property, not the separated-direction property. Cycles is literal physical syndrome kernel on unflattened two-block words. Product means exactly some U\u00d7V. product_rectangular: any set of pairs is product iff all cross combinations stay in it; use first/second projections as U,V, including empty case. word_action: this explicit translateWord/multiplyWord/exchange composition flattens to M7.Transport.Xmap; use Flatten.flatten_left/right, RecipeIsometries.lift and Spaces.cycle_words_iff with Transport.action_isometry for exact cycle equivalence and bijection. Alternatively accepted multiplied_syndrome, translated_syndrome, exchange_laws, shift_laws/multiply_laws give the word statements directly. product_action: rectangularity is preserved by independent block bijections and block exchange. For reverse implication apply the forward argument to inverse g and Action.act_inverse. In crossed pair images, split g.exchange; nonexchange maps (z.1,t.2) to crossed images, exchange uses (t.1,z.2). No arbitrary Clifford/tensor equivalence. mixed_obstruction: (a,b) is a cycle from conv_comm and characteristic2, zero is a cycle; (a,0) has syndrome conv b a, which is nonzero. Can evaluate coordinate0 using supports{0,1}/{0,2} and N\u22657, or use Coordinates.encode_conv/encode_polynomial and MixedFamily.literal_polynomials/algebra/nontrivial to get image(a*b) nonzero since degree3<N (modulus_monic_degree and AdjoinRoot.mk_eq_zero). Exact M6.ActualCSS is not needed; no mixed distance goal. Finally product_rectangular plus paired cycle and zero would force excluded (a,0), then product_action proves the entire permitted recipe orbit is nonproduct. Return tactic lines only.\nimport M8MixedFamilyAccepted\nnamespace M8.MixedNonproduct\nnoncomputable def Cycles {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Set (M6.Physical.Word N) :=\n  {z | M6.Physical.syndrome N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2) z = 0}\ndef Product {N : \u2115} [NeZero N] (c : M7.Action.Recipe N) : Prop :=\n  \u2203 U V : Set (M6.Physical.Block N), Cycles c = U \u00d7\u02e2 V\ndef wordAction {N : \u2115} [NeZero N] (g : M7.Action.Record N) (z : M6.Physical.Word N) :=\n  M6.RecipeIsometries.translateWord N g.leftShift g.rightShift\n    (M6.RecipeIsometries.multiplyWord N g.unit (if g.exchange then M6.RecipeIsometries.exchange N z else z))\nend M8.MixedNonproduct\n"
+      }
+    }
+  ]
+}

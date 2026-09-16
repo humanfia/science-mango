@@ -1,0 +1,55 @@
+{
+  "id": "literal_span_le",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Solver.literal_span_le",
+    "spec_sha256": "71e213c4ce36af72dc7754920aa681f87dd8a2ad3363955b90591e3bc9a8a811",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-_1r8vp8e/attempt-001/Candidate_686196f28ddc6476.lean",
+        "target_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-_1r8vp8e/attempt-001/FrozenTarget_686196f28ddc6476.lean",
+        "feedback": "",
+        "target_sha256": "51639a19e13e5e0ec9d46bf4670549bdd21d0abe15fe42e71eb4f05859ca9c4f",
+        "target_olean_sha256": "4d35651e8e4c75d0b832cfc0dbf26187465db0b38b6bac2eaa4894471519da9f",
+        "source_sha256": "287d3d972a1c21efc3afb77481d04bf55027ae5291002e95340d2319fe335ad1",
+        "olean_sha256": "2adeeb454c34a9ff354fed756843113513c733ab58898c0677faa7e2f6f42fde",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:57:13.847090+00:00",
+    "work": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-_1r8vp8e",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "89f95a915c05b0951ffc16829e6a24eea9a12a13751e386400af29bcfa03cdd7",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-_1r8vp8e/attempt-001/Candidate_686196f28ddc6476.lean",
+    "environment_sha256": "5ebca4f598b3e61b56c2fb96ef67fbc1268ef1ce6ca3129883aa458c04b52810",
+    "artifacts": {
+      "literal_span_le": {
+        "payload": {
+          "declaration": "theorem M8.Solver.literal_span_le : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → M6.ActualTransfer.span (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) ≤ M8.Anchor.span c := by\n  intro N inst c w hw hc\n  classical\n  have degree_bound (s : Finset (ZMod N)) (L : ℕ)\n      (hs : ∀ i ∈ s, ZMod.val i ≤ L) :\n      (M7.Supports.polynomial s).natDegree ≤ L := by\n    by_cases hz : M7.Supports.polynomial s = 0\n    · simp [hz]\n    · have hm := Polynomial.natDegree_mem_support_of_nonzero hz\n      rw [M7.Supports.support] at hm\n      rcases Finset.mem_image.mp hm with ⟨i, hi, he⟩\n      rw [← he]\n      exact hs i hi\n  have hb := (M8.Anchor.span_le N c (M8.Anchor.span c)).mp le_rfl\n  change max (M7.Supports.polynomial c.1).natDegree\n    (M7.Supports.polynomial c.2).natDegree ≤ M8.Anchor.span c\n  exact max_le (degree_bound c.1 _ hb.1) (degree_bound c.2 _ hb.2)",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.literal_span_le",
+          "ancestors": [],
+          "spec_sha256": "71e213c4ce36af72dc7754920aa681f87dd8a2ad3363955b90591e3bc9a8a811"
+        },
+        "sha256": "36d1f653aa322d279569a67ce6b598b66f3c1d62861c70fd968aca46ac9aa765"
+      }
+    }
+  }
+}

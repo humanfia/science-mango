@@ -1,0 +1,55 @@
+{
+  "id": "polynomial_power",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.polynomial_power",
+    "spec_sha256": "2d90e8ad77f231ab91d0ae0bf678b3778717969ab9776a19fcca289f9ba9f725",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-agjm3ym_/attempt-001/Candidate_d7a96a916308dea7.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-agjm3ym_/attempt-001/FrozenTarget_d7a96a916308dea7.lean",
+        "feedback": "",
+        "target_sha256": "af4cf0731db4ae52c7cb831dd7ce910a8616a89bb6b2e3d70ccb9e11d9f198c5",
+        "target_olean_sha256": "176b6d120ae2f1f0869d3259d743fc14170fe8944be3b60817ca11362f8c5de3",
+        "source_sha256": "0c4110318ffb106ce16de6801199b149f36460f01c7f86030be3355caa48b8ed",
+        "olean_sha256": "64890d0f3a8fff8aadea030b8f6e1c66138db7226fb20c83ffc58c609f69f211",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:57:46.165381+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-agjm3ym_",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-agjm3ym_/attempt-001/Candidate_d7a96a916308dea7.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "polynomial_power": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.polynomial_power : ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^(v-1)+1) := by\n  intro v hv\n  change (1 + Polynomial.X) * (1 + Polynomial.X ^ (2 ^ v / 2)) =\n    (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1) + 1)\n  have hd : 2 ^ v / 2 = 2 ^ (v - 1) := by\n    calc\n      2 ^ v / 2 = (2 ^ (v - 1) * 2) / 2 := by\n        rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n      _ = 2 ^ (v - 1) := by simp\n  have hf : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1)) =\n      Polynomial.X ^ (2 ^ (v - 1)) + 1 := by\n    simpa using (add_pow_char_pow (Polynomial.X : M6.Cyclic.BinaryPolynomial) 1 2 (v - 1))\n  rw [hd, pow_succ, hf]\n  ring",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.polynomial_power",
+          "ancestors": [],
+          "spec_sha256": "2d90e8ad77f231ab91d0ae0bf678b3778717969ab9776a19fcca289f9ba9f725"
+        },
+        "sha256": "ec0ef75e0419aceb19ff07c0ca8f432d66a5998b318cd906cea7b1fba69d56e8"
+      }
+    }
+  }
+}

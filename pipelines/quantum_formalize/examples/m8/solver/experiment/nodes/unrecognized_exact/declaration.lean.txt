@@ -1,0 +1,24 @@
+theorem M8.Solver.unrecognized_exact : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c ≠ 1 ∧ M8.Cutoff.limit N < M8.OrbitSpan.value c) := by
+  classical
+  intro N inst c w hw hv
+  have hF := M8.Solver.originalF_signature N c
+  have hspan := M8.Solver.discovery_span N c w hw hv
+  by_cases hs : M8.PhysicalBridge.signature c = 1
+  · simp [M8.Solver.run, hF, hs]
+  · cases hd : M8.Discovery.discover c with
+    | none =>
+        have hlt : M8.Cutoff.limit N < M8.OrbitSpan.value c := by
+          apply Nat.lt_of_not_ge
+          intro hle
+          exact (hspan.mpr hle) hd
+        simp [M8.Solver.run, hF, hs, hd, hlt]
+    | some choice =>
+        have hle : M8.OrbitSpan.value c ≤ M8.Cutoff.limit N := by
+          apply hspan.mp
+          simp [hd]
+        have hp := M8.Solver.optimizer_present N c w hw hv hs choice hd
+        cases ho : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with
+        | none => exact False.elim (hp ho)
+        | some result =>
+            rcases result with ⟨d, v, k⟩
+            simp [M8.Solver.run, hF, hs, hd, ho, not_lt_of_ge hle]

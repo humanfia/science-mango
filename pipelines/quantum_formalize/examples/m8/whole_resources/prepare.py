@@ -15,7 +15,15 @@ while True:
  if not pending and not scheduling:break
  time.sleep(20)
 old=Path('/home/jing/m8_prepare_optimizer_resources.py').read_text();exec(old[old.index('# Canonical proofs'):old.index('common=Path(')])
-common=Path('/home/jing/m7_prepare_prefix_orbit.py').read_text();exec(common[common.index('p.mkdir(exist_ok=True)'):common.index("source='''")])
+common=Path('/home/jing/m7_prepare_prefix_orbit.py').read_text()
+promotion=common[common.index('p.mkdir(exist_ok=True)'):common.index("source='''")]
+helper=b/'packaged_definition_collision.py'
+shutil.copy2('/home/jing/m8_packaged_definition_collision.py',helper)
+exec(helper.read_text())
+needle="   from pipelines.quantum_formalize.accepted_order import order_only_equivalent"
+insert='   reconciliation=reconcile_packaged_definition(p/f.name,f,repo)\n   if reconciliation is not None:\n    chosen,audit=reconciliation\n    (p/f.name).write_bytes(chosen);(b/"lean"/f.name).write_bytes(chosen)\n    prov.append({"parent":name,"definition_import_reconciliation":audit})\n    continue\n'
+promotion=promotion.replace(needle,insert+needle,1)
+exec(promotion)
 source=(b/'planned/M8WholeResources.lean').read_text();(p/'M8WholeResources.lean').write_text(source);(b/'lean/M8WholeResources.lean').write_text(source)
 root=base/'m8/cutoff'
 for name in ['lake-manifest.json','lean-toolchain']:shutil.copy2(root/name,p/name);shutil.copy2(root/name,b/name)

@@ -1,0 +1,24 @@
+theorem M8.Solver.recognized_exact : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → ((∃ (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : ℕ), M8.Solver.run c = M8.Solver.Outcome.recognized (M8.PhysicalBridge.signature c) d z choice k) ↔ M8.PhysicalBridge.signature c ≠ 1 ∧ M8.OrbitSpan.value c ≤ M8.Cutoff.limit N) := by
+  classical
+  intro N inst c w hw hv
+  constructor
+  · rintro ⟨d, z, choice, k, hr⟩
+    have hsig : M8.PhysicalBridge.signature c ≠ 1 := by
+      intro hs
+      simp [M8.Solver.run, M8.Solver.originalF_signature N c, hs] at hr
+    refine ⟨hsig, (M8.Solver.discovery_span N c w hw hv).mp ?_⟩
+    intro hn
+    simp [M8.Solver.run, M8.Solver.originalF_signature N c, hsig, hn] at hr
+  · rintro ⟨hsig, hspan⟩
+    have hdiscover : M8.Discovery.discover c ≠ none :=
+      (M8.Solver.discovery_span N c w hw hv).mpr hspan
+    cases hd : M8.Discovery.discover c with
+    | none => exact (hdiscover hd).elim
+    | some choice =>
+      have hsolve := M8.Solver.optimizer_present N c w hw hv hsig choice hd
+      cases hs : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with
+      | none => exact (hsolve hs).elim
+      | some result =>
+        rcases result with ⟨d, v, k⟩
+        refine ⟨d, M8.PhysicalBridge.undo (M8.Discovery.action choice) v, choice, k, ?_⟩
+        simp [M8.Solver.run, M8.Solver.originalF_signature N c, hsig, hd, hs]

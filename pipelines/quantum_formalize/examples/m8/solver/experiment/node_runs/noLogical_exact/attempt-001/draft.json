@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst c w hw hc\nhave h : M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c = 1 := by\n  unfold M8.Solver.run\n  rw [M8.Solver.originalF_signature N c]\n  by_cases hF : M8.PhysicalBridge.signature c = 1\n  · simp [hF]\n  · simp only [hF, if_false]\n    cases hd : M8.Discovery.discover c with\n    | none => simp [hF]\n    | some choice =>\n      cases hs : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => simp [hF]\n      | some result =>\n        rcases result with ⟨d, v, k⟩\n        simp [hF]\nexact ⟨h, h.trans (M8.RawParameters.raw_noLogical N w c hw hc).1.symm⟩",
+  "queries": []
+}

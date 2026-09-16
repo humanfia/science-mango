@@ -1,0 +1,25 @@
+import FrozenTarget_3d6af0c59fa178b2
+theorem M8.P4Gcd.factorization : QuantumHarnessFrozenTarget := by
+  intro m
+  have htwo : (2 : M6.Cyclic.BinaryPolynomial) = 0 := by
+    simpa only [map_ofNat, map_zero] using
+      congrArg (Polynomial.C : ZMod 2 → Polynomial (ZMod 2))
+        (show (2 : ZMod 2) = 0 by decide)
+  have hneg : -(1 : M6.Cyclic.BinaryPolynomial) = 1 := by
+    linear_combination -htwo
+  have hsquare : ((Polynomial.X : M6.Cyclic.BinaryPolynomial) + 1)^2 = Polynomial.X^2 - 1 := by
+    linear_combination (Polynomial.X + 1) * htwo
+  have hgeom : ∀ n : ℕ,
+      ((Polynomial.X : M6.Cyclic.BinaryPolynomial)^2 - 1) *
+        (Finset.range n).sum (fun i => Polynomial.X^(2*i)) =
+          Polynomial.X^(2*n) - 1 := by
+    intro n
+    induction n with
+    | zero => simp
+    | succ n ih =>
+      rw [Finset.sum_range_succ, mul_add, ih]
+      rw [Nat.mul_succ, pow_add]
+      ring
+  have hexp : 2 * (2*m+1) = 4*m+2 := by omega
+  simpa [M6.Cyclic.modulus, M8.P4Gcd.oddCofactor, hsquare,
+    hexp, sub_eq_add_neg, hneg] using (hgeom (2*m+1)).symm

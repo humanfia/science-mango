@@ -1,0 +1,169 @@
+[
+  {
+    "id": "originalF_signature",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Solver.originalF_signature",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.originalF c = M8.PhysicalBridge.signature c",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "literal_span_le",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Solver.literal_span_le",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → M6.ActualTransfer.span (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) ≤ M8.Anchor.span c",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "discovery_span",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Solver.discovery_span",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Discovery.discover c ≠ none ↔ M8.OrbitSpan.value c ≤ M8.Cutoff.limit N)",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "optimizer_present",
+    "dependencies": [],
+    "spec": {
+      "name": "M8.Solver.optimizer_present",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → ∀ choice : M8.Discovery.Choice N, M8.Discovery.discover c = some choice → M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) ≠ none",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "output_gcd",
+    "dependencies": [
+      "originalF_signature"
+    ],
+    "spec": {
+      "name": "M8.Solver.output_gcd",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.outputF (M8.Solver.run c) = M8.PhysicalBridge.signature c",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "noLogical_exact",
+    "dependencies": [
+      "originalF_signature"
+    ],
+    "spec": {
+      "name": "M8.Solver.noLogical_exact",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c = 1) ∧ (M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) ↔ M7.Transport.distance c = none)",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "unrecognized_exact",
+    "dependencies": [
+      "originalF_signature",
+      "discovery_span",
+      "optimizer_present"
+    ],
+    "spec": {
+      "name": "M8.Solver.unrecognized_exact",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c ≠ 1 ∧ M8.Cutoff.limit N < M8.OrbitSpan.value c)",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "recognized_exact",
+    "dependencies": [
+      "originalF_signature",
+      "discovery_span",
+      "optimizer_present"
+    ],
+    "spec": {
+      "name": "M8.Solver.recognized_exact",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → ((∃ (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : ℕ), M8.Solver.run c = M8.Solver.Outcome.recognized (M8.PhysicalBridge.signature c) d z choice k) ↔ M8.PhysicalBridge.signature c ≠ 1 ∧ M8.OrbitSpan.value c ≤ M8.Cutoff.limit N)",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  },
+  {
+    "id": "recognized_correct",
+    "dependencies": [
+      "originalF_signature"
+    ],
+    "spec": {
+      "name": "M8.Solver.recognized_correct",
+      "statement": "∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → ∀ (F : M8.Solver.BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : ℕ), M8.Solver.run c = M8.Solver.Outcome.recognized F d z choice k → F = M8.PhysicalBridge.signature c ∧ M8.Discovery.discover c = some choice ∧ M7.Transport.distance c = some d ∧ z ∈ M7.Transport.LX c ∧ M6.Pinned.weight z = d ∧ (∀ u ∈ M7.Transport.LX c, d ≤ M6.Pinned.weight u) ∧ k ≤ 2*N ∧ (∀ j : M8.Discovery.Choice N, M8.Discovery.Good c j → M8.Discovery.key choice ≤ M8.Discovery.key j) ∧ M6.Final.encodedQubits N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) = 2*F.natDegree",
+      "imports": [
+        "M8Solver"
+      ],
+      "context": "",
+      "queries": [
+        "algebra"
+      ],
+      "guidance": "Original M8 concrete three-branch solver. originalF is actual Euclid.preprocess.value; use accepted M6.Euclid.preprocess_correct_cost and support degree bounds, modulus natDegree≤N to identify exact normalized full gcd. Do not replace originalF with an oracle or radical. literal_span_le: natDegree of each literal polynomial is bounded by support sup ZMod.val; use Supports.support, natDegree_mem_support_of_nonzero, Finset.le_sup, handle polynomial=0 by simp. Keep actual span bound only. discovery_span uses positive cards→nonempty, OrbitSpan.small_iff and Discovery.complete. optimizer_present uses Discovery.anchored and PhysicalBridge.noLogical; transformed is exactly Action.act(action choice)c. output_gcd and branch equivalences unfold run, split actual if and Option matches, use optimizer_present to exclude internal-none fallback for surviving valid inputs. Use Option.some.inj and constructor injectivity carefully after cases: a rewritten equality can become rfl. NoLogical semantic iff is RawParameters.raw_noLogical. recognized_correct: split run to recover actual discover/actual solve; obtain PhysicalBridge.minimum_original_witness on the same action and original signature≠1, then compare its actual solve equation with this result to identify d,v,k. The final z is exactly undo(action choice)v; parent theorem gives true original LX/minimum/distance and k. Append Discovery.lex_first and RawParameters.encoded_dimension. Do not assume a selected order is span-optimal; lex order is the literal discovery Choice key. Query count is actual internal metadata. Empty/surviving cases and N=1 retained; raw validity only in public algorithm semantics. No M9 or extra resource oracle. Return tactic lines only.\nimport M8RawParametersAccepted\nimport M8DiscoveryAccepted\nimport M8OrbitSpanAccepted\nnamespace M8.Solver\nabbrev BP := M6.Cyclic.BinaryPolynomial\ninductive Outcome (N : ℕ) where\n  | noLogical (F : BP)\n  | unrecognized (F : BP)\n  | recognized (F : BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (queries : ℕ)\ndef outputF {N : ℕ} : Outcome N → BP\n  | .noLogical F => F\n  | .unrecognized F => F\n  | .recognized F _ _ _ _ => F\nnoncomputable def originalF {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : BP :=\n  (M6.Euclid.preprocess (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)).value\nnoncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Outcome N := by\n  classical\n  let F := originalF c\n  exact if F = 1 then .noLogical F else\n    match M8.Discovery.discover c with\n    | none => .unrecognized F\n    | some choice =>\n      match M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => .unrecognized F\n      | some (d,v,k) => .recognized F d (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k\nend M8.Solver\n"
+    },
+    "metadata": {}
+  }
+]

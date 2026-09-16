@@ -1,0 +1,4 @@
+{
+  "proof": "change ∀ m : ℕ, IsCoprime (Polynomial.X + 1) (M8.P4Gcd.oddCofactor m)\nintro m\nhave hneg : (-1 : ZMod 2) = 1 := by decide\nhave hr : Polynomial.IsRoot (M8.P4Gcd.oddCofactor m - 1) (-1 : ZMod 2) := by\n  change Polynomial.eval (-1) (M8.P4Gcd.oddCofactor m - 1) = 0\n  rw [hneg]\n  simp [M8.P4Gcd.cofactor_eval]\nhave hd : Polynomial.X + 1 ∣ M8.P4Gcd.oddCofactor m - 1 := by\n  simpa only [map_neg, map_one, sub_neg_eq_add] using\n    (Polynomial.dvd_iff_isRoot.mpr hr)\nrcases hd with ⟨q, hq⟩\nrefine ⟨-q, 1, ?_⟩\ncalc\n  -q * (Polynomial.X + 1) + 1 * M8.P4Gcd.oddCofactor m =\n      M8.P4Gcd.oddCofactor m - (Polynomial.X + 1) * q := by ring\n  _ = 1 := by rw [← hq]; ring",
+  "queries": []
+}

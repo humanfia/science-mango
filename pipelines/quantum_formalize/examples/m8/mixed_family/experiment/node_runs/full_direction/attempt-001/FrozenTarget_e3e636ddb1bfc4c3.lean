@@ -1,0 +1,16 @@
+import M8MixedFamily
+
+theorem M8.MixedFamily.support_data : ∀ (N : ℕ) [NeZero N], 7 ≤ N → (M8.MixedFamily.left N).card = 2 ∧ (M8.MixedFamily.right N).card = 2 ∧ (0 : ZMod N) ∈ M8.MixedFamily.left N ∧ (0 : ZMod N) ∈ M8.MixedFamily.right N ∧ (1 : ZMod N) ∈ M8.MixedFamily.left N := by
+  intro N inst hN
+  have hsmall : ∀ k : ℕ, 0 < k → k < N → (k : ZMod N) ≠ 0 := by
+    intro k hk hkN he
+    have hv := congrArg ZMod.val he
+    rw [ZMod.val_natCast, ZMod.val_zero, Nat.mod_eq_of_lt hkN] at hv
+    omega
+  have h01 : (0 : ZMod N) ≠ 1 := by
+    simpa using Ne.symm (hsmall 1 (by omega) (by omega))
+  have h02 : (0 : ZMod N) ≠ 2 := by
+    simpa using Ne.symm (hsmall 2 (by omega) (by omega))
+  simp [M8.MixedFamily.left, M8.MixedFamily.right, h01, h02]
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.CoverageFoundation.FullDirection (M8.MixedFamily.left N)

@@ -1,0 +1,75 @@
+{
+  "id": "noLogical_exact",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Solver.noLogical_exact",
+    "spec_sha256": "a20eaac03af22a9625de2395d965dc9167637a114d13d14811356dcc48210e57",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-001/Candidate_05ea9a876375c3e0.lean:10:21: warning: `if_false` has been deprecated: Use `ite_false` instead\n/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-001/Candidate_05ea9a876375c3e0.lean:15:15: error: unsolved goals\ncase neg.some.none\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nw : ℕ\nhw : 0 < w\nhc : PhysicalBridge.Valid w c\nhF : ¬PhysicalBridge.signature c = 1\nchoice : Discovery.Choice N\nhd : Discovery.discover c = some choice\nhs : PhysicalBridge.solve (Discovery.transformed c choice) = none\n⊢ ¬(match PhysicalBridge.solve (Discovery.transformed c choice) with\n      | none => Outcome.unrecognized (PhysicalBridge.signature c)\n      | some (d, v, k) =>\n        Outcome.recognized (PhysicalBridge.signature c) d (PhysicalBridge.undo (Discovery.action choice) v) choice k) =\n      Outcome.noLogical (PhysicalBridge.signature c)\n/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-001/Candidate_05ea9a876375c3e0.lean:16:22: error: unsolved goals\ncase neg.some.some\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nw : ℕ\nhw : 0 < w\nhc : PhysicalBridge.Valid w c\nhF : ¬PhysicalBridge.signature c = 1\nchoice : Discovery.Choice N\nhd : Discovery.discover c = some choice\nd : ℕ\nv : M6.Pinned.Vector (2 * N)\nk : ℕ\nhs : PhysicalBridge.solve (Discovery.transformed c choice) = some (d, v, k)\n⊢ ¬(match PhysicalBridge.solve (Discovery.transformed c choice) with\n      | none => Outcome.unrecognized (PhysicalBridge.signature c)\n      | some (d, v, k) =>\n        Outcome.recognized (PhysicalBridge.signature c) d (PhysicalBridge.undo (Discovery.action choice) v) choice k) =\n      Outcome.noLogical (PhysicalBridge.signature c)\n/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-001/Candidate_05ea9a876375c3e0.lean:12:22: warning: This simp argument is unused:\n  hF\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-001/Candidate_05ea9a876375c3e0.lean:15:24: warning: This simp argument is unused:\n  hF\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-001/Candidate_05ea9a876375c3e0.lean:18:16: warning: This simp argument is unused:\n  hF\n\nHint: Omit it from the simp argument list.\n  [apply] simp\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-002/Candidate_992f8e663c984392.lean",
+        "target_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-002/FrozenTarget_992f8e663c984392.lean",
+        "feedback": "",
+        "target_sha256": "f9f41377fae095fdf41fba3750e59d46ca481e03a07afb009e02d653f560f915",
+        "target_olean_sha256": "0a455607aa1b3d7ba2f69f5a73b1f41c4c3b4efe18274832352e1ccaef0edb84",
+        "source_sha256": "76919a98a76e80d0934bb06a2b3ab10223635dcec1bbce7aef94aa24c40cbdb8",
+        "olean_sha256": "b300d4bb816ce5e10da64f76da60fce4bf46546da857928bddb2ab109b5182da",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T13:58:44.064477+00:00",
+    "work": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "89f95a915c05b0951ffc16829e6a24eea9a12a13751e386400af29bcfa03cdd7",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-ktlmgo21/attempt-002/Candidate_992f8e663c984392.lean",
+    "environment_sha256": "5ebca4f598b3e61b56c2fb96ef67fbc1268ef1ce6ca3129883aa458c04b52810",
+    "artifacts": {
+      "originalF_signature": {
+        "payload": {
+          "declaration": "theorem M8.Solver.originalF_signature : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.originalF c = M8.PhysicalBridge.signature c := by\n  intro N inst c\n  have ha := Nat.le_of_lt (M7.Supports.degree_lt N c.1)\n  have hb := Nat.le_of_lt (M7.Supports.degree_lt N c.2)\n  have hm := le_of_eq (M6.Coordinates.modulus_monic_degree N).2\n  have h := (M6.Euclid.preprocess_correct_cost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) ha hb hm).1\n  simpa only [M8.Solver.originalF, M8.PhysicalBridge.signature, M7.RecipeSignature.signature, M6.Cyclic.signature, M6.Euclid.normalized_gcd, gcd_comm] using h",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.originalF_signature",
+          "ancestors": [],
+          "spec_sha256": "2fb3a2b02e0c50c2e6028e67d8dfd4392fd6787f22c44fdb8d8973aaea06ec0c"
+        },
+        "sha256": "04fda8a1e96d383ba6f6b365351328ed9356940d721b25aced20b4462e40961c"
+      },
+      "noLogical_exact": {
+        "payload": {
+          "declaration": "theorem M8.Solver.noLogical_exact : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → (M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c = 1) ∧ (M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) ↔ M7.Transport.distance c = none) := by\n  intro N inst c w hw hc\n  classical\n  have hrun : M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) ↔ M8.PhysicalBridge.signature c = 1 := by\n    by_cases hF : M8.PhysicalBridge.signature c = 1\n    · simp [M8.Solver.run, M8.Solver.originalF_signature N c, hF]\n    · cases hd : M8.Discovery.discover c with\n      | none =>\n          simp [M8.Solver.run, M8.Solver.originalF_signature N c, hF, hd]\n      | some choice =>\n          cases hs : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n          | none =>\n              simp [M8.Solver.run, M8.Solver.originalF_signature N c, hF, hd, hs]\n          | some result =>\n              rcases result with ⟨d, v, k⟩\n              simp [M8.Solver.run, M8.Solver.originalF_signature N c, hF, hd, hs]\n  exact ⟨hrun, hrun.trans (M8.RawParameters.raw_noLogical N w c hw hc).1.symm⟩",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.noLogical_exact",
+          "ancestors": [
+            "originalF_signature"
+          ],
+          "spec_sha256": "585441907a6336e0054a5197f4661b1bf15f4d85b7276a616f7ae5d342e5b1c8"
+        },
+        "sha256": "06ea465f5250caaf6bf4a2b68260dae8fa0ed784461a0e293ac1be28979a31a5"
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@ from pathlib import Path
 import json,hashlib,shutil,subprocess,re,time,runpy,sys
 repo=Path('/home/jing/science-mango-quantum-harness-publish-20260914');base=repo/'pipelines/quantum_formalize/examples/m8'
 sys.path.insert(0,str(repo))
-parents=[('solver','M8SolverAccepted'),('raw_parameters','M8RawParametersAccepted'),('sequential_resources','M8SequentialResourcesAccepted'),('coverage','M8CoverageAccepted'),('exclusion_conclusions','M8ExclusionConclusionsAccepted')]
+parents=[('solver','M8SolverAccepted'),('raw_parameters','M8RawParametersAccepted'),('sequential_resources','M8SequentialResourcesAccepted'),('sequential_store','M8SequentialStoreAccepted'),('whole_resources','M8WholeResourcesAccepted'),('coverage','M8CoverageAccepted'),('exclusion_conclusions','M8ExclusionConclusionsAccepted')]
 for name,_ in parents:
  while not(base/name/'experiment/MANIFEST.json').exists():time.sleep(20)
 helper=runpy.run_path(str(base/'import_normalization/css_superset.py'))
@@ -20,9 +20,12 @@ s=s.replace(needle,"""  if f.name == 'M6ActualCSSAccepted.lean':
    prov.append({'parent':name,'audited_css_superset_normalization':f.name,'incoming_sha256':env[f.name],'child_shim_sha256':hashlib.sha256(shim.encode()).hexdigest(),'rule':'All 105 imported theorem types and proof bodies and 13 definition files audited identical; no parent mutation; new child rebuilt'})
    continue
 """+needle)
+packaging=runpy.run_path('/home/jing/m8_packaged_definition_collision.py')
+needle2="  if (p/f.name).exists() and (p/f.name).read_bytes()!=f.read_bytes():"
+s=s.replace(needle2,needle2+"\n   reconciliation=packaging['reconcile_packaged_definition'](p/f.name,f,repo)\n   if reconciliation is not None:\n    chosen,record=reconciliation;(p/f.name).write_bytes(chosen);(b/'lean'/f.name).write_bytes(chosen);prov.append({'parent':name,'packaged_definition_reconciliation':record});continue")
 exec(s)
 helper['normalize_child'](repo,p,b/'lean',b/'CSS_IMPORT_NORMALIZATION.json')
-selection=[('algorithm','Algorithm','solver',['output_gcd','noLogical_exact','unrecognized_exact','recognized_exact','recognized_correct']),('physical_parameters','PhysicalParameters','raw_parameters',['raw_noLogical','encoded_dimension']),('resources','Resources','sequential_resources',None),('coverage','AdmittedFamilies','coverage',None),('exclusion','ExcludedFamilies','exclusion_conclusions',None)]
+selection=[('algorithm','Algorithm','solver',['output_gcd','noLogical_exact','unrecognized_exact','recognized_exact','recognized_correct']),('physical_parameters','PhysicalParameters','raw_parameters',['raw_noLogical','encoded_dimension']),('resources','Resources','sequential_resources',None),('storage','Storage','sequential_store',['allocation_access','store_space']),('cost_projection','CostProjection','whole_resources',['projection']),('coverage','AdmittedFamilies','coverage',None),('exclusion','ExcludedFamilies','exclusion_conclusions',None)]
 source=''.join('import '+a+'\n' for _,a in parents)+'\nnamespace M8.Final\n'
 rows=[];nodes=[]
 for node,prop,stage,ids in selection:
@@ -53,7 +56,7 @@ if not(p/'.lake/packages').exists():(p/'.lake/packages').symlink_to('/home/jing/
 cache=runpy.run_path('/home/jing/m8_verified_cache.py')
 cache_record=cache['reuse_verified_caches'](p,[Path('/home/jing/m8-lean-sequential-resources-formalization')])
 (b/'CACHE_REUSE.json').write_text(json.dumps(cache_record,indent=2)+'\n')
-ctl=Path('/home/jing/m8_anchor_preflight_launch.py').read_text().replace('m8-lean-anchor','m8-lean-final').replace('examples/m8/anchor','examples/m8/final').replace('M8Anchor','M8Final').replace('8 exact','6 exact').replace("'anchor','anchor','2'","'final','final','2'")
+ctl=Path('/home/jing/m8_anchor_preflight_launch.py').read_text().replace('m8-lean-anchor','m8-lean-final').replace('examples/m8/anchor','examples/m8/final').replace('M8Anchor','M8Final').replace('8 exact','8 exact').replace("'anchor','anchor','2'","'final','final','2'")
 cp=Path('/home/jing/m8_final_preflight_launch.py');cp.write_text(ctl)
 for a,d in [(cp,b/'preflight_launch.py'),(Path('/home/jing/m8_prepare_final.py'),b/'prepare.py'),(Path('/home/jing/m8_launch_batch.py'),b/'launch_batch.py')]:shutil.copy2(a,d)
 log=(b/'controller.log').open('a');q=subprocess.Popen(['/home/jing/quantum_code_discovery_proof/.venv-harness/bin/python',str(cp)],cwd=repo,stdout=log,stderr=subprocess.STDOUT,start_new_session=True);print({'targets':len(nodes),'controller_pid':q.pid},flush=True)

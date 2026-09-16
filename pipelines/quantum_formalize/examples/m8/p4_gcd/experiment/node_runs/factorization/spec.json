@@ -1,0 +1,12 @@
+{
+  "name": "M8.P4Gcd.factorization",
+  "statement": "∀ m : ℕ, M6.Cyclic.modulus (4*m+2) = (Polynomial.X+1)^2 * M8.P4Gcd.oddCofactor m",
+  "imports": [
+    "M8P4Gcd"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "M6.Cyclic.signature uses EuclideanDomain.gcd, which is NOT the unqualified normalized GCDMonoid gcd. Do not use change to identify these definitions (it causes isDefEq timeouts). For actual signature, unfold only the literal definitions, use EuclideanDomain.gcd_self / gcd_eq_left for the divisible case; for the two-mod-four case compare divisibility through EuclideanDomain.gcd_dvd_left/right and EuclideanDomain.dvd_gcd, then use Polynomial.eq_of_monic_of_associated with the canonical signature_properties monicity and associated_of_dvd_dvd. The intermediate gcd_two_mod_four target intentionally uses normalized gcd and supplies its common-divisor relation. Exact M8 full even-order multiplicity, no radical and no restriction to4-divisible orders. oddCofactor is the literal geometric sum of powers X² with odd length2m+1. Geometric-sum telescoping gives modulus(4m+2)=(X+1)² H over GF2, and H(1)=1 gives coprimality with X+1. Thus gcd((X+1)³,(X+1)²H)=(X+1)² by normalized monic gcd/common-factor and coprime. For evenN either4 dividesN or N=4m+2 (Nat.mod_add_div, omega); use parent divides_four for former, both literal inputs equal parent polynomial. Finally N=2^v*m with Oddm implies4 dividesN iff2<=v whenv>0; v1 gives exponent2, v>=2 exponent3, min formula follows power monotonicity. Preserve exact hypotheses, all-even domain and no free multiplicity assertion.\nimport M8P4FamilyAccepted\n\nnamespace M8.P4Gcd\nnoncomputable def oddCofactor (m : ℕ) : M6.Cyclic.BinaryPolynomial :=\n  (Finset.range (2*m+1)).sum (fun i => Polynomial.X^(2*i))\nend M8.P4Gcd\n"
+}

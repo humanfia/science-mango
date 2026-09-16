@@ -1,0 +1,55 @@
+{
+  "id": "support_data",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.MixedFamily.support_data",
+    "spec_sha256": "004549af05cc54477795be2e79e6cadf662e54d01e06ddb4804580f7fd66d095",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-2fqsl2ry/attempt-001/Candidate_c6bcf25709e4dcc7.lean",
+        "target_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-2fqsl2ry/attempt-001/FrozenTarget_c6bcf25709e4dcc7.lean",
+        "feedback": "",
+        "target_sha256": "9710dc7e51a5372107aac9bbeb27d432e8c39fd48c65ee00329d50da3ad71599",
+        "target_olean_sha256": "270dc3f18d609c017f096397c757edefc3802f1969569f7c4fac6a092562bcb2",
+        "source_sha256": "a2e2692dc6c533e8e5a23d897ce91464442730c2d1b81e569c0d60df07922dee",
+        "olean_sha256": "926979e28e9f396e43868a7eb6b064c30cd70c5b582299d7d467a0126f673366",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:07:14.003123+00:00",
+    "work": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-2fqsl2ry",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "532712e98a39e69acb6442a1ae87151a15bf126e37c780fbb5cb29e378ff2b47",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-2fqsl2ry/attempt-001/Candidate_c6bcf25709e4dcc7.lean",
+    "environment_sha256": "300034bddd0ab85bc2b81f0e971be503795c340e2c81d61b0637d30aa0dccec4",
+    "artifacts": {
+      "support_data": {
+        "payload": {
+          "declaration": "theorem M8.MixedFamily.support_data : ∀ (N : ℕ) [NeZero N], 7 ≤ N → (M8.MixedFamily.left N).card = 2 ∧ (M8.MixedFamily.right N).card = 2 ∧ (0 : ZMod N) ∈ M8.MixedFamily.left N ∧ (0 : ZMod N) ∈ M8.MixedFamily.right N ∧ (1 : ZMod N) ∈ M8.MixedFamily.left N := by\n  intro N inst hN\n  have hsmall : ∀ k : ℕ, 0 < k → k < N → (k : ZMod N) ≠ 0 := by\n    intro k hk hkN he\n    have hv := congrArg ZMod.val he\n    rw [ZMod.val_natCast, ZMod.val_zero, Nat.mod_eq_of_lt hkN] at hv\n    omega\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa using Ne.symm (hsmall 1 (by omega) (by omega))\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    simpa using Ne.symm (hsmall 2 (by omega) (by omega))\n  simp [M8.MixedFamily.left, M8.MixedFamily.right, h01, h02]",
+          "imports": [
+            "M8MixedFamily"
+          ],
+          "name": "M8.MixedFamily.support_data",
+          "ancestors": [],
+          "spec_sha256": "004549af05cc54477795be2e79e6cadf662e54d01e06ddb4804580f7fd66d095"
+        },
+        "sha256": "7f2a501dc95597d41317d4fb6be976bb493793f7e172634c01ff528bfd0a4447"
+      }
+    }
+  }
+}

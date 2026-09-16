@@ -1,0 +1,55 @@
+{
+  "id": "span_cutoff",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.MixedFamily.span_cutoff",
+    "spec_sha256": "8f5d6c2072cfca081bf353232e46e10d681b040eaef6c8cdb58ba43470c6571a",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-diyhnjae/attempt-001/Candidate_5dee3819b37b3aa2.lean",
+        "target_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-diyhnjae/attempt-001/FrozenTarget_5dee3819b37b3aa2.lean",
+        "feedback": "",
+        "target_sha256": "9fa58fb18f426401c045286a67840934f8bd749ff6566573cba780dccc8af48c",
+        "target_olean_sha256": "198c75c12d53971f5198bc395114cbed6433f7e360ee69f10315601296c09f27",
+        "source_sha256": "21318fd9959fcb62689103a3a3457bdf06627adbfe413ebc85266099ca68713c",
+        "olean_sha256": "b8141fc77fb49a5c74ef3bf19792543acc043defb7f6a14c32b042ae8688df06",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:07:13.531499+00:00",
+    "work": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-diyhnjae",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "532712e98a39e69acb6442a1ae87151a15bf126e37c780fbb5cb29e378ff2b47",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-diyhnjae/attempt-001/Candidate_5dee3819b37b3aa2.lean",
+    "environment_sha256": "300034bddd0ab85bc2b81f0e971be503795c340e2c81d61b0637d30aa0dccec4",
+    "artifacts": {
+      "span_cutoff": {
+        "payload": {
+          "declaration": "theorem M8.MixedFamily.span_cutoff : ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.Anchor.span (M8.MixedFamily.recipe N) ≤ M8.Cutoff.limit N := by\n  change ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.Anchor.span (M8.MixedFamily.recipe N) ≤ M8.Cutoff.limit N\n  intro N inst hN\n  have hval (k : ℕ) (hk : k ≤ 2) : (k : ZMod N).val ≤ 2 := by\n    rw [ZMod.val_natCast]\n    exact (Nat.mod_le k N).trans hk\n  have hspan : M8.Anchor.span (M8.MixedFamily.recipe N) ≤ 2 := by\n    apply (M8.Anchor.span_le N (M8.MixedFamily.recipe N) 2).mpr\n    change (∀ i ∈ ({0, 1} : Finset (ZMod N)), i.val ≤ 2) ∧\n      (∀ i ∈ ({0, 2} : Finset (ZMod N)), i.val ≤ 2)\n    constructor\n    · intro i hi\n      simp only [Finset.mem_insert, Finset.mem_singleton] at hi\n      rcases hi with rfl | rfl\n      · simpa only [Nat.cast_zero] using hval 0 (by omega)\n      · simpa only [Nat.cast_one] using hval 1 (by omega)\n    · intro i hi\n      simp only [Finset.mem_insert, Finset.mem_singleton] at hi\n      rcases hi with rfl | rfl\n      · simpa only [Nat.cast_zero] using hval 0 (by omega)\n      · simpa using hval 2 (by omega)\n  apply hspan.trans\n  rw [M8.Cutoff.bit_length_limit, Nat.log2_eq_log_two]\n  apply le_min\n  · omega\n  · have hlog := Nat.log_mono_right (b := 2) (show 4 ≤ N + 1 by omega)\n    norm_num at hlog\n    exact hlog",
+          "imports": [
+            "M8MixedFamily"
+          ],
+          "name": "M8.MixedFamily.span_cutoff",
+          "ancestors": [],
+          "spec_sha256": "8f5d6c2072cfca081bf353232e46e10d681b040eaef6c8cdb58ba43470c6571a"
+        },
+        "sha256": "6cb3cd0062a143c7d5f922c670879f6d4d2facdc8291745d83f6a97b349010f5"
+      }
+    }
+  }
+}

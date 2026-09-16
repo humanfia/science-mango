@@ -1,0 +1,75 @@
+{
+  "id": "recognized_correct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Solver.recognized_correct",
+    "spec_sha256": "e0b0e10466297679bab0ef2683bf76f60bc1d4891e3b6b47d39861ce32bc4b2d",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-p3302ies/attempt-001/Candidate_c3629e8242df7bc1.lean:28:20: error: Application type mismatch: The argument\n  hdiscover\nhas type\n  Discovery.discover c = some chosen\nbut is expected to have type\n  some chosen = some chosen\nin the application\n  And.intro hdiscover\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-p3302ies/attempt-002/Candidate_e1ce82e26dd68103.lean",
+        "target_path": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-p3302ies/attempt-002/FrozenTarget_e1ce82e26dd68103.lean",
+        "feedback": "",
+        "target_sha256": "d85fbe2427ed33eeb9f4ade734bc5ea286761c8fa99a53046095562992161a0d",
+        "target_olean_sha256": "bece37ef9541c1ef37d5a12bfc24a1fcd12227353290d97b8f4076ddd8a0433f",
+        "source_sha256": "ad2ca49f28b1ef67d73544d2713fcabef63ef87a3bce687b40766c37b3531f0a",
+        "olean_sha256": "37a994fc9dfd69cb85b380a46ce48e74b5910201cc87460c9ea059bde5b38d5a",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T14:01:39.711761+00:00",
+    "work": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-p3302ies",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "89f95a915c05b0951ffc16829e6a24eea9a12a13751e386400af29bcfa03cdd7",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-solver-formalization/.humanize-formal-runs/run-p3302ies/attempt-002/Candidate_e1ce82e26dd68103.lean",
+    "environment_sha256": "5ebca4f598b3e61b56c2fb96ef67fbc1268ef1ce6ca3129883aa458c04b52810",
+    "artifacts": {
+      "originalF_signature": {
+        "payload": {
+          "declaration": "theorem M8.Solver.originalF_signature : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.originalF c = M8.PhysicalBridge.signature c := by\n  intro N inst c\n  have ha := Nat.le_of_lt (M7.Supports.degree_lt N c.1)\n  have hb := Nat.le_of_lt (M7.Supports.degree_lt N c.2)\n  have hm := le_of_eq (M6.Coordinates.modulus_monic_degree N).2\n  have h := (M6.Euclid.preprocess_correct_cost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) ha hb hm).1\n  simpa only [M8.Solver.originalF, M8.PhysicalBridge.signature, M7.RecipeSignature.signature, M6.Cyclic.signature, M6.Euclid.normalized_gcd, gcd_comm] using h",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.originalF_signature",
+          "ancestors": [],
+          "spec_sha256": "2fb3a2b02e0c50c2e6028e67d8dfd4392fd6787f22c44fdb8d8973aaea06ec0c"
+        },
+        "sha256": "04fda8a1e96d383ba6f6b365351328ed9356940d721b25aced20b4462e40961c"
+      },
+      "recognized_correct": {
+        "payload": {
+          "declaration": "theorem M8.Solver.recognized_correct : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → ∀ (F : M8.Solver.BP) (d : ℕ) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : ℕ), M8.Solver.run c = M8.Solver.Outcome.recognized F d z choice k → F = M8.PhysicalBridge.signature c ∧ M8.Discovery.discover c = some choice ∧ M7.Transport.distance c = some d ∧ z ∈ M7.Transport.LX c ∧ M6.Pinned.weight z = d ∧ (∀ u ∈ M7.Transport.LX c, d ≤ M6.Pinned.weight u) ∧ k ≤ 2*N ∧ (∀ j : M8.Discovery.Choice N, M8.Discovery.Good c j → M8.Discovery.key choice ≤ M8.Discovery.key j) ∧ M6.Final.encodedQubits N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) = 2*F.natDegree := by\n  classical\n  intro N inst c w hw hvalid F d z choice k hrun\n  by_cases hOne : M8.Solver.originalF c = 1\n  · simp [M8.Solver.run, hOne] at hrun\n  · simp only [M8.Solver.run, if_neg hOne] at hrun\n    cases hdiscover : M8.Discovery.discover c with\n    | none => simp [hdiscover] at hrun\n    | some chosen =>\n      have hsig : M8.PhysicalBridge.signature c ≠ 1 := by\n        intro hs\n        apply hOne\n        rw [M8.Solver.originalF_signature N c]\n        exact hs\n      have hanchor := M8.Discovery.anchored N c chosen hdiscover\n      obtain ⟨d', v, k', hsolve, hdist, hmem, hweight, hmin, hbound⟩ :=\n        M8.PhysicalBridge.minimum_original_witness N c\n          (M8.Discovery.action chosen) w hvalid hanchor hsig\n      change M8.PhysicalBridge.solve (M8.Discovery.transformed c chosen) =\n        some (d', v, k') at hsolve\n      simp only [hdiscover, hsolve] at hrun\n      injection hrun with hF hd hz hc hk\n      subst F\n      subst d\n      subst z\n      subst choice\n      subst k\n      refine ⟨M8.Solver.originalF_signature N c, ?_, hdist, hmem,\n        hweight, hmin, hbound, ?_, ?_⟩\n      · first | exact hdiscover | rfl\n      · exact M8.Discovery.lex_first N c chosen hdiscover\n      · simpa only [M8.Solver.originalF_signature N c] using\n          M8.RawParameters.encoded_dimension N w c hw hvalid",
+          "imports": [
+            "M8Solver"
+          ],
+          "name": "M8.Solver.recognized_correct",
+          "ancestors": [
+            "originalF_signature"
+          ],
+          "spec_sha256": "5f2e83d8f1575be6d633387e71e8edd35aa464bd15b877cdd4bfffcc350a31aa"
+        },
+        "sha256": "0665c79f06776c11444b33d88b3ee965642db154dbd9d06d125283a371dd18e3"
+      }
+    }
+  }
+}

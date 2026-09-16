@@ -1,0 +1,6 @@
+{
+  "proof": "intro v hv\nchange (1 + Polynomial.X) * (1 + Polynomial.X ^ (2 ^ v / 2)) =\n  (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1) + 1)\nhave hd : 2 ^ v / 2 = 2 ^ (v - 1) := by\n  calc\n    2 ^ v / 2 = (2 ^ (v - 1) * 2) / 2 := by\n      rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n    _ = 2 ^ (v - 1) := by simp\nhave hf : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1)) =\n    Polynomial.X ^ (2 ^ (v - 1)) + 1 := by\n  simpa using (add_pow_char_pow (Polynomial.X : M6.Cyclic.BinaryPolynomial) 1 2 (v - 1))\nrw [hd, pow_succ, hf]\nring",
+  "queries": [
+    "add_pow_char_pow"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "M8.MixedFamily.literal_polynomials",
+  "statement": "∀ (N : ℕ) [NeZero N], 7 ≤ N → M7.Supports.polynomial (M8.MixedFamily.left N) = M8.MixedFamily.a ∧ M7.Supports.polynomial (M8.MixedFamily.right N) = M8.MixedFamily.b",
+  "imports": [
+    "M8MixedFamily"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original M8 mixed family a=1+X,b=1+X² for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a². a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a²,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : ℕ) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : ℕ) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : ℕ) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+}

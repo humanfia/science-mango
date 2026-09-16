@@ -1,0 +1,84 @@
+{
+  "id": "valid",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.MixedFamily.valid",
+    "spec_sha256": "0519924794d7f202ede292bcb00bd65611b2c099e7f1a0ad5b924267283c5518",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-34fh5u66/attempt-001/Candidate_bea550f15fdc454e.lean",
+        "target_path": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-34fh5u66/attempt-001/FrozenTarget_bea550f15fdc454e.lean",
+        "feedback": "",
+        "target_sha256": "1b25945e92ec4d69a8abbcd3e221a827ee2042528d51096a83b22f61c40d9b8a",
+        "target_olean_sha256": "f7d918465b960cc062a2ccff51245491cd30654fb02c42a1756f798f2436c08c",
+        "source_sha256": "647dce3c5acf14da46f1c482700004a724ebb4bd7d2402a01dbca61db74403b6",
+        "olean_sha256": "ff6c9148d6f2dcffc12c163073f3783ba84d216238ef9dfae85b252cc22d3bed",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:09:08.512795+00:00",
+    "work": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-34fh5u66",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "532712e98a39e69acb6442a1ae87151a15bf126e37c780fbb5cb29e378ff2b47",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-mixed-family-formalization/.humanize-formal-runs/run-34fh5u66/attempt-001/Candidate_bea550f15fdc454e.lean",
+    "environment_sha256": "300034bddd0ab85bc2b81f0e971be503795c340e2c81d61b0637d30aa0dccec4",
+    "artifacts": {
+      "support_data": {
+        "payload": {
+          "declaration": "theorem M8.MixedFamily.support_data : ∀ (N : ℕ) [NeZero N], 7 ≤ N → (M8.MixedFamily.left N).card = 2 ∧ (M8.MixedFamily.right N).card = 2 ∧ (0 : ZMod N) ∈ M8.MixedFamily.left N ∧ (0 : ZMod N) ∈ M8.MixedFamily.right N ∧ (1 : ZMod N) ∈ M8.MixedFamily.left N := by\n  intro N inst hN\n  have hsmall : ∀ k : ℕ, 0 < k → k < N → (k : ZMod N) ≠ 0 := by\n    intro k hk hkN he\n    have hv := congrArg ZMod.val he\n    rw [ZMod.val_natCast, ZMod.val_zero, Nat.mod_eq_of_lt hkN] at hv\n    omega\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa using Ne.symm (hsmall 1 (by omega) (by omega))\n  have h02 : (0 : ZMod N) ≠ 2 := by\n    simpa using Ne.symm (hsmall 2 (by omega) (by omega))\n  simp [M8.MixedFamily.left, M8.MixedFamily.right, h01, h02]",
+          "imports": [
+            "M8MixedFamily"
+          ],
+          "name": "M8.MixedFamily.support_data",
+          "ancestors": [],
+          "spec_sha256": "004549af05cc54477795be2e79e6cadf662e54d01e06ddb4804580f7fd66d095"
+        },
+        "sha256": "7f2a501dc95597d41317d4fb6be976bb493793f7e172634c01ff528bfd0a4447"
+      },
+      "full_direction": {
+        "payload": {
+          "declaration": "theorem M8.MixedFamily.full_direction : ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.CoverageFoundation.FullDirection (M8.MixedFamily.left N) := by\n  intro N inst hN\n  classical\n  apply M8.CoverageFoundation.consecutive_full N (M8.MixedFamily.left N) 0\n  · simp [M8.MixedFamily.left]\n  · simp [M8.MixedFamily.left]",
+          "imports": [
+            "M8MixedFamily"
+          ],
+          "name": "M8.MixedFamily.full_direction",
+          "ancestors": [
+            "support_data"
+          ],
+          "spec_sha256": "9d096607bcda20abf3673d07802057dda9e04a64ef4ca3c0d32793a12a568dbf"
+        },
+        "sha256": "8b7c34b6528e82033e25c72c35911c43de22d3dd8386362f385b5237628dc83f"
+      },
+      "valid": {
+        "payload": {
+          "declaration": "theorem M8.MixedFamily.valid : ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.PhysicalBridge.Valid 2 (M8.MixedFamily.recipe N) := by\n  intro N inst hN\n  classical\n  obtain ⟨hL, hR, h0L, h0R, h1L⟩ := M8.MixedFamily.support_data N hN\n  have hf := M8.MixedFamily.full_direction N hN\n  change AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N)) = ⊤ at hf\n  have hc : M7.Connectivity.connected (M8.MixedFamily.recipe N) := by\n    change AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N) ∪ M7.Connectivity.differences (M8.MixedFamily.right N)) = ⊤\n    apply top_unique\n    calc\n      ⊤ = AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N)) := hf.symm\n      _ ≤ AddSubgroup.closure (M7.Connectivity.differences (M8.MixedFamily.left N) ∪ M7.Connectivity.differences (M8.MixedFamily.right N)) := AddSubgroup.closure_mono Set.subset_union_left\n  simp_all [M8.PhysicalBridge.Valid, M8.MixedFamily.recipe]",
+          "imports": [
+            "M8MixedFamily"
+          ],
+          "name": "M8.MixedFamily.valid",
+          "ancestors": [
+            "full_direction",
+            "support_data"
+          ],
+          "spec_sha256": "19f285abd1fce2b8a6826d192177d5e63553c2f701793522a3ab2f33e7f1af0d"
+        },
+        "sha256": "b9c514167a96a3799cf40d1c719d73167865e7c3bf2247d1593e196962798bcf"
+      }
+    }
+  }
+}
