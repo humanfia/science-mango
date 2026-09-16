@@ -1,0 +1,18 @@
+theorem M8.WholeResources.charge_length : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M8.WholeResources.run c).charges.length ≤ 6 := by
+  intro N inst c
+  classical
+  unfold M8.WholeResources.run
+  simp only
+  split
+  · simp only [List.length_cons, List.length_nil]
+    omega
+  · try simp only
+    split
+    · simp only [List.length_append, List.length_cons, List.length_nil]
+      omega
+    · try simp only
+      split
+      · simp only [List.length_append, List.length_cons, List.length_nil]
+        omega
+      · simp only [List.length_append, List.length_cons, List.length_nil]
+        omega

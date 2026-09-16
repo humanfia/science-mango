@@ -1,0 +1,75 @@
+{
+  "id": "p4_recognized",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Coverage.p4_recognized",
+    "spec_sha256": "158680935490333105f3e15a7bb1fb7aff8327c78f0b999f2ae568c88f9525be",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-mksvpoxj/attempt-001/Candidate_d0118ee2c41b7b0a.lean:12:79: error: unsolved goals\nN : ℕ\ninst : NeZero N\nhN : 8 ≤ N\nhEven : Even N\nhv : PhysicalBridge.Valid 4 (P4Family.recipe N)\nhp : PhysicalTwo (P4Family.recipe N)\nhd : M7.Transport.distance (P4Family.recipe N) = some 2\nhz : 0 ∈ P4Family.support N\nhne : (P4Family.support N).Nonempty\ng : M7.Action.Record N := Anchor.record false 1 0 0\n⊢ (Finset.image (M7.Action.affine 1 0) (P4Family.recipe N).1,\n      Finset.image (M7.Action.affine 1 0) (P4Family.recipe N).2) =\n    P4Family.recipe N\n/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-mksvpoxj/attempt-001/Candidate_d0118ee2c41b7b0a.lean:13:48: warning: This simp argument is unused:\n  M7.Action.affine\n\nHint: Omit it from the simp argument list.\n  [apply] simp [g, M8.Anchor.record, M7.Action.act]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-mksvpoxj/attempt-002/Candidate_884e564d0d6485d5.lean",
+        "target_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-mksvpoxj/attempt-002/FrozenTarget_884e564d0d6485d5.lean",
+        "feedback": "",
+        "target_sha256": "1c230bf632a4d1428de79560e8112a0eb97ef558f5e4cf09b7fdc58e7f0160b0",
+        "target_olean_sha256": "9cf22d314811b2fcd5267a3592db97ae029dcf03c7d4d2133c966b4033e22c79",
+        "source_sha256": "b7966ca0991f2f48ce65070b6999cc4258365c6b385b6048532bee48b4912a6e",
+        "olean_sha256": "58f3e9ff4a0e0978c3a3ede366883afde8e95b4b13f47d54df87df1e246f3136",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T15:03:57.805046+00:00",
+    "work": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-mksvpoxj",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1dd0f0259dd07479fd702c90cc3291f21e428b09fb3c9df8014a5587a1c5c243",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-mksvpoxj/attempt-002/Candidate_884e564d0d6485d5.lean",
+    "environment_sha256": "4ccd2e6c2aba1a735fb0abfb74748609c2f3414682de9f7ce12e8f8bbc928701",
+    "artifacts": {
+      "p4_physical": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p4_physical : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.Coverage.PhysicalTwo (M8.P4Family.recipe N) := by\n  intro N inst hN hEven\n  let p := M7.Supports.polynomial (M8.P4Family.support N)\n  let F := M7.RecipeSignature.signature (M8.P4Family.recipe N)\n  have hp : p = M8.P4Family.polynomial := M8.P4Family.literal_polynomial N hN\n  have hp0 : p ≠ 0 := by\n    rw [hp]\n    exact M8.P4Family.nontrivial.2.1\n  have hdeg : p.degree < (N : WithBot ℕ) := by\n    rw [Polynomial.degree_eq_natDegree hp0, hp, M8.P4Family.nontrivial.2.2]\n    exact_mod_cast (show 3 < N by omega)\n  have hm : F.Monic := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).1\n  have hmod : F ∣ M6.Cyclic.modulus N := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).2\n  have hdvd : F ∣ p := dvd_trans (EuclideanDomain.gcd_dvd_left _ _) (EuclideanDomain.gcd_dvd_left _ _)\n  have hF : F ≠ 1 := by\n    dsimp [F]\n    rw [M8.P4Gcd.signature_even N hN hEven]\n    split_ifs\n    · exact M8.P4Family.nontrivial.1\n    · intro h\n      have he := congrArg (Polynomial.eval (1 : ZMod 2)) h\n      norm_num at he\n      exact (by decide : (2 : ZMod 2) ≠ 1) he\n  have hn := M8.DiagonalPolynomial.coefficients_nonzero N p hp0 hdeg\n  have hi := M8.DiagonalPolynomial.delta_not_image N p F hdeg hm hF hdvd hmod\n  have hd := M8.DiagonalPolynomial.distance_two N p F hp0 hdeg hm hF hdvd hmod\n  have hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N p) hi\n  have hc : M6.Coordinates.coefficients N p = M7.Supports.indicator (M8.P4Family.support N) := M7.Domain.coefficients_indicator N _\n  have hx : M7.Transport.LX (M8.P4Family.recipe N) = M6.Spaces.logicalWords N (M6.Coordinates.coefficients N p) (M6.Coordinates.coefficients N p) := by\n    simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX, M8.P4Family.recipe, M6.Spaces.logicalWords, hc]\n  refine ⟨?_, ?_, hw.2, ?_⟩\n  · simpa only [M7.Transport.distance, M8.P4Family.recipe, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M8.Diagonal.distance] using hd\n  · rw [hx]\n    exact hw.1\n  · intro u hu\n    rw [hx] at hu\n    exact M8.Diagonal.logical_lower_bound N _ u hn hu",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p4_physical",
+          "ancestors": [],
+          "spec_sha256": "8e2ac65bffef154527b5d6c19d2ebcd8179e4ec867e8b7177eafa4d98543dcea"
+        },
+        "sha256": "1151724853978b4508b0307b05a900a67a2c0a5fb4e978a932ca7b2608a4aa8b"
+      },
+      "p4_recognized": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p4_recognized : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.Coverage.RecognizedTwo (M8.P4Family.recipe N) ∧ M8.PhysicalBridge.signature (M8.P4Family.recipe N) = (if 4 ∣ N then M8.P4Family.polynomial else (Polynomial.X+1)^2) ∧ (∀ g : M7.Action.Record N, ¬ M8.CoverageFoundation.Separated (M7.Action.act g (M8.P4Family.recipe N))) := by\n  intro N inst hN hEven\n  have hv := M8.P4Family.valid N (by omega)\n  have hp := M8.Coverage.p4_physical N hN hEven\n  have hd : M7.Transport.distance (M8.P4Family.recipe N) = some 2 := hp.1\n  have hz : (0 : ZMod N) ∈ M8.P4Family.support N := (M8.P4Family.support_data N (by omega)).2.1\n  have hne : (M8.P4Family.support N).Nonempty := ⟨0, hz⟩\n  let g : M7.Action.Record N := M8.Anchor.record false 1 0 0\n  have hg : M7.Action.act g (M8.P4Family.recipe N) = M8.P4Family.recipe N := by\n    simp [g, M8.Anchor.record, M7.Action.act]\n    have ha : M7.Action.affine (1 : (ZMod N)ˣ) 0 = id := by\n      funext x\n      simp [M7.Action.affine]\n    simpa only [ha, Finset.image_id]\n  have hs : M8.OrbitSpan.value (M8.P4Family.recipe N) ≤ M8.Cutoff.limit N := by\n    apply (M8.OrbitSpan.small_iff N (M8.P4Family.recipe N) hne hne (M8.Cutoff.limit N)).2\n    refine ⟨g, ?_, ?_⟩\n    · rw [hg]\n      change (0 : ZMod N) ∈ M8.P4Family.support N ∧ (0 : ZMod N) ∈ M8.P4Family.support N\n      exact ⟨hz, hz⟩\n    · rw [hg]\n      exact M8.P4Family.span_cutoff N (by omega)\n  have hF : M8.PhysicalBridge.signature (M8.P4Family.recipe N) ≠ 1 := by\n    intro h\n    have hn := (M8.RawParameters.raw_noLogical N 4 (M8.P4Family.recipe N) (by omega) hv).1.mpr h\n    rw [hd] at hn\n    contradiction\n  obtain ⟨d, z, choice, k, hr⟩ := (M8.Solver.recognized_exact N (M8.P4Family.recipe N) 4 (by omega) hv).2 ⟨hF, hs⟩\n  have hc := M8.Solver.recognized_correct N (M8.P4Family.recipe N) 4 (by omega) hv _ d z choice k hr\n  have he : d = 2 := Option.some.inj (hc.2.2.1.symm.trans hd)\n  subst d\n  refine ⟨⟨z, choice, k, hr⟩, ?_, ?_⟩\n  · exact M8.P4Gcd.signature_even N hN hEven\n  · intro a\n    apply M8.CoverageFoundation.orbit_no_separated N (M8.P4Family.recipe N) a\n    exact Or.inl (M8.P4Family.full_direction N (by omega))",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p4_recognized",
+          "ancestors": [
+            "p4_physical"
+          ],
+          "spec_sha256": "2621b87513001c8c8fff4fb90a502f21b52de6f68b8991581849c8d707ddab76"
+        },
+        "sha256": "9ed19e5e333a90ff0dcb508138159c14ac9fb356e4e97d94b66631367dab484c"
+      }
+    }
+  }
+}

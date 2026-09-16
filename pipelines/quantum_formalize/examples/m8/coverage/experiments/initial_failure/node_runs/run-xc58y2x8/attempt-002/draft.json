@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst hN hdiv\nhave hp0 := M8.P3Family.nontrivial.2.1\nhave hp1 := M8.P3Family.nontrivial.1\nhave hdeg : M8.P3Family.polynomial.degree < (N : WithBot ℕ) := by\n  apply Polynomial.degree_lt_of_natDegree_lt\n  rw [M8.P3Family.nontrivial.2.2]\n  omega\nhave hm : M8.P3Family.polynomial.Monic := by\n  have hs := M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)\n  rw [M8.P3Family.signature N hN hdiv] at hs\n  first\n  | exact hs.1\n  | exact hs.2.1\n  | exact hs.2.2.1\n  | exact hs\nhave hdvd := M8.P3Family.divides_modulus N hdiv\nhave hn := M8.DiagonalPolynomial.coefficients_nonzero N M8.P3Family.polynomial hp0 hdeg\nhave hi := M8.DiagonalPolynomial.delta_not_image N M8.P3Family.polynomial M8.P3Family.polynomial hdeg hm hp1 (dvd_refl _) hdvd\nhave hd := M8.DiagonalPolynomial.distance_two N M8.P3Family.polynomial M8.P3Family.polynomial hp0 hdeg hm hp1 (dvd_refl _) hdvd\nhave hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N M8.P3Family.polynomial)\nrepeat first | specialize hw hn | specialize hw hi\nunfold M8.Coverage.PhysicalTwo\nsimp only [M7.Transport.distance, M7.Transport.LX, M8.P3Family.recipe, M8.P3Family.literal_polynomial N hN]\nrefine ⟨hd, ?_, ?_, ?_⟩\n· first | exact hw.1 | exact hw\n· first | exact hw.2 | exact hw.2.1\n· intros u hu\n  apply M8.Diagonal.logical_lower_bound N (M6.Coordinates.coefficients N M8.P3Family.polynomial)\n  all_goals assumption",
+  "queries": [
+    "M8.Diagonal.diagonal_witness M8.Diagonal.logical_lower_bound",
+    "M7.Transport.distance M7.Transport.LX M8.Diagonal.distance",
+    "M7.RecipeSignature.signature_properties"
+  ]
+}

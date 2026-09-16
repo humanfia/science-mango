@@ -1,0 +1,12 @@
+{
+  "name": "M8.SequentialResources.actual_prefix_charge",
+  "statement": "∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M8.SequentialStore.prefixCharge (M8.SequentialResources.primitiveCharge N) (M8.WholeResources.run c).charges = M8.WholeResources.indexedWork c * M8.SequentialResources.primitiveCharge N",
+  "imports": [
+    "M8SequentialResources"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Common sequential tagged-store resource composition for the actual M8 layout and executed whole-stage charges. No caller supplies M, address width, memory-cost correctness or arbitrary charge budget. allocation_access uses TaggedStore.indexed_read/indexed_write at start0, read_work/write_work with B=actual slots.size, and packed_layout with mem.length=slots; i:Fin slots supplies valid actual address, Nat.size_le_size bounds the key. store_space uses packed_layout, BankLayout.payload_bound≤20000n³ and address_bits_bound≤32n, with explicit scratch slots. access_envelope uses the same concrete bounds and n>=1; n4≤n6 is enough, do not add sharper final complexity requirements. tag setup: each address in range slots has bits.length≤slots.size; bound the actual fold by length*16*(B+1)+32 using a local induction with membership, then concrete layout bounds. actual_prefix_charge proves repeatCharge unit k=k*unit and fold sum identity locally, applied to the actual WholeResources.run charges, not a free global oracle. sequential_bound unfolds primitiveCharge=8*(accessCharge+1), covering two reads, one write and bounded cursor/control per indexed-bit primitive; compose WholeResources.indexed_work_bound and the proved concrete scan/tag-build envelopes; n6*n6=n12. The counters are compositional upper charges in the accepted standard binary-operation model; do not claim Lean runtime or gate-level extraction. Return tactic lines only.\nimport M8WholeResourcesAccepted\nimport M8SequentialStoreAccepted\nnamespace M8.SequentialResources\n/-- A standard indexed-bit primitive has bounded fan-in/out: two reads, one\nwrite, and finite cursor/control steps. Eight scan-plus-control allowances\ncover this fixed primitive alphabet; no gate-level extraction is required. -/\nnoncomputable def primitiveCharge (N : ℕ) : ℕ :=\n  8*(M8.SequentialStore.accessCharge N+1)\nnoncomputable def sequentialCharge {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : ℕ :=\n  M8.SequentialStore.tagSetupCharge N +\n    M8.SequentialStore.prefixCharge (primitiveCharge N) (M8.WholeResources.run c).charges\nend M8.SequentialResources\n"
+}

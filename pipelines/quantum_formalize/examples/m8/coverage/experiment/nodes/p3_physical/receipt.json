@@ -1,0 +1,55 @@
+{
+  "id": "p3_physical",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Coverage.p3_physical",
+    "spec_sha256": "458abc1fe8bd5b0c8b1a59b1d48e9cb68aae95fa14c2493e7d535914aabe54b1",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-gpxssxb5/attempt-001/Candidate_d7c5e277e48dd6c2.lean",
+        "target_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-gpxssxb5/attempt-001/FrozenTarget_d7c5e277e48dd6c2.lean",
+        "feedback": "",
+        "target_sha256": "1e62d37396e5d96fb660d417b08d02fc55edfed71798928d14f43ead021fcf75",
+        "target_olean_sha256": "9ae1e715cda341aefe842b6af4b4031ee9a32b1bc5e805c3a57b031f355b88bc",
+        "source_sha256": "8d987df72b3a8c7efd3a8de19a12959879964fd1908831df13c566f0b9a71649",
+        "olean_sha256": "d793475fa5522e2c26ac24e7335da2f63abbc816ac693b174c55fbb9b5735a29",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T15:01:06.768052+00:00",
+    "work": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-gpxssxb5",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1dd0f0259dd07479fd702c90cc3291f21e428b09fb3c9df8014a5587a1c5c243",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-gpxssxb5/attempt-001/Candidate_d7c5e277e48dd6c2.lean",
+    "environment_sha256": "4ccd2e6c2aba1a735fb0abfb74748609c2f3414682de9f7ce12e8f8bbc928701",
+    "artifacts": {
+      "p3_physical": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p3_physical : ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M8.Coverage.PhysicalTwo (M8.P3Family.recipe N) := by\n  intro N inst hN hdiv\n  have hp0 := M8.P3Family.nontrivial.2.1\n  have hp1 := M8.P3Family.nontrivial.1\n  have hdeg : M8.P3Family.polynomial.degree < (N : WithBot ℕ) := by\n    rw [Polynomial.degree_eq_natDegree hp0, M8.P3Family.nontrivial.2.2]\n    exact_mod_cast (show 2 < N by omega)\n  have hm : M8.P3Family.polynomial.Monic := by\n    have hs := (M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)).1\n    rw [M8.P3Family.signature N hN hdiv] at hs\n    exact hs\n  have hdvd := M8.P3Family.divides_modulus N hdiv\n  have hn := M8.DiagonalPolynomial.coefficients_nonzero N M8.P3Family.polynomial hp0 hdeg\n  have hi := M8.DiagonalPolynomial.delta_not_image N M8.P3Family.polynomial M8.P3Family.polynomial hdeg hm hp1 (dvd_refl _) hdvd\n  have hd := M8.DiagonalPolynomial.distance_two N M8.P3Family.polynomial M8.P3Family.polynomial hp0 hdeg hm hp1 (dvd_refl _) hdvd\n  have hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N M8.P3Family.polynomial) hi\n  have hc : M6.Coordinates.coefficients N M8.P3Family.polynomial = M7.Supports.indicator (M8.P3Family.support N) := by\n    rw [← M8.P3Family.literal_polynomial N hN]\n    exact M7.Domain.coefficients_indicator N _\n  have hx : M7.Transport.LX (M8.P3Family.recipe N) = M6.Spaces.logicalWords N (M6.Coordinates.coefficients N M8.P3Family.polynomial) (M6.Coordinates.coefficients N M8.P3Family.polynomial) := by\n    simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX, M8.P3Family.recipe, M6.Spaces.logicalWords, hc]\n  refine ⟨?_, ?_, hw.2, ?_⟩\n  · simpa only [M7.Transport.distance, M8.P3Family.recipe, M8.P3Family.literal_polynomial N hN, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M8.Diagonal.distance] using hd\n  · rw [hx]\n    exact hw.1\n  · intro u hu\n    rw [hx] at hu\n    exact M8.Diagonal.logical_lower_bound N _ u hn hu",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p3_physical",
+          "ancestors": [],
+          "spec_sha256": "458abc1fe8bd5b0c8b1a59b1d48e9cb68aae95fa14c2493e7d535914aabe54b1"
+        },
+        "sha256": "26a62d5628583155d269b81695d47dfafbb1ac1d023090a406022b5573da5baa"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+theorem M8.Coverage.p4_full_multiplicity : ∀ (N : ℕ) [NeZero N], 8 ≤ N → ∀ v m : ℕ, 0 < v → Odd m → N = 2^v*m → M8.PhysicalBridge.signature (M8.P4Family.recipe N) = (Polynomial.X+1)^(min 3 (2^v)) ∧ M8.Coverage.RecognizedTwo (M8.P4Family.recipe N) := by
+  intro N inst hN v m hv hm hEq
+  have hEven : Even N := by
+    cases v with
+    | zero => omega
+    | succ k =>
+      refine ⟨2^k*m, ?_⟩
+      rw [hEq, pow_succ]
+      ring
+  constructor
+  · exact M8.P4Gcd.full_multiplicity N hN v m hv hm hEq
+  · exact (M8.Coverage.p4_recognized N hN hEven).1

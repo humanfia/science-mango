@@ -1,0 +1,49 @@
+theorem M8.WholeResources.indexed_work_bound : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ w : ℕ, 0 < w → M8.PhysicalBridge.Valid w c → M8.WholeResources.indexedWork c ≤ 225000*(N+1)^6 := by
+  classical
+  intro N inst c w hw hc
+  have hp (k : ℕ) : (N+1)^k ≤ (N+1)^(k+1) := by
+    rw [pow_succ]
+    nlinarith only [Nat.zero_le (N * (N+1)^k)]
+  have h36 : (N+1)^3 ≤ (N+1)^6 := (hp 3).trans ((hp 4).trans (hp 5))
+  have h56 : (N+1)^5 ≤ (N+1)^6 := hp 5
+  rcases M8.WholeResources.elementary_bounds N with ⟨hs, ht, hu⟩
+  have ho := M8.WholeResources.original_preprocess_bound N c
+  have hs6 := hs.trans (Nat.mul_le_mul_left 21000 h36)
+  have ht6 := ht.trans (Nat.mul_le_mul_left 96 h36)
+  have hu6 := hu.trans (Nat.mul_le_mul_left 160 h36)
+  have ho6 := ho.trans (Nat.mul_le_mul_left 180 h36)
+  have hd : M8.DiscoveryResources.charged N (M8.DiscoveryResources.run c) ≤ 320*(N+1)^6 := by
+    exact M8.DiscoveryResources.work_bound N c
+  by_cases hf : M8.Solver.originalF c = 1
+  · simp only [M8.WholeResources.indexedWork, M8.WholeResources.run, hf,
+      ite_true, List.sum_cons, List.sum_nil, add_zero]
+    omega
+  · cases hchoice : (M8.DiscoveryResources.run c).selected.map Prod.snd with
+    | none =>
+        simp only [M8.WholeResources.indexedWork, M8.WholeResources.run, hf,
+          ite_false, hchoice, List.sum_append, List.sum_cons, List.sum_nil, add_zero]
+        omega
+    | some choice =>
+        have hdiscover : M8.Discovery.discover c = some choice :=
+          (M8.DiscoveryResources.projection N c).symm.trans hchoice
+        have hspan := M8.WholeResources.selected_span N c w hw hc choice hdiscover
+        cases hsolve : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with
+        | none =>
+            have hdist := M8.OptimizerResources.distance_work N
+              (M7.Supports.polynomial (M8.Discovery.transformed c choice).1)
+              (M7.Supports.polynomial (M8.Discovery.transformed c choice).2) hspan
+            have hdist6 := hdist.trans (Nat.mul_le_mul_left 50000 h56)
+            simp only [M8.WholeResources.indexedWork, M8.WholeResources.run, hf,
+              ite_false, hchoice, hsolve, List.sum_append, List.sum_cons,
+              List.sum_nil, add_zero]
+            omega
+        | some result =>
+            rcases result with ⟨d, v, k⟩
+            have hwitness := M8.OptimizerResources.witness_work N
+              (M7.Supports.polynomial (M8.Discovery.transformed c choice).1)
+              (M7.Supports.polynomial (M8.Discovery.transformed c choice).2)
+              d v k hspan hsolve
+            simp only [M8.WholeResources.indexedWork, M8.WholeResources.run, hf,
+              ite_false, hchoice, hsolve, List.sum_append, List.sum_cons,
+              List.sum_nil, add_zero]
+            omega

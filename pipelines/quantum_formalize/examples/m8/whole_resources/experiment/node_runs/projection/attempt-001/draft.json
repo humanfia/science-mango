@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst c\nchange (M8.WholeResources.run c).outcome = M8.Solver.run c\nby_cases h : M8.Solver.originalF c = 1\n· simp [M8.WholeResources.run, M8.Solver.run, h]\n· simp only [M8.WholeResources.run, M8.Solver.run, h, if_false,\n    M8.DiscoveryResources.projection]\n  cases hd : M8.Discovery.discover c with\n  | none => simp [hd]\n  | some choice =>\n    simp only [hd]\n    cases hs : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n    | none => simp [hs]\n    | some result =>\n      rcases result with ⟨d, v, k⟩\n      simp [hs]",
+  "queries": []
+}

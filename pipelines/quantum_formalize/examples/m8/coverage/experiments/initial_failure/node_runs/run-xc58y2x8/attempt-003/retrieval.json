@@ -1,0 +1,308 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M8.Diagonal.diagonal_witness M8.Diagonal.logical_lower_bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 209954,
+        "name": "Matrix.diagonal",
+        "module": "Mathlib.Data.Matrix.Diagonal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Diagonal.lean#L41-L51",
+        "source_text": "/-- `diagonal d` is the square matrix such that `(diagonal d) i i = d i` and `(diagonal d) i j = 0`\nif `i ≠ j`.\n\nNote that bundled versions exist as:\n* `Matrix.diagonalAddMonoidHom`\n* `Matrix.diagonalLinearMap`\n* `Matrix.diagonalRingHom`\n* `Matrix.diagonalAlgHom`\n-/\ndef diagonal [Zero α] (d : n → α) : Matrix n n α :=\n  of fun i j => if i = j then d i else 0\n",
+        "docstring": "`diagonal d` is the square matrix such that `(diagonal d) i i = d i` and `(diagonal d) i j = 0`\nif `i ≠ j`.\n\nNote that bundled versions exist as:\n* `Matrix.diagonalAddMonoidHom`\n* `Matrix.diagonalLinearMap`\n* `Matrix.diagonalRingHom`\n* `Matrix.diagonalAlgHom`\n"
+      },
+      {
+        "id": 209975,
+        "name": "Matrix.diagonal_ofNat'",
+        "module": "Mathlib.Data.Matrix.Diagonal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Diagonal.lean#L144-L145",
+        "source_text": "theorem diagonal_ofNat' [Zero α] [NatCast α] (m : ℕ) [m.AtLeastTwo] :\n    diagonal (ofNat(m) : n → α) = ofNat(m) := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 220001,
+        "name": "Set.diagonal",
+        "module": "Mathlib.Data.Set.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Set/Operations.lean#L245-L246",
+        "source_text": "/-- `diagonal α` is the set of `α × α` consisting of all pairs of the form `(a, a)`. -/\ndef diagonal (α : Type*) : Set (α × α) := {p | p.1 = p.2}\n",
+        "docstring": "`diagonal α` is the set of `α × α` consisting of all pairs of the form `(a, a)`. "
+      },
+      {
+        "id": 301068,
+        "name": "Representation.diagonal",
+        "module": "Mathlib.RepresentationTheory.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RepresentationTheory/Basic.lean#L407-L408",
+        "source_text": "/-- The natural `k`-linear `G`-representation on `k[Gⁿ]` induced by left multiplication in `G`. -/\nnoncomputable abbrev diagonal (n : ℕ) := ofMulAction k G (Fin n → G)\n",
+        "docstring": "The natural `k`-linear `G`-representation on `k[Gⁿ]` induced by left multiplication in `G`. "
+      },
+      {
+        "id": 245842,
+        "name": "spectrum_diagonal",
+        "module": "Mathlib.LinearAlgebra.Eigenspace.Matrix",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Eigenspace/Matrix.lean#L141-L146",
+        "source_text": "/-- The spectrum of the diagonal operator is the range of the diagonal viewed as a function. -/\n@[simp] lemma spectrum_diagonal [Field R] (d : n → R) :\n    spectrum R (diagonal d) = Set.range d := by\n  ext μ\n  rw [← AlgEquiv.spectrum_eq (toLinAlgEquiv <| Pi.basisFun R n), ← hasEigenvalue_iff_mem_spectrum]\n  exact hasEigenvalue_toLin'_diagonal_iff d\n",
+        "docstring": "The spectrum of the diagonal operator is the range of the diagonal viewed as a function. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M8.Diagonal.diagonal_witness M8.Diagonal.logical_lower_bound",
+    "status": "ok",
+    "results": [
+      {
+        "id": 391308,
+        "name": "minkowskiMatrix.as_diagonal",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L85-L87",
+        "source_text": "/-- The Minkowski matrix as a diagonal matrix. -/\nlemma as_diagonal : @minkowskiMatrix d = diagonal (Sum.elim 1 (-1)) := by\n  simp [minkowskiMatrix, LieAlgebra.Orthogonal.indefiniteDiagonal]\n",
+        "docstring": "The Minkowski matrix as a diagonal matrix. "
+      },
+      {
+        "id": 391314,
+        "name": "minkowskiMatrix.η_diag_ne_zero",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L129-L130",
+        "source_text": "lemma η_diag_ne_zero {μ : Fin 1 ⊕ Fin d} : η μ μ ≠ 0 := by\n  aesop (add safe forward as_diagonal)\n",
+        "docstring": null
+      },
+      {
+        "id": 391317,
+        "name": "minkowskiMatrix.η_apply_sq_eq_one",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L151-L153",
+        "source_text": "@[simp]\nlemma η_apply_sq_eq_one (μ : Fin 1 ⊕ Fin d) : η μ μ ^ 2 = 1 := by\n  cases μ <;> simp [as_diagonal]",
+        "docstring": null
+      },
+      {
+        "id": 391312,
+        "name": "minkowskiMatrix.inr_i_inr_i",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L119-L122",
+        "source_text": "/-- The space diagonal components of the Minkowski matrix are `-1`. -/\n@[simp]\nlemma inr_i_inr_i (i : Fin d) : @minkowskiMatrix d (Sum.inr i) (Sum.inr i) = -1 := by\n  simp [as_diagonal]\n",
+        "docstring": "The space diagonal components of the Minkowski matrix are `-1`. "
+      },
+      {
+        "id": 391316,
+        "name": "minkowskiMatrix.η_apply_mul_η_apply_diag",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L146-L149",
+        "source_text": "/-- Multiplying any element on the diagonal of the Minkowski matrix by itself gives `1`. -/\n@[simp]\nlemma η_apply_mul_η_apply_diag (μ : Fin 1 ⊕ Fin d) : η μ μ * η μ μ = 1 := by\n  aesop (add safe forward as_diagonal)\n",
+        "docstring": "Multiplying any element on the diagonal of the Minkowski matrix by itself gives `1`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Transport.distance M7.Transport.LX M8.Diagonal.distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 346184,
+        "name": "Int.dist_eq'",
+        "module": "Mathlib.Topology.Instances.Int",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/Instances/Int.lean#L36-L36",
+        "source_text": "theorem dist_eq' (m n : ℤ) : dist m n = |m - n| := by rw [dist_eq]; norm_cast\n",
+        "docstring": null
+      },
+      {
+        "id": 210011,
+        "name": "Matrix.diag_sub",
+        "module": "Mathlib.Data.Matrix.Diagonal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Diagonal.lean#L312-L314",
+        "source_text": "@[simp]\ntheorem diag_sub [Sub α] (A B : Matrix n n α) : diag (A - B) = diag A - diag B :=\n  rfl",
+        "docstring": null
+      },
+      {
+        "id": 209954,
+        "name": "Matrix.diagonal",
+        "module": "Mathlib.Data.Matrix.Diagonal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Matrix/Diagonal.lean#L41-L51",
+        "source_text": "/-- `diagonal d` is the square matrix such that `(diagonal d) i i = d i` and `(diagonal d) i j = 0`\nif `i ≠ j`.\n\nNote that bundled versions exist as:\n* `Matrix.diagonalAddMonoidHom`\n* `Matrix.diagonalLinearMap`\n* `Matrix.diagonalRingHom`\n* `Matrix.diagonalAlgHom`\n-/\ndef diagonal [Zero α] (d : n → α) : Matrix n n α :=\n  of fun i j => if i = j then d i else 0\n",
+        "docstring": "`diagonal d` is the square matrix such that `(diagonal d) i i = d i` and `(diagonal d) i j = 0`\nif `i ≠ j`.\n\nNote that bundled versions exist as:\n* `Matrix.diagonalAddMonoidHom`\n* `Matrix.diagonalLinearMap`\n* `Matrix.diagonalRingHom`\n* `Matrix.diagonalAlgHom`\n"
+      },
+      {
+        "id": 247581,
+        "name": "CartanMatrix.E₇_diag",
+        "module": "Mathlib.LinearAlgebra.Matrix.Cartan",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Matrix/Cartan.lean#L218-L218",
+        "source_text": "@[simp] theorem E₇_diag (i : Fin 7) : E₇ i i = 2 := by fin_cases i <;> decide",
+        "docstring": null
+      },
+      {
+        "id": 208602,
+        "name": "List.length_offDiag",
+        "module": "Mathlib.Data.List.OffDiag",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/List/OffDiag.lean#L53-L55",
+        "source_text": "@[simp]\ntheorem length_offDiag (l : List α) : length l.offDiag = length l ^ 2 - length l := by\n  simp [length_offDiag', Nat.mul_sub, Nat.pow_two]",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.Transport.distance M7.Transport.LX M8.Diagonal.distance",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392967,
+        "name": "Space.distGrad_distConst",
+        "module": "Physlib.SpaceAndTime.Space.DistConst",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/DistConst.lean#L63-L66",
+        "source_text": "@[simp]\nlemma distGrad_distConst {d} (m : ℝ) :\n    distGrad (distConst d m) = 0 := by\n  simp [distConst]",
+        "docstring": null
+      },
+      {
+        "id": 391317,
+        "name": "minkowskiMatrix.η_apply_sq_eq_one",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L151-L153",
+        "source_text": "@[simp]\nlemma η_apply_sq_eq_one (μ : Fin 1 ⊕ Fin d) : η μ μ ^ 2 = 1 := by\n  cases μ <;> simp [as_diagonal]",
+        "docstring": null
+      },
+      {
+        "id": 393169,
+        "name": "LengthUnit.miles",
+        "module": "Physlib.SpaceAndTime.Space.LengthUnit",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/LengthUnit.lean#L201-L202",
+        "source_text": "/-- The length unit of a mile (1609.344 meters). -/\nnoncomputable def miles : LengthUnit := scale (1609.344) meters\n",
+        "docstring": "The length unit of a mile (1609.344 meters). "
+      },
+      {
+        "id": 391316,
+        "name": "minkowskiMatrix.η_apply_mul_η_apply_diag",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L146-L149",
+        "source_text": "/-- Multiplying any element on the diagonal of the Minkowski matrix by itself gives `1`. -/\n@[simp]\nlemma η_apply_mul_η_apply_diag (μ : Fin 1 ⊕ Fin d) : η μ μ * η μ μ = 1 := by\n  aesop (add safe forward as_diagonal)\n",
+        "docstring": "Multiplying any element on the diagonal of the Minkowski matrix by itself gives `1`. "
+      },
+      {
+        "id": 391313,
+        "name": "minkowskiMatrix.off_diag_zero",
+        "module": "Physlib.Relativity.MinkowskiMatrix",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/MinkowskiMatrix.lean#L124-L127",
+        "source_text": "/-- The off diagonal elements of the Minkowski matrix are zero. -/\n@[simp]\nlemma off_diag_zero {μ ν : Fin 1 ⊕ Fin d} (h : μ ≠ ν) : η μ ν = 0 := by\n  aesop (add safe forward as_diagonal)\n",
+        "docstring": "The off diagonal elements of the Minkowski matrix are zero. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.RecipeSignature.signature_properties",
+    "status": "ok",
+    "results": [
+      {
+        "id": 327256,
+        "name": "Mathlib.Tactic.ExtractGoal.goalSignature",
+        "module": "Mathlib.Tactic.ExtractGoal",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/ExtractGoal.lean#L140-L193",
+        "source_text": "/-- Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n-/\ndef goalSignature (name : Name) (g : MVarId) : TermElabM (MessageData × Expr × Array Name × Bool) :=\n  withoutModifyingEnv <| withoutModifyingState do\n    let (g, _) ← g.renameInaccessibleFVars\n    -- Check if the original goal has foralls before reverting\n    -- We only consider it to have \"original foralls\" if it has a named forall,\n    -- not just implications (which have anonymous or internal hygienic names)\n    let originalTy ← instantiateMVars (← g.getType)\n    let hasOriginalForalls :=\n      originalTy.isForall &&\n      !originalTy.bindingName!.isAnonymous &&\n      !originalTy.bindingName!.isInternal\n    let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds\n    let ty ← instantiateMVars (← g.getType)\n    if ty.hasExprMVar then\n      -- TODO: turn metavariables into new hypotheses?\n      throwError \"Extracted goal has metavariables: {ty}\"\n    let ty ← Term.levelMVarToParam ty\n    let seenLevels := collectLevelParams {} ty\n    let levels := (← Term.getLevelNames).filter\n      fun u => seenLevels.visitedLevel.contains (.param u)\n    addAndCompile <| Declaration.axiomDecl\n      { name := name\n        levelParams := levels\n        isUnsafe := false\n        type := ty }\n    let sig ← addMessageContext <| MessageData.signature name\n    let context ← liftM (m := CoreM) <| read\n    let state ← get\n    let env ← getEnv\n    let (ts, _) ← ((Mathlib.Command.MinImports.getVisited name).run\n        { context with snap? := none }).run\n        { state with env, maxRecDepth := context.maxRecDepth }\n    let mut hm : Std.HashMap Nat Name := {}\n    for imp in env.header.moduleNames do\n      hm := hm.insert ((env.getModuleIdx? imp).getD default) imp\n    let mut fins : NameSet := {}\n    for t in ts do\n      let new := match env.getModuleIdxFor? t with\n        | some t => (hm.get? t).get!\n        | none   => .anonymous -- instead of `getMainModule`, we omit the current module\n      if !fins.contains new then fins := fins.insert new\n    let tot := Mathlib.Command.MinImports.getIrredundantImports (← getEnv) (fins.erase .anonymous)\n    let fileNames := tot.toArray.qsort Name.lt\n    return (sig, ty, fileNames, hasOriginalForalls)\n",
+        "docstring": "Format a goal into a type signature for a declaration named `name`.\n\nExample output: `myTheorem (a b : Nat) : a + b = b + a`.\n\nThe return values are:\n* A formatted piece of `MessageData`, like `m!\"myTheorem (a b : Nat) : a + b = b + a\"`.\n* The full type of the declaration, like `∀ a b, a + b = b + a`.\n* The imports needed to state this declaration, as an array of module names.\n* A boolean indicating whether the original goal type had top-level foralls.\n"
+      },
+      {
+        "id": 97388,
+        "name": "HahnEmbedding.Seed.baseEmbedding",
+        "module": "Mathlib.Algebra.Order.Module.HahnEmbedding",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Order/Module/HahnEmbedding.lean#L221-L227",
+        "source_text": "/-- Combining all `HahnEmbedding.Seed.coeff` as\na partial linear map from `HahnEmbedding.Seed.baseDomain` to `HahnSeries`. -/\nnoncomputable\ndef baseEmbedding : M →ₗ.[K] Lex R⟦FiniteArchimedeanClass M⟧ where\n  domain := seed.baseDomain\n  toFun := (toLexLinearEquiv _ _).toLinearMap ∘ₗ (HahnSeries.ofFinsuppLinearMap _) ∘ₗ\n    (finsuppLequivDFinsupp K).symm.toLinearMap ∘ₗ seed.hahnCoeff\n",
+        "docstring": "Combining all `HahnEmbedding.Seed.coeff` as\na partial linear map from `HahnEmbedding.Seed.baseDomain` to `HahnSeries`. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      },
+      {
+        "id": 309032,
+        "name": "HahnSeries.SummableFamily.powerSeriesFamily",
+        "module": "Mathlib.RingTheory.HahnSeries.HEval",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/HEval.lean#L48-L52",
+        "source_text": "/-- A summable family given by scalar multiples of powers of a positive order Hahn series.\n\nThe scalar multiples are given by the coefficients of a power series. -/\nabbrev powerSeriesFamily (x : V⟦Γ⟧) (f : PowerSeries R) : SummableFamily Γ V ℕ :=\n  smulFamily (fun n => f.coeff n) (powers x)\n",
+        "docstring": "A summable family given by scalar multiples of powers of a positive order Hahn series.\n\nThe scalar multiples are given by the coefficients of a power series. "
+      },
+      {
+        "id": 309102,
+        "name": "HahnModule",
+        "module": "Mathlib.RingTheory.HahnSeries.Multiplication",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Multiplication.lean#L118-L124",
+        "source_text": "/-- We introduce a type alias for `HahnSeries` in order to work with scalar multiplication by\nseries. If we wrote a `SMul R⟦Γ⟧ V⟦Γ⟧` instance, then when\n`V = R⟦Γ⟧`, we would have two different actions of `R⟦Γ⟧` on `V⟦Γ⟧`.\nSee `Mathlib/Algebra/Polynomial/Module/Basic.lean` for more discussion on this problem. -/\n@[nolint unusedArguments]\ndef HahnModule (Γ R V : Type*) [PartialOrder Γ] [Zero V] [SMul R V] :=\n  V⟦Γ⟧\n",
+        "docstring": "We introduce a type alias for `HahnSeries` in order to work with scalar multiplication by\nseries. If we wrote a `SMul R⟦Γ⟧ V⟦Γ⟧` instance, then when\n`V = R⟦Γ⟧`, we would have two different actions of `R⟦Γ⟧` on `V⟦Γ⟧`.\nSee `Mathlib/Algebra/Polynomial/Module/Basic.lean` for more discussion on this problem. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M7.RecipeSignature.signature_properties",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387084,
+        "name": "Physlib.NoteInfo",
+        "module": "Physlib.Meta.Notes.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Notes/Basic.lean#L30-L37",
+        "source_text": "/-- The information from a `note ...` command. To be used in a note file-/\nstructure NoteInfo where\n  /-- The content of the note. -/\n  content : String\n  /-- The file name where the note came from. -/\n  fileName : Name\n  /-- The line from where the note came from. -/\n  line : Nat\n",
+        "docstring": "The information from a `note ...` command. To be used in a note file"
+      },
+      {
+        "id": 387115,
+        "name": "Physlib.RemarkInfo.IsRemark",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L32-L36",
+        "source_text": "/-- A Bool which is true if a name corresponds to a remark. -/\nmeta def RemarkInfo.IsRemark (n : Name) : m Bool := do\n  let allRemarks ← allRemarkInfo\n  let r := allRemarks.find? fun r => r.toFullName == n\n  return r.isSome\n",
+        "docstring": "A Bool which is true if a name corresponds to a remark. "
+      },
+      {
+        "id": 387113,
+        "name": "Physlib.allRemarkInfo",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L20-L23",
+        "source_text": "/-- All remarks in the environment. -/\nmeta def allRemarkInfo : m (Array RemarkInfo) := do\n  let env ← getEnv\n  return remarkExtension.getState env\n",
+        "docstring": "All remarks in the environment. "
+      },
+      {
+        "id": 387116,
+        "name": "Physlib.RemarkInfo.getRemarkInfo",
+        "module": "Physlib.Meta.Remark.Properties",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Remark/Properties.lean#L38-L43",
+        "source_text": "/-- Gets the remarkInfo from a name corresponding to a remark.. -/\nmeta def RemarkInfo.getRemarkInfo (n : Name) : m RemarkInfo := do\n  let allRemarks ← allRemarkInfo\n  match allRemarks.find? fun r => r.toFullName == n with\n  | some r => return r\n  | none => throwError s!\"No remark named {n}\"\n",
+        "docstring": "Gets the remarkInfo from a name corresponding to a remark.. "
+      },
+      {
+        "id": 387076,
+        "name": "SorryfulInfo",
+        "module": "Physlib.Meta.Linters.Sorry",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Linters/Sorry.lean#L39-L48",
+        "source_text": "/-- The information for stored for a declaration marked with `sorryful`. -/\nstructure SorryfulInfo where\n  /-- Name of result. -/\n  name : Name\n  /-- The docstring of the result. -/\n  docstring : String\n  /-- The file name where the note came from. -/\n  fileName : Name\n  /-- The line from where the note came from. -/\n  line : Nat\n",
+        "docstring": "The information for stored for a declaration marked with `sorryful`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

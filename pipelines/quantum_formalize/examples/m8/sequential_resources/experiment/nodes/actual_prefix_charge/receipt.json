@@ -1,0 +1,55 @@
+{
+  "id": "actual_prefix_charge",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.SequentialResources.actual_prefix_charge",
+    "spec_sha256": "52812a24f1b31a68cb0fa22def1c5954e259ed3d6db3ec925ff4d19e326ba195",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-sequential-resources-formalization/.humanize-formal-runs/run-g29gfwe1/attempt-001/Candidate_1588f581e95f74b9.lean",
+        "target_path": "/home/jing/m8-lean-sequential-resources-formalization/.humanize-formal-runs/run-g29gfwe1/attempt-001/FrozenTarget_1588f581e95f74b9.lean",
+        "feedback": "",
+        "target_sha256": "346229f530c513a80fadfd0a8da9934f8b59468e593949303d568bca683fc021",
+        "target_olean_sha256": "a367662d95f8b3d8c22d8c8591439dc7a461ad8333e1f96fe2937851db607a8f",
+        "source_sha256": "a2ea279b25906614bf82503a95609496d55e0f5a9f245b2bf391e1c295f52a44",
+        "olean_sha256": "6127aec7228706712ac8599cf00ceb4017e96d49e227d5a5cb70a921c4c91ff6",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T15:07:13.799491+00:00",
+    "work": "/home/jing/m8-lean-sequential-resources-formalization/.humanize-formal-runs/run-g29gfwe1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9b2822f3910b2c6ce874a7520b56ca89ecb1c97a71e5ccc8b74e2830e2bdaa0b",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-sequential-resources-formalization/.humanize-formal-runs/run-g29gfwe1/attempt-001/Candidate_1588f581e95f74b9.lean",
+    "environment_sha256": "d6652ed8a5cad6237482dcfa8d63bb721b598de112f0b47a2aeaa1dcb28eb0ed",
+    "artifacts": {
+      "actual_prefix_charge": {
+        "payload": {
+          "declaration": "theorem M8.SequentialResources.actual_prefix_charge : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M8.SequentialStore.prefixCharge (M8.SequentialResources.primitiveCharge N) (M8.WholeResources.run c).charges = M8.WholeResources.indexedWork c * M8.SequentialResources.primitiveCharge N := by\n  intro N inst c\n  have hrepeat (unit k : ℕ) :\n      M8.SequentialStore.repeatCharge unit k = k * unit := by\n    induction k with\n    | zero => simp [M8.SequentialStore.repeatCharge]\n    | succ k ih =>\n        simp [M8.SequentialStore.repeatCharge, ih, Nat.succ_mul, Nat.add_comm]\n  have hfold (unit : ℕ) (xs : List ℕ) (a : ℕ) :\n      xs.foldl (fun acc k => acc + k * unit) a = a + xs.sum * unit := by\n    induction xs generalizing a with\n    | nil => simp\n    | cons x xs ih =>\n        simp [List.foldl, ih, Nat.add_mul, Nat.add_assoc]\n  have hsum (xs : List ℕ) (a : ℕ) :\n      xs.foldl (fun acc k => acc + k) a = a + xs.sum := by\n    induction xs generalizing a with\n    | nil => simp\n    | cons x xs ih => simp [List.foldl, ih, Nat.add_assoc]\n  simp [M8.SequentialStore.prefixCharge, M8.WholeResources.indexedWork,\n    hrepeat, hfold, hsum]",
+          "imports": [
+            "M8SequentialResources"
+          ],
+          "name": "M8.SequentialResources.actual_prefix_charge",
+          "ancestors": [],
+          "spec_sha256": "52812a24f1b31a68cb0fa22def1c5954e259ed3d6db3ec925ff4d19e326ba195"
+        },
+        "sha256": "a980eae4497c84bc8adefab34012041156d22e185b4d34bdff318ac5265d9dee"
+      }
+    }
+  }
+}

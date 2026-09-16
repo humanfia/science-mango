@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst hN hdiv\nclassical\nhave hlit := M8.P3Family.literal_polynomial N hN\nhave hne := M8.P3Family.nontrivial\nhave hdeg : M8.P3Family.polynomial.degree < (N : WithBot ℕ) := by\n  rw [Polynomial.degree_eq_natDegree hne.2.1, hne.2.2]\n  exact_mod_cast (show 2 < N by omega)\nhave hmonic : M8.P3Family.polynomial.Monic := by\n  have hs := M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)\n  rw [M8.P3Family.signature N hN hdiv] at hs\n  aesop\nhave hmod := M8.P3Family.divides_modulus N hdiv\nhave hdist := M8.DiagonalPolynomial.distance_two N M8.P3Family.polynomial M8.P3Family.polynomial hne.2.1 hdeg hmonic hne.1 (dvd_refl _) hmod\nhave hdelta := M8.DiagonalPolynomial.delta_not_image N M8.P3Family.polynomial M8.P3Family.polynomial hdeg hmonic hne.1 (dvd_refl _) hmod\nhave hnz := M8.DiagonalPolynomial.coefficients_nonzero N M8.P3Family.polynomial hne.2.1 hdeg\nunfold M8.Coverage.PhysicalTwo\ndsimp [M7.Transport.distance, M7.Transport.LX, M8.P3Family.recipe]\nsimp only [hlit]\nrefine ⟨?_, ?_, ?_, ?_⟩\n· exact hdist\n· unfold M8.Coverage.deltaPair\n  aesop (add safe M8.Diagonal.diagonal_witness)\n· unfold M8.Coverage.deltaPair\n  aesop (add safe M8.Diagonal.diagonal_witness)\n· exact M8.Diagonal.logical_lower_bound N (M6.Coordinates.coefficients N M8.P3Family.polynomial) hnz",
+  "queries": [
+    "M8.Diagonal.diagonal_witness M8.Diagonal.logical_lower_bound",
+    "M7.Transport.distance M7.Transport.LX M8.Diagonal.distance definitions",
+    "M7.RecipeSignature.signature_properties"
+  ]
+}

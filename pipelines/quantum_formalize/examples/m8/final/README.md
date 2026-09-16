@@ -1,8 +1,8 @@
 # Original M8 root closure
 
-Root acceptance is pending. A successful component or natural-language review is not the complete Lean result.
+The complete original-scope root `M8.Final.original_m8` has passed normal Lean acceptance. The [root evidence audit](ROOT_ACCEPTANCE.json) binds 24 exact clauses to the frozen natural-language claim, and the [canonical experiment](experiment/result.json) records successful root compilation and environment checks.
 
-The [original main claim](PRIMARY_CLAIM.json) fixes the completion scope. The gated [preparer](prepare.py) copies exact accepted, frozen statements into seven explicit groups: algorithm outcomes, physical parameters, sequential time, sequential storage, measured-program projection, admitted families and excluded families. The eighth target is their closed conjunction, `M8.Final.original_m8`. No correctness proposition becomes an input to this theorem.
+The [original main claim](PRIMARY_CLAIM.json) fixes the completion scope. The [preparer](prepare.py) copies exact accepted, frozen statements into seven explicit groups: algorithm outcomes, physical parameters, sequential time, sequential storage, measured-program projection, admitted families and excluded families. The eighth target is their closed conjunction, `M8.Final.original_m8`. No correctness proposition becomes an input to this theorem.
 
 The root includes the original time exponent 12 and space exponent 4. Sharper intermediate discovery estimates are optional follow-ups, not additional completion requirements. Physical witnesses, all even orders and repeated-factor multiplicities remain included. The mixed family retains the separate actual cycle-space nonproduct conclusion. Unrestricted all-input M9 and machine-code extraction are outside the accepted M8 claim.
 

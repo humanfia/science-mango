@@ -1,6 +1,6 @@
 # Revised M8 Lean formalization
 
-In progress. The frozen natural-language acceptance is distinct from Lean acceptance; no complete M8 Lean root has passed.
+The complete accepted M8 Lean root has passed: `M8.Final.original_m8`. See the [source-bound root acceptance](final/ROOT_ACCEPTANCE.json), [compiled root proof](final/experiment/AcceptedExperiment.lean), [exact claim definitions](final/lean/M8Final.lean), and [reproduction instructions](final/README.md).
 
 - [Exact frozen source and commit](SOURCE.json)
 - [Decoded reading copy of the original argument](SOURCE_ARGUMENT.md)

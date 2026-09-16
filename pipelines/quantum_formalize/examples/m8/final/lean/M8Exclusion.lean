@@ -1,0 +1,7 @@
+import M8SolverAccepted
+import M8AntipodalFamilyAccepted
+import M8ExclusionGeometryAccepted
+import M8DiagonalPolynomialAccepted
+
+namespace M8.Exclusion
+end M8.Exclusion

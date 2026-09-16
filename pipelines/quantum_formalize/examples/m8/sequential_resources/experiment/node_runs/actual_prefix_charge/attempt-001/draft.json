@@ -1,0 +1,7 @@
+{
+  "proof": "intro N inst c\nhave hrepeat (unit k : ℕ) :\n    M8.SequentialStore.repeatCharge unit k = k * unit := by\n  induction k with\n  | zero => simp [M8.SequentialStore.repeatCharge]\n  | succ k ih =>\n      simp [M8.SequentialStore.repeatCharge, ih, Nat.succ_mul, Nat.add_comm]\nhave hfold (unit : ℕ) (xs : List ℕ) (a : ℕ) :\n    xs.foldl (fun acc k => acc + k * unit) a = a + xs.sum * unit := by\n  induction xs generalizing a with\n  | nil => simp\n  | cons x xs ih =>\n      simp [List.foldl, ih, Nat.add_mul, Nat.add_assoc]\nhave hsum (xs : List ℕ) (a : ℕ) :\n    xs.foldl (fun acc k => acc + k) a = a + xs.sum := by\n  induction xs generalizing a with\n  | nil => simp\n  | cons x xs ih => simp [List.foldl, ih, Nat.add_assoc]\nsimp [M8.SequentialStore.prefixCharge, M8.WholeResources.indexedWork,\n  hrepeat, hfold, hsum]",
+  "queries": [
+    "List.foldl add sum",
+    "List.sum_map_mul_right"
+  ]
+}

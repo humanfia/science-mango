@@ -1,15 +1,29 @@
 {
-  "launcher": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-ve2sd9h6",
-  "pid": 1014979,
+  "launcher": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-replay-fczx8d3k",
+  "pid": 1206505,
   "detached": true,
   "config": {
     "project": "/home/jing/m8-lean-coverage-formalization",
-    "graph": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-ve2sd9h6/graph.json",
-    "output": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-ve2sd9h6/experiment",
-    "result_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-ve2sd9h6/result.json",
+    "graph": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-replay-fczx8d3k/graph.json",
+    "output": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-replay-fczx8d3k/experiment",
+    "result_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-replay-fczx8d3k/result.json",
     "concurrency": 2,
     "rounds": 5,
     "compile_timeout": 600,
-    "turn_timeout": 600
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "mixed_recognized": {
+        "proof": "intro N inst hN\nhave hv := M8.MixedFamily.valid N hN\nhave hs : M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a := by\n  exact M8.MixedFamily.signature N hN\nrcases M8.MixedFamily.support_data N hN with \u27e8_, _, hL, hR, _\u27e9\nhave ha : M7.Action.affine (1 : (ZMod N)\u02e3) (0 : ZMod N) = id := by\n  funext x\n  simp [M7.Action.affine]\nhave ht : M8.Anchor.trial (M8.MixedFamily.recipe N) false 1 0 0 = M8.MixedFamily.recipe N := by\n  simp [M8.Anchor.trial, M8.Anchor.record, M7.Action.act] <;> simp [ha]\nhave he : M8.Anchor.Eligible (M8.MixedFamily.recipe N) false 0 0 := by\n  simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right, M8.MixedFamily.recipe] using And.intro hL hR\nhave ho : M8.OrbitSpan.value (M8.MixedFamily.recipe N) \u2264 M8.Cutoff.limit N := by\n  apply (M8.OrbitSpan.anchor_minimum N (M8.MixedFamily.recipe N) \u27e80, hL\u27e9 \u27e80, hR\u27e9 (M8.Cutoff.limit N)).mpr\n  refine \u27e8false, 1, 0, 0, he, ?_\u27e9\n  rw [ht]\n  exact M8.MixedFamily.span_cutoff N hN\nrefine \u27e8?_, hs, ?_, M8.MixedNonproduct.orbit_nonproduct N hN\u27e9\n\u00b7 unfold M8.Coverage.Recognized\n  apply (M8.Solver.recognized_exact N (M8.MixedFamily.recipe N) 2 (by decide) hv).mpr\n  refine \u27e8?_, ho\u27e9\n  rw [hs]\n  exact M8.MixedFamily.nontrivial.1\n\u00b7 intro g\n  apply M8.CoverageFoundation.orbit_no_separated N (M8.MixedFamily.recipe N) g\n  exact Or.inl (M8.MixedFamily.full_direction N hN)",
+        "queries": []
+      },
+      "p3_physical": {
+        "proof": "intro N inst hN hdiv\nhave hp0 := M8.P3Family.nontrivial.2.1\nhave hp1 := M8.P3Family.nontrivial.1\nhave hdeg : M8.P3Family.polynomial.degree < (N : WithBot \u2115) := by\n  rw [Polynomial.degree_eq_natDegree hp0, M8.P3Family.nontrivial.2.2]\n  exact_mod_cast (show 2 < N by omega)\nhave hm : M8.P3Family.polynomial.Monic := by\n  have hs := (M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)).1\n  rw [M8.P3Family.signature N hN hdiv] at hs\n  exact hs\nhave hdvd := M8.P3Family.divides_modulus N hdiv\nhave hn := M8.DiagonalPolynomial.coefficients_nonzero N M8.P3Family.polynomial hp0 hdeg\nhave hi := M8.DiagonalPolynomial.delta_not_image N M8.P3Family.polynomial M8.P3Family.polynomial hdeg hm hp1 (dvd_refl _) hdvd\nhave hd := M8.DiagonalPolynomial.distance_two N M8.P3Family.polynomial M8.P3Family.polynomial hp0 hdeg hm hp1 (dvd_refl _) hdvd\nhave hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N M8.P3Family.polynomial) hi\nhave hc : M6.Coordinates.coefficients N M8.P3Family.polynomial = M7.Supports.indicator (M8.P3Family.support N) := by\n  rw [\u2190 M8.P3Family.literal_polynomial N hN]\n  exact M7.Domain.coefficients_indicator N _\nhave hx : M7.Transport.LX (M8.P3Family.recipe N) = M6.Spaces.logicalWords N (M6.Coordinates.coefficients N M8.P3Family.polynomial) (M6.Coordinates.coefficients N M8.P3Family.polynomial) := by\n  simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX, M8.P3Family.recipe, M6.Spaces.logicalWords, hc]\nrefine \u27e8?_, ?_, hw.2, ?_\u27e9\n\u00b7 simpa only [M7.Transport.distance, M8.P3Family.recipe, M8.P3Family.literal_polynomial N hN, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M8.Diagonal.distance] using hd\n\u00b7 rw [hx]\n  exact hw.1\n\u00b7 intro u hu\n  rw [hx] at hu\n  exact M8.Diagonal.logical_lower_bound N _ u hn hu",
+        "queries": []
+      },
+      "p4_physical": {
+        "proof": "intro N inst hN hEven\nlet p := M7.Supports.polynomial (M8.P4Family.support N)\nlet F := M7.RecipeSignature.signature (M8.P4Family.recipe N)\nhave hp : p = M8.P4Family.polynomial := M8.P4Family.literal_polynomial N hN\nhave hp0 : p \u2260 0 := by\n  rw [hp]\n  exact M8.P4Family.nontrivial.2.1\nhave hdeg : p.degree < (N : WithBot \u2115) := by\n  rw [Polynomial.degree_eq_natDegree hp0, hp, M8.P4Family.nontrivial.2.2]\n  exact_mod_cast (show 3 < N by omega)\nhave hm : F.Monic := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).1\nhave hmod : F \u2223 M6.Cyclic.modulus N := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).2\nhave hdvd : F \u2223 p := dvd_trans (EuclideanDomain.gcd_dvd_left _ _) (EuclideanDomain.gcd_dvd_left _ _)\nhave hF : F \u2260 1 := by\n  dsimp [F]\n  rw [M8.P4Gcd.signature_even N hN hEven]\n  split_ifs\n  \u00b7 exact M8.P4Family.nontrivial.1\n  \u00b7 intro h\n    have he := congrArg (Polynomial.eval (1 : ZMod 2)) h\n    norm_num at he\n    exact (by decide : (2 : ZMod 2) \u2260 1) he\nhave hn := M8.DiagonalPolynomial.coefficients_nonzero N p hp0 hdeg\nhave hi := M8.DiagonalPolynomial.delta_not_image N p F hdeg hm hF hdvd hmod\nhave hd := M8.DiagonalPolynomial.distance_two N p F hp0 hdeg hm hF hdvd hmod\nhave hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N p) hi\nhave hc : M6.Coordinates.coefficients N p = M7.Supports.indicator (M8.P4Family.support N) := M7.Domain.coefficients_indicator N _\nhave hx : M7.Transport.LX (M8.P4Family.recipe N) = M6.Spaces.logicalWords N (M6.Coordinates.coefficients N p) (M6.Coordinates.coefficients N p) := by\n  simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX, M8.P4Family.recipe, M6.Spaces.logicalWords, hc]\nrefine \u27e8?_, ?_, hw.2, ?_\u27e9\n\u00b7 simpa only [M7.Transport.distance, M8.P4Family.recipe, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M8.Diagonal.distance] using hd\n\u00b7 rw [hx]\n  exact hw.1\n\u00b7 intro u hu\n  rw [hx] at hu\n  exact M8.Diagonal.logical_lower_bound N _ u hn hu",
+        "queries": []
+      }
+    }
   }
 }

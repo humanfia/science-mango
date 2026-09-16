@@ -1,0 +1,55 @@
+{
+  "id": "single_calls",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.WholeResources.single_calls",
+    "spec_sha256": "4ff1147a7965341ea9d15786031d5fbef0f0cba98fa4993648b2c0ac4682e9e3",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-1a856ezn/attempt-001/Candidate_de8e1aeb0edb5b8e.lean",
+        "target_path": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-1a856ezn/attempt-001/FrozenTarget_de8e1aeb0edb5b8e.lean",
+        "feedback": "",
+        "target_sha256": "4e0dc0db66f1d654662d6ad7bc7821325a082d3af8a987e615342b3a15d8252d",
+        "target_olean_sha256": "2959c3f60aa1ddba38a419aeea53eadd9c1e40347a5567c6ec904cc459f1b1c8",
+        "source_sha256": "64c50aa011e58f334ae15268314bf336b24d4d8cd003a462c39064398d404bf0",
+        "olean_sha256": "c9fc81e97c29a5b98d784cfa374e41ee6c987451d7527c27f8b6d202ec7ba6f7",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:47:47.943191+00:00",
+    "work": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-1a856ezn",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9fd76df7411428ae4321b2607421acddddd64cbaca989839b8794835239fd7bc",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-1a856ezn/attempt-001/Candidate_de8e1aeb0edb5b8e.lean",
+    "environment_sha256": "984daffa7a789a4231ffef4e955eef463945e12241c8fbaba269f3127164c896",
+    "artifacts": {
+      "single_calls": {
+        "payload": {
+          "declaration": "theorem M8.WholeResources.single_calls : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (M8.WholeResources.run c).discoveryCalls ≤ 1 ∧ (M8.WholeResources.run c).optimizerCalls ≤ (M8.WholeResources.run c).discoveryCalls := by\n  classical\n  intro N inst c\n  change (M8.WholeResources.run c).discoveryCalls ≤ 1 ∧ (M8.WholeResources.run c).optimizerCalls ≤ (M8.WholeResources.run c).discoveryCalls\n  by_cases h : M8.Solver.originalF c = 1\n  · simp [M8.WholeResources.run, h]\n  · cases hs : (M8.DiscoveryResources.run c).selected.map Prod.snd with\n    | none => simp [M8.WholeResources.run, h, hs]\n    | some choice =>\n      cases ho : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n      | none => simp [M8.WholeResources.run, h, hs, ho]\n      | some result =>\n        rcases result with ⟨d, v, k⟩\n        simp [M8.WholeResources.run, h, hs, ho]",
+          "imports": [
+            "M8WholeResources"
+          ],
+          "name": "M8.WholeResources.single_calls",
+          "ancestors": [],
+          "spec_sha256": "4ff1147a7965341ea9d15786031d5fbef0f0cba98fa4993648b2c0ac4682e9e3"
+        },
+        "sha256": "0b94a7ff3e74fdcbbd4ba000a165b77339f04490b8a62344e13569e818f3aca0"
+      }
+    }
+  }
+}

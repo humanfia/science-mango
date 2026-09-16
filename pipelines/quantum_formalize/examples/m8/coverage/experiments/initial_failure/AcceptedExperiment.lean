@@ -1,0 +1,30 @@
+import M8Coverage
+
+theorem M8.Coverage.mixed_recognized : ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.Coverage.Recognized (M8.MixedFamily.recipe N) ∧ M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a ∧ (∀ g : M7.Action.Record N, ¬ M8.CoverageFoundation.Separated (M7.Action.act g (M8.MixedFamily.recipe N))) ∧ (∀ g : M7.Action.Record N, ¬ M8.MixedNonproduct.Product (M7.Action.act g (M8.MixedFamily.recipe N))) := by
+  intro N inst hN
+  have hv := M8.MixedFamily.valid N hN
+  have hs : M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a := by
+    exact M8.MixedFamily.signature N hN
+  rcases M8.MixedFamily.support_data N hN with ⟨_, _, hL, hR, _⟩
+  have ha : M7.Action.affine (1 : (ZMod N)ˣ) (0 : ZMod N) = id := by
+    funext x
+    simp [M7.Action.affine]
+  have ht : M8.Anchor.trial (M8.MixedFamily.recipe N) false 1 0 0 = M8.MixedFamily.recipe N := by
+    simp [M8.Anchor.trial, M8.Anchor.record, M7.Action.act] <;> simp [ha]
+  have he : M8.Anchor.Eligible (M8.MixedFamily.recipe N) false 0 0 := by
+    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right, M8.MixedFamily.recipe] using And.intro hL hR
+  have ho : M8.OrbitSpan.value (M8.MixedFamily.recipe N) ≤ M8.Cutoff.limit N := by
+    apply (M8.OrbitSpan.anchor_minimum N (M8.MixedFamily.recipe N) ⟨0, hL⟩ ⟨0, hR⟩ (M8.Cutoff.limit N)).mpr
+    refine ⟨false, 1, 0, 0, he, ?_⟩
+    rw [ht]
+    exact M8.MixedFamily.span_cutoff N hN
+  refine ⟨?_, hs, ?_, M8.MixedNonproduct.orbit_nonproduct N hN⟩
+  · unfold M8.Coverage.Recognized
+    apply (M8.Solver.recognized_exact N (M8.MixedFamily.recipe N) 2 (by decide) hv).mpr
+    refine ⟨?_, ho⟩
+    rw [hs]
+    exact M8.MixedFamily.nontrivial.1
+  · intro g
+    apply M8.CoverageFoundation.orbit_no_separated N (M8.MixedFamily.recipe N) g
+    exact Or.inl (M8.MixedFamily.full_direction N hN)
+#print axioms M8.Coverage.mixed_recognized

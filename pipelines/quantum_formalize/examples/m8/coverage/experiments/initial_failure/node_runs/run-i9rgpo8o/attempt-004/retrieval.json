@@ -1,0 +1,206 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M8.Anchor.trial M8.Anchor.record M7.Action.act definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 86627,
+        "name": "LieRinehartAlgebra.anchor",
+        "module": "Mathlib.Algebra.LieRinehartAlgebra.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/LieRinehartAlgebra/Defs.lean#L135-L144",
+        "source_text": "/-- The anchor of a given Lie-Rinehart algebra `L` over `A` interpreted as a Lie-Rinehart morphism\nto the module of derivations of `A`. -/\ndef anchor : L₁ →ₗ⁅AlgHom.id R A₁⁆ Derivation R A₁ A₁ where\n  toFun x := .mk' (LieModule.toEnd R L₁ A₁ x) fun a b ↦ by\n    simp [mul_comm b]\n  map_add' _ _ := by ext; simp\n  map_smul' _ _ := by ext; simp\n  map_lie' {_ _} := by ext; simp [Derivation.commutator_apply]\n  map_smul_apply' _ _ := by ext; simp\n  apply_lie' _ _ := by simp\n",
+        "docstring": "The anchor of a given Lie-Rinehart algebra `L` over `A` interpreted as a Lie-Rinehart morphism\nto the module of derivations of `A`. "
+      },
+      {
+        "id": 86629,
+        "name": "LieRinehartAlgebra.anchor_apply",
+        "module": "Mathlib.Algebra.LieRinehartAlgebra.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/LieRinehartAlgebra/Defs.lean#L148-L149",
+        "source_text": "@[simp] lemma anchor_apply (l : L₁) (a : A₁) :\n  (LieRinehartAlgebra.anchor R A₁ L₁ l) a = ⁅l, a⁆ := rfl",
+        "docstring": null
+      },
+      {
+        "id": 66575,
+        "name": "RightActions.«term_<•_»",
+        "module": "Mathlib.Algebra.Group.Action.Opposite",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Action/Opposite.lean#L88-L91",
+        "source_text": "/-- With `open scoped RightActions`, a shorthand for right actions, `op r • m`.\n\nIn lemma names this is still called `op_smul`. -/\nscoped notation3:73 m:73 \" <• \" r:74 => MulOpposite.op r • m\n",
+        "docstring": "With `open scoped RightActions`, a shorthand for right actions, `op r • m`.\n\nIn lemma names this is still called `op_smul`. "
+      },
+      {
+        "id": 236154,
+        "name": "DomMulAct",
+        "module": "Mathlib.GroupTheory.GroupAction.DomAct.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/DomAct/Basic.lean#L91-L97",
+        "source_text": "/-- If `M` multiplicatively acts on `α`, then `DomMulAct M` acts on `α → β` as well as some\nbundled maps from `α`. This is a type synonym for `MulOpposite M`, so this corresponds to a right\naction of `M`. -/\n@[to_additive /-- If `M` additively acts on `α`, then `DomAddAct M` acts on `α → β` as\nwell as some bundled maps from `α`. This is a type synonym for `AddOpposite M`, so this corresponds\nto a right action of `M`. -/]\ndef DomMulAct (M : Type*) := MulOpposite M\n",
+        "docstring": "If `M` multiplicatively acts on `α`, then `DomMulAct M` acts on `α → β` as well as some\nbundled maps from `α`. This is a type synonym for `MulOpposite M`, so this corresponds to a right\naction of `M`. "
+      },
+      {
+        "id": 236011,
+        "name": "MulAction.mem_orbit",
+        "module": "Mathlib.GroupTheory.GroupAction.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/GroupTheory/GroupAction/Defs.lean#L58-L60",
+        "source_text": "@[to_additive (attr := simp)]\ntheorem mem_orbit (a : α) (m : γ) : m • a ∈ orbit γ a :=\n  ⟨m, rfl⟩",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M8.Anchor.trial M8.Anchor.record M7.Action.act definitions",
+    "status": "ok",
+    "results": [
+      {
+        "id": 394451,
+        "name": "WithDim.instMulActionNNReal",
+        "module": "Physlib.Units.WithDim.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/WithDim/Basic.lean#L151-L156",
+        "source_text": "instance (d : Dimension) (M : Type) [MulAction ℝ≥0 M] : MulAction ℝ≥0 (WithDim d M) where\n  smul a m := ⟨a • m.val⟩\n  one_smul m := ext _ _ (one_smul ℝ≥0 m.val)\n  mul_smul a b m := by\n    ext\n    exact mul_smul a b m.val\n",
+        "docstring": null
+      },
+      {
+        "id": 392647,
+        "name": "TensorSpecies.Tensorial.smulLinearMap_apply",
+        "module": "Physlib.Relativity.Tensors.Tensorial",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/Tensorial.lean#L201-L202",
+        "source_text": "lemma smulLinearMap_apply {g : G} [Tensorial S c M] (m : M) :\n    smulLinearMap g m = g • m := rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 392691,
+        "name": "GalileanGroup.act",
+        "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L166-L168",
+        "source_text": "/-- The Galilean action on `Time × Space d`. -/\nnoncomputable def act (g : GalileanGroup d) (tx : Time × Space d) : Time × Space d :=\n  (tx.1 + g.timeTranslation, g.actSpace tx.1 tx.2)\n",
+        "docstring": "The Galilean action on `Time × Space d`. "
+      },
+      {
+        "id": 392690,
+        "name": "GalileanGroup.actSpace",
+        "module": "Physlib.SpaceAndTime.GalileanGroup.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/GalileanGroup/Basic.lean#L161-L164",
+        "source_text": "/-- The Galilean action on space at a fixed time. -/\nnoncomputable def actSpace (g : GalileanGroup d) (t : Time) (x : Space d) : Space d :=\n  Space.vectorToSpace\n    (g.rotation • (x -ᵥ (0 : Space d)) + t.val • g.velocity + g.spaceTranslation)\n",
+        "docstring": "The Galilean action on space at a fixed time. "
+      },
+      {
+        "id": 392497,
+        "name": "Lorentz.«term_*ᵥ_»",
+        "module": "Physlib.Relativity.Tensors.RealTensor.Vector.Pre.Modules",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/RealTensor/Vector/Pre/Modules.lean#L139-L140",
+        "source_text": "/-- Multiplication of a matrix with a vector in `ContrMod`. -/\nscoped[Lorentz] infixr:73 \" *ᵥ \" => ContrMod.mulVec\n",
+        "docstring": "Multiplication of a matrix with a vector in `ContrMod`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M8.Anchor.Eligible definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 86627,
+        "name": "LieRinehartAlgebra.anchor",
+        "module": "Mathlib.Algebra.LieRinehartAlgebra.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/LieRinehartAlgebra/Defs.lean#L135-L144",
+        "source_text": "/-- The anchor of a given Lie-Rinehart algebra `L` over `A` interpreted as a Lie-Rinehart morphism\nto the module of derivations of `A`. -/\ndef anchor : L₁ →ₗ⁅AlgHom.id R A₁⁆ Derivation R A₁ A₁ where\n  toFun x := .mk' (LieModule.toEnd R L₁ A₁ x) fun a b ↦ by\n    simp [mul_comm b]\n  map_add' _ _ := by ext; simp\n  map_smul' _ _ := by ext; simp\n  map_lie' {_ _} := by ext; simp [Derivation.commutator_apply]\n  map_smul_apply' _ _ := by ext; simp\n  apply_lie' _ _ := by simp\n",
+        "docstring": "The anchor of a given Lie-Rinehart algebra `L` over `A` interpreted as a Lie-Rinehart morphism\nto the module of derivations of `A`. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      },
+      {
+        "id": 245784,
+        "name": "Module.End.mem_maxGenEigenspace",
+        "module": "Mathlib.LinearAlgebra.Eigenspace.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Eigenspace/Basic.lean#L546-L549",
+        "source_text": "@[simp]\ntheorem mem_maxGenEigenspace (f : End R M) (μ : R) (m : M) :\n    m ∈ f.maxGenEigenspace μ ↔ ∃ k : ℕ, ((f - μ • (1 : End R M)) ^ k) m = 0 :=\n  mem_genEigenspace_top",
+        "docstring": null
+      },
+      {
+        "id": 190339,
+        "name": "Matroid.IsLoop",
+        "module": "Mathlib.Combinatorics.Matroid.Loop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Loop.lean#L72-L73",
+        "source_text": "/-- A 'loop' is a member of the closure of the empty set -/\ndef IsLoop (M : Matroid α) (e : α) : Prop := e ∈ M.loops\n",
+        "docstring": "A 'loop' is a member of the closure of the empty set "
+      },
+      {
+        "id": 190427,
+        "name": "Matroid.IsColoop",
+        "module": "Mathlib.Combinatorics.Matroid.Loop",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Combinatorics/Matroid/Loop.lean#L459-L461",
+        "source_text": "/-- A coloop is a loop of the dual matroid.\nSee `Matroid.isColoop_tfae` for a number of equivalent definitions. -/\ndef IsColoop (M : Matroid α) (e : α) : Prop := M✶.IsLoop e\n",
+        "docstring": "A coloop is a loop of the dual matroid.\nSee `Matroid.isColoop_tfae` for a number of equivalent definitions. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M8.Anchor.Eligible definition",
+    "status": "ok",
+    "results": [
+      {
+        "id": 387061,
+        "name": "Informal.informalDefinitionDecl",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L57-L59",
+        "source_text": "macro (name := informalDefinitionDecl)\ndoc?:(docComment)? attrs?:(attributes)? \"informal_definition \" name:ident body:declVal : command =>\n  `($[$doc?]? $[$attrs?]? def $name : InformalDefinition $body:declVal)\n",
+        "docstring": "A placeholder for definitions to be formalized in the future. Docstrings of informal definitions\nshould outline its mathematical or physical content and specify useful references. Use the attribute\n`note_attr_informal` from `Physlib.Meta.Notes.Basic` to mark the informal definition as a note.\n"
+      },
+      {
+        "id": 387067,
+        "name": "Informal.constantInfoToInformalDefinition",
+        "module": "Physlib.Meta.Informal.Post",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Post.lean#L45-L51",
+        "source_text": "/-- Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\n  the corresponding `InformalDefinition`. -/\nunsafe def constantInfoToInformalDefinition (c : ConstantInfo) : CoreM InformalDefinition := do\n  match c with\n  | .defnInfo c => evalConstCheck InformalDefinition ``InformalDefinition c.name\n  | _ => panic!\n    \"Passed constantInfoToInformalDefinition a `ConstantInfo` that is not a `InformalDefinition`\"\n",
+        "docstring": "Takes a `ConstantInfo` corresponding to a `InformalDefinition` and returns\nthe corresponding `InformalDefinition`. "
+      },
+      {
+        "id": 387059,
+        "name": "InformalDefinition",
+        "module": "Physlib.Meta.Informal.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/Informal/Basic.lean#L22-L28",
+        "source_text": "/-- The structure representing an informal definition. -/\nstructure InformalDefinition where\n  /-- The names of top-level commands we expect this definition to depend on. -/\n  deps : List Lean.Name\n  /-- The tag of the informal definition. This should be unique amongst informal results\n    and todo items. -/\n  tag : String\n",
+        "docstring": "The structure representing an informal definition. "
+      },
+      {
+        "id": 394410,
+        "name": "DimSet.mem_iff",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L501-L502",
+        "source_text": "lemma DimSet.mem_iff {M : Type} [MulAction ℝ≥0 M] [MulUnitDependent M] (d : Dimension) (m : M) :\n    m ∈ DimSet M d ↔ ∀ u1 u2, scaleUnit u1 u2 m = (UnitChoices.dimScale u1 u2 d) • m := by rfl\n",
+        "docstring": null
+      },
+      {
+        "id": 388263,
+        "name": "MSSMACC.AnomalyFreePerp.linEqPropSol_iff_proj_linEqProp",
+        "module": "Physlib.Particles.SuperSymmetry.MSSMNu.AnomalyCancellation.OrthogY3B3.ToSols",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Particles/SuperSymmetry/MSSMNu/AnomalyCancellation/OrthogY3B3/ToSols.lean#L65-L74",
+        "source_text": "lemma linEqPropSol_iff_proj_linEqProp (R : MSSMACC.Sols) :\n    LineEqPropSol R ↔ LineEqProp (proj R.1.1) := by\n  rw [lineEqPropSol_iff_lineEqCoeff_zero, lineEqCoeff, LineEqProp]\n  refine Iff.intro (fun h => ?_) (fun h => ?_)\n  · rw [show dot Y₃.val B₃.val = 108 by with_unfolding_all rfl] at h\n    simp only [mul_eq_zero, OfNat.ofNat_ne_zero, false_or] at h\n    rw [α₁_proj, α₂_proj, h]\n    simp only [neg_zero, zero_mul, and_self]\n  · rw [h.2.2]\n    exact Rat.mul_zero ((dot Y₃.val) B₃.val)\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  }
+]

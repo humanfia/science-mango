@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst\nhave hfold (l : List ℕ) (w k : ℕ) :\n    l.foldl (fun acc _ => acc + k) w = w + l.length * k := by\n  induction l generalizing w with\n  | nil => simp\n  | cons x xs ih =>\n    simp only [List.foldl_cons, List.length_cons, ih]\n    ring\nhave hp := M8.BankLayout.payload_bound N\nsimp only [M8.WholeResources.setupWork, M8.WholeResources.inputScanWork,\n  M8.WholeResources.connectivityScanWork, M8.WholeResources.transformWork,\n  M8.WholeResources.undoWork, hfold, List.length_range, zero_add]\nrefine ⟨?_, ?_, ?_⟩ <;>\n  nlinarith [Nat.zero_le (N^3), Nat.zero_le (N^2)]",
+  "queries": []
+}

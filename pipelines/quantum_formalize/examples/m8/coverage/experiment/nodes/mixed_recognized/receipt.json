@@ -1,0 +1,55 @@
+{
+  "id": "mixed_recognized",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Coverage.mixed_recognized",
+    "spec_sha256": "e355ef91c09cc3f0a4bdb3eccef93606e17a4cba4be8464807a5f9374f712181",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-6f7ljc9o/attempt-001/Candidate_d6efab30285ff884.lean",
+        "target_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-6f7ljc9o/attempt-001/FrozenTarget_d6efab30285ff884.lean",
+        "feedback": "",
+        "target_sha256": "9127c9d0982f207b676866e39d920fe258e74fc6481a255cf75626e5fd8c1a26",
+        "target_olean_sha256": "b0bf700a213254ff762982375c17627dd864be78c4691c924b5227e77c332704",
+        "source_sha256": "e6486dcea91e24d9512f9fc3a1782f21021ee42725f598d84c47acc605594d44",
+        "olean_sha256": "8e580cc6e0ace454419400690cb08c7753cbab59dcc0f9ff35b2c065d7c39f2b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T15:01:06.596550+00:00",
+    "work": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-6f7ljc9o",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1dd0f0259dd07479fd702c90cc3291f21e428b09fb3c9df8014a5587a1c5c243",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-6f7ljc9o/attempt-001/Candidate_d6efab30285ff884.lean",
+    "environment_sha256": "4ccd2e6c2aba1a735fb0abfb74748609c2f3414682de9f7ce12e8f8bbc928701",
+    "artifacts": {
+      "mixed_recognized": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.mixed_recognized : ∀ (N : ℕ) [NeZero N], 7 ≤ N → M8.Coverage.Recognized (M8.MixedFamily.recipe N) ∧ M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a ∧ (∀ g : M7.Action.Record N, ¬ M8.CoverageFoundation.Separated (M7.Action.act g (M8.MixedFamily.recipe N))) ∧ (∀ g : M7.Action.Record N, ¬ M8.MixedNonproduct.Product (M7.Action.act g (M8.MixedFamily.recipe N))) := by\n  intro N inst hN\n  have hv := M8.MixedFamily.valid N hN\n  have hs : M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a := by\n    exact M8.MixedFamily.signature N hN\n  rcases M8.MixedFamily.support_data N hN with ⟨_, _, hL, hR, _⟩\n  have ha : M7.Action.affine (1 : (ZMod N)ˣ) (0 : ZMod N) = id := by\n    funext x\n    simp [M7.Action.affine]\n  have ht : M8.Anchor.trial (M8.MixedFamily.recipe N) false 1 0 0 = M8.MixedFamily.recipe N := by\n    simp [M8.Anchor.trial, M8.Anchor.record, M7.Action.act] <;> simp [ha]\n  have he : M8.Anchor.Eligible (M8.MixedFamily.recipe N) false 0 0 := by\n    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right, M8.MixedFamily.recipe] using And.intro hL hR\n  have ho : M8.OrbitSpan.value (M8.MixedFamily.recipe N) ≤ M8.Cutoff.limit N := by\n    apply (M8.OrbitSpan.anchor_minimum N (M8.MixedFamily.recipe N) ⟨0, hL⟩ ⟨0, hR⟩ (M8.Cutoff.limit N)).mpr\n    refine ⟨false, 1, 0, 0, he, ?_⟩\n    rw [ht]\n    exact M8.MixedFamily.span_cutoff N hN\n  refine ⟨?_, hs, ?_, M8.MixedNonproduct.orbit_nonproduct N hN⟩\n  · unfold M8.Coverage.Recognized\n    apply (M8.Solver.recognized_exact N (M8.MixedFamily.recipe N) 2 (by decide) hv).mpr\n    refine ⟨?_, ho⟩\n    rw [hs]\n    exact M8.MixedFamily.nontrivial.1\n  · intro g\n    apply M8.CoverageFoundation.orbit_no_separated N (M8.MixedFamily.recipe N) g\n    exact Or.inl (M8.MixedFamily.full_direction N hN)",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.mixed_recognized",
+          "ancestors": [],
+          "spec_sha256": "e355ef91c09cc3f0a4bdb3eccef93606e17a4cba4be8464807a5f9374f712181"
+        },
+        "sha256": "70f4a7f7a3f045f7095d7d0f797a037028969dd9188ee0a2fd2741a6a715c693"
+      }
+    }
+  }
+}

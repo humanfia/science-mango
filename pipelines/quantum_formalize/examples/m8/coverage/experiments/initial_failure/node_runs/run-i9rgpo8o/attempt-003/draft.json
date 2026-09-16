@@ -1,0 +1,7 @@
+{
+  "proof": "unfold QuantumHarnessFrozenTarget\nintro N inst hN\nhave hv := M8.MixedFamily.valid N hN\nhave hs : M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a := M8.MixedFamily.signature N hN\nrcases M8.MixedFamily.support_data N hN with ⟨_, _, hL, hR, _⟩\nhave ht : M8.Anchor.trial (M8.MixedFamily.recipe N) false 1 0 0 = M8.MixedFamily.recipe N := by\n  simp [M8.Anchor.trial, M8.Anchor.record, M7.Action.act, M7.Action.affine]\nhave ho : M8.OrbitSpan.value (M8.MixedFamily.recipe N) ≤ M8.Cutoff.limit N := by\n  apply (M8.OrbitSpan.anchor_minimum N (M8.MixedFamily.recipe N) ⟨0, hL⟩ ⟨0, hR⟩ (M8.Cutoff.limit N)).2\n  refine ⟨false, 1, 0, 0, ?_, ?_⟩\n  · simpa [M8.Anchor.Eligible, M8.MixedFamily.recipe] using And.intro hL hR\n  · rw [ht]\n    exact M8.MixedFamily.span_cutoff N hN\nrefine ⟨?_, hs, ?_, M8.MixedNonproduct.orbit_nonproduct N hN⟩\n· apply (M8.Solver.recognized_exact N (M8.MixedFamily.recipe N) 2 (by omega) hv).2\n  refine ⟨?_, ho⟩\n  rw [hs]\n  exact M8.MixedFamily.nontrivial.1\n· intro g\n  apply M8.CoverageFoundation.orbit_no_separated N (M8.MixedFamily.recipe N) g\n  exact Or.inl (M8.MixedFamily.full_direction N hN)",
+  "queries": [
+    "M8.Anchor.trial M8.Anchor.record M7.Action.act definitions",
+    "M8.Anchor.Eligible definition"
+  ]
+}

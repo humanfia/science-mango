@@ -1,0 +1,75 @@
+{
+  "id": "p3_recognized",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Coverage.p3_recognized",
+    "spec_sha256": "95c462d7b215dc52773f48c5d33c2c67f603410f48b7187ca303ea00bb342ed6",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": false,
+        "stage": "compile",
+        "feedback": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-72kt6q69/attempt-001/Candidate_057e61dea9f5772d.lean:16:77: error: unsolved goals\nN : ℕ\ninst : NeZero N\nhN : 3 ≤ N\nhdiv : 3 ∣ N\nhv : PhysicalBridge.Valid 3 (P3Family.recipe N)\nhp : PhysicalTwo (P3Family.recipe N)\nhs : PhysicalBridge.signature (P3Family.recipe N) = P3Family.polynomial\nhz : 0 ∈ P3Family.support N\nhn : (P3Family.support N).Nonempty\nhsig : PhysicalBridge.signature (P3Family.recipe N) ≠ 1\ng : M7.Action.Record N := { unit := 1, exchange := false, leftShift := 0, rightShift := 0 }\n⊢ (Finset.image (M7.Action.affine 1 0) (P3Family.recipe N).1,\n      Finset.image (M7.Action.affine 1 0) (P3Family.recipe N).2) =\n    P3Family.recipe N\n/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-72kt6q69/attempt-001/Candidate_057e61dea9f5772d.lean:17:28: warning: This simp argument is unused:\n  M7.Action.affine\n\nHint: Omit it from the simp argument list.\n  [apply] simp [g, M7.Action.act]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+        "attempt": 1
+      },
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-72kt6q69/attempt-002/Candidate_a18f4140bc70cba7.lean",
+        "target_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-72kt6q69/attempt-002/FrozenTarget_a18f4140bc70cba7.lean",
+        "feedback": "",
+        "target_sha256": "572a1f83d487002d6cd7f59e4c7f4d7adc3f9fdefb47a959c350163b86b88685",
+        "target_olean_sha256": "ff277bc306a70861d01a8d3c783cf1a0be4402d89b0a2401aebad82f775ff612",
+        "source_sha256": "73fe44df54cbce8d69c750c7d59361e77dad0e26592ae49a88d8994f8776db2c",
+        "olean_sha256": "7df98e4dd26af3228bbc422235fb5c086b702287d22f9f48615894d12022e9cf",
+        "attempt": 2
+      }
+    ],
+    "created_at": "2026-09-16T15:02:44.470177+00:00",
+    "work": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-72kt6q69",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1dd0f0259dd07479fd702c90cc3291f21e428b09fb3c9df8014a5587a1c5c243",
+    "phase": "finished",
+    "round": 2,
+    "proof": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-72kt6q69/attempt-002/Candidate_a18f4140bc70cba7.lean",
+    "environment_sha256": "4ccd2e6c2aba1a735fb0abfb74748609c2f3414682de9f7ce12e8f8bbc928701",
+    "artifacts": {
+      "p3_physical": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p3_physical : ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M8.Coverage.PhysicalTwo (M8.P3Family.recipe N) := by\n  intro N inst hN hdiv\n  have hp0 := M8.P3Family.nontrivial.2.1\n  have hp1 := M8.P3Family.nontrivial.1\n  have hdeg : M8.P3Family.polynomial.degree < (N : WithBot ℕ) := by\n    rw [Polynomial.degree_eq_natDegree hp0, M8.P3Family.nontrivial.2.2]\n    exact_mod_cast (show 2 < N by omega)\n  have hm : M8.P3Family.polynomial.Monic := by\n    have hs := (M7.RecipeSignature.signature_properties N (M8.P3Family.recipe N)).1\n    rw [M8.P3Family.signature N hN hdiv] at hs\n    exact hs\n  have hdvd := M8.P3Family.divides_modulus N hdiv\n  have hn := M8.DiagonalPolynomial.coefficients_nonzero N M8.P3Family.polynomial hp0 hdeg\n  have hi := M8.DiagonalPolynomial.delta_not_image N M8.P3Family.polynomial M8.P3Family.polynomial hdeg hm hp1 (dvd_refl _) hdvd\n  have hd := M8.DiagonalPolynomial.distance_two N M8.P3Family.polynomial M8.P3Family.polynomial hp0 hdeg hm hp1 (dvd_refl _) hdvd\n  have hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N M8.P3Family.polynomial) hi\n  have hc : M6.Coordinates.coefficients N M8.P3Family.polynomial = M7.Supports.indicator (M8.P3Family.support N) := by\n    rw [← M8.P3Family.literal_polynomial N hN]\n    exact M7.Domain.coefficients_indicator N _\n  have hx : M7.Transport.LX (M8.P3Family.recipe N) = M6.Spaces.logicalWords N (M6.Coordinates.coefficients N M8.P3Family.polynomial) (M6.Coordinates.coefficients N M8.P3Family.polynomial) := by\n    simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX, M8.P3Family.recipe, M6.Spaces.logicalWords, hc]\n  refine ⟨?_, ?_, hw.2, ?_⟩\n  · simpa only [M7.Transport.distance, M8.P3Family.recipe, M8.P3Family.literal_polynomial N hN, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M8.Diagonal.distance] using hd\n  · rw [hx]\n    exact hw.1\n  · intro u hu\n    rw [hx] at hu\n    exact M8.Diagonal.logical_lower_bound N _ u hn hu",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p3_physical",
+          "ancestors": [],
+          "spec_sha256": "458abc1fe8bd5b0c8b1a59b1d48e9cb68aae95fa14c2493e7d535914aabe54b1"
+        },
+        "sha256": "26a62d5628583155d269b81695d47dfafbb1ac1d023090a406022b5573da5baa"
+      },
+      "p3_recognized": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p3_recognized : ∀ (N : ℕ) [NeZero N], 3 ≤ N → 3 ∣ N → M8.PhysicalBridge.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial ∧ M8.Coverage.RecognizedTwo (M8.P3Family.recipe N) ∧ (∀ g : M7.Action.Record N, ¬ M8.CoverageFoundation.Separated (M7.Action.act g (M8.P3Family.recipe N))) := by\n  intro N inst hN hdiv\n  have hv := M8.P3Family.valid N hN\n  have hp := M8.Coverage.p3_physical N hN hdiv\n  have hs : M8.PhysicalBridge.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial := M8.P3Family.signature N hN hdiv\n  have hz := (M8.P3Family.support_data N hN).2.1\n  have hn : (M8.P3Family.support N).Nonempty := ⟨0, hz⟩\n  have hsig : M8.PhysicalBridge.signature (M8.P3Family.recipe N) ≠ 1 := by\n    rw [hs]\n    exact M8.P3Family.nontrivial.1\n  let g : M7.Action.Record N := ⟨1, false, 0, 0⟩\n  have ha : M7.Action.affine (1 : (ZMod N)ˣ) 0 = id := by\n    funext x\n    simp [M7.Action.affine]\n  have hg : M7.Action.act g (M8.P3Family.recipe N) = M8.P3Family.recipe N := by\n    change (Finset.image (M7.Action.affine 1 0) (M8.P3Family.recipe N).1, Finset.image (M7.Action.affine 1 0) (M8.P3Family.recipe N).2) = M8.P3Family.recipe N\n    rw [ha]\n    simp\n  have hspan : M8.OrbitSpan.value (M8.P3Family.recipe N) ≤ M8.Cutoff.limit N := by\n    apply (M8.OrbitSpan.small_iff N (M8.P3Family.recipe N) hn hn (M8.Cutoff.limit N)).2\n    refine ⟨g, ?_, ?_⟩\n    · rw [hg]\n      change 0 ∈ M8.P3Family.support N ∧ 0 ∈ M8.P3Family.support N\n      exact ⟨hz, hz⟩\n    · rw [hg]\n      exact M8.P3Family.span_cutoff N hN\n  obtain ⟨d, z, choice, k, hr⟩ := (M8.Solver.recognized_exact N (M8.P3Family.recipe N) 3 (by omega) hv).2 ⟨hsig, hspan⟩\n  have hd := (M8.Solver.recognized_correct N (M8.P3Family.recipe N) 3 (by omega) hv _ d z choice k hr).2.2.1\n  have hd2 : d = 2 := Option.some.inj (hd.symm.trans hp.1)\n  subst d\n  refine ⟨hs, ⟨z, choice, k, hr⟩, ?_⟩\n  intro a\n  apply M8.CoverageFoundation.orbit_no_separated N (M8.P3Family.recipe N) a\n  exact Or.inl (M8.P3Family.full_direction N hN)",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p3_recognized",
+          "ancestors": [
+            "p3_physical"
+          ],
+          "spec_sha256": "3a023b3f4634c05e84e63fbcd39793687cbf370f189b46eb698dd318f409ba23"
+        },
+        "sha256": "f6f322caa02c4a63201f9815c4424e0ae75aeefe23b292c1244e261ce841699c"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+# Complete original M8 family coverage
+
+All six frozen targets passed exact-target/axiom acceptance, combined assembly and unchanged-environment gates. P3 is covered at every N≥3 divisible by3; P4 at every even N≥8, retaining exact full multiplicity min(3,2^v); the mixed family at every N≥7. P3 and P4 have actual physical distance2, independent paired-delta minimum witnesses, and actual recognized outputs of distance2 without constraining the greedy witness. All allowed recipe orbits are outside the original separated-direction class; the mixed orbit additionally has nonproduct actual cycle space. No mixed distance2 or M9 strengthening is claimed.
+
+Run: `/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/coverage-replay-fczx8d3k/experiment`. Accepted attempts: {'mixed_recognized': 1, 'p3_physical': 1, 'p3_recognized': 2, 'p4_physical': 1, 'p4_recognized': 2, 'p4_full_multiplicity': 1}. Full canonical artifacts are in experiment/.
+
+The initial full run and all ten failed P3/P4 physical drafts are retained in experiments/initial_failure. Mixed recognition preserves its original successful fourth live draft. P3/P4 physical equalities were repaired with explicit accepted coefficient/space identities and independently exact-type/axiom checked, then passed normal frozen replay; no statement, definition, resource limit or public hypothesis changed. P3 and P4 recognition subsequently passed live on their second drafts, and full multiplicity on its first draft. Preliminary repair evidence is retained alongside the canonical run.

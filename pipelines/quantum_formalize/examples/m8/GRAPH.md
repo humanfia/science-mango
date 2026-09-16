@@ -1,6 +1,6 @@
 # M8 formalization dependencies
 
-Full M8 acceptance: pending. Component status comes from verified canonical receipts.
+Full M8 acceptance: passed. Component status comes from verified canonical receipts.
 
 ```mermaid
 graph TD
@@ -17,10 +17,10 @@ graph TD
   orbit_span --> solver
   physical_bridge --> solver
   raw_parameters --> solver
-  sequential_resources["sequential_resources"]
+  sequential_resources["sequential_resources ✓"]
   whole_resources --> sequential_resources
   sequential_store --> sequential_resources
-  coverage["coverage"]
+  coverage["coverage ✓"]
   solver --> coverage
   p3_family --> coverage
   p4_gcd --> coverage
@@ -78,13 +78,13 @@ graph TD
   cutoff --> antipodal_family
   bank_layout["bank_layout ✓"]
   actual_optimizer_resources --> bank_layout
-  whole_resources["whole_resources"]
+  whole_resources["whole_resources ✓"]
   solver --> whole_resources
   discovery_resources --> whole_resources
   actual_optimizer_resources --> whole_resources
   bank_layout --> whole_resources
   sequential_store -. slot gate .-> whole_resources
-  final["final"]
+  final["final ✓"]
   solver --> final
   raw_parameters --> final
   sequential_resources --> final

@@ -192,7 +192,7 @@ class Audit:
         require(source['source_sha256']==SOURCE_SHA and source['candidate_sha256']==CANDIDATE_SHA, 'Frozen source identity mismatch')
         proof_path = self.repo/source['source'];decision_path=self.repo/source['natural_acceptance']
         require(sha(proof_path)==SOURCE_SHA and sha(decision_path)==DECISION_SHA,'Frozen natural proof or acceptance changed')
-        candidate=read(proof_path.parent/'candidate.json')
+        candidate=read(proof_path.parent/'records/run-7koxumjf/candidate-1-0.json')
         require(hashlib.sha256(json.dumps(candidate,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode()).hexdigest()==CANDIDATE_SHA,'Candidate changed')
         claim=read(self.final/'PRIMARY_CLAIM.json')
         require(hashlib.sha256(claim['claim'].encode()).hexdigest()==claim['claim_utf8_sha256'],'Main claim hash mismatch')

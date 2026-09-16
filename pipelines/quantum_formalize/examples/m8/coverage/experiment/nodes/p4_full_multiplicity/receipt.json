@@ -1,0 +1,84 @@
+{
+  "id": "p4_full_multiplicity",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Coverage.p4_full_multiplicity",
+    "spec_sha256": "5dd0bee6377cf7d565a5816eb32f03a0bec1acbe11732ddc853a770aa0c2c036",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-blo62z7k/attempt-001/Candidate_ff4c1e6305f1c3bd.lean",
+        "target_path": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-blo62z7k/attempt-001/FrozenTarget_ff4c1e6305f1c3bd.lean",
+        "feedback": "",
+        "target_sha256": "4329aea5358e1787d8ae97a590d04c121d40d83d23018431c35e225ba69924db",
+        "target_olean_sha256": "f3fb99c3dbedbe8c4b4853f5131087e69eb3d2a08114674f25f3ce65fbaa9af4",
+        "source_sha256": "295c5aefd9b3d3519d910bebbe2279bd19d8388e9ed3b9ba0233d921dc427b56",
+        "olean_sha256": "3427cb5f692b36ec8288a1d39d95863f935e3f2980fe8d4a03ec68a857b84eaf",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T15:07:55.304161+00:00",
+    "work": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-blo62z7k",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "1dd0f0259dd07479fd702c90cc3291f21e428b09fb3c9df8014a5587a1c5c243",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-coverage-formalization/.humanize-formal-runs/run-blo62z7k/attempt-001/Candidate_ff4c1e6305f1c3bd.lean",
+    "environment_sha256": "4ccd2e6c2aba1a735fb0abfb74748609c2f3414682de9f7ce12e8f8bbc928701",
+    "artifacts": {
+      "p4_physical": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p4_physical : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.Coverage.PhysicalTwo (M8.P4Family.recipe N) := by\n  intro N inst hN hEven\n  let p := M7.Supports.polynomial (M8.P4Family.support N)\n  let F := M7.RecipeSignature.signature (M8.P4Family.recipe N)\n  have hp : p = M8.P4Family.polynomial := M8.P4Family.literal_polynomial N hN\n  have hp0 : p ≠ 0 := by\n    rw [hp]\n    exact M8.P4Family.nontrivial.2.1\n  have hdeg : p.degree < (N : WithBot ℕ) := by\n    rw [Polynomial.degree_eq_natDegree hp0, hp, M8.P4Family.nontrivial.2.2]\n    exact_mod_cast (show 3 < N by omega)\n  have hm : F.Monic := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).1\n  have hmod : F ∣ M6.Cyclic.modulus N := (M7.RecipeSignature.signature_properties N (M8.P4Family.recipe N)).2\n  have hdvd : F ∣ p := dvd_trans (EuclideanDomain.gcd_dvd_left _ _) (EuclideanDomain.gcd_dvd_left _ _)\n  have hF : F ≠ 1 := by\n    dsimp [F]\n    rw [M8.P4Gcd.signature_even N hN hEven]\n    split_ifs\n    · exact M8.P4Family.nontrivial.1\n    · intro h\n      have he := congrArg (Polynomial.eval (1 : ZMod 2)) h\n      norm_num at he\n      exact (by decide : (2 : ZMod 2) ≠ 1) he\n  have hn := M8.DiagonalPolynomial.coefficients_nonzero N p hp0 hdeg\n  have hi := M8.DiagonalPolynomial.delta_not_image N p F hdeg hm hF hdvd hmod\n  have hd := M8.DiagonalPolynomial.distance_two N p F hp0 hdeg hm hF hdvd hmod\n  have hw := M8.Diagonal.diagonal_witness N (M6.Coordinates.coefficients N p) hi\n  have hc : M6.Coordinates.coefficients N p = M7.Supports.indicator (M8.P4Family.support N) := M7.Domain.coefficients_indicator N _\n  have hx : M7.Transport.LX (M8.P4Family.recipe N) = M6.Spaces.logicalWords N (M6.Coordinates.coefficients N p) (M6.Coordinates.coefficients N p) := by\n    simp only [M7.Transport.LX, M7.Transport.CX, M7.Transport.BX, M8.P4Family.recipe, M6.Spaces.logicalWords, hc]\n  refine ⟨?_, ?_, hw.2, ?_⟩\n  · simpa only [M7.Transport.distance, M8.P4Family.recipe, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M8.Diagonal.distance] using hd\n  · rw [hx]\n    exact hw.1\n  · intro u hu\n    rw [hx] at hu\n    exact M8.Diagonal.logical_lower_bound N _ u hn hu",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p4_physical",
+          "ancestors": [],
+          "spec_sha256": "8e2ac65bffef154527b5d6c19d2ebcd8179e4ec867e8b7177eafa4d98543dcea"
+        },
+        "sha256": "1151724853978b4508b0307b05a900a67a2c0a5fb4e978a932ca7b2608a4aa8b"
+      },
+      "p4_recognized": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p4_recognized : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M8.Coverage.RecognizedTwo (M8.P4Family.recipe N) ∧ M8.PhysicalBridge.signature (M8.P4Family.recipe N) = (if 4 ∣ N then M8.P4Family.polynomial else (Polynomial.X+1)^2) ∧ (∀ g : M7.Action.Record N, ¬ M8.CoverageFoundation.Separated (M7.Action.act g (M8.P4Family.recipe N))) := by\n  intro N inst hN hEven\n  have hv := M8.P4Family.valid N (by omega)\n  have hp := M8.Coverage.p4_physical N hN hEven\n  have hd : M7.Transport.distance (M8.P4Family.recipe N) = some 2 := hp.1\n  have hz : (0 : ZMod N) ∈ M8.P4Family.support N := (M8.P4Family.support_data N (by omega)).2.1\n  have hne : (M8.P4Family.support N).Nonempty := ⟨0, hz⟩\n  let g : M7.Action.Record N := M8.Anchor.record false 1 0 0\n  have hg : M7.Action.act g (M8.P4Family.recipe N) = M8.P4Family.recipe N := by\n    simp [g, M8.Anchor.record, M7.Action.act]\n    have ha : M7.Action.affine (1 : (ZMod N)ˣ) 0 = id := by\n      funext x\n      simp [M7.Action.affine]\n    simpa only [ha, Finset.image_id]\n  have hs : M8.OrbitSpan.value (M8.P4Family.recipe N) ≤ M8.Cutoff.limit N := by\n    apply (M8.OrbitSpan.small_iff N (M8.P4Family.recipe N) hne hne (M8.Cutoff.limit N)).2\n    refine ⟨g, ?_, ?_⟩\n    · rw [hg]\n      change (0 : ZMod N) ∈ M8.P4Family.support N ∧ (0 : ZMod N) ∈ M8.P4Family.support N\n      exact ⟨hz, hz⟩\n    · rw [hg]\n      exact M8.P4Family.span_cutoff N (by omega)\n  have hF : M8.PhysicalBridge.signature (M8.P4Family.recipe N) ≠ 1 := by\n    intro h\n    have hn := (M8.RawParameters.raw_noLogical N 4 (M8.P4Family.recipe N) (by omega) hv).1.mpr h\n    rw [hd] at hn\n    contradiction\n  obtain ⟨d, z, choice, k, hr⟩ := (M8.Solver.recognized_exact N (M8.P4Family.recipe N) 4 (by omega) hv).2 ⟨hF, hs⟩\n  have hc := M8.Solver.recognized_correct N (M8.P4Family.recipe N) 4 (by omega) hv _ d z choice k hr\n  have he : d = 2 := Option.some.inj (hc.2.2.1.symm.trans hd)\n  subst d\n  refine ⟨⟨z, choice, k, hr⟩, ?_, ?_⟩\n  · exact M8.P4Gcd.signature_even N hN hEven\n  · intro a\n    apply M8.CoverageFoundation.orbit_no_separated N (M8.P4Family.recipe N) a\n    exact Or.inl (M8.P4Family.full_direction N (by omega))",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p4_recognized",
+          "ancestors": [
+            "p4_physical"
+          ],
+          "spec_sha256": "2621b87513001c8c8fff4fb90a502f21b52de6f68b8991581849c8d707ddab76"
+        },
+        "sha256": "9ed19e5e333a90ff0dcb508138159c14ac9fb356e4e97d94b66631367dab484c"
+      },
+      "p4_full_multiplicity": {
+        "payload": {
+          "declaration": "theorem M8.Coverage.p4_full_multiplicity : ∀ (N : ℕ) [NeZero N], 8 ≤ N → ∀ v m : ℕ, 0 < v → Odd m → N = 2^v*m → M8.PhysicalBridge.signature (M8.P4Family.recipe N) = (Polynomial.X+1)^(min 3 (2^v)) ∧ M8.Coverage.RecognizedTwo (M8.P4Family.recipe N) := by\n  intro N inst hN v m hv hm hEq\n  have hEven : Even N := by\n    cases v with\n    | zero => omega\n    | succ k =>\n      refine ⟨2^k*m, ?_⟩\n      rw [hEq, pow_succ]\n      ring\n  constructor\n  · exact M8.P4Gcd.full_multiplicity N hN v m hv hm hEq\n  · exact (M8.Coverage.p4_recognized N hN hEven).1",
+          "imports": [
+            "M8Coverage"
+          ],
+          "name": "M8.Coverage.p4_full_multiplicity",
+          "ancestors": [
+            "p4_physical",
+            "p4_recognized"
+          ],
+          "spec_sha256": "2f14ce8bb4a9667b106f92dd216b005dc1414ccc4851550b63b6d4985c67460b"
+        },
+        "sha256": "480d83980e20339b4cb03fbf7f24ff8e82d7d56107824f59ee358bcd896b7e01"
+      }
+    }
+  }
+}

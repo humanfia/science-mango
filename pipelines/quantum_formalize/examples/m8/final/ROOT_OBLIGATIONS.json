@@ -1,0 +1,256 @@
+{
+  "status": "frozen root targets; root proof still pending",
+  "main_claim_sha256": "5953560522e6ffcfff8ba17758a011b39dfdfcac3986ff7d1809d281598d3949",
+  "groups": [
+    "Algorithm",
+    "PhysicalParameters",
+    "Resources",
+    "Storage",
+    "CostProjection",
+    "AdmittedFamilies",
+    "ExcludedFamilies"
+  ],
+  "obligations": [
+    {
+      "group": "Algorithm",
+      "stage": "solver",
+      "id": "output_gcd",
+      "name": "M8.Solver.output_gcd",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.outputF (M8.Solver.run c) = M8.PhysicalBridge.signature c",
+      "statement_sha256": "2f969842c15016648d62323b6c1971508df77a926c7170625cd889325f607a28",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/solver/experiment/nodes/output_gcd/resolved-spec.json",
+      "resolved_spec_sha256": "af10de38e1c2babe45d643d51d4f29fb00a3f6ea9bc9bb53a9379e4f12bde99e"
+    },
+    {
+      "group": "Algorithm",
+      "stage": "solver",
+      "id": "noLogical_exact",
+      "name": "M8.Solver.noLogical_exact",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), \u2200 w : \u2115, 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 (M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) \u2194 M8.PhysicalBridge.signature c = 1) \u2227 (M8.Solver.run c = M8.Solver.Outcome.noLogical (M8.PhysicalBridge.signature c) \u2194 M7.Transport.distance c = none)",
+      "statement_sha256": "f5007883e4c6a38165a942996e4a2bcc4757f0601e1edcb50f10ecdd8f92ede7",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/solver/experiment/nodes/noLogical_exact/resolved-spec.json",
+      "resolved_spec_sha256": "6064bc67c1a9ed84b6d3911020efbb6e575b8d42849f58bc95e350c960a5479f"
+    },
+    {
+      "group": "Algorithm",
+      "stage": "solver",
+      "id": "unrecognized_exact",
+      "name": "M8.Solver.unrecognized_exact",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), \u2200 w : \u2115, 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 (M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) \u2194 M8.PhysicalBridge.signature c \u2260 1 \u2227 M8.Cutoff.limit N < M8.OrbitSpan.value c)",
+      "statement_sha256": "da9819e25985feda99a40c57ec75d1e2a3d4ae629835cb4abd0386a44945c8c7",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/solver/experiment/nodes/unrecognized_exact/resolved-spec.json",
+      "resolved_spec_sha256": "4bb1a2e30c74927f7a0cff8f053c0db5bacc9d69c602281e56cc1efab06422d7"
+    },
+    {
+      "group": "Algorithm",
+      "stage": "solver",
+      "id": "recognized_exact",
+      "name": "M8.Solver.recognized_exact",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), \u2200 w : \u2115, 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 ((\u2203 (d : \u2115) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : \u2115), M8.Solver.run c = M8.Solver.Outcome.recognized (M8.PhysicalBridge.signature c) d z choice k) \u2194 M8.PhysicalBridge.signature c \u2260 1 \u2227 M8.OrbitSpan.value c \u2264 M8.Cutoff.limit N)",
+      "statement_sha256": "2f83448f1a3934ead9102e4c92a2436fb014fdeac4ed17ead6f667cce7275076",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/solver/experiment/nodes/recognized_exact/resolved-spec.json",
+      "resolved_spec_sha256": "16213987c957f40225a3e0a1ecc6c5293eb51922c38935c288cdd1d9ac202a3e"
+    },
+    {
+      "group": "Algorithm",
+      "stage": "solver",
+      "id": "recognized_correct",
+      "name": "M8.Solver.recognized_correct",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), \u2200 w : \u2115, 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 \u2200 (F : M8.Solver.BP) (d : \u2115) (z : M6.Pinned.Vector (2*N)) (choice : M8.Discovery.Choice N) (k : \u2115), M8.Solver.run c = M8.Solver.Outcome.recognized F d z choice k \u2192 F = M8.PhysicalBridge.signature c \u2227 M8.Discovery.discover c = some choice \u2227 M7.Transport.distance c = some d \u2227 z \u2208 M7.Transport.LX c \u2227 M6.Pinned.weight z = d \u2227 (\u2200 u \u2208 M7.Transport.LX c, d \u2264 M6.Pinned.weight u) \u2227 k \u2264 2*N \u2227 (\u2200 j : M8.Discovery.Choice N, M8.Discovery.Good c j \u2192 M8.Discovery.key choice \u2264 M8.Discovery.key j) \u2227 M6.Final.encodedQubits N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) = 2*F.natDegree",
+      "statement_sha256": "a29571bd359d49235e39f99539859cb7bacf5e25266484789fa3f59c94bafadc",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/solver/experiment/nodes/recognized_correct/resolved-spec.json",
+      "resolved_spec_sha256": "5c4794578817929a49b4d83a2f8dd6ae10656408c589fe972604b375f5e83773"
+    },
+    {
+      "group": "PhysicalParameters",
+      "stage": "raw_parameters",
+      "id": "raw_noLogical",
+      "name": "M8.RawParameters.raw_noLogical",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (c : M8.PhysicalBridge.Recipe N), 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 (M7.Transport.distance c = none \u2194 M8.PhysicalBridge.signature c = 1) \u2227 (M7.Transport.LX c = \u2205 \u2194 M8.PhysicalBridge.signature c = 1)",
+      "statement_sha256": "3ae2f8ff4d46482833d1866bbb62b6916564c8d9ee37a156a833abf24ffee148",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/raw_parameters/experiment/nodes/raw_noLogical/resolved-spec.json",
+      "resolved_spec_sha256": "a879170a21a3f8d41fc95ff44adbd85c9d8cb33da22874259baa238d2ab0f516"
+    },
+    {
+      "group": "PhysicalParameters",
+      "stage": "raw_parameters",
+      "id": "encoded_dimension",
+      "name": "M8.RawParameters.encoded_dimension",
+      "statement": "\u2200 (N w : \u2115) [NeZero N] (c : M8.PhysicalBridge.Recipe N), 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 M6.Final.encodedQubits N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) = 2*(M8.PhysicalBridge.signature c).natDegree",
+      "statement_sha256": "61bf2ac3e114f7b26d70347cfdde59030dcfe8003102482cc717ec0652229c5a",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/raw_parameters/experiment/nodes/encoded_dimension/resolved-spec.json",
+      "resolved_spec_sha256": "1ee41b2f49a80f129db24ff0f4644e285721103d9482442fa28e6ffab3c42dc0"
+    },
+    {
+      "group": "Resources",
+      "stage": "sequential_resources",
+      "id": "actual_prefix_charge",
+      "name": "M8.SequentialResources.actual_prefix_charge",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 c : M7.Action.Recipe N, M8.SequentialStore.prefixCharge (M8.SequentialResources.primitiveCharge N) (M8.WholeResources.run c).charges = M8.WholeResources.indexedWork c * M8.SequentialResources.primitiveCharge N",
+      "statement_sha256": "52a631e55504144a18e4e8ae7a9fc70f999e057503f96b1bb910c74adfbf18b6",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/sequential_resources/experiment/nodes/actual_prefix_charge/resolved-spec.json",
+      "resolved_spec_sha256": "eb120bb87b57f32ce09694d4395175fc8c44416a10adba235da10ffa8e7477a4"
+    },
+    {
+      "group": "Resources",
+      "stage": "sequential_resources",
+      "id": "sequential_bound",
+      "name": "M8.SequentialResources.sequential_bound",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (c : M7.Action.Recipe N) (w : \u2115), 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 M8.SequentialResources.sequentialCharge c \u2264 6000000000000*(N+1)^12",
+      "statement_sha256": "5a9c9a57962302278bf121253bf48a45e996a88c18511a90c5796864acf2dca3",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/sequential_resources/experiment/nodes/sequential_bound/resolved-spec.json",
+      "resolved_spec_sha256": "d916debc3ed03e35028a7c97c91be215daa96f17282e6eab83e38aaaf012cb5b"
+    },
+    {
+      "group": "Storage",
+      "stage": "sequential_store",
+      "id": "allocation_access",
+      "name": "M8.SequentialStore.allocation_access",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (mem : List Bool), mem.length = M8.SequentialStore.slots N \u2192 \u2200 (i : Fin (M8.SequentialStore.slots N)) (bit : Bool), (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).1 = mem[i.val]? \u2227 (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).1 = M8.TaggedStore.packFrom 0 (mem.set i.val bit) \u2227 (M8.TaggedStore.read (M8.TaggedStore.address i.val) (M8.TaggedStore.packFrom 0 mem)).2 \u2264 M8.SequentialStore.accessCharge N \u2227 (M8.TaggedStore.write (M8.TaggedStore.address i.val) bit (M8.TaggedStore.packFrom 0 mem)).2 \u2264 M8.SequentialStore.accessCharge N",
+      "statement_sha256": "69b7dd4355c7065799f4d68af36d4eecc983664866fabb7852af0119c72b2897",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/sequential_store/experiment/nodes/allocation_access/resolved-spec.json",
+      "resolved_spec_sha256": "d2ff383801645f59cc3e5bbd157e29f6c632d1a394d4de16d96250651493dcae"
+    },
+    {
+      "group": "Storage",
+      "stage": "sequential_store",
+      "id": "store_space",
+      "name": "M8.SequentialStore.store_space",
+      "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 mem : List Bool, mem.length = M8.SequentialStore.slots N \u2192 M8.SequentialStore.storeSpace N mem \u2264 2000000*(N+1)^4",
+      "statement_sha256": "b57cdb29392e1b5deaf23264e7862b1956d1be190b28c1e1e15c34fa9983b820",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/sequential_store/experiment/nodes/store_space/resolved-spec.json",
+      "resolved_spec_sha256": "059908805f4bd87de7ad3a4c7f62d0ff5b263401dd69c16cf8e7ec7d27ab752b"
+    },
+    {
+      "group": "CostProjection",
+      "stage": "whole_resources",
+      "id": "projection",
+      "name": "M8.WholeResources.projection",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), (M8.WholeResources.run c).outcome = M8.Solver.run c",
+      "statement_sha256": "21b645ed2e907d155e6bb07c9e11450a33b32891bcd6438c030e90f600913572",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/whole_resources/experiment/nodes/projection/resolved-spec.json",
+      "resolved_spec_sha256": "2febe5e4a559f669449e2668d8075a2bed405af30287cac59b3a556ac74ffec3"
+    },
+    {
+      "group": "AdmittedFamilies",
+      "stage": "coverage",
+      "id": "p3_physical",
+      "name": "M8.Coverage.p3_physical",
+      "statement": "\u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 3 \u2223 N \u2192 M8.Coverage.PhysicalTwo (M8.P3Family.recipe N)",
+      "statement_sha256": "80c9bb5a53a0e978da498916c8fd2a187a5e5a97e5e7097444a64e24295d1a08",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/coverage/experiment/nodes/p3_physical/resolved-spec.json",
+      "resolved_spec_sha256": "a08f777801ca1ee07d415e488467f780c4c58d85c3c7af2aba851d2f0c7259e6"
+    },
+    {
+      "group": "AdmittedFamilies",
+      "stage": "coverage",
+      "id": "p3_recognized",
+      "name": "M8.Coverage.p3_recognized",
+      "statement": "\u2200 (N : \u2115) [NeZero N], 3 \u2264 N \u2192 3 \u2223 N \u2192 M8.PhysicalBridge.signature (M8.P3Family.recipe N) = M8.P3Family.polynomial \u2227 M8.Coverage.RecognizedTwo (M8.P3Family.recipe N) \u2227 (\u2200 g : M7.Action.Record N, \u00ac M8.CoverageFoundation.Separated (M7.Action.act g (M8.P3Family.recipe N)))",
+      "statement_sha256": "b59c72dcafa89d6561ef7f7b50430438896970004e87ebc56229d9951c86849a",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/coverage/experiment/nodes/p3_recognized/resolved-spec.json",
+      "resolved_spec_sha256": "b8d79b64a47b0aed0d2003f246999fb270241b61f8490f66f2a279bdc9834871"
+    },
+    {
+      "group": "AdmittedFamilies",
+      "stage": "coverage",
+      "id": "p4_physical",
+      "name": "M8.Coverage.p4_physical",
+      "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 M8.Coverage.PhysicalTwo (M8.P4Family.recipe N)",
+      "statement_sha256": "e95da1af7f369fb23e19f15414da32ea343d72b4b8195d30b6c5fea23aff9dfc",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/coverage/experiment/nodes/p4_physical/resolved-spec.json",
+      "resolved_spec_sha256": "e49c91d95043ff9155ac9603dbb2a5a2f6a1206bad83833906afb06ae35210d2"
+    },
+    {
+      "group": "AdmittedFamilies",
+      "stage": "coverage",
+      "id": "p4_recognized",
+      "name": "M8.Coverage.p4_recognized",
+      "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 M8.Coverage.RecognizedTwo (M8.P4Family.recipe N) \u2227 M8.PhysicalBridge.signature (M8.P4Family.recipe N) = (if 4 \u2223 N then M8.P4Family.polynomial else (Polynomial.X+1)^2) \u2227 (\u2200 g : M7.Action.Record N, \u00ac M8.CoverageFoundation.Separated (M7.Action.act g (M8.P4Family.recipe N)))",
+      "statement_sha256": "84c5e666fd6437b12f356c5f98650d27d200acc31d0df549328957fe58d4d18d",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/coverage/experiment/nodes/p4_recognized/resolved-spec.json",
+      "resolved_spec_sha256": "783115bdf603dbf1585f865d6bd46aae58e45043f601053f5e22a867645a323d"
+    },
+    {
+      "group": "AdmittedFamilies",
+      "stage": "coverage",
+      "id": "p4_full_multiplicity",
+      "name": "M8.Coverage.p4_full_multiplicity",
+      "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 \u2200 v m : \u2115, 0 < v \u2192 Odd m \u2192 N = 2^v*m \u2192 M8.PhysicalBridge.signature (M8.P4Family.recipe N) = (Polynomial.X+1)^(min 3 (2^v)) \u2227 M8.Coverage.RecognizedTwo (M8.P4Family.recipe N)",
+      "statement_sha256": "4aec7078107803a78b745cff4192772b6fd5eb0cf74fe284c94ef9339ea9dcc6",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/coverage/experiment/nodes/p4_full_multiplicity/resolved-spec.json",
+      "resolved_spec_sha256": "fd03e34c573fe6ea98e5dab1175e3669f95ef40ec4a527c96c7c1f446eee7d65"
+    },
+    {
+      "group": "AdmittedFamilies",
+      "stage": "coverage",
+      "id": "mixed_recognized",
+      "name": "M8.Coverage.mixed_recognized",
+      "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M8.Coverage.Recognized (M8.MixedFamily.recipe N) \u2227 M8.PhysicalBridge.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a \u2227 (\u2200 g : M7.Action.Record N, \u00ac M8.CoverageFoundation.Separated (M7.Action.act g (M8.MixedFamily.recipe N))) \u2227 (\u2200 g : M7.Action.Record N, \u00ac M8.MixedNonproduct.Product (M7.Action.act g (M8.MixedFamily.recipe N)))",
+      "statement_sha256": "1daf818ca3ca508507fdc64a9b3579eba986f366e5f2e9a62f39a4df38020449",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/coverage/experiment/nodes/mixed_recognized/resolved-spec.json",
+      "resolved_spec_sha256": "633c3c647e89528e7ca91270d12a5eae18f5cf5a87915e4dd50742a865e32547"
+    },
+    {
+      "group": "ExcludedFamilies",
+      "stage": "exclusion_conclusions",
+      "id": "span_rejected",
+      "name": "M8.Exclusion.span_rejected",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (c : M7.Action.Recipe N), 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 M8.PhysicalBridge.signature c \u2260 1 \u2192 (\u2200 g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g c)) \u2192 M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c)",
+      "statement_sha256": "a3e49b04db4fae21d71c25b44d2b85bac7d9808c8a2f5a0d6edb3f636a1ce647",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/exclusion_conclusions/experiment/nodes/span_rejected/resolved-spec.json",
+      "resolved_spec_sha256": "07bd9a8e00fb3f3dbf7907ed55a49923ec6f2c7c413981181eebec52f422fccd"
+    },
+    {
+      "group": "ExcludedFamilies",
+      "stage": "exclusion_conclusions",
+      "id": "weight_rejected",
+      "name": "M8.Exclusion.weight_rejected",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (w : \u2115) (c : M7.Action.Recipe N), M8.PhysicalBridge.Valid w c \u2192 M8.PhysicalBridge.signature c \u2260 1 \u2192 M8.Cutoff.limit N + 1 < w \u2192 M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c)",
+      "statement_sha256": "244e8d6ff4b6dfdce06373a1200dffd94ccf0a61fd20e09f9f6803c9a7d5e78b",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/exclusion_conclusions/experiment/nodes/weight_rejected/resolved-spec.json",
+      "resolved_spec_sha256": "ffddf1a9c3a8697795fb8f6c9cf9f3630a8ad2e7ab0e003794d647712f690339"
+    },
+    {
+      "group": "ExcludedFamilies",
+      "stage": "exclusion_conclusions",
+      "id": "antipodal_span",
+      "name": "M8.Exclusion.antipodal_span",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (v : \u2115), 3 \u2264 v \u2192 N = 2^v \u2192 \u2200 g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g (M8.AntipodalFamily.recipe N))",
+      "statement_sha256": "f7340edf96b8f515021889d770e367246f2f324450d39221807069d29742b08c",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/exclusion_conclusions/experiment/nodes/antipodal_span/resolved-spec.json",
+      "resolved_spec_sha256": "53a6f0f6c7448584439b194e983462101813d30fa62d69c09cbc185abd070ba7"
+    },
+    {
+      "group": "ExcludedFamilies",
+      "stage": "exclusion_conclusions",
+      "id": "antipodal_distance",
+      "name": "M8.Exclusion.antipodal_distance",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (v : \u2115), 3 \u2264 v \u2192 N = 2^v \u2192 M7.Transport.distance (M8.AntipodalFamily.recipe N) = some 2",
+      "statement_sha256": "133252f85d7a3d148edebdae8650d78f2b32cfaea7e4eba24f82a64dff0990c2",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/exclusion_conclusions/experiment/nodes/antipodal_distance/resolved-spec.json",
+      "resolved_spec_sha256": "fd8a14a622c1d1570761b70ff7efe35b3eceb758c70c8a5c3ac1fc677f0a74a5"
+    },
+    {
+      "group": "ExcludedFamilies",
+      "stage": "exclusion_conclusions",
+      "id": "antipodal_rejected",
+      "name": "M8.Exclusion.antipodal_rejected",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (v : \u2115), 3 \u2264 v \u2192 N = 2^v \u2192 M8.Solver.run (M8.AntipodalFamily.recipe N) = M8.Solver.Outcome.unrecognized (M8.AntipodalFamily.polynomial N)",
+      "statement_sha256": "fd4aee97aab7894ab64a102f45299a24752c2b86bd1126fd6d2e63f3bf8928d6",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/exclusion_conclusions/experiment/nodes/antipodal_rejected/resolved-spec.json",
+      "resolved_spec_sha256": "dec48dd05bb843ce162e0457be1cadb4a88dfedf2d7b235159a8171dd35757d8"
+    },
+    {
+      "group": "ExcludedFamilies",
+      "stage": "exclusion_conclusions",
+      "id": "antipodal_complete",
+      "name": "M8.Exclusion.antipodal_complete",
+      "statement": "\u2200 (N : \u2115) [NeZero N] (v : \u2115), 3 \u2264 v \u2192 N = 2^v \u2192 (M8.PhysicalBridge.Valid 4 (M8.AntipodalFamily.recipe N) \u2227 M8.PhysicalBridge.signature (M8.AntipodalFamily.recipe N) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(N/2+1) \u2227 M8.Solver.run (M8.AntipodalFamily.recipe N) = M8.Solver.Outcome.unrecognized ((Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(N/2+1)) \u2227 M7.Transport.distance (M8.AntipodalFamily.recipe N) = some 2)",
+      "statement_sha256": "db5c253d6411f2f6e78b58f39dd1b4c0ea94d5cdf86165145cd92265385381bc",
+      "canonical_resolved_spec": "pipelines/quantum_formalize/examples/m8/exclusion_conclusions/experiment/nodes/antipodal_complete/resolved-spec.json",
+      "resolved_spec_sha256": "432d849815ac1beb8e711e3597a4960da7a248c663e08d73b5e0fc13cf76af39"
+    }
+  ],
+  "optional_refined_trialcount_required": false
+}

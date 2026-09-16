@@ -56,7 +56,7 @@ for f in sorted(p.glob('*.lean')):
 (p/'lakefile.toml').write_text(s);shutil.copy2(p/'lakefile.toml',b/'lakefile.toml');(p/'.lake').mkdir(exist_ok=True)
 if not(p/'.lake/packages').exists():(p/'.lake/packages').symlink_to('/home/jing/lean-1st-proof/.lake/packages',target_is_directory=True)
 cache=runpy.run_path('/home/jing/m8_verified_cache.py')
-cache_record=cache['reuse_verified_caches'](p,[Path('/home/jing/m8-lean-sequential-resources-formalization')])
+cache_record=cache['reuse_verified_caches'](p,[Path('/home/jing/m8-lean-coverage-formalization'),Path('/home/jing/m8-lean-sequential-resources-formalization')])
 (b/'CACHE_REUSE.json').write_text(json.dumps(cache_record,indent=2)+'\n')
 ctl=Path('/home/jing/m8_anchor_preflight_launch.py').read_text().replace('m8-lean-anchor','m8-lean-final').replace('examples/m8/anchor','examples/m8/final').replace('M8Anchor','M8Final').replace('8 exact','8 exact').replace("'anchor','anchor','2'","'final','final','2'")
 cp=Path('/home/jing/m8_final_preflight_launch.py');cp.write_text(ctl)
