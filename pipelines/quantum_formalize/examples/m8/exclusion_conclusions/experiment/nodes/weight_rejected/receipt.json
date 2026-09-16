@@ -1,0 +1,69 @@
+{
+  "id": "weight_rejected",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Exclusion.weight_rejected",
+    "spec_sha256": "9a7dadcf41785d5fba54d7b10c895fd4be6628e26a72a7f5166c792dae8892e0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-mkulbhj1/attempt-001/Candidate_3c47ed64421e7b60.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-mkulbhj1/attempt-001/FrozenTarget_3c47ed64421e7b60.lean",
+        "feedback": "",
+        "target_sha256": "5eeb1e752b93d8ea39cc9a30756d4e4ecab1e4f7d0e5667f729c5eb384695cd4",
+        "target_olean_sha256": "019f6847dbbcdd41a909d4068ccd5ec45971b1d45d1a4060c985baba5c247395",
+        "source_sha256": "ef7fdb27d2e6af3d4e29690276fb875e84c4d08a19043f1f69c00975d2878f22",
+        "olean_sha256": "8f8ac63963d040d4655cb356ca6378082f8120d823669d5fe8572d14410e1be4",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:34:30.475041+00:00",
+    "work": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-mkulbhj1",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4d508993f370e13fc38f4af18ca4c24f096713b24996ef5c11582313d55264a9",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-mkulbhj1/attempt-001/Candidate_3c47ed64421e7b60.lean",
+    "environment_sha256": "14fc6cd2036424e62989da08e514485a422d51c3fa366983eb584c1959278def",
+    "artifacts": {
+      "span_rejected": {
+        "payload": {
+          "declaration": "theorem M8.Exclusion.span_rejected : ∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → (∀ g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g c)) → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) := by\n  intro N inst w c hw hvalid hF hspan\n  apply (M8.Solver.unrecognized_exact N c w hw hvalid).2\n  refine ⟨hF, ?_⟩\n  apply lt_of_not_ge\n  intro hle\n  have hd : M8.Discovery.discover c ≠ none :=\n    (M8.Solver.discovery_span N c w hw hvalid).2 hle\n  rcases (M8.Discovery.complete N c).1 hd with ⟨g, _, hg⟩\n  exact (not_lt_of_ge hg) (hspan g)",
+          "imports": [
+            "M8Exclusion"
+          ],
+          "name": "M8.Exclusion.span_rejected",
+          "ancestors": [],
+          "spec_sha256": "5347a520293793572a84a208542e9d7bebda4f488dcb33daa88ae3fb7114f208"
+        },
+        "sha256": "217f10edcf342fe8e135b18c7785f1614a09bf49f4184d0b4648004c5740dc1b"
+      },
+      "weight_rejected": {
+        "payload": {
+          "declaration": "theorem M8.Exclusion.weight_rejected : ∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → M8.Cutoff.limit N + 1 < w → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) := by\n  intro N inst w c hvalid hF hover\n  have hw : 0 < w := by omega\n  apply M8.Exclusion.span_rejected N w c hw hvalid hF\n  apply M8.ExclusionGeometry.weight_exclusion N w (M8.Cutoff.limit N) c\n  · exact hvalid.1\n  · exact hvalid.2.1\n  · exact hover",
+          "imports": [
+            "M8Exclusion"
+          ],
+          "name": "M8.Exclusion.weight_rejected",
+          "ancestors": [
+            "span_rejected"
+          ],
+          "spec_sha256": "f08b3a1f6233d9dbfd2f3b1bdf91058bb4c1aafd58bfc2238f590c96c4e223ff"
+        },
+        "sha256": "d8bf5626c81a99823fabe32c33ba3fe6e170ff43b154c1fe105d8e8dd7bff08f"
+      }
+    }
+  }
+}

@@ -224,7 +224,8 @@ class Audit:
             require(root['environment'].get(source_file.name)==sha(source_file),'Root imported source changed after freezing: '+stage)
         for filename,digest in root['environment'].items():
             exported=self.final/'lean'/filename if filename.endswith('.lean') else self.final/filename
-            if exported.is_file():require(sha(exported)==digest,'Exported root environment mismatch: '+filename)
+            need(exported)
+            require(sha(exported)==digest,'Exported root environment mismatch: '+filename)
         # Audit every canonical M8 target; no new mathematical condition is introduced.
         for manifest in self.base.glob('*/experiment/MANIFEST.json'):
             stage=manifest.parent.parent.name

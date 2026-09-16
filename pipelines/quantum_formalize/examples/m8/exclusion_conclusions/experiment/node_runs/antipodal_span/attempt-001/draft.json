@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst v hv hN\nhave hc := M8.AntipodalFamily.cutoff_half v hv\nhave hmul : N = 2 * 2^(v-1) := by\n  calc\n    N = 2^v := hN\n    _ = 2^((v-1)+1) := by congr 1; omega\n    _ = 2 * 2^(v-1) := by simp [pow_succ, Nat.mul_comm]\nhave hhalf : N/2 = 2^(v-1) := by omega\nhave h8 : 8 ≤ N := by omega\nhave heven : Even N := ⟨2^(v-1), by omega⟩\nhave hd := M8.AntipodalFamily.support_data N h8 heven\nhave ha : M8.ExclusionGeometry.Antipodal (N/2) (M8.AntipodalFamily.support N) := by\n  refine ⟨0, hd.2.1, ?_⟩\n  simpa only [zero_add] using hd.2.2.2\napply M8.ExclusionGeometry.antipodal_exclusion N (N/2) (M8.Cutoff.limit N) (M8.AntipodalFamily.recipe N)\n· omega\n· exact Or.inl ha\n· rw [hN, hc.1]\n  rw [hN] at hhalf\n  omega",
+  "queries": []
+}

@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst v hv hN\nhave hc := M8.AntipodalFamily.cutoff_half v hv\nhave hmul : N = 2 * 2^(v-1) := by\n  calc\n    N = 2^v := hN\n    _ = 2^((v-1)+1) := by congr 1; omega\n    _ = 2 * 2^(v-1) := by simp [pow_succ, Nat.mul_comm]\nhave h8 : 8 ≤ N := by omega\nhave heven : Even N := ⟨2^(v-1), by omega⟩\nhave hsig : M8.PhysicalBridge.signature (M8.AntipodalFamily.recipe N) = M8.AntipodalFamily.polynomial N := by\n  exact M8.AntipodalFamily.signature N v hv hN\nrw [← hsig]\napply M8.Exclusion.span_rejected N 4 (M8.AntipodalFamily.recipe N)\n· norm_num\n· exact M8.AntipodalFamily.valid N h8 heven\n· rw [hsig]\n  exact (M8.AntipodalFamily.nontrivial N h8 heven).2.1\n· exact M8.Exclusion.antipodal_span N v hv hN",
+  "queries": []
+}

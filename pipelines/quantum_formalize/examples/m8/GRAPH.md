@@ -28,7 +28,7 @@ graph TD
   mixed_nonproduct --> coverage
   diagonal_polynomial --> coverage
   coverage_foundation --> coverage
-  exclusion_conclusions["exclusion_conclusions"]
+  exclusion_conclusions["exclusion_conclusions ✓"]
   solver --> exclusion_conclusions
   antipodal_family --> exclusion_conclusions
   exclusion_geometry --> exclusion_conclusions

@@ -1,0 +1,12 @@
+{
+  "name": "M8.Exclusion.span_rejected",
+  "statement": "∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → (∀ g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g c)) → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c)",
+  "imports": [
+    "M8Exclusion"
+  ],
+  "context": "",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Original revised M8 §9 final exclusions, connected to the actual authoritative solver, not merely an abstract recognizer. Preserve branch priority: F=1 is NoLogical, so general overweight Unrecognized includes F≠1. span_rejected: use Solver.unrecognized_exact and OrbitSpan.attained. Valid equal support cards w>0 gives each Nonempty; an attained minimizing actual action turns the all-action strict bound into cutoff<OrbitSpan.value. weight_rejected follows ExclusionGeometry.weight_exclusion, deriving w>0 by omega. antipodal_span: N=2^v, v≥3 gives N≥8, Even N, N=2*(N/2), and N/2=2^(v-1). AntipodalFamily.support_data supplies0 and natural half; hence ExclusionGeometry.Antipodal (N/2) support (witness0). cutoff_half gives cutoff<N/2; instantiate antipodal_exclusion. antipodal_distance: accepted literal_polynomial identifies both input support polynomials with p=AntipodalFamily.polynomial N. Transport.distance unfolds to M6.Final.quantumDistance; expanding its four spaces makes the diagonal target definitionally M8.Diagonal.distance N (Coordinates.coefficients N p). Apply DiagonalPolynomial.distance_two with F=p, using nontrivial for monic/nonzero/not1, degree_bound, dvd_refl, divides_modulus. Full signature from AntipodalFamily.signature, which retains all repeated factors. antipodal_rejected uses actual Valid4 and nontrivial literal signature, then span_rejected and rewrites reported F=p. antipodal_complete combines Valid4, actual Unrecognized, actual physical CSS distance2 and exact full signature power (X+1)^(N/2+1), converting polynomial_power via N=2^v. No free optimizer/orbit/cardinality/physical correctness premise remains in the final concrete clauses. No added w=0, hardness, Clifford, efficiency or M9 gate. Return tactic lines only, no leading by.\nimport M8SolverAccepted\nimport M8AntipodalFamilyAccepted\nimport M8ExclusionGeometryAccepted\nimport M8DiagonalPolynomialAccepted\n\nnamespace M8.Exclusion\nend M8.Exclusion\n"
+}

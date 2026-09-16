@@ -1,0 +1,8 @@
+{
+  "proof": "set_option maxHeartbeats 2000000 in\n  intro N inst c\n  change M6.Euclid.preprocessBitCost N (M7.Supports.polynomial c.1)\n    (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) ≤ 180 * (N + 1)^3\n  have ha : (M7.Supports.polynomial c.1).natDegree < N := by\n    apply M7.Supports.degree_lt\n  have hb : (M7.Supports.polynomial c.2).natDegree < N := by\n    apply M7.Supports.degree_lt\n  have ha' : (M7.Supports.polynomial c.1).natDegree ≤ N := Nat.le_of_lt ha\n  have hb' : (M7.Supports.polynomial c.2).natDegree ≤ N := Nat.le_of_lt hb\n  have hm : (M6.Cyclic.modulus N).natDegree ≤ N := by\n    unfold M6.Cyclic.modulus\n    first\n    | simp\n    | exact (Polynomial.natDegree_sub_le _ _).trans (by simp)\n    | exact (Polynomial.natDegree_add_le _ _).trans (by simp)\n  have h := M6.Euclid.preprocess_correct_cost N\n    (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2)\n    (M6.Cyclic.modulus N)\n  repeat' specialize h (by first | assumption | omega)\n  aesop",
+  "queries": [
+    "M6.Euclid.preprocess_correct_cost",
+    "M7.Supports.degree_lt",
+    "Polynomial.natDegree_X_pow_sub_C"
+  ]
+}

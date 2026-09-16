@@ -1,0 +1,8 @@
+{
+  "proof": "intro N inst c\nclassical\nchange M6.Euclid.preprocessBitCost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N) ≤ 180 * (N + 1)^3\nhave ha := M7.Supports.degree_lt N c.1\nhave hb := M7.Supports.degree_lt N c.2\nhave ha' : (M7.Supports.polynomial c.1).natDegree ≤ N := by\n  first\n  | omega\n  | exact Polynomial.natDegree_le_of_degree_le (le_of_lt ha)\nhave hb' : (M7.Supports.polynomial c.2).natDegree ≤ N := by\n  first\n  | omega\n  | exact Polynomial.natDegree_le_of_degree_le (le_of_lt hb)\nhave hm : (M6.Cyclic.modulus N).natDegree ≤ N := by\n  unfold M6.Cyclic.modulus\n  simpa only [Polynomial.map_one] using\n    (Polynomial.natDegree_X_pow_sub_C (R := ZMod 2) (n := N) (r := 1)).le\nhave h := M6.Euclid.preprocess_correct_cost N (M7.Supports.polynomial c.1) (M7.Supports.polynomial c.2) (M6.Cyclic.modulus N)\naesop",
+  "queries": [
+    "M6.Euclid.preprocess_correct_cost",
+    "M7.Supports.degree_lt",
+    "M6.Cyclic.modulus"
+  ]
+}

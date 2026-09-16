@@ -1,0 +1,55 @@
+{
+  "id": "elementary_bounds",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.WholeResources.elementary_bounds",
+    "spec_sha256": "8987798547348e68fa5205c04e69f47a81d7fd9d4d430ab7e0eb646392c963b5",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-7wxdqksp/attempt-001/Candidate_d3210fb0889a3368.lean",
+        "target_path": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-7wxdqksp/attempt-001/FrozenTarget_d3210fb0889a3368.lean",
+        "feedback": "",
+        "target_sha256": "fc01bc69858330c4d4758c54f1fd376675a0a4243b992aac92228c76d6f5bfe1",
+        "target_olean_sha256": "e121d294c2a2c08bb99290f414b41936a5d8e4f23f1215d8df6b99faff9a4f79",
+        "source_sha256": "c63b819d0d07278f29617485bff9daca75fb82c998ded193fdf0be98c1e18f0a",
+        "olean_sha256": "58261a0003e89d4d3e4528b77c1fc8d5554dad7eb2e6ba327a914427cbd82034",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:30:25.848157+00:00",
+    "work": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-7wxdqksp",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "9fd76df7411428ae4321b2607421acddddd64cbaca989839b8794835239fd7bc",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-7wxdqksp/attempt-001/Candidate_d3210fb0889a3368.lean",
+    "environment_sha256": "984daffa7a789a4231ffef4e955eef463945e12241c8fbaba269f3127164c896",
+    "artifacts": {
+      "elementary_bounds": {
+        "payload": {
+          "declaration": "theorem M8.WholeResources.elementary_bounds : ∀ (N : ℕ) [NeZero N], M8.WholeResources.setupWork N ≤ 21000*(N+1)^3 ∧ M8.WholeResources.transformWork N ≤ 96*(N+1)^3 ∧ M8.WholeResources.undoWork N ≤ 160*(N+1)^3 := by\n  intro N inst\n  have hfold (l : List ℕ) (w k : ℕ) :\n      l.foldl (fun acc _ => acc + k) w = w + l.length * k := by\n    induction l generalizing w with\n    | nil => simp\n    | cons x xs ih =>\n      simp only [List.foldl_cons, List.length_cons, ih]\n      ring\n  have hp := M8.BankLayout.payload_bound N\n  simp only [M8.WholeResources.setupWork, M8.WholeResources.inputScanWork,\n    M8.WholeResources.connectivityScanWork, M8.WholeResources.transformWork,\n    M8.WholeResources.undoWork, hfold, List.length_range, zero_add]\n  refine ⟨?_, ?_, ?_⟩ <;>\n    nlinarith [Nat.zero_le (N^3), Nat.zero_le (N^2)]",
+          "imports": [
+            "M8WholeResources"
+          ],
+          "name": "M8.WholeResources.elementary_bounds",
+          "ancestors": [],
+          "spec_sha256": "8987798547348e68fa5205c04e69f47a81d7fd9d4d430ab7e0eb646392c963b5"
+        },
+        "sha256": "40a281d348499a90eee2541da44607b4e078c1b690fdb82bb377e3a327f4d240"
+      }
+    }
+  }
+}

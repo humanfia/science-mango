@@ -1,0 +1,82 @@
+{
+  "id": "antipodal_rejected",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Exclusion.antipodal_rejected",
+    "spec_sha256": "72e6434c1be8da215640e6a5bb4e1faf7a0640c2d0455186b36ce87a7df8b9dc",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-qvjbe82z/attempt-001/Candidate_a2f32f4354c65e37.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-qvjbe82z/attempt-001/FrozenTarget_a2f32f4354c65e37.lean",
+        "feedback": "",
+        "target_sha256": "d47ee9b2305fd5ba4e5a1cf68aa68dd656713081741575514646645cd2f04ad9",
+        "target_olean_sha256": "8f13e84f127a134182daf5bcbfc438ded479c141e19b22cdc6e847b4c776bffb",
+        "source_sha256": "7c92a5bd0ae6272973d40bfbed09cc9771fff8c92c36a2003f8d6693d4eaa58f",
+        "olean_sha256": "642ca370b56ae2d002b06e5847c77453556d44d5a84c3fee8a8a2dfe24bcabdd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:34:30.173049+00:00",
+    "work": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-qvjbe82z",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4d508993f370e13fc38f4af18ca4c24f096713b24996ef5c11582313d55264a9",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-qvjbe82z/attempt-001/Candidate_a2f32f4354c65e37.lean",
+    "environment_sha256": "14fc6cd2036424e62989da08e514485a422d51c3fa366983eb584c1959278def",
+    "artifacts": {
+      "span_rejected": {
+        "payload": {
+          "declaration": "theorem M8.Exclusion.span_rejected : ∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → (∀ g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g c)) → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) := by\n  intro N inst w c hw hvalid hF hspan\n  apply (M8.Solver.unrecognized_exact N c w hw hvalid).2\n  refine ⟨hF, ?_⟩\n  apply lt_of_not_ge\n  intro hle\n  have hd : M8.Discovery.discover c ≠ none :=\n    (M8.Solver.discovery_span N c w hw hvalid).2 hle\n  rcases (M8.Discovery.complete N c).1 hd with ⟨g, _, hg⟩\n  exact (not_lt_of_ge hg) (hspan g)",
+          "imports": [
+            "M8Exclusion"
+          ],
+          "name": "M8.Exclusion.span_rejected",
+          "ancestors": [],
+          "spec_sha256": "5347a520293793572a84a208542e9d7bebda4f488dcb33daa88ae3fb7114f208"
+        },
+        "sha256": "217f10edcf342fe8e135b18c7785f1614a09bf49f4184d0b4648004c5740dc1b"
+      },
+      "antipodal_span": {
+        "payload": {
+          "declaration": "theorem M8.Exclusion.antipodal_span : ∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → ∀ g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g (M8.AntipodalFamily.recipe N)) := by\n  intro N inst v hv hN\n  have hc := M8.AntipodalFamily.cutoff_half v hv\n  have hmul : N = 2 * 2^(v-1) := by\n    calc\n      N = 2^v := hN\n      _ = 2^((v-1)+1) := by congr 1; omega\n      _ = 2 * 2^(v-1) := by simp [pow_succ, Nat.mul_comm]\n  have hhalf : N/2 = 2^(v-1) := by omega\n  have h8 : 8 ≤ N := by omega\n  have heven : Even N := ⟨2^(v-1), by omega⟩\n  have hd := M8.AntipodalFamily.support_data N h8 heven\n  have ha : M8.ExclusionGeometry.Antipodal (N/2) (M8.AntipodalFamily.support N) := by\n    refine ⟨0, hd.2.1, ?_⟩\n    simpa only [zero_add] using hd.2.2.2\n  apply M8.ExclusionGeometry.antipodal_exclusion N (N/2) (M8.Cutoff.limit N) (M8.AntipodalFamily.recipe N)\n  · omega\n  · exact Or.inl ha\n  · rw [hN, hc.1]\n    rw [hN] at hhalf\n    omega",
+          "imports": [
+            "M8Exclusion"
+          ],
+          "name": "M8.Exclusion.antipodal_span",
+          "ancestors": [],
+          "spec_sha256": "0a63a82a2f374ef8166ad006097480e6bdad88c25596d1fb54d07cd624d17823"
+        },
+        "sha256": "83bc345a7a2ad4e8f9c26863c9d0fc2008f8001d9fc4dd4bc5a49a9f696f9514"
+      },
+      "antipodal_rejected": {
+        "payload": {
+          "declaration": "theorem M8.Exclusion.antipodal_rejected : ∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → M8.Solver.run (M8.AntipodalFamily.recipe N) = M8.Solver.Outcome.unrecognized (M8.AntipodalFamily.polynomial N) := by\n  intro N inst v hv hN\n  have hc := M8.AntipodalFamily.cutoff_half v hv\n  have hmul : N = 2 * 2^(v-1) := by\n    calc\n      N = 2^v := hN\n      _ = 2^((v-1)+1) := by congr 1; omega\n      _ = 2 * 2^(v-1) := by simp [pow_succ, Nat.mul_comm]\n  have h8 : 8 ≤ N := by omega\n  have heven : Even N := ⟨2^(v-1), by omega⟩\n  have hsig : M8.PhysicalBridge.signature (M8.AntipodalFamily.recipe N) = M8.AntipodalFamily.polynomial N := by\n    exact M8.AntipodalFamily.signature N v hv hN\n  rw [← hsig]\n  apply M8.Exclusion.span_rejected N 4 (M8.AntipodalFamily.recipe N)\n  · norm_num\n  · exact M8.AntipodalFamily.valid N h8 heven\n  · rw [hsig]\n    exact (M8.AntipodalFamily.nontrivial N h8 heven).2.1\n  · exact M8.Exclusion.antipodal_span N v hv hN",
+          "imports": [
+            "M8Exclusion"
+          ],
+          "name": "M8.Exclusion.antipodal_rejected",
+          "ancestors": [
+            "antipodal_span",
+            "span_rejected"
+          ],
+          "spec_sha256": "7c182b2668e7b9c4ec766a71edf2a5e46ae645bd973d8ae7c5444d8425766468"
+        },
+        "sha256": "f4b7f10fa9c1dae7aa02c8d7146f8183c77309fc69a4fd6ef6bd31abfcc7a036"
+      }
+    }
+  }
+}

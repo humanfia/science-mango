@@ -1,0 +1,4 @@
+{
+  "proof": "classical\nintro N inst c\nchange (M8.WholeResources.run c).discoveryCalls ≤ 1 ∧ (M8.WholeResources.run c).optimizerCalls ≤ (M8.WholeResources.run c).discoveryCalls\nby_cases h : M8.Solver.originalF c = 1\n· simp [M8.WholeResources.run, h]\n· cases hs : (M8.DiscoveryResources.run c).selected.map Prod.snd with\n  | none => simp [M8.WholeResources.run, h, hs]\n  | some choice =>\n    cases ho : M8.PhysicalBridge.solve (M8.Discovery.transformed c choice) with\n    | none => simp [M8.WholeResources.run, h, hs, ho]\n    | some result =>\n      rcases result with ⟨d, v, k⟩\n      simp [M8.WholeResources.run, h, hs, ho]",
+  "queries": []
+}

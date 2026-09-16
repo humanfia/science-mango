@@ -1,0 +1,15 @@
+{
+  "command": [
+    "lake",
+    "env",
+    "lean",
+    "-R",
+    "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-2gdiri52/attempt-003",
+    "-o",
+    "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-2gdiri52/attempt-003/Candidate_34520eeac3c54886.olean",
+    "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-2gdiri52/attempt-003/Candidate_34520eeac3c54886.lean"
+  ],
+  "returncode": 1,
+  "timed_out": false,
+  "output": "/home/jing/m8-lean-whole-resources-formalization/.humanize-formal-runs/run-2gdiri52/attempt-003/Candidate_34520eeac3c54886.lean:7:2: error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal\n\nHint: Use `set_option trace.split.failure true` to display additional diagnostic information\n\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\n⊢ (have F := Solver.originalF c;\n        have initial := [setupWork N, originalWork c];\n        if F = 1 then\n          { outcome := Solver.Outcome.noLogical F, charges := initial, discoveryCalls := 0, optimizerCalls := 0 }\n        else\n          have search := DiscoveryResources.run c;\n          have stageCharges := initial ++ [DiscoveryResources.charged N search];\n          match Option.map Prod.snd search.selected with\n          | none =>\n            { outcome := Solver.Outcome.unrecognized F, charges := stageCharges, discoveryCalls := 1,\n              optimizerCalls := 0 }\n          | some choice =>\n            have transformed := Discovery.transformed c choice;\n            have a := M7.Supports.polynomial transformed.1;\n            have b := M7.Supports.polynomial transformed.2;\n            match PhysicalBridge.solve transformed with\n            | none =>\n              { outcome := Solver.Outcome.unrecognized F,\n                charges := stageCharges ++ [transformWork N, M6.ActualTransfer.actualDistanceWork N a b],\n                discoveryCalls := 1, optimizerCalls := 1 }\n            | some (d, v, k) =>\n              { outcome := Solver.Outcome.recognized F d (PhysicalBridge.undo (Discovery.action choice) v) choice k,\n                charges := stageCharges ++ [transformWork N, M6.ActualTransfer.actualWitnessWork N a b k, undoWork N],\n                discoveryCalls := 1, optimizerCalls := 1 }).charges.length ≤\n    6\n"
+}

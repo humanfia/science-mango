@@ -1,0 +1,55 @@
+{
+  "id": "antipodal_distance",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Exclusion.antipodal_distance",
+    "spec_sha256": "b74f14308f91e9c735ce65bcbce05d72d7fa424c0a6da769a809b8781091b988",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-ref849tw/attempt-001/Candidate_d169b979c3af767c.lean",
+        "target_path": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-ref849tw/attempt-001/FrozenTarget_d169b979c3af767c.lean",
+        "feedback": "",
+        "target_sha256": "db897b9b58368ffb73239b986ebd9240a8a12396c40a2638d44f2f82bfc6e148",
+        "target_olean_sha256": "74b4417985247bfb5ebcc5dafe1dd99bb20b7aa8698e98ec13d23ad60d5660b0",
+        "source_sha256": "9bdd53e2fc5f17c94b0cb1081f86a914e6f6b11f61e2a3880e6949f4801450ec",
+        "olean_sha256": "f7b700a0360fdd2c7d75f25338b5249695a2852e1547f09143b27d678242ee8b",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:31:16.043640+00:00",
+    "work": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-ref849tw",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "4d508993f370e13fc38f4af18ca4c24f096713b24996ef5c11582313d55264a9",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-exclusion-conclusions-formalization/.humanize-formal-runs/run-ref849tw/attempt-001/Candidate_d169b979c3af767c.lean",
+    "environment_sha256": "14fc6cd2036424e62989da08e514485a422d51c3fa366983eb584c1959278def",
+    "artifacts": {
+      "antipodal_distance": {
+        "payload": {
+          "declaration": "theorem M8.Exclusion.antipodal_distance : ∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → M7.Transport.distance (M8.AntipodalFamily.recipe N) = some 2 := by\n  intro N inst v hv hN\n  have h8 : 8 ≤ N := by\n    rw [hN]\n    calc\n      8 = (2 : ℕ)^3 := by norm_num\n      _ ≤ 2^v := by gcongr <;> omega\n  have heven : Even N := by\n    have he : v = (v - 1) + 1 := by omega\n    rw [hN, he, pow_succ]\n    exact ⟨2^(v-1), by omega⟩\n  have hp := M8.AntipodalFamily.literal_polynomial N h8 heven\n  have hn := M8.AntipodalFamily.nontrivial N h8 heven\n  have hd := M8.AntipodalFamily.degree_bound N h8 heven\n  have hm : M8.AntipodalFamily.polynomial N ∣ M6.Cyclic.modulus N := by\n    rw [hN]\n    exact M8.AntipodalFamily.divides_modulus v hv\n  change M6.Final.quantumDistance N\n    (M7.Supports.polynomial (M8.AntipodalFamily.support N))\n    (M7.Supports.polynomial (M8.AntipodalFamily.support N)) = some 2\n  rw [hp]\n  change M8.Diagonal.distance N\n    (M6.Coordinates.coefficients N (M8.AntipodalFamily.polynomial N)) = some 2\n  exact M8.DiagonalPolynomial.distance_two N\n    (M8.AntipodalFamily.polynomial N) (M8.AntipodalFamily.polynomial N)\n    hn.2.2.1 hd hn.1 hn.2.1 (dvd_refl _) hm",
+          "imports": [
+            "M8Exclusion"
+          ],
+          "name": "M8.Exclusion.antipodal_distance",
+          "ancestors": [],
+          "spec_sha256": "b74f14308f91e9c735ce65bcbce05d72d7fa424c0a6da769a809b8781091b988"
+        },
+        "sha256": "fdf3748125260ef372283e257eadfbf6437b60ebade7962bffb75ef8e6f26aec"
+      }
+    }
+  }
+}

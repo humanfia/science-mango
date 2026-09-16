@@ -25,7 +25,7 @@ project.mkdir(parents=True,exist_ok=True)
 env=json.loads((stage/'experiment/environment.json').read_text())
 for name,digest in env.items():
  src=stage/'lean'/name if name.endswith('.lean') else stage/name
- if not src.is_file():continue
+ assert src.is_file(), (name,'missing frozen project source')
  assert hashlib.sha256(src.read_bytes()).hexdigest()==digest,(name,'frozen source changed')
  shutil.copy2(src,project/name)
 shutil.copy2(stage/'experiment/AcceptedExperiment.lean',project/'M8FinalAccepted.lean')

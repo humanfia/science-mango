@@ -1,0 +1,284 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Euclid.preprocess_correct_cost",
+    "status": "ok",
+    "results": [
+      {
+        "id": 328922,
+        "name": "Mathlib.Tactic.Polynomial.preprocess",
+        "module": "Mathlib.Tactic.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Polynomial/Basic.lean#L76-L81",
+        "source_text": "/-- Run the `polynomial_pre` simpset to turn nonstandard spellings of `algebraMap` such as\n`Polynomial.C` into `algebraMap` -/\ndef preprocess (e : Expr) : MetaM Simp.Result := do\n  let preThms ← polynomialPreExt.getTheorems\n  let ctx ← Simp.mkContext { failIfUnchanged := false } (simpTheorems := #[preThms])\n  pure (← Simp.main e ctx (methods := Lean.Meta.Simp.mkDefaultMethodsCore {})).1\n",
+        "docstring": "Run the `polynomial_pre` simpset to turn nonstandard spellings of `algebraMap` such as\n`Polynomial.C` into `algebraMap` "
+      },
+      {
+        "id": 327992,
+        "name": "Mathlib.Tactic.Linarith.preprocess",
+        "module": "Mathlib.Tactic.Linarith.Preprocessing",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Preprocessing.lean#L388-L400",
+        "source_text": "/--\n`preprocess pps l` takes a list `l` of proofs of propositions.\nIt maps each preprocessor `pp ∈ pps` over this list.\nThe preprocessors are run sequentially: each receives the output of the previous one.\nNote that a preprocessor may produce multiple or no expressions from each input expression,\nso the size of the list may change.\n-/\ndef preprocess (pps : List GlobalBranchingPreprocessor) (g : MVarId) (l : List Expr) :\n    MetaM (List Branch) := do\n  withTraceNode `linarith (fun _ => return m!\"Running preprocessors\") <|\n    g.withContext <|\n      pps.foldlM (init := [(g, l)]) fun ls pp => do\n        return (← ls.mapM fun (g, l) => do pp.process g l).flatten\n",
+        "docstring": "`preprocess pps l` takes a list `l` of proofs of propositions.\nIt maps each preprocessor `pp ∈ pps` over this list.\nThe preprocessors are run sequentially: each receives the output of the previous one.\nNote that a preprocessor may produce multiple or no expressions from each input expression,\nso the size of the list may change.\n"
+      },
+      {
+        "id": 327991,
+        "name": "Mathlib.Tactic.Linarith.defaultPreprocessors",
+        "module": "Mathlib.Tactic.Linarith.Preprocessing",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/Linarith/Preprocessing.lean#L381-L386",
+        "source_text": "/--\nThe default list of preprocessors, in the order they should typically run.\n-/\ndef defaultPreprocessors : List GlobalBranchingPreprocessor :=\n  [filterComparisons, nnrealToReal, natToInt, strengthenStrictInt,\n    compWithZero, cancelDenoms]\n",
+        "docstring": "The default list of preprocessors, in the order they should typically run.\n"
+      },
+      {
+        "id": 215451,
+        "name": "PNat.XgcdType.step_wf",
+        "module": "Mathlib.Data.PNat.Xgcd",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/PNat/Xgcd.lean#L271-L278",
+        "source_text": "/-- We will apply the above step recursively.  The following result\nis used to ensure that the process terminates. -/\ntheorem step_wf (hr : u.r ≠ 0) : SizeOf.sizeOf u.step < SizeOf.sizeOf u := by\n  change u.r - 1 < u.bp\n  have h₀ : u.r - 1 + 1 = u.r := Nat.succ_pred_eq_of_pos (Nat.pos_of_ne_zero hr)\n  have h₁ : u.r < u.bp + 1 := Nat.mod_lt (u.ap + 1) u.bp.succ_pos\n  rw [← h₀] at h₁\n  exact lt_of_succ_lt_succ h₁\n",
+        "docstring": "We will apply the above step recursively.  The following result\nis used to ensure that the process terminates. "
+      },
+      {
+        "id": 308958,
+        "name": "HahnSeries.embDomain",
+        "module": "Mathlib.RingTheory.HahnSeries.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/HahnSeries/Basic.lean#L439-L445",
+        "source_text": "/-- Extends the domain of a `HahnSeries` by an `OrderEmbedding`. -/\ndef embDomain (f : Γ ↪o Γ') : R⟦Γ⟧ → R⟦Γ'⟧ := fun x =>\n  { coeff := fun b : Γ' => if h : b ∈ f '' x.support then x.coeff (Classical.choose h) else 0\n    isPWO_support' :=\n      (x.isPWO_support.image_of_monotone f.monotone).mono fun b hb => by\n        contrapose hb\n        rw [Function.mem_support, dif_neg hb, Classical.not_not] }\n",
+        "docstring": "Extends the domain of a `HahnSeries` by an `OrderEmbedding`. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Euclid.preprocess_correct_cost",
+    "status": "ok",
+    "results": [
+      {
+        "id": 392798,
+        "name": "Space.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Space.Derivatives.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Space/Derivatives/Basic.lean#L268-L274",
+        "source_text": "lemma deriv_euclid {d ν μ} {f : Space d → EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (x : Space d) :\n    deriv ν (fun x => f x μ) x = deriv ν (fun x => f x) x μ := by\n  rw [deriv_eq_fderiv_basis]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) x (basis ν) = _\n  rw [fderiv_comp x (EuclideanSpace.proj μ).differentiableAt (hf x)]\n  simp [-EuclideanSpace.coe_proj, ← deriv_eq_fderiv_basis]\n",
+        "docstring": null
+      },
+      {
+        "id": 393545,
+        "name": "Time.deriv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L226-L236",
+        "source_text": "lemma deriv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t : Time) :\n    deriv (fun t => f t μ) t = deriv (fun t => f t) t μ := by\n  rw [deriv_eq]\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t 1 = _\n  rw [fderiv_comp]\n  · simp only [ContinuousLinearMap.fderiv, ContinuousLinearMap.coe_comp, Function.comp_apply,\n    PiLp.proj_apply]\n    rw [← deriv_eq]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 394399,
+        "name": "IsDimensionallyCorrect",
+        "module": "Physlib.Units.UnitDependent",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Units/UnitDependent.lean#L408-L419",
+        "source_text": "/-- A term of type `M` carrying an instance of `UnitDependent M` is said to be\n  dimensionally correct if under a change of units it remains the same.\n\n  More colloquially, something is dimensionally correct if it (e.g. it's value or its truth\n  for a proposition) does not depend on the units it is written in.\n\n  For the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\n  corresponds to the statement that `m` does not depend on units, e.g. is zero\n  or the dimension of `M` is zero.\n-/\ndef IsDimensionallyCorrect {M : Type} [UnitDependent M] (m : M) : Prop :=\n  ∀ u1 u2 : UnitChoices, scaleUnit u1 u2 m = m\n",
+        "docstring": "A term of type `M` carrying an instance of `UnitDependent M` is said to be\ndimensionally correct if under a change of units it remains the same.\n\nMore colloquially, something is dimensionally correct if it (e.g. it's value or its truth\nfor a proposition) does not depend on the units it is written in.\n\nFor the case of `m : M` with `CarriesDimension M` then `IsDimensionallyCorrect m`\ncorresponds to the statement that `m` does not depend on units, e.g. is zero\nor the dimension of `M` is zero.\n"
+      },
+      {
+        "id": 393546,
+        "name": "Time.fderiv_euclid",
+        "module": "Physlib.SpaceAndTime.Time.Derivatives",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/SpaceAndTime/Time/Derivatives.lean#L238-L245",
+        "source_text": "lemma fderiv_euclid { μ} {f : Time→ EuclideanSpace ℝ (Fin n)}\n    (hf : Differentiable ℝ f) (t dt : Time) :\n    fderiv ℝ (fun t => f t μ) t dt = fderiv ℝ (fun t => f t) t dt μ := by\n  change fderiv ℝ (EuclideanSpace.proj μ ∘ fun x => f x) t dt = _\n  rw [fderiv_comp]\n  · simp [-EuclideanSpace.coe_proj]\n  · fun_prop\n  · fun_prop\n",
+        "docstring": null
+      },
+      {
+        "id": 392056,
+        "name": "euclidLeviCivita",
+        "module": "Physlib.Relativity.Tensors.LeviCivita.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/Tensors/LeviCivita/Basic.lean#L81-L83",
+        "source_text": "/-- The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. -/\ndef _root_.euclidLeviCivita (g : Fin 4 → Fin 4) : ℝ :=\n  generalizedKroneckerDelta g (id : Fin 4 → Fin 4)\n",
+        "docstring": "The Euclidean Levi-Civita symbol `ε_{ijkl}` in dimension 4. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M7.Supports.degree_lt",
+    "status": "ok",
+    "results": [
+      {
+        "id": 101359,
+        "name": "Polynomial.degree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Defs.lean#L45-L49",
+        "source_text": "/-- `degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. -/\ndef degree (p : R[X]) : WithBot ℕ :=\n  p.support.max\n",
+        "docstring": "`degree p` is the degree of the polynomial `p`, i.e. the largest `X`-exponent in `p`.\n`degree p = some n` when `p ≠ 0` and `n` is the highest power of `X` that appears in `p`, otherwise\n`degree 0 = ⊥`. "
+      },
+      {
+        "id": 314056,
+        "name": "MonomialOrder.notMem_support_of_degree_lt",
+        "module": "Mathlib.RingTheory.MvPolynomial.MonomialOrder",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/MvPolynomial/MonomialOrder.lean#L678-L680",
+        "source_text": "lemma notMem_support_of_degree_lt {f g : MvPolynomial σ R} (h : m.degree f ≺[m] m.degree g) :\n    m.degree g ∉ f.support := by\n  simp [coeff_eq_zero_of_lt h]\n",
+        "docstring": null
+      },
+      {
+        "id": 101614,
+        "name": "Polynomial.degree_lt_degree",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Operations",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Operations.lean#L150-L156",
+        "source_text": "theorem degree_lt_degree (h : natDegree p < natDegree q) : degree p < degree q := by\n  by_cases hp : p = 0\n  · simp only [hp, degree_zero]\n    rw [bot_lt_iff_ne_bot]\n    intro hq\n    simp [hp, degree_eq_bot.mp hq] at h\n  · rwa [degree_eq_natDegree hp, degree_eq_natDegree <| ne_zero_of_natDegree_gt h, Nat.cast_lt]\n",
+        "docstring": null
+      },
+      {
+        "id": 316026,
+        "name": "Polynomial.degreeLT",
+        "module": "Mathlib.RingTheory.Polynomial.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/RingTheory/Polynomial/Basic.lean#L55-L57",
+        "source_text": "/-- The `R`-submodule of `R[X]` consisting of polynomials of degree < `n`. -/\ndef degreeLT (n : ℕ) : Submodule R R[X] :=\n  ⨅ k : ℕ, ⨅ (_ : k ≥ n), LinearMap.ker (lcoeff R k)\n",
+        "docstring": "The `R`-submodule of `R[X]` consisting of polynomials of degree < `n`. "
+      },
+      {
+        "id": 101753,
+        "name": "Polynomial.supp_subset_range",
+        "module": "Mathlib.Algebra.Polynomial.Degree.Support",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Polynomial/Degree/Support.lean#L49-L50",
+        "source_text": "theorem supp_subset_range (h : natDegree p < m) : p.support ⊆ Finset.range m := fun _n hn =>\n  mem_range.2 <| (le_natDegree_of_mem_supp _ hn).trans_lt h\n",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M7.Supports.degree_lt",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M7.Supports.degree_lt",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Cyclic.modulus",
+    "status": "ok",
+    "results": [
+      {
+        "id": 68141,
+        "name": "IsCyclic",
+        "module": "Mathlib.Algebra.Group.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/Group/Defs.lean#L1053-L1056",
+        "source_text": "/-- A group is called *cyclic* if it is generated by a single element. -/\n@[to_additive (attr := wikidata Q245462)]\nclass IsCyclic (G : Type u) [Pow G ℤ] : Prop where\n  protected exists_zpow_surjective : ∃ g : G, Function.Surjective (g ^ · : ℤ → G)\n",
+        "docstring": "A group is called *cyclic* if it is generated by a single element. \n\n[Wikidata Q245462](https://www.wikidata.org/wiki/Q245462)"
+      },
+      {
+        "id": 342378,
+        "name": "ContinuousMap.modulus_pos",
+        "module": "Mathlib.Topology.ContinuousMap.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L434-L435",
+        "source_text": "theorem modulus_pos (f : C(α, β)) {ε : ℝ} {h : 0 < ε} : 0 < f.modulus ε h :=\n  (Classical.choose_spec (uniform_continuity f ε h)).1\n",
+        "docstring": null
+      },
+      {
+        "id": 342377,
+        "name": "ContinuousMap.modulus",
+        "module": "Mathlib.Topology.ContinuousMap.Compact",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/ContinuousMap/Compact.lean#L430-L432",
+        "source_text": "/-- An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. -/\ndef modulus (f : C(α, β)) (ε : ℝ) (h : 0 < ε) : ℝ :=\n  Classical.choose (uniform_continuity f ε h)\n",
+        "docstring": "An arbitrarily chosen modulus of uniform continuity for a given function `f` and `ε > 0`. "
+      },
+      {
+        "id": 280541,
+        "name": "btw_cyclic",
+        "module": "Mathlib.Order.Circular",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Order/Circular.lean#L176-L179",
+        "source_text": "/-- The order of the `↔` has been chosen so that `rw [btw_cyclic]` cycles to the right while\n`rw [← btw_cyclic]` cycles to the left (thus following the prepended arrow). -/\ntheorem btw_cyclic {a b c : α} : btw a b c ↔ btw c a b :=\n  ⟨btw_cyclic_right, btw_cyclic_left⟩\n",
+        "docstring": "The order of the `↔` has been chosen so that `rw [btw_cyclic]` cycles to the right while\n`rw [← btw_cyclic]` cycles to the left (thus following the prepended arrow). "
+      },
+      {
+        "id": 328707,
+        "name": "Mathlib.Meta.NormNum.IsNatPowModT",
+        "module": "Mathlib.Tactic.NormNum.PowMod",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Tactic/NormNum/PowMod.lean#L40-L42",
+        "source_text": "/-- Represents and proves equalities of the form `a^b % m = c` for natural numbers. -/\nstructure IsNatPowModT (p : Prop) (a b m c : Nat) : Prop where\n  run' : p → Nat.mod (Nat.pow a b) m = c\n",
+        "docstring": "Represents and proves equalities of the form `a^b % m = c` for natural numbers. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M6.Cyclic.modulus",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Cyclic.modulus",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

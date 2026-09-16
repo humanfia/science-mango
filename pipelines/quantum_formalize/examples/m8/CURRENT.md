@@ -1,8 +1,8 @@
 # M8 current status
 
-Updated 2026-09-16T14:33:27.857071+00:00. Full M8 Lean acceptance remains pending.
+Updated 2026-09-16T14:47:17.572669+00:00. Full M8 Lean acceptance remains pending.
 
-The SSH-cloned source is frozen: all 35 manifest entries and nine direct dependency hashes were checked. 169 targets in 24 complete batches have passed individual checks, assembly compilation, environment checks, and canonical hash verification.
+The SSH-cloned source is frozen: all 35 manifest entries and nine direct dependency hashes were checked. 175 targets in 25 complete batches have passed individual checks, assembly compilation, environment checks, and canonical hash verification.
 
 | Completed batch | Targets |
 |---|---:|
@@ -16,6 +16,7 @@ The SSH-cloned source is frozen: all 35 manifest entries and nine direct depende
 | diagonal_polynomial | 5 |
 | discovery | 10 |
 | discovery_resources | 10 |
+| exclusion_conclusions | 6 |
 | exclusion_geometry | 9 |
 | finite_search | 8 |
 | mixed_family | 8 |

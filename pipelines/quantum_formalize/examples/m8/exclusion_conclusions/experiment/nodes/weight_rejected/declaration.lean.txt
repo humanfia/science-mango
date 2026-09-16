@@ -1,0 +1,8 @@
+theorem M8.Exclusion.weight_rejected : ∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → M8.Cutoff.limit N + 1 < w → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c) := by
+  intro N inst w c hvalid hF hover
+  have hw : 0 < w := by omega
+  apply M8.Exclusion.span_rejected N w c hw hvalid hF
+  apply M8.ExclusionGeometry.weight_exclusion N w (M8.Cutoff.limit N) c
+  · exact hvalid.1
+  · exact hvalid.2.1
+  · exact hover
