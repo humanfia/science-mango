@@ -1,0 +1,111 @@
+{
+  "id": "orbit_nonproduct",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.MixedNonproduct.orbit_nonproduct",
+    "spec_sha256": "31a8a8cb53922663b54ebe39982729a30563f11aa0ba81b1d983f9c96319c4fd",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-mixed-nonproduct-formalization/.humanize-formal-runs/run-mhd54tle/attempt-001/Candidate_09ea94288d041ed0.lean",
+        "target_path": "/home/jing/m8-lean-mixed-nonproduct-formalization/.humanize-formal-runs/run-mhd54tle/attempt-001/FrozenTarget_09ea94288d041ed0.lean",
+        "feedback": "",
+        "target_sha256": "cffd695dfbc407f614446fe8213b5e1c798909a10b00162c03c460c138ba656e",
+        "target_olean_sha256": "6ac2e02d1db9fa155c86a823810bbe3ceb86f9ba06794443f8e3a60e35ac7493",
+        "source_sha256": "dc37ad7043a7b0f5677a81db80ae7d7ae2a751d212c52ae5fe85abe1fb5505c1",
+        "olean_sha256": "67770635ce6e3a7fed8152189a4ef77541683a5016c51e95815b007cb3590a35",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:30:34.126231+00:00",
+    "work": "/home/jing/m8-lean-mixed-nonproduct-formalization/.humanize-formal-runs/run-mhd54tle",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "6570c040d7567202d1e808ed0f99b62feea78ed354f9f987be2ddb176a988146",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-mixed-nonproduct-formalization/.humanize-formal-runs/run-mhd54tle/attempt-001/Candidate_09ea94288d041ed0.lean",
+    "environment_sha256": "f2cfda916d15081d2840f27325ef804c5f4bec5e7783c9dbddf712c31b03b9ad",
+    "artifacts": {
+      "product_rectangular": {
+        "payload": {
+          "declaration": "theorem M8.MixedNonproduct.product_rectangular : ∀ (N : ℕ) [NeZero N], ∀ c : M7.Action.Recipe N, M8.MixedNonproduct.Product c ↔ ∀ z ∈ M8.MixedNonproduct.Cycles c, ∀ t ∈ M8.MixedNonproduct.Cycles c, (z.1,t.2) ∈ M8.MixedNonproduct.Cycles c := by\n  intro N inst c\n  unfold M8.MixedNonproduct.Product\n  constructor\n  · rintro ⟨U, V, h⟩ z hz t ht\n    rw [h] at hz ht ⊢\n    exact ⟨hz.1, ht.2⟩\n  · intro h\n    refine ⟨{x | ∃ y, (x, y) ∈ M8.MixedNonproduct.Cycles c},\n      {y | ∃ x, (x, y) ∈ M8.MixedNonproduct.Cycles c}, ?_⟩\n    apply Set.ext\n    intro z\n    change z ∈ M8.MixedNonproduct.Cycles c ↔\n      (∃ y, (z.1, y) ∈ M8.MixedNonproduct.Cycles c) ∧\n      (∃ x, (x, z.2) ∈ M8.MixedNonproduct.Cycles c)\n    constructor\n    · intro hz\n      exact ⟨⟨z.2, hz⟩, ⟨z.1, hz⟩⟩\n    · rintro ⟨⟨y, hy⟩, ⟨x, hx⟩⟩\n      exact h (z.1, y) hy (x, z.2) hx",
+          "imports": [
+            "M8MixedNonproduct"
+          ],
+          "name": "M8.MixedNonproduct.product_rectangular",
+          "ancestors": [],
+          "spec_sha256": "42853db1666cea5f505ed5b7d5604fdfffaee4055983df1ad49abb5e3c4ab990"
+        },
+        "sha256": "c9b810c626d72676302e713f8e91f16227e6d578ff184c887e451cbe69b195ac"
+      },
+      "word_action": {
+        "payload": {
+          "declaration": "theorem M8.MixedNonproduct.word_action : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), Function.Bijective (M8.MixedNonproduct.wordAction g) ∧ ∀ z : M6.Physical.Word N, M8.MixedNonproduct.wordAction g z ∈ M8.MixedNonproduct.Cycles (M7.Action.act g c) ↔ z ∈ M8.MixedNonproduct.Cycles c := by\n  classical\n  intro N _ g c\n  have hi := M7.Transport.action_isometry N g c\n  have hf : Function.Injective (M6.Flatten.flatten N) := by\n    first\n    | exact Function.LeftInverse.injective (M6.Flatten.flatten_left N)\n    | exact Function.LeftInverse.injective (M6.Flatten.flatten_right N)\n  have hw : ∀ z : M6.Physical.Word N,\n      M6.Flatten.flatten N (M8.MixedNonproduct.wordAction g z) =\n        M7.Transport.Xmap g (M6.Flatten.flatten N z) := by\n    intro z\n    cases he : g.exchange <;>\n      simp [M8.MixedNonproduct.wordAction, M7.Transport.Xmap,\n        M6.RecipeIsometries.translate, M6.RecipeIsometries.multiplier,\n        M6.RecipeIsometries.blockExchange, M6.RecipeIsometries.lift,\n        M6.Flatten.flatten_left, M6.Flatten.flatten_right, he]\n  constructor\n  · have hinj : Function.Injective (M8.MixedNonproduct.wordAction g) := by\n      intro x y h\n      apply hf\n      apply hi.1.1\n      rw [← hw x, ← hw y, h]\n    exact ⟨hinj, Finite.surjective_of_injective hinj⟩\n  · intro z\n    have hc := (hi.2 (M6.Flatten.flatten N z)).2.1\n    rw [← hw z] at hc\n    simpa [M7.Transport.CX, M8.MixedNonproduct.Cycles,\n      M6.Spaces.cycle_words_iff, M6.Flatten.flatten_left,\n      M6.Flatten.flatten_right] using hc",
+          "imports": [
+            "M8MixedNonproduct"
+          ],
+          "name": "M8.MixedNonproduct.word_action",
+          "ancestors": [],
+          "spec_sha256": "de9ab80c48ef0a101d3a08e7aee3e2eb7f0eec5ff818a5d797f5f77dd2442982"
+        },
+        "sha256": "43fd7e3304bd78efd42f04e864a345f1e191c5dfb4197a5e60ec1372baaffa85"
+      },
+      "product_action": {
+        "payload": {
+          "declaration": "theorem M8.MixedNonproduct.product_action : ∀ (N : ℕ) [NeZero N], ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N), M8.MixedNonproduct.Product (M7.Action.act g c) ↔ M8.MixedNonproduct.Product c := by\n  classical\n  intro N inst g c\n  have forward : ∀ (g : M7.Action.Record N) (c : M7.Action.Recipe N),\n      M8.MixedNonproduct.Product c → M8.MixedNonproduct.Product (M7.Action.act g c) := by\n    intro g c hc\n    have hr := (M8.MixedNonproduct.product_rectangular N c).mp hc\n    obtain ⟨hb, hw⟩ := M8.MixedNonproduct.word_action N g c\n    apply (M8.MixedNonproduct.product_rectangular N (M7.Action.act g c)).mpr\n    intro z hz t ht\n    obtain ⟨x, rfl⟩ := hb.2 z\n    obtain ⟨y, rfl⟩ := hb.2 t\n    have hx := (hw x).mp hz\n    have hy := (hw y).mp ht\n    cases he : g.exchange\n    · have hcross : M8.MixedNonproduct.wordAction g (x.1, y.2) =\n          ((M8.MixedNonproduct.wordAction g x).1,\n           (M8.MixedNonproduct.wordAction g y).2) := by\n        simp [M8.MixedNonproduct.wordAction, he,\n          M6.RecipeIsometries.translateWord, M6.RecipeIsometries.multiplyWord,\n          M6.RecipeIsometries.exchange]\n      rw [← hcross]\n      exact (hw (x.1, y.2)).mpr (hr x hx y hy)\n    · have hcross : M8.MixedNonproduct.wordAction g (y.1, x.2) =\n          ((M8.MixedNonproduct.wordAction g x).1,\n           (M8.MixedNonproduct.wordAction g y).2) := by\n        simp [M8.MixedNonproduct.wordAction, he,\n          M6.RecipeIsometries.translateWord, M6.RecipeIsometries.multiplyWord,\n          M6.RecipeIsometries.exchange]\n      rw [← hcross]\n      exact (hw (y.1, x.2)).mpr (hr y hy x hx)\n  constructor\n  · intro h\n    have hi := forward (M7.Action.inverse g) (M7.Action.act g c) h\n    rw [M7.Action.act_inverse N g c] at hi\n    exact hi\n  · exact forward g c",
+          "imports": [
+            "M8MixedNonproduct"
+          ],
+          "name": "M8.MixedNonproduct.product_action",
+          "ancestors": [
+            "product_rectangular",
+            "word_action"
+          ],
+          "spec_sha256": "fabf180c80875cc082449bc9734b09eeb74931da1913ec39c8d828e0c99ee071"
+        },
+        "sha256": "7a9fe5ebc434c5bd2d5e2d69b506421ad29e1145c3d24df961086002490fd239"
+      },
+      "mixed_obstruction": {
+        "payload": {
+          "declaration": "theorem M8.MixedNonproduct.mixed_obstruction : ∀ (N : ℕ) [NeZero N], 7 ≤ N → (M7.Supports.indicator (M8.MixedFamily.left N),M7.Supports.indicator (M8.MixedFamily.right N)) ∈ M8.MixedNonproduct.Cycles (M8.MixedFamily.recipe N) ∧ (0,0) ∈ M8.MixedNonproduct.Cycles (M8.MixedFamily.recipe N) ∧ (M7.Supports.indicator (M8.MixedFamily.left N),0) ∉ M8.MixedNonproduct.Cycles (M8.MixedFamily.recipe N) := by\n  classical\n  intro N inst hN\n  have hsmall (k : ℕ) (hk : 0 < k) (hk' : k ≤ 4) : (k : ZMod N) ≠ 0 := by\n    intro h\n    have hv := congrArg ZMod.val h\n    have hkN : k < N := by omega\n    simp [ZMod.val_natCast, Nat.mod_eq_of_lt hkN] at hv\n    omega\n  have h1 : (1 : ZMod N) ≠ 0 := by simpa using hsmall 1 (by omega) (by omega)\n  have h2 : (2 : ZMod N) ≠ 0 := by simpa using hsmall 2 (by omega) (by omega)\n  have h3 : (3 : ZMod N) ≠ 0 := by simpa using hsmall 3 (by omega) (by omega)\n  have hn12 : (-1 : ZMod N) ≠ 2 := by\n    intro h\n    have he := congrArg (fun x : ZMod N => x + 1) h\n    norm_num at he\n    exact h3 he.symm\n  have hn21 : (-2 : ZMod N) ≠ 1 := by\n    intro h\n    have he := congrArg (fun x : ZMod N => x + 2) h\n    norm_num at he\n    exact h3 he.symm\n  have hp : ∀ j : ZMod N, j ≠ 0 →\n      M7.Supports.indicator (M8.MixedFamily.left N) j *\n        M7.Supports.indicator (M8.MixedFamily.right N) (-j) = 0 := by\n    intro j hj\n    by_cases hj1 : j = 1\n    · subst j\n      simp [M7.Supports.indicator, M8.MixedFamily.left, M8.MixedFamily.right, hn12, h1]\n    · simp [M7.Supports.indicator, M8.MixedFamily.left, hj, hj1]\n  have hq : ∀ j : ZMod N, j ≠ 0 →\n      M7.Supports.indicator (M8.MixedFamily.right N) j *\n        M7.Supports.indicator (M8.MixedFamily.left N) (-j) = 0 := by\n    intro j hj\n    by_cases hj2 : j = 2\n    · subst j\n      simp [M7.Supports.indicator, M8.MixedFamily.left, M8.MixedFamily.right, hn21, h2]\n    · simp [M7.Supports.indicator, M8.MixedFamily.right, hj, hj2]\n  have hs : (∑ j : ZMod N, M7.Supports.indicator (M8.MixedFamily.left N) j *\n      M7.Supports.indicator (M8.MixedFamily.right N) (-j)) = 1 := by\n    rw [Finset.sum_eq_single 0]\n    · simp [M7.Supports.indicator, M8.MixedFamily.left, M8.MixedFamily.right]\n    · intro j _ hj\n      exact hp j hj\n    · simp\n  have ht : (∑ j : ZMod N, M7.Supports.indicator (M8.MixedFamily.right N) j *\n      M7.Supports.indicator (M8.MixedFamily.left N) (-j)) = 1 := by\n    rw [Finset.sum_eq_single 0]\n    · simp [M7.Supports.indicator, M8.MixedFamily.left, M8.MixedFamily.right]\n    · intro j _ hj\n      exact hq j hj\n    · simp\n  refine ⟨?_, ?_, ?_⟩\n  · change M6.Physical.syndrome N\n        (M7.Supports.indicator (M8.MixedFamily.left N))\n        (M7.Supports.indicator (M8.MixedFamily.right N))\n        (M7.Supports.indicator (M8.MixedFamily.left N),\n         M7.Supports.indicator (M8.MixedFamily.right N)) = 0\n    unfold M6.Physical.syndrome\n    rw [M6.Physical.conv_comm N (M7.Supports.indicator (M8.MixedFamily.left N))\n      (M7.Supports.indicator (M8.MixedFamily.right N))]\n    ext i\n    have hc : ∀ x : ZMod 2, x + x = 0 := by decide\n    exact hc _\n  · change M6.Physical.syndrome N\n        (M7.Supports.indicator (M8.MixedFamily.left N))\n        (M7.Supports.indicator (M8.MixedFamily.right N)) (0, 0) = 0\n    ext i\n    simp [M6.Physical.syndrome, M6.Physical.conv]\n  · intro hz\n    change M6.Physical.syndrome N\n        (M7.Supports.indicator (M8.MixedFamily.left N))\n        (M7.Supports.indicator (M8.MixedFamily.right N))\n        (M7.Supports.indicator (M8.MixedFamily.left N), 0) = 0 at hz\n    have he := congrArg (fun f => f 0) hz\n    simpa [M6.Physical.syndrome, M6.Physical.conv, hs, ht] using he",
+          "imports": [
+            "M8MixedNonproduct"
+          ],
+          "name": "M8.MixedNonproduct.mixed_obstruction",
+          "ancestors": [],
+          "spec_sha256": "dff1b4ce4ae71670ea8374d39f56c8208661caa06dd819d46fc01026d9e13612"
+        },
+        "sha256": "58df7bd1ca2ed91adeacf13466a4df9618489c19057397880ebd481f8c4467a2"
+      },
+      "orbit_nonproduct": {
+        "payload": {
+          "declaration": "theorem M8.MixedNonproduct.orbit_nonproduct : ∀ (N : ℕ) [NeZero N], 7 ≤ N → ∀ g : M7.Action.Record N, ¬ M8.MixedNonproduct.Product (M7.Action.act g (M8.MixedFamily.recipe N)) := by\n  intro N inst hN g hprod\n  have hp := (M8.MixedNonproduct.product_action N g (M8.MixedFamily.recipe N)).mp hprod\n  have hr := (M8.MixedNonproduct.product_rectangular N (M8.MixedFamily.recipe N)).mp hp\n  obtain ⟨hab, hzero, hnot⟩ := M8.MixedNonproduct.mixed_obstruction N hN\n  exact hnot (hr _ hab _ hzero)",
+          "imports": [
+            "M8MixedNonproduct"
+          ],
+          "name": "M8.MixedNonproduct.orbit_nonproduct",
+          "ancestors": [
+            "mixed_obstruction",
+            "product_action",
+            "product_rectangular",
+            "word_action"
+          ],
+          "spec_sha256": "a665e704ed7da4f962a33be076311256b1787e978e1246d997392e3eb1b0e626"
+        },
+        "sha256": "89eb8c2415c4d0e09904c0f37a50e5f7a4426b34963da35c0e91e613d5809b1c"
+      }
+    }
+  }
+}

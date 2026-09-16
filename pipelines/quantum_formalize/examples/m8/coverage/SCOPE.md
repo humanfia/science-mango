@@ -1,0 +1,3 @@
+# Complete original M8 admitted families
+
+Six exact targets cover all original P3 orders divisible by3 with N≥3, all even P4 orders N≥8 (including the exact min(3,2^v) full common multiplicity), and every mixed-family order N≥7. P3/P4 use actual physical distance2 and an independent paired-delta attaining minimum. Actual solver output has distance2 but its greedy witness is not required to equal that independent witness. All permitted orbits are outside the original Separated definition; the mixed orbit additionally has nonproduct actual cycle space. No mixed distance2, arbitrary Clifford/tensor claim or M9 expansion is added.

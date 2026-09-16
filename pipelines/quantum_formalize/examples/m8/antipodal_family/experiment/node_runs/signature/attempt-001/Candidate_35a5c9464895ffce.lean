@@ -1,0 +1,25 @@
+import FrozenTarget_35a5c9464895ffce
+theorem M8.AntipodalFamily.signature : QuantumHarnessFrozenTarget := by
+    classical
+    intro N inst v hv hN
+    have hpow : 2 ^ v = 2 ^ (v - 1) * 2 := by
+      rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]
+    have hlarge : 8 ≤ N := by
+      rw [hN]
+      calc
+        8 = (2 : ℕ) ^ 3 := by norm_num
+        _ ≤ 2 ^ v := Nat.pow_le_pow_right (by norm_num) hv
+    have heven : Even N := by
+      refine ⟨2 ^ (v - 1), ?_⟩
+      omega
+    have hlit := M8.AntipodalFamily.literal_polynomial N hlarge heven
+    have hm := (M8.AntipodalFamily.nontrivial N hlarge heven).1
+    have hd : M8.AntipodalFamily.polynomial N ∣ M6.Cyclic.modulus N := by
+      rw [hN]
+      exact M8.AntipodalFamily.divides_modulus v hv
+    change EuclideanDomain.gcd
+      (EuclideanDomain.gcd (M7.Supports.polynomial (M8.AntipodalFamily.support N))
+        (M7.Supports.polynomial (M8.AntipodalFamily.support N)))
+      (M6.Cyclic.modulus N) = M8.AntipodalFamily.polynomial N
+    rw [hlit, EuclideanDomain.gcd_self]
+    exact EuclideanDomain.gcd_eq_left.mpr hd

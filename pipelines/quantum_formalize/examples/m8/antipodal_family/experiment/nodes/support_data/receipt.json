@@ -1,0 +1,55 @@
+{
+  "id": "support_data",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.support_data",
+    "spec_sha256": "afea1b7aad5ee01b9b2898cdb4cd9e612633ca998421b537104df1a934aadc80",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-91842k9o/attempt-001/Candidate_548f71da01af0048.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-91842k9o/attempt-001/FrozenTarget_548f71da01af0048.lean",
+        "feedback": "",
+        "target_sha256": "db7131190972ac1ef4bc95eddc5cd9af4a72571181422d7432929dc70ada73a0",
+        "target_olean_sha256": "362d53f90514951a9aff2ff4d3110b60fbfae25d04b7368759758003699d840a",
+        "source_sha256": "1ed5186c0b370e80f0c4c01771cf2b000bcf03174cb7677ddadb009fcd35fff7",
+        "olean_sha256": "83f7a894beac933d61f2c149dafaa2c0038714892e6a0ffbe300b21d6fa4591c",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:14:41.881328+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-91842k9o",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-91842k9o/attempt-001/Candidate_548f71da01af0048.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "support_data": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.support_data : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.support N).card = 4 ∧ (0 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ (1 : ZMod N) ∈ M8.AntipodalFamily.support N ∧ ((N/2 : ℕ) : ZMod N) ∈ M8.AntipodalFamily.support N := by\n  classical\n  intro N inst hN hEven\n  have hh : 4 ≤ N / 2 := by omega\n  have hs : N / 2 + 1 < N := by omega\n  have hne : ∀ a b : ℕ, a < N → b < N → a ≠ b → (a : ZMod N) ≠ (b : ZMod N) := by\n    intro a b ha hb hab he\n    have hv := congrArg (fun x : ZMod N => x.val) he\n    rw [ZMod.val_natCast, ZMod.val_natCast, Nat.mod_eq_of_lt ha,\n      Nat.mod_eq_of_lt hb] at hv\n    exact hab hv\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    simpa only [Nat.cast_zero, Nat.cast_one] using hne 0 1 (by omega) (by omega) (by omega)\n  have h0h : (0 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2) (by omega) (by omega) (by omega)\n  have h0s : (0 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_zero] using hne 0 (N / 2 + 1) (by omega) hs (by omega)\n  have h1h : (1 : ZMod N) ≠ (N / 2 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2) (by omega) (by omega) (by omega)\n  have h1s : (1 : ZMod N) ≠ (N / 2 + 1 : ℕ) := by\n    simpa only [Nat.cast_one] using hne 1 (N / 2 + 1) (by omega) hs (by omega)\n  have hhs : ((N / 2 : ℕ) : ZMod N) ≠ (N / 2 + 1 : ℕ) :=\n    hne (N / 2) (N / 2 + 1) (by omega) hs (by omega)\n  constructor\n  · simp only [M8.AntipodalFamily.support, Finset.card_insert_of_notMem,\n      Finset.mem_insert, Finset.mem_singleton, h01, h0h, h0s, h1h, h1s,\n      hhs, or_self, not_false_eq_true, Finset.card_singleton] <;> norm_num\n  · simp [M8.AntipodalFamily.support]",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.support_data",
+          "ancestors": [],
+          "spec_sha256": "afea1b7aad5ee01b9b2898cdb4cd9e612633ca998421b537104df1a934aadc80"
+        },
+        "sha256": "1545742b38f84211a85738f07c4fd437bab7eda9fd59a7dc4a5580ef08ebbb3d"
+      }
+    }
+  }
+}

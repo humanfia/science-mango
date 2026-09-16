@@ -65,13 +65,13 @@ graph TD
   coverage_foundation --> mixed_family
   cutoff --> mixed_family
   anchor --> mixed_family
-  mixed_nonproduct["mixed_nonproduct"]
+  mixed_nonproduct["mixed_nonproduct ✓"]
   mixed_family --> mixed_nonproduct
   diagonal_polynomial["diagonal_polynomial ✓"]
   diagonal --> diagonal_polynomial
   exclusion_geometry["exclusion_geometry ✓"]
   anchor --> exclusion_geometry
-  antipodal_family["antipodal_family"]
+  antipodal_family["antipodal_family ✓"]
   exclusion_geometry --> antipodal_family
   physical_bridge --> antipodal_family
   coverage_foundation --> antipodal_family

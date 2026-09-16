@@ -1,0 +1,124 @@
+{
+  "id": "signature",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.signature",
+    "spec_sha256": "242d8e461f0059e0ec60a950bb10d45292cf494fd827906048d80b7a92948149",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-zhpk_hm0/attempt-001/Candidate_35a5c9464895ffce.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-zhpk_hm0/attempt-001/FrozenTarget_35a5c9464895ffce.lean",
+        "feedback": "",
+        "target_sha256": "7ac1a622788ff5a645a21453e01561267e589626e469824bca28f7bc47a854ed",
+        "target_olean_sha256": "d97e9aedd723a0966100a94d6ec6003e8ae497a0eff345d3c04a172981846745",
+        "source_sha256": "8444643c4c94fad914d528c720e02235d37d92a64f9d060a9cd44122d95a0e34",
+        "olean_sha256": "ebcfd80120242fbeb7821f810749364d371acd6fbacf108f8f792419dbbc7407",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:16:21.151216+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-zhpk_hm0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-zhpk_hm0/attempt-001/Candidate_35a5c9464895ffce.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "literal_polynomial": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.literal_polynomial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M7.Supports.polynomial (M8.AntipodalFamily.support N) = M8.AntipodalFamily.polynomial N := by\n  classical\n  intro N inst hN hEven\n  have hhalf : 1 < N / 2 := by omega\n  have hlt : N / 2 + 1 < N := by omega\n  have hv (k : ℕ) (hk : k < N) : (k : ZMod N).val = k := by\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\n  have v0 : (0 : ZMod N).val = 0 := by simp\n  have v1 : (1 : ZMod N).val = 1 := by\n    simpa using hv 1 (by omega)\n  have vh : ((N / 2 : ℕ) : ZMod N).val = N / 2 := hv _ (by omega)\n  have vs : ((N / 2 + 1 : ℕ) : ZMod N).val = N / 2 + 1 := hv _ hlt\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v0, v1] at hh\n    omega\n  have h0h : (0 : ZMod N) ≠ ((N / 2 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v0, vh] at hh\n    omega\n  have h0s : (0 : ZMod N) ≠ ((N / 2 + 1 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v0, vs] at hh\n    omega\n  have h1h : (1 : ZMod N) ≠ ((N / 2 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v1, vh] at hh\n    omega\n  have h1s : (1 : ZMod N) ≠ ((N / 2 + 1 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v1, vs] at hh\n    omega\n  have hhs : ((N / 2 : ℕ) : ZMod N) ≠ ((N / 2 + 1 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [vh, vs] at hh\n    omega\n  have hn0 : N / 2 ≠ 0 := by omega\n  have hn1 : N / 2 ≠ 1 := by omega\n  have hs0 : N / 2 + 1 ≠ 0 := by omega\n  have hs1 : N / 2 + 1 ≠ 1 := by omega\n  simp only [M7.Supports.polynomial, M8.AntipodalFamily.support,\n    Finset.sum_insert, Finset.mem_insert, Finset.mem_singleton,\n    h01, h0h, h0s, h1h, h1s, hhs, or_self, not_false_eq_true,\n    Finset.sum_singleton]\n  rw [v0, v1, vh, vs]\n  simp only [pow_zero, pow_one, M8.AntipodalFamily.polynomial, pow_succ]\n  ring",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.literal_polynomial",
+          "ancestors": [],
+          "spec_sha256": "2888f6624f626920421360afef3593bf81f16ca4a448b12d8497a84b958dd5e4"
+        },
+        "sha256": "c22873dd5615ce71e6aa862ebdcdfdb8cc95abc0d86aa0ac5ff743084d9bc5b4"
+      },
+      "polynomial_power": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.polynomial_power : ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^(v-1)+1) := by\n  intro v hv\n  change (1 + Polynomial.X) * (1 + Polynomial.X ^ (2 ^ v / 2)) =\n    (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1) + 1)\n  have hd : 2 ^ v / 2 = 2 ^ (v - 1) := by\n    calc\n      2 ^ v / 2 = (2 ^ (v - 1) * 2) / 2 := by\n        rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n      _ = 2 ^ (v - 1) := by simp\n  have hf : (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ (v - 1)) =\n      Polynomial.X ^ (2 ^ (v - 1)) + 1 := by\n    simpa using (add_pow_char_pow (Polynomial.X : M6.Cyclic.BinaryPolynomial) 1 2 (v - 1))\n  rw [hd, pow_succ, hf]\n  ring",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.polynomial_power",
+          "ancestors": [],
+          "spec_sha256": "2d90e8ad77f231ab91d0ae0bf678b3778717969ab9776a19fcca289f9ba9f725"
+        },
+        "sha256": "ec0ef75e0419aceb19ff07c0ca8f432d66a5998b318cd906cea7b1fba69d56e8"
+      },
+      "modulus_power": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.modulus_power : ∀ (v : ℕ), 3 ≤ v → M6.Cyclic.modulus (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^v) := by\n  change ∀ (v : ℕ), 3 ≤ v → M6.Cyclic.modulus (2^v) = (Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial)^(2^v)\n  intro v hv\n  simp [M6.Cyclic.modulus, add_pow_char_pow]",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.modulus_power",
+          "ancestors": [],
+          "spec_sha256": "daa2d615b5117877428ccdb0f3886895fde8b51b84ea33a8a0f243b20980f726"
+        },
+        "sha256": "8765612534cca8d61c01a4302407f0b47e04bd63c5465f6aa0dccd4636dad2e1"
+      },
+      "divides_modulus": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.divides_modulus : ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) ∣ M6.Cyclic.modulus (2^v) := by\n  change ∀ (v : ℕ), 3 ≤ v → M8.AntipodalFamily.polynomial (2^v) ∣ M6.Cyclic.modulus (2^v)\n  intro v hv\n  rw [M8.AntipodalFamily.polynomial_power v hv, M8.AntipodalFamily.modulus_power v hv]\n  have hd : 2 ^ v = 2 ^ (v - 1) * 2 := by\n    rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n  have hp : 0 < (2 : ℕ) ^ (v - 1) := by positivity\n  have he : 2 ^ (v - 1) + 1 ≤ 2 ^ v := by omega\n  refine ⟨(Polynomial.X + 1 : M6.Cyclic.BinaryPolynomial) ^ (2 ^ v - (2 ^ (v - 1) + 1)), ?_⟩\n  rw [← pow_add, Nat.add_sub_of_le he]",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.divides_modulus",
+          "ancestors": [
+            "modulus_power",
+            "polynomial_power"
+          ],
+          "spec_sha256": "a622d886a0f5e86e45ec5b1c27bacfb36a54ae5604ad374c4e2be642e4e65b66"
+        },
+        "sha256": "1c3a43cfa48c69ee38c3e4e83befc0d1c4592e6f33c26b3bf2be470da01e7392"
+      },
+      "nontrivial": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.nontrivial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → (M8.AntipodalFamily.polynomial N).Monic ∧ M8.AntipodalFamily.polynomial N ≠ 1 ∧ M8.AntipodalFamily.polynomial N ≠ 0 ∧ (M8.AntipodalFamily.polynomial N).natDegree = N/2+1 := by\n  intro N inst hN hEven\n  have hhalf : 0 < N / 2 := by omega\n  have monic_binomial : ∀ (R : Type) [CommRing R] (k : ℕ), 0 < k → (1 + (Polynomial.X : Polynomial R) ^ k).Monic := by\n    intro R _ k hk\n    first\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) (ne_of_gt hk) 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 (ne_of_gt hk))\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) hk 1)\n    | simpa only [Polynomial.C_1, add_comm] using (Polynomial.monic_X_pow_add_C (R := R) 1 hk)\n  have h₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).Monic := by\n    simpa using monic_binomial _ 1 (by omega)\n  have h₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).Monic :=\n    monic_binomial _ _ hhalf\n  have hm : (M8.AntipodalFamily.polynomial N).Monic := by\n    exact h₁.mul h₂\n  have hd₁ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial)).natDegree = 1 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simp)]\n    simp\n  have hd₂ : (1 + (Polynomial.X : M6.Cyclic.BinaryPolynomial) ^ (N / 2)).natDegree = N / 2 := by\n    rw [Polynomial.natDegree_add_eq_right_of_natDegree_lt (by simpa using hhalf)]\n    simp\n  have hd : (M8.AntipodalFamily.polynomial N).natDegree = N / 2 + 1 := by\n    unfold M8.AntipodalFamily.polynomial\n    rw [Polynomial.natDegree_mul h₁.ne_zero h₂.ne_zero, hd₁, hd₂]\n    omega\n  refine ⟨hm, ?_, hm.ne_zero, hd⟩\n  intro heq\n  rw [heq, Polynomial.natDegree_one] at hd\n  omega",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.nontrivial",
+          "ancestors": [],
+          "spec_sha256": "66373f90c1f464f5247a5ed395981c28ed5524ad3a4bb48d8ccad2aa1ff80acd"
+        },
+        "sha256": "e036f80b8bb405832356e601e23b6bb90b881180cd759d58d09b547e91de42be"
+      },
+      "signature": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.signature : ∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → M7.RecipeSignature.signature (M8.AntipodalFamily.recipe N) = M8.AntipodalFamily.polynomial N := by\n  classical\n  intro N inst v hv hN\n  have hpow : 2 ^ v = 2 ^ (v - 1) * 2 := by\n    rw [← pow_succ, Nat.sub_add_cancel (by omega : 1 ≤ v)]\n  have hlarge : 8 ≤ N := by\n    rw [hN]\n    calc\n      8 = (2 : ℕ) ^ 3 := by norm_num\n      _ ≤ 2 ^ v := Nat.pow_le_pow_right (by norm_num) hv\n  have heven : Even N := by\n    refine ⟨2 ^ (v - 1), ?_⟩\n    omega\n  have hlit := M8.AntipodalFamily.literal_polynomial N hlarge heven\n  have hm := (M8.AntipodalFamily.nontrivial N hlarge heven).1\n  have hd : M8.AntipodalFamily.polynomial N ∣ M6.Cyclic.modulus N := by\n    rw [hN]\n    exact M8.AntipodalFamily.divides_modulus v hv\n  change EuclideanDomain.gcd\n    (EuclideanDomain.gcd (M7.Supports.polynomial (M8.AntipodalFamily.support N))\n      (M7.Supports.polynomial (M8.AntipodalFamily.support N)))\n    (M6.Cyclic.modulus N) = M8.AntipodalFamily.polynomial N\n  rw [hlit, EuclideanDomain.gcd_self]\n  exact EuclideanDomain.gcd_eq_left.mpr hd",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.signature",
+          "ancestors": [
+            "divides_modulus",
+            "literal_polynomial",
+            "modulus_power",
+            "nontrivial",
+            "polynomial_power"
+          ],
+          "spec_sha256": "96ab33844fc77458fb95cfe497677f63009b90e5be30a169b26fe63b92654427"
+        },
+        "sha256": "89ad413add06c20b644c6b85c04b591022622fa65688abcc49ecff2d21f983bb"
+      }
+    }
+  }
+}

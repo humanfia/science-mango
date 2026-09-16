@@ -1,0 +1,55 @@
+{
+  "id": "literal_polynomial",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.literal_polynomial",
+    "spec_sha256": "2888f6624f626920421360afef3593bf81f16ca4a448b12d8497a84b958dd5e4",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-mt4_k_3p/attempt-001/Candidate_f94872ead1dfa05c.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-mt4_k_3p/attempt-001/FrozenTarget_f94872ead1dfa05c.lean",
+        "feedback": "",
+        "target_sha256": "e4ea975d4219195689359e0cdbb4e52d6235b90fa488da09f7471e7d3102b930",
+        "target_olean_sha256": "782d433c2e50dd1cf58ef9d93da00eebbd8b54178f5c4c2dd27b0ae6ea490ae5",
+        "source_sha256": "74148ec10e15bb7d2c570213e831219cf84b8a121218655c46a98e01abb189e4",
+        "olean_sha256": "74e75fb0d0c13b87a168519e17712dd38f05f56c811fc89cb6b0520c83671576",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:09:55.338625+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-mt4_k_3p",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-mt4_k_3p/attempt-001/Candidate_f94872ead1dfa05c.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "literal_polynomial": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.literal_polynomial : ∀ (N : ℕ) [NeZero N], 8 ≤ N → Even N → M7.Supports.polynomial (M8.AntipodalFamily.support N) = M8.AntipodalFamily.polynomial N := by\n  classical\n  intro N inst hN hEven\n  have hhalf : 1 < N / 2 := by omega\n  have hlt : N / 2 + 1 < N := by omega\n  have hv (k : ℕ) (hk : k < N) : (k : ZMod N).val = k := by\n    simpa only [ZMod.val_natCast, Nat.mod_eq_of_lt hk]\n  have v0 : (0 : ZMod N).val = 0 := by simp\n  have v1 : (1 : ZMod N).val = 1 := by\n    simpa using hv 1 (by omega)\n  have vh : ((N / 2 : ℕ) : ZMod N).val = N / 2 := hv _ (by omega)\n  have vs : ((N / 2 + 1 : ℕ) : ZMod N).val = N / 2 + 1 := hv _ hlt\n  have h01 : (0 : ZMod N) ≠ 1 := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v0, v1] at hh\n    omega\n  have h0h : (0 : ZMod N) ≠ ((N / 2 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v0, vh] at hh\n    omega\n  have h0s : (0 : ZMod N) ≠ ((N / 2 + 1 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v0, vs] at hh\n    omega\n  have h1h : (1 : ZMod N) ≠ ((N / 2 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v1, vh] at hh\n    omega\n  have h1s : (1 : ZMod N) ≠ ((N / 2 + 1 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [v1, vs] at hh\n    omega\n  have hhs : ((N / 2 : ℕ) : ZMod N) ≠ ((N / 2 + 1 : ℕ) : ZMod N) := by\n    intro h\n    have hh := congrArg ZMod.val h\n    rw [vh, vs] at hh\n    omega\n  have hn0 : N / 2 ≠ 0 := by omega\n  have hn1 : N / 2 ≠ 1 := by omega\n  have hs0 : N / 2 + 1 ≠ 0 := by omega\n  have hs1 : N / 2 + 1 ≠ 1 := by omega\n  simp only [M7.Supports.polynomial, M8.AntipodalFamily.support,\n    Finset.sum_insert, Finset.mem_insert, Finset.mem_singleton,\n    h01, h0h, h0s, h1h, h1s, hhs, or_self, not_false_eq_true,\n    Finset.sum_singleton]\n  rw [v0, v1, vh, vs]\n  simp only [pow_zero, pow_one, M8.AntipodalFamily.polynomial, pow_succ]\n  ring",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.literal_polynomial",
+          "ancestors": [],
+          "spec_sha256": "2888f6624f626920421360afef3593bf81f16ca4a448b12d8497a84b958dd5e4"
+        },
+        "sha256": "c22873dd5615ce71e6aa862ebdcdfdb8cc95abc0d86aa0ac5ff743084d9bc5b4"
+      }
+    }
+  }
+}

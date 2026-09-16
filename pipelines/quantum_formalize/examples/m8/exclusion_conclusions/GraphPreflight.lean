@@ -1,0 +1,7 @@
+import M8Exclusion
+def target_0 : Prop := (∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → (∀ g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g c)) → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c))
+def target_1 : Prop := (∀ (N : ℕ) [NeZero N] (w : ℕ) (c : M7.Action.Recipe N), M8.PhysicalBridge.Valid w c → M8.PhysicalBridge.signature c ≠ 1 → M8.Cutoff.limit N + 1 < w → M8.Solver.run c = M8.Solver.Outcome.unrecognized (M8.PhysicalBridge.signature c))
+def target_2 : Prop := (∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → ∀ g : M7.Action.Record N, M8.Cutoff.limit N < M8.Anchor.span (M7.Action.act g (M8.AntipodalFamily.recipe N)))
+def target_3 : Prop := (∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → M7.Transport.distance (M8.AntipodalFamily.recipe N) = some 2)
+def target_4 : Prop := (∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → M8.Solver.run (M8.AntipodalFamily.recipe N) = M8.Solver.Outcome.unrecognized (M8.AntipodalFamily.polynomial N))
+def target_5 : Prop := (∀ (N : ℕ) [NeZero N] (v : ℕ), 3 ≤ v → N = 2^v → (M8.PhysicalBridge.Valid 4 (M8.AntipodalFamily.recipe N) ∧ M8.PhysicalBridge.signature (M8.AntipodalFamily.recipe N) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(N/2+1) ∧ M8.Solver.run (M8.AntipodalFamily.recipe N) = M8.Solver.Outcome.unrecognized ((Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(N/2+1)) ∧ M7.Transport.distance (M8.AntipodalFamily.recipe N) = some 2))

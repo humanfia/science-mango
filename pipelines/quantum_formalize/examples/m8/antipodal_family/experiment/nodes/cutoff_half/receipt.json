@@ -1,0 +1,55 @@
+{
+  "id": "cutoff_half",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.AntipodalFamily.cutoff_half",
+    "spec_sha256": "57b1d07d8c9896e3aff5649a92f212d3b1636455c03563b31a576dcc0303a5c8",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-v_t5oaf0/attempt-001/Candidate_ff0a58e97558ebd7.lean",
+        "target_path": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-v_t5oaf0/attempt-001/FrozenTarget_ff0a58e97558ebd7.lean",
+        "feedback": "",
+        "target_sha256": "fb97b9b681192082477e47fa7b496f8d06c54e8331444d51fc0116b9060eb41d",
+        "target_olean_sha256": "b3fa4cc8541ac260bd76eb49b5bc9bea4e0c8f023569a4985fc166941332ec74",
+        "source_sha256": "d564a546aedf3276c0af069bb9adb49596f6020f98c035154667f13a8ef5f5dc",
+        "olean_sha256": "0babd28fab41a86f718b7a000ff946a448ef735ef06e2e9a7ee336c210df8afd",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T14:09:55.148576+00:00",
+    "work": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-v_t5oaf0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "eb69f37793fc7ab786a67c5b04b98f4d09a1143385309c53e866261dc99458d0",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-antipodal-family-formalization/.humanize-formal-runs/run-v_t5oaf0/attempt-001/Candidate_ff0a58e97558ebd7.lean",
+    "environment_sha256": "a1e2471fc09db7d5881278e4438e5764e8295808ba5e6f2d7a7e75322f88ae62",
+    "artifacts": {
+      "cutoff_half": {
+        "payload": {
+          "declaration": "theorem M8.AntipodalFamily.cutoff_half : ∀ (v : ℕ), 3 ≤ v → M8.Cutoff.limit (2^v) = v ∧ v < 2^(v-1) := by\n  change ∀ v : ℕ, 3 ≤ v → M8.Cutoff.limit (2^v) = v ∧ v < 2^(v-1)\n  intro v hv\n  have hp : ∀ k : ℕ, k + 3 < (2 : ℕ)^(k + 2) := by\n    intro k\n    induction k with\n    | zero => norm_num\n    | succ k ih =>\n      have he : (2 : ℕ)^(Nat.succ k + 2) = 2^(k + 2) * 2 := by\n        rw [show Nat.succ k + 2 = (k + 2) + 1 by omega, pow_succ]\n      rw [he]\n      omega\n  have hhalf := hp (v - 3)\n  have hx : v - 3 + 3 = v := by omega\n  have hy : v - 3 + 2 = v - 1 := by omega\n  rw [hx, hy] at hhalf\n  have he : (2 : ℕ)^v = 2^(v-1) * 2 := by\n    calc\n      2^v = 2^((v-1)+1) := congrArg (fun n : ℕ => (2 : ℕ)^n) (by omega)\n      _ = 2^(v-1) * 2 := pow_succ _ _\n  have hmin : v ≤ (2 : ℕ)^v - 1 := by omega\n  have hlo : (2 : ℕ)^v ≤ 2^v + 1 := by omega\n  have hhi : (2 : ℕ)^v + 1 < 2^(v+1) := by\n    rw [pow_succ]\n    omega\n  have hlog : Nat.log 2 ((2 : ℕ)^v + 1) = v := by\n    apply Nat.log_eq_of_pow_le_of_lt_pow <;> omega\n  constructor\n  · rw [M8.Cutoff.bit_length_limit]\n    have hlog2 : Nat.log2 ((2 : ℕ)^v + 1) = v := by\n      first\n      | simpa only [Nat.log2_eq_log_two] using hlog\n      | simpa only [Nat.log_two_eq_log2] using hlog\n    rw [hlog2, min_eq_right hmin]\n  · exact hhalf",
+          "imports": [
+            "M8AntipodalFamily"
+          ],
+          "name": "M8.AntipodalFamily.cutoff_half",
+          "ancestors": [],
+          "spec_sha256": "57b1d07d8c9896e3aff5649a92f212d3b1636455c03563b31a576dcc0303a5c8"
+        },
+        "sha256": "e2f9fe88fd47db8a51ab2eef5de2059321fda9c565641e83418041c319fac194"
+      }
+    }
+  }
+}

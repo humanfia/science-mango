@@ -41,19 +41,19 @@ noncomputable def run {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : Run N := b
   let initial := [setupWork N, originalWork c]
   exact if F = 1 then ⟨.noLogical F,initial,0,0⟩ else
     let search := M8.DiscoveryResources.run c
-    let prefix := initial ++ [M8.DiscoveryResources.charged N search]
+    let stageCharges := initial ++ [M8.DiscoveryResources.charged N search]
     match search.selected.map Prod.snd with
-    | none => ⟨.unrecognized F,prefix,1,0⟩
+    | none => ⟨.unrecognized F,stageCharges,1,0⟩
     | some choice =>
       let transformed := M8.Discovery.transformed c choice
       let a := M7.Supports.polynomial transformed.1
       let b := M7.Supports.polynomial transformed.2
       match M8.PhysicalBridge.solve transformed with
-      | none => ⟨.unrecognized F,prefix ++ [transformWork N,
+      | none => ⟨.unrecognized F,stageCharges ++ [transformWork N,
           M6.ActualTransfer.actualDistanceWork N a b],1,1⟩
       | some (d,v,k) => ⟨.recognized F d
           (M8.PhysicalBridge.undo (M8.Discovery.action choice) v) choice k,
-          prefix ++ [transformWork N,M6.ActualTransfer.actualWitnessWork N a b k,undoWork N],1,1⟩
+          stageCharges ++ [transformWork N,M6.ActualTransfer.actualWitnessWork N a b k,undoWork N],1,1⟩
 noncomputable def indexedWork {N : ℕ} [NeZero N] (c : M7.Action.Recipe N) : ℕ :=
   (run c).charges.sum
 end M8.WholeResources

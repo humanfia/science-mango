@@ -21,10 +21,12 @@ s=s.replace(needle,"""  if f.name == 'M6ActualCSSAccepted.lean':
    continue
 """+needle)
 packaging=runpy.run_path('/home/jing/m8_packaged_definition_collision.py')
+forwarding=runpy.run_path('/home/jing/m8_forward_m6_accepted.py')
 needle2="  if (p/f.name).exists() and (p/f.name).read_bytes()!=f.read_bytes():"
-s=s.replace(needle2,needle2+"\n   reconciliation=packaging['reconcile_packaged_definition'](p/f.name,f,repo)\n   if reconciliation is not None:\n    chosen,record=reconciliation;(p/f.name).write_bytes(chosen);(b/'lean'/f.name).write_bytes(chosen);prov.append({'parent':name,'packaged_definition_reconciliation':record});continue")
+s=s.replace(needle2,needle2+"\n   reconciliation=packaging['reconcile_packaged_definition'](p/f.name,f,repo)\n   if reconciliation is None:reconciliation=forwarding['reconcile_m6_forwarder'](p/f.name,f,p)\n   if reconciliation is not None:\n    chosen,record=reconciliation;(p/f.name).write_bytes(chosen);(b/'lean'/f.name).write_bytes(chosen);prov.append({'parent':name,'audited_import_reconciliation':record});continue")
 exec(s)
 helper['normalize_child'](repo,p,b/'lean',b/'CSS_IMPORT_NORMALIZATION.json')
+forwarding['forward_m6_accepted'](p,b)
 selection=[('algorithm','Algorithm','solver',['output_gcd','noLogical_exact','unrecognized_exact','recognized_exact','recognized_correct']),('physical_parameters','PhysicalParameters','raw_parameters',['raw_noLogical','encoded_dimension']),('resources','Resources','sequential_resources',None),('storage','Storage','sequential_store',['allocation_access','store_space']),('cost_projection','CostProjection','whole_resources',['projection']),('coverage','AdmittedFamilies','coverage',None),('exclusion','ExcludedFamilies','exclusion_conclusions',None)]
 source=''.join('import '+a+'\n' for _,a in parents)+'\nnamespace M8.Final\n'
 rows=[];nodes=[]

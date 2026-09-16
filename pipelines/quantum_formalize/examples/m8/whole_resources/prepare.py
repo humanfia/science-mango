@@ -24,6 +24,10 @@ needle="   from pipelines.quantum_formalize.accepted_order import order_only_equ
 insert='   reconciliation=reconcile_packaged_definition(p/f.name,f,repo)\n   if reconciliation is not None:\n    chosen,audit=reconciliation\n    (p/f.name).write_bytes(chosen);(b/"lean"/f.name).write_bytes(chosen)\n    prov.append({"parent":name,"definition_import_reconciliation":audit})\n    continue\n'
 promotion=promotion.replace(needle,insert+needle,1)
 exec(promotion)
+forwarder=b/'forward_m6_accepted.py'
+shutil.copy2('/home/jing/m8_forward_m6_accepted.py',forwarder)
+exec(forwarder.read_text())
+forward_m6_accepted(p,b)
 source=(b/'planned/M8WholeResources.lean').read_text();(p/'M8WholeResources.lean').write_text(source);(b/'lean/M8WholeResources.lean').write_text(source)
 root=base/'m8/cutoff'
 for name in ['lake-manifest.json','lean-toolchain']:shutil.copy2(root/name,p/name);shutil.copy2(root/name,b/name)

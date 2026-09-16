@@ -1,0 +1,8 @@
+{
+  "proof": "classical\nintro N _ g c\nhave hi := M7.Transport.action_isometry N g c\nhave hf : Function.Injective (M6.Flatten.flatten N) := by\n  first\n  | exact Function.LeftInverse.injective (M6.Flatten.flatten_left N)\n  | exact Function.LeftInverse.injective (M6.Flatten.flatten_right N)\nhave hw : ∀ z : M6.Physical.Word N,\n    M6.Flatten.flatten N (M8.MixedNonproduct.wordAction g z) =\n      M7.Transport.Xmap g (M6.Flatten.flatten N z) := by\n  intro z\n  cases he : g.exchange <;>\n    simp [M8.MixedNonproduct.wordAction, M7.Transport.Xmap,\n      M6.RecipeIsometries.translate, M6.RecipeIsometries.multiplier,\n      M6.RecipeIsometries.blockExchange, M6.RecipeIsometries.lift,\n      M6.Flatten.flatten_left, M6.Flatten.flatten_right, he]\nconstructor\n· have hinj : Function.Injective (M8.MixedNonproduct.wordAction g) := by\n    intro x y h\n    apply hf\n    apply hi.1.1\n    rw [← hw x, ← hw y, h]\n  exact ⟨hinj, Finite.surjective_of_injective hinj⟩\n· intro z\n  have hc := (hi.2 (M6.Flatten.flatten N z)).2.1\n  rw [← hw z] at hc\n  simpa [M7.Transport.CX, M8.MixedNonproduct.Cycles,\n    M6.Spaces.cycle_words_iff, M6.Flatten.flatten_left,\n    M6.Flatten.flatten_right] using hc",
+  "queries": [
+    "M6.Flatten.flatten flatten_left flatten_right",
+    "M6.Spaces.cycle_words_iff M7.Transport.CX",
+    "M6.RecipeIsometries.lift translate multiplier blockExchange"
+  ]
+}

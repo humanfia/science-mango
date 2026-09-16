@@ -1,0 +1,284 @@
+[
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Physical.conv M6.Physical.syndrome M6.Physical.conv_comm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 109479,
+        "name": "WithConv",
+        "module": "Mathlib.Algebra.WithConv",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/WithConv.lean#L24-L31",
+        "source_text": "/-- A type synonym for the convolutive product of linear maps and intrinsic star.\n\nThe instances for the convolutive product and intrinsic star are only available with this type.\n\nUse `WithConv.linearEquiv` to coerce into this type. -/\nstructure WithConv A where\n  /-- Converts an element of `A` to `WithConv A`. -/ toConv ::\n  /-- Converts an element of `WithConv A` back to `A`. -/ ofConv : A\n",
+        "docstring": "A type synonym for the convolutive product of linear maps and intrinsic star.\n\nThe instances for the convolutive product and intrinsic star are only available with this type.\n\nUse `WithConv.linearEquiv` to coerce into this type. "
+      },
+      {
+        "id": 109526,
+        "name": "WithConv.linearEquiv",
+        "module": "Mathlib.Algebra.WithConv",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/WithConv.lean#L138-L141",
+        "source_text": "/-- The linear equivalence between `WithConv A` and `A`. -/\nprotected def linearEquiv [Semiring R] [Module R A] : WithConv A ≃ₗ[R] A where\n  __ := WithConv.addEquiv A\n  map_smul' := by simp\n",
+        "docstring": "The linear equivalence between `WithConv A` and `A`. "
+      },
+      {
+        "id": 261192,
+        "name": "MeasureTheory.Measure.mconv_comm",
+        "module": "Mathlib.MeasureTheory.Group.Convolution",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Group/Convolution.lean#L125-L132",
+        "source_text": "/-- To get commutativity, we need the underlying multiplication to be commutative. -/\n@[to_additive /-- To get commutativity, we need the underlying addition to be commutative. -/]\ntheorem mconv_comm {M : Type*} [CommMonoid M] [MeasurableSpace M] [MeasurableMul₂ M] (μ : Measure M)\n    (ν : Measure M) [SFinite μ] [SFinite ν] : μ ∗ₘ ν = ν ∗ₘ μ := by\n  unfold mconv\n  rw [← prod_swap, map_map (by fun_prop)]\n  · simp [Function.comp_def, mul_comm]\n  fun_prop\n",
+        "docstring": "To get commutativity, we need the underlying multiplication to be commutative. "
+      },
+      {
+        "id": 109527,
+        "name": "WithConv.linearEquiv_apply",
+        "module": "Mathlib.Algebra.WithConv",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/WithConv.lean#L143-L144",
+        "source_text": "@[simp] lemma linearEquiv_apply [Semiring R] [Module R A]\n    (a : WithConv A) : WithConv.linearEquiv R A a = ofConv a := rfl\n@[simp] lemma symm_linearEquiv_apply [Semiring R] [Module R A]",
+        "docstring": null
+      },
+      {
+        "id": 244885,
+        "name": "LinearEquiv.det_conj",
+        "module": "Mathlib.LinearAlgebra.Determinant",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/LinearAlgebra/Determinant.lean#L455-L459",
+        "source_text": "/-- Conjugating a linear equiv by a linear equiv does not change its determinant. -/\n@[simp]\ntheorem det_conj (f : M ≃ₗ[R] M) (e : M ≃ₗ[R] M') :\n    LinearEquiv.det ((e.symm.trans f).trans e) = LinearEquiv.det f := by\n  rw [← Units.val_inj, coe_det, coe_det, ← comp_coe, ← comp_coe, LinearMap.det_conj]\n",
+        "docstring": "Conjugating a linear equiv by a linear equiv does not change its determinant. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "M6.Physical.conv M6.Physical.syndrome M6.Physical.conv_comm",
+    "status": "ok",
+    "results": [
+      {
+        "id": 393821,
+        "name": "CanonicalEnsemble.physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L720-L724",
+        "source_text": "/-- The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. -/\nnoncomputable def physicalProbability (T : Temperature) (i : ι) : ℝ :=\n  𝓒.probability T i * (𝓒.phaseSpaceunit ^ 𝓒.dof)\n",
+        "docstring": "The dimensionless physical probability density. This is is the probability density w.r.t. the\nmeasure, obtained by dividing the phase space measure by the fundamental unit `h^dof`, making the\nprobability density `ρ_phys = ρ_math * h^dof` dimensionless. "
+      },
+      {
+        "id": 393832,
+        "name": "CanonicalEnsemble.physicalProbability_add",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L784-L791",
+        "source_text": "lemma physicalProbability_add\n    {ι1} [MeasurableSpace ι1]\n    (𝓒1 : CanonicalEnsemble ι1) (T : Temperature) (i : ι × ι1)\n    (h : 𝓒.phaseSpaceunit = 𝓒1.phaseSpaceunit) :\n    (𝓒 + 𝓒1).physicalProbability T i\n      = 𝓒.physicalProbability T i.1 * 𝓒1.physicalProbability T i.2 := by\n  simp [physicalProbability, probability_add, phase_space_unit_add, dof_add, h, pow_add,\n    mul_mul_mul_comm]\n",
+        "docstring": null
+      },
+      {
+        "id": 393831,
+        "name": "CanonicalEnsemble.physicalProbability_congr",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L779-L782",
+        "source_text": "lemma physicalProbability_congr (e : ι1 ≃ᵐ ι) (T : Temperature) (i : ι1) :\n    (𝓒.congr e).physicalProbability T i\n      = 𝓒.physicalProbability T (e i) := by\n  simp [physicalProbability, probability]\n",
+        "docstring": null
+      },
+      {
+        "id": 393826,
+        "name": "CanonicalEnsemble.log_physicalProbability",
+        "module": "Physlib.StatisticalMechanics.CanonicalEnsemble.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/StatisticalMechanics/CanonicalEnsemble/Basic.lean#L746-L751",
+        "source_text": "lemma log_physicalProbability\n    (T : Temperature) [IsFiniteMeasure (𝓒.μBolt T)] [NeZero 𝓒.μ] (i : ι) :\n    Real.log (𝓒.physicalProbability T i)\n      = Real.log (𝓒.probability T i) + (𝓒.dof : ℝ) * Real.log 𝓒.phaseSpaceunit := by\n  rw [physicalProbability, Real.log_mul (𝓒.probability_pos T i).ne' (pow_pos 𝓒.hPos _).ne',\n    Real.log_pow]\n",
+        "docstring": null
+      },
+      {
+        "id": 387031,
+        "name": "allPhyslibModules",
+        "module": "Physlib.Meta.AllFilePaths",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Meta/AllFilePaths.lean#L34-L42",
+        "source_text": "/-- Gets an array of all module names in `Physlib`. -/\ndef allPhyslibModules : IO (Array Lean.Name) := do\n  let paths ← allFilePaths\n  let moduleNames := paths.map fun path =>\n    let relativePath := path.toString.replace \"./Physlib/\" \"Physlib.\"\n    let noExt := relativePath.replace \".lean\" \"\"\n    let nameStr := noExt.replace \"/\" \".\"\n    String.toName nameStr\n  pure moduleNames\n",
+        "docstring": "Gets an array of all module names in `Physlib`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ]
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "ZMod.natCast_zmod_eq_zero_iff_dvd",
+    "status": "ok",
+    "results": [
+      {
+        "id": 223058,
+        "name": "ZMod.intCast_zmod_eq_zero_iff_dvd",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L512-L513",
+        "source_text": "theorem intCast_zmod_eq_zero_iff_dvd (a : ℤ) (b : ℕ) : (a : ZMod b) = 0 ↔ (b : ℤ) ∣ a := by\n  rw [← Int.cast_zero, ZMod.intCast_eq_intCast_iff, Int.modEq_zero_iff_dvd]\n",
+        "docstring": null
+      },
+      {
+        "id": 223060,
+        "name": "ZMod.natCast_eq_zero_iff",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L518-L519",
+        "source_text": "theorem natCast_eq_zero_iff (a b : ℕ) : (a : ZMod b) = 0 ↔ b ∣ a := by\n  rw [← Nat.cast_zero, ZMod.natCast_eq_natCast_iff, Nat.modEq_zero_iff_dvd]\n",
+        "docstring": null
+      },
+      {
+        "id": 223199,
+        "name": "ZMod",
+        "module": "Mathlib.Data.ZMod.Defs",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Defs.lean#L140-L144",
+        "source_text": "/-- The integers modulo `n : ℕ`. -/\n@[to_additive_dont_translate]\ndef ZMod : ℕ → Type\n  | 0 => ℤ\n  | n + 1 => Fin (n + 1)\n",
+        "docstring": "The integers modulo `n : ℕ`. "
+      },
+      {
+        "id": 223057,
+        "name": "ZMod.natCast_eq_natCast_iff'",
+        "module": "Mathlib.Data.ZMod.Basic",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/ZMod/Basic.lean#L509-L510",
+        "source_text": "theorem natCast_eq_natCast_iff' (a b c : ℕ) : (a : ZMod c) = (b : ZMod c) ↔ a % c = b % c :=\n  ZMod.natCast_eq_natCast_iff a b c\n",
+        "docstring": null
+      },
+      {
+        "id": 214283,
+        "name": "ZNum.div_to_int",
+        "module": "Mathlib.Data.Num.ZNum",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Data/Num/ZNum.lean#L654-L674",
+        "source_text": "@[simp, norm_cast]\ntheorem div_to_int : ∀ n d, ((n / d : ZNum) : ℤ) = n / d\n  | 0, 0 => by simp [Int.ediv_zero]\n  | 0, pos _ => (Int.zero_ediv _).symm\n  | 0, neg _ => (Int.zero_ediv _).symm\n  | pos _, 0 => (Int.ediv_zero _).symm\n  | neg _, 0 => (Int.ediv_zero _).symm\n  | pos n, pos d => (Num.cast_toZNum _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | pos n, neg d => (Num.cast_toZNumNeg _).trans <| by rw [← Num.to_nat_to_int]; simp\n  | neg n, pos d =>\n    show -_ = -_ / ↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change -[n.pred' / ↑d+1] = -[n.pred' / (d.pred' + 1)+1]\n      rw [d.to_nat_eq_succ_pred]\n  | neg n, neg d =>\n    show ↑(PosNum.pred' n / Num.pos d).succ' = -_ / -↑d by\n      rw [n.to_int_eq_succ_pred, d.to_int_eq_succ_pred, ← PosNum.to_nat_to_int, Num.succ'_to_nat,\n        Num.div_to_nat]\n      change (Nat.succ (_ / d) : ℤ) = Nat.succ (n.pred' / (d.pred' + 1))\n      rw [d.to_nat_eq_succ_pred]\n\n@[simp, norm_cast]\ntheorem mod_to_int : ∀ n d, ((n % d : ZNum) : ℤ) = n % d\n  | 0, _ => (Int.zero_emod _).symm\n  | pos n, d =>\n    (Num.cast_toZNum _).trans <| by\n      rw [← Num.to_nat_to_int, cast_pos, Num.mod_to_nat, ← PosNum.to_nat_to_int, abs_to_nat]\n      rfl\n  | neg n, d =>\n    (Num.cast_sub' _ _).trans <| by\n      rw [← Num.to_nat_to_int, cast_neg, ← Num.to_nat_to_int, Num.succ_to_nat, Num.mod_to_nat,\n          abs_to_nat, ← Int.subNatNat_eq_coe, n.to_int_eq_succ_pred]\n      rfl\n\n@[simp]\ntheorem gcd_to_nat (a b) : (gcd a b : ℕ) = Int.gcd a b :=",
+        "docstring": null
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "ZMod.natCast_zmod_eq_zero_iff_dvd",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "ZMod.natCast_zmod_eq_zero_iff_dvd",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  },
+  {
+    "library": "Mathlib",
+    "indexed_package": "Mathlib",
+    "query": "M6.Coordinates.encode_conv M6.Coordinates.encode_polynomial",
+    "status": "ok",
+    "results": [
+      {
+        "id": 357344,
+        "name": "inCoordinates_apply_eq₂",
+        "module": "Mathlib.Topology.VectorBundle.Hom",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Topology/VectorBundle/Hom.lean#L512-L523",
+        "source_text": "/-- Rewrite `ContinuousLinearMap.inCoordinates` using continuous linear equivalences, in the\nbundle of bilinear maps. -/\ntheorem inCoordinates_apply_eq₂\n    {x₀ x : B} {ϕ : E₁ x →L[𝕜] E₂ x →L[𝕜] E₃ x} {v : F₁} {w : F₂}\n    (h₁x : x ∈ (trivializationAt F₁ E₁ x₀).baseSet)\n    (h₂x : x ∈ (trivializationAt F₂ E₂ x₀).baseSet)\n    (h₃x : x ∈ (trivializationAt F₃ E₃ x₀).baseSet) :\n    inCoordinates F₁ E₁ (F₂ →L[𝕜] F₃) (fun x ↦ E₂ x →L[𝕜] E₃ x) x₀ x x₀ x ϕ v w =\n    (trivializationAt F₃ E₃ x₀).linearMapAt 𝕜 x\n      (ϕ ((trivializationAt F₁ E₁ x₀).symm x v) ((trivializationAt F₂ E₂ x₀).symm x w)) := by\n  rw [inCoordinates_eq h₁x (by simp [h₂x, h₃x])]\n  simp [hom_trivializationAt, Trivialization.continuousLinearMap_apply, h₂x]\n",
+        "docstring": "Rewrite `ContinuousLinearMap.inCoordinates` using continuous linear equivalences, in the\nbundle of bilinear maps. "
+      },
+      {
+        "id": 261165,
+        "name": "MeasureTheory.Measure.conv",
+        "module": "Mathlib.MeasureTheory.Group.Convolution",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/MeasureTheory/Group/Convolution.lean#L34-L34",
+        "source_text": "@[to_additive /-- Additive convolution of measures. -/]\nnoncomputable def mconv (μ : Measure M) (ν : Measure M) :",
+        "docstring": "Additive convolution of measures. "
+      },
+      {
+        "id": 232258,
+        "name": "inTangentCoordinates",
+        "module": "Mathlib.Geometry.Manifold.VectorBundle.Tangent",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Geometry/Manifold/VectorBundle/Tangent.lean#L507-L519",
+        "source_text": "/-- When `ϕ x` is a continuous linear map that changes vectors in charts around `f x` to vectors\nin charts around `g x`, `inTangentCoordinates I I' f g ϕ x₀ x` is a coordinate change of\nthis continuous linear map that makes sense from charts around `f x₀` to charts around `g x₀`\nby composing it with appropriate coordinate changes.\nNote that the type of `ϕ` is more accurately\n`Π x : N, TangentSpace I (f x) →L[𝕜] TangentSpace I' (g x)`.\nWe are unfolding `TangentSpace` in this type so that Lean recognizes that the type of `ϕ` doesn't\nactually depend on `f` or `g`.\n\nThis is the underlying function of the trivializations of the hom of (pullbacks of) tangent spaces.\n-/\ndef inTangentCoordinates (f : N → M) (g : N → M') (ϕ : N → E →L[𝕜] E') : N → N → E →L[𝕜] E' :=\n  fun x₀ x => inCoordinates E (TangentSpace I) E' (TangentSpace I') (f x₀) (f x) (g x₀) (g x) (ϕ x)\n",
+        "docstring": "When `ϕ x` is a continuous linear map that changes vectors in charts around `f x` to vectors\nin charts around `g x`, `inTangentCoordinates I I' f g ϕ x₀ x` is a coordinate change of\nthis continuous linear map that makes sense from charts around `f x₀` to charts around `g x₀`\nby composing it with appropriate coordinate changes.\nNote that the type of `ϕ` is more accurately\n`Π x : N, TangentSpace I (f x) →L[𝕜] TangentSpace I' (g x)`.\nWe are unfolding `TangentSpace` in this type so that Lean recognizes that the type of `ϕ` doesn't\nactually depend on `f` or `g`.\n\nThis is the underlying function of the trivializations of the hom of (pullbacks of) tangent spaces.\n"
+      },
+      {
+        "id": 232260,
+        "name": "inTangentCoordinates_eq",
+        "module": "Mathlib.Geometry.Manifold.VectorBundle.Tangent",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Geometry/Manifold/VectorBundle/Tangent.lean#L526-L535",
+        "source_text": "/-- To write a linear map between tangent spaces in coordinates amounts to precomposing and\npostcomposing it with suitable coordinate changes. For a concrete version expressing the\nchange of coordinates as derivatives of extended charts,\nsee `inTangentCoordinates_eq_mfderiv_comp`. -/\ntheorem inTangentCoordinates_eq (f : N → M) (g : N → M') (ϕ : N → E →L[𝕜] E') {x₀ x : N}\n    (hx : f x ∈ (chartAt H (f x₀)).source) (hy : g x ∈ (chartAt H' (g x₀)).source) :\n    inTangentCoordinates I I' f g ϕ x₀ x =\n      (tangentBundleCore I' M').coordChange (achart H' (g x)) (achart H' (g x₀)) (g x) ∘L\n        ϕ x ∘L (tangentBundleCore I M).coordChange (achart H (f x₀)) (achart H (f x)) (f x) :=\n  (tangentBundleCore I M).inCoordinates_eq (tangentBundleCore I' M') (ϕ x) hx hy\n",
+        "docstring": "To write a linear map between tangent spaces in coordinates amounts to precomposing and\npostcomposing it with suitable coordinate changes. For a concrete version expressing the\nchange of coordinates as derivatives of extended charts,\nsee `inTangentCoordinates_eq_mfderiv_comp`. "
+      },
+      {
+        "id": 109479,
+        "name": "WithConv",
+        "module": "Mathlib.Algebra.WithConv",
+        "source_link": "https://github.com/leanprover-community/mathlib4/blob/aae61ae084c21995ee248964a81e3750ad0db2db/Mathlib/Algebra/WithConv.lean#L24-L31",
+        "source_text": "/-- A type synonym for the convolutive product of linear maps and intrinsic star.\n\nThe instances for the convolutive product and intrinsic star are only available with this type.\n\nUse `WithConv.linearEquiv` to coerce into this type. -/\nstructure WithConv A where\n  /-- Converts an element of `A` to `WithConv A`. -/ toConv ::\n  /-- Converts an element of `WithConv A` back to `A`. -/ ofConv : A\n",
+        "docstring": "A type synonym for the convolutive product of linear maps and intrinsic star.\n\nThe instances for the convolutive product and intrinsic star are only available with this type.\n\nUse `WithConv.linearEquiv` to coerce into this type. "
+      }
+    ],
+    "packages_applied": [
+      "Mathlib"
+    ]
+  },
+  {
+    "library": "Physlib",
+    "indexed_package": "Physlib",
+    "query": "algebra",
+    "status": "ok",
+    "results": [
+      {
+        "id": 390858,
+        "name": "spaceTime.γ.diracAlgebra",
+        "module": "Physlib.Relativity.CliffordAlgebra",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/CliffordAlgebra.lean#L97-L99",
+        "source_text": "/-- The algebra generated by the gamma matrices in the Dirac representation. -/\ndef diracAlgebra : Subalgebra ℝ (Matrix (Fin 4) (Fin 4) ℂ) :=\n  Algebra.adjoin ℝ γSet\n",
+        "docstring": "The algebra generated by the gamma matrices in the Dirac representation. "
+      },
+      {
+        "id": 391076,
+        "name": "lorentzAlgebra",
+        "module": "Physlib.Relativity.LorentzAlgebra.Basic",
+        "source_link": "https://github.com/HEPLean/PhysLean/blob/f5b08e51ad14d8cd4bbfbe51187e0383b6867ac7/Physlib/Relativity/LorentzAlgebra/Basic.lean#L29-L31",
+        "source_text": "/-- The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. -/\ndef lorentzAlgebra : LieSubalgebra ℝ (Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ) :=\n  (LieAlgebra.Orthogonal.so' (Fin 1) (Fin 3) ℝ)\n",
+        "docstring": "The Lorentz algebra as a subalgebra of `Matrix (Fin 1 ⊕ Fin 3) (Fin 1 ⊕ Fin 3) ℝ`. "
+      }
+    ],
+    "packages_applied": [
+      "Physlib"
+    ],
+    "requested_query": "M6.Coordinates.encode_conv M6.Coordinates.encode_polynomial",
+    "unavailable_requests": [
+      {
+        "library": "Physlib",
+        "indexed_package": "Physlib",
+        "query": "M6.Coordinates.encode_conv M6.Coordinates.encode_polynomial",
+        "status": "unavailable",
+        "error": "LeanExplore Physlib: HTTP 500",
+        "results": []
+      }
+    ],
+    "retrieval_mode": "explicit_broader_query_fallback"
+  }
+]

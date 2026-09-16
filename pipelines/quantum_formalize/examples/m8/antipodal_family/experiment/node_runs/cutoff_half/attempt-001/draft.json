@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ v : ℕ, 3 ≤ v → M8.Cutoff.limit (2^v) = v ∧ v < 2^(v-1)\nintro v hv\nhave hp : ∀ k : ℕ, k + 3 < (2 : ℕ)^(k + 2) := by\n  intro k\n  induction k with\n  | zero => norm_num\n  | succ k ih =>\n    have he : (2 : ℕ)^(Nat.succ k + 2) = 2^(k + 2) * 2 := by\n      rw [show Nat.succ k + 2 = (k + 2) + 1 by omega, pow_succ]\n    rw [he]\n    omega\nhave hhalf := hp (v - 3)\nhave hx : v - 3 + 3 = v := by omega\nhave hy : v - 3 + 2 = v - 1 := by omega\nrw [hx, hy] at hhalf\nhave he : (2 : ℕ)^v = 2^(v-1) * 2 := by\n  calc\n    2^v = 2^((v-1)+1) := congrArg (fun n : ℕ => (2 : ℕ)^n) (by omega)\n    _ = 2^(v-1) * 2 := pow_succ _ _\nhave hmin : v ≤ (2 : ℕ)^v - 1 := by omega\nhave hlo : (2 : ℕ)^v ≤ 2^v + 1 := by omega\nhave hhi : (2 : ℕ)^v + 1 < 2^(v+1) := by\n  rw [pow_succ]\n  omega\nhave hlog : Nat.log 2 ((2 : ℕ)^v + 1) = v := by\n  apply Nat.log_eq_of_pow_le_of_lt_pow <;> omega\nconstructor\n· rw [M8.Cutoff.bit_length_limit]\n  have hlog2 : Nat.log2 ((2 : ℕ)^v + 1) = v := by\n    first\n    | simpa only [Nat.log2_eq_log_two] using hlog\n    | simpa only [Nat.log_two_eq_log2] using hlog\n  rw [hlog2, min_eq_right hmin]\n· exact hhalf",
+  "queries": [
+    "Nat.log_eq_of_pow_le_of_lt_pow",
+    "Nat.log2_eq_log_two"
+  ]
+}
