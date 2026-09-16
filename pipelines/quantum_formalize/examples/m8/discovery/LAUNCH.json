@@ -1,15 +1,33 @@
 {
-  "launcher": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/discovery-e6g19wym",
-  "pid": 3976752,
+  "launcher": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/retrieval-resume-304xxxzq",
+  "pid": 4106661,
   "detached": true,
   "config": {
     "project": "/home/jing/m8-lean-discovery-formalization",
-    "graph": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/discovery-e6g19wym/graph.json",
-    "output": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/discovery-e6g19wym/experiment",
-    "result_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/discovery-e6g19wym/result.json",
+    "graph": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/retrieval-resume-304xxxzq/graph.json",
+    "output": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/retrieval-resume-304xxxzq/experiment",
+    "result_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/retrieval-resume-304xxxzq/result.json",
     "concurrency": 2,
     "rounds": 5,
     "compile_timeout": 600,
-    "turn_timeout": 600
+    "turn_timeout": 600,
+    "seed_proofs": {
+      "good_presentations": {
+        "proof": "classical\nintro N inst c\nconstructor\n\u00b7 rintro \u27e8k, hk, he, hs\u27e9\n  exact \u27e8k.exchange, M8.Discovery.unit k,\n    (k.leftAnchor.val : ZMod N), (k.rightAnchor.val : ZMod N), he, hs\u27e9\n\u00b7 rintro \u27e8e, u, a, b, he, hs\u27e9\n  let k : M8.Discovery.Choice N :=\n    \u27e8e, \u27e8(u : ZMod N).val, ZMod.val_lt (u : ZMod N)\u27e9,\n      \u27e8a.val, ZMod.val_lt a\u27e9, \u27e8b.val, ZMod.val_lt b\u27e9\u27e9\n  have ht : (k.unitIndex.val : ZMod N) = (u : ZMod N) := by\n    exact ZMod.natCast_zmod_val (u : ZMod N)\n  have ha : (k.leftAnchor.val : ZMod N) = a := by\n    exact ZMod.natCast_zmod_val a\n  have hb : (k.rightAnchor.val : ZMod N) = b := by\n    exact ZMod.natCast_zmod_val b\n  have hi : IsUnit (k.unitIndex.val : ZMod N) := by\n    rw [ht]\n    exact u.isUnit\n  have hu : M8.Discovery.unit k = u := by\n    unfold M8.Discovery.unit\n    rw [dif_pos hi]\n    apply Units.ext\n    exact hi.unit_spec.trans ht\n  refine \u27e8k, hi, ?_, ?_\u27e9\n  \u00b7 change M8.Anchor.Eligible c e (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)\n    rw [ha, hb]\n    exact he\n  \u00b7 change M8.Anchor.span (M8.Anchor.trial c e (M8.Discovery.unit k)\n      (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)) \u2264 M8.Cutoff.limit N\n    rw [hu, ha, hb]\n    exact hs",
+        "queries": [
+          "ZMod.natCast_zmod_val",
+          "IsUnit.unit_spec",
+          "ZMod.val_lt"
+        ]
+      },
+      "inverse": {
+        "proof": "intro N inst c k\nchange M7.Action.act (M7.Action.inverse (M8.Discovery.action k)) (M7.Action.act (M8.Discovery.action k) c) = c\nexact M7.Action.act_inverse N (M8.Discovery.action k) c",
+        "queries": []
+      },
+      "test_spec": {
+        "proof": "  classical\n  intro N _ c k\n  have hv (i : ZMod N) (a : Fin N) : i.val = a.val \u2194 i = (a.val : ZMod N) := by\n    constructor\n    \u00b7 intro h\n      rw [\u2190 ZMod.natCast_zmod_val i, h]\n    \u00b7 intro h\n      subst i\n      simp [ZMod.val_natCast, Nat.mod_eq_of_lt a.isLt]\n  have hs (s : Finset (ZMod N)) (a : ZMod N) :\n      s.sup (fun i => if i = a then (1 : \u2115) else 0) =\n        if a \u2208 s then 1 else 0 := by\n    by_cases ha : a \u2208 s\n    \u00b7 rw [if_pos ha]\n      apply le_antisymm\n      \u00b7 apply Finset.sup_le\n        intro i hi\n        split <;> omega\n      \u00b7 simpa using (Finset.le_sup (f := fun i : ZMod N => if i = a then (1 : \u2115) else 0) ha)\n    \u00b7 rw [if_neg ha]\n      apply le_antisymm\n      \u00b7 apply Finset.sup_le\n        intro i hi\n        have hia : i \u2260 a := by\n          intro h\n          exact ha (h \u25b8 hi)\n        simp only [if_neg hia, le_refl]\n      \u00b7 exact Nat.zero_le _\n  have hg : Nat.gcd k.unitIndex.val N = 1 \u2194\n      IsUnit (k.unitIndex.val : ZMod N) := by\n    simpa [Nat.Coprime, ZMod.val_natCast,\n      Nat.mod_eq_of_lt k.unitIndex.isLt] using\n      (ZMod.isUnit_iff_coprime k.unitIndex.val N).symm\n  by_cases hu : IsUnit (k.unitIndex.val : ZMod N)\n  \u00b7 have hc : (M8.Discovery.unit k : ZMod N) = (k.unitIndex.val : ZMod N) := by\n      simpa only [M8.Discovery.unit, dif_pos hu] using hu.unit_spec\n    have ht : M8.Anchor.span (M8.Discovery.transformed c k) =\n        max\n          ((M8.Anchor.left c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.leftAnchor.val : ZMod N))).val)))\n          ((M8.Anchor.right c k.exchange).sup (fun i =>\n            (((k.unitIndex.val : ZMod N) * (i - (k.rightAnchor.val : ZMod N))).val))) := by\n      change M8.Anchor.span (M8.Anchor.trial c k.exchange\n        (M8.Discovery.unit k) (k.leftAnchor.val : ZMod N)\n        (k.rightAnchor.val : ZMod N)) = _\n      rw [M8.Anchor.trial_formula]\n      simp [M8.Anchor.span, Finset.sup_image, Function.comp_def, hc]\n    simp [M8.Discovery.test, M8.Discovery.Good, M8.Anchor.Eligible,\n      hv, hs, hg, hu, ht, and_assoc]\n  \u00b7 simp [M8.Discovery.test, M8.Discovery.Good, hg, hu]",
+        "queries": []
+      }
+    }
   }
 }

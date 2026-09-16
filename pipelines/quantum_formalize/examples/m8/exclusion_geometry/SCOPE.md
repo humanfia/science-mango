@@ -1,0 +1,1 @@
+Original revised M8 §9: actual finite support weight and antipodal span lower bounds under all units, exchanges and independent shifts. General threshold L is instantiated by the fixed cutoff downstream; actual discover rejection remains a separate exact theorem. No claim about distance, complexity hardness or Clifford equivalence.

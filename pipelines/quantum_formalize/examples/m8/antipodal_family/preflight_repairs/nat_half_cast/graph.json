@@ -1,0 +1,195 @@
+{
+  "title": "M8 exact antipodal power-of-two family literal foundations",
+  "nodes": [
+    {
+      "id": "support_data",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.AntipodalFamily.support_data",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 (M8.AntipodalFamily.support N).card = 4 \u2227 (0 : ZMod N) \u2208 M8.AntipodalFamily.support N \u2227 (1 : ZMod N) \u2208 M8.AntipodalFamily.support N \u2227 (N/2 : ZMod N) \u2208 M8.AntipodalFamily.support N",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "literal_polynomial",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.AntipodalFamily.literal_polynomial",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 M7.Supports.polynomial (M8.AntipodalFamily.support N) = M8.AntipodalFamily.polynomial N",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "full_direction",
+      "dependencies": [
+        "support_data"
+      ],
+      "spec": {
+        "name": "M8.AntipodalFamily.full_direction",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 M8.CoverageFoundation.FullDirection (M8.AntipodalFamily.support N)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "valid",
+      "dependencies": [
+        "support_data",
+        "full_direction"
+      ],
+      "spec": {
+        "name": "M8.AntipodalFamily.valid",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 M8.PhysicalBridge.Valid 4 (M8.AntipodalFamily.recipe N)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "polynomial_power",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.AntipodalFamily.polynomial_power",
+        "statement": "\u2200 (v : \u2115), 3 \u2264 v \u2192 M8.AntipodalFamily.polynomial (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^(v-1)+1)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "modulus_power",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.AntipodalFamily.modulus_power",
+        "statement": "\u2200 (v : \u2115), 3 \u2264 v \u2192 M6.Cyclic.modulus (2^v) = (Polynomial.X+1 : M6.Cyclic.BinaryPolynomial)^(2^v)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "divides_modulus",
+      "dependencies": [
+        "polynomial_power",
+        "modulus_power"
+      ],
+      "spec": {
+        "name": "M8.AntipodalFamily.divides_modulus",
+        "statement": "\u2200 (v : \u2115), 3 \u2264 v \u2192 M8.AntipodalFamily.polynomial (2^v) \u2223 M6.Cyclic.modulus (2^v)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "nontrivial",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.AntipodalFamily.nontrivial",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 (M8.AntipodalFamily.polynomial N).Monic \u2227 M8.AntipodalFamily.polynomial N \u2260 1 \u2227 M8.AntipodalFamily.polynomial N \u2260 0 \u2227 (M8.AntipodalFamily.polynomial N).natDegree = N/2+1",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "signature",
+      "dependencies": [
+        "literal_polynomial",
+        "divides_modulus",
+        "nontrivial"
+      ],
+      "spec": {
+        "name": "M8.AntipodalFamily.signature",
+        "statement": "\u2200 (N : \u2115) [NeZero N] (v : \u2115), 3 \u2264 v \u2192 N = 2^v \u2192 M7.RecipeSignature.signature (M8.AntipodalFamily.recipe N) = M8.AntipodalFamily.polynomial N",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "cutoff_half",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.AntipodalFamily.cutoff_half",
+        "statement": "\u2200 (v : \u2115), 3 \u2264 v \u2192 M8.Cutoff.limit (2^v) = v \u2227 v < 2^(v-1)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    },
+    {
+      "id": "degree_bound",
+      "dependencies": [
+        "nontrivial"
+      ],
+      "spec": {
+        "name": "M8.AntipodalFamily.degree_bound",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 8 \u2264 N \u2192 Even N \u2192 (M8.AntipodalFamily.polynomial N).degree < (N : WithBot \u2115)",
+        "imports": [
+          "M8AntipodalFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 exact antipodal rejected family N=2^v,v\u22653; literal support {0,1,N/2,N/2+1}, polynomial (1+X)*(1+X^(N/2)). Standard residues are distinct and below N for N\u22658 even, so support card4 and literal support polynomial matches ring expansion. Consecutive0,1 gives full direction and actual connectivity, then Valid4. polynomial_power: in characteristic2, 1+X^(2^k)=(1+X)^(2^k), using add_pow_char_pow; N/2=2^(v-1), combine powers. modulus_power same Frobenius identity X^(2^v)+1=(X+1)^(2^v). divisibility follows exponent inequality 2^(v-1)+1\u22642^v. nontrivial/degree: degree of 1+X is1, degree of 1+X^h is h>0; monic products and natDegree_mul yield h+1, no cancellation of top terms. signature: actual identical literal polynomials p, gcd(p,p,M)=p since monic and p divides M; retain full multiplicity exponent N/2+1. cutoff_half: Nat.log2(2^v+1)=v by 2^v\u22642^v+1<2^(v+1); min(N-1,v)=v; v<2^(v-1) for v\u22653 by induction, starting3<4. degree_bound from exact natDegree and positive nonzero polynomial. These are foundations; actual all-action rejection and actual distance2 remain downstream geometry/diagonal bridges, neither is assumed. Return tactic lines only, no leading by.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.AntipodalFamily\nnoncomputable def support (N : \u2115) : Finset (ZMod N) := {0,1,(N/2 : \u2115),(N/2+1 : \u2115)}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (support N,support N)\ndef polynomial (N : \u2115) : M6.Cyclic.BinaryPolynomial := (1+Polynomial.X)*(1+Polynomial.X^(N/2))\nend M8.AntipodalFamily\n"
+      }
+    }
+  ]
+}

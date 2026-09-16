@@ -1,0 +1,5 @@
+import M6FinalSealAccepted
+import M7ConnectivityAccepted
+import M7TransportAccepted
+namespace M7.ClosedSolve
+end M7.ClosedSolve

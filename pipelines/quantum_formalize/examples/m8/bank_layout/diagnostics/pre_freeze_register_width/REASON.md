@@ -1,0 +1,1 @@
+Before freezing any model experiment, align actual control-register width with the proved 32*(N+1) address bound. This only changes a planned concrete layout; all four target statements and final resource bounds stay unchanged. Rebuild and exact type preflight are rerun. No accepted proof or live model source was changed.

@@ -1,0 +1,144 @@
+{
+  "title": "M8 actual diagonal CSS distance two foundation",
+  "nodes": [
+    {
+      "id": "weight_zero",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Diagonal.weight_zero",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 0 ↔ a = 0",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "weight_one",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Diagonal.weight_one",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 1 ↔ ∃ j : ZMod N, a = M6.Physical.delta N j",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "conv_delta",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Diagonal.conv_delta",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (j i : ZMod N), M6.Physical.conv N p (M6.Physical.delta N j) i = p (i-j)",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "delta_weight",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.Diagonal.delta_weight",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ j : ZMod N, M6.Physical.weight N (M6.Physical.delta N j) = 1",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "small_cycle_zero",
+      "dependencies": [
+        "weight_zero",
+        "weight_one",
+        "conv_delta"
+      ],
+      "spec": {
+        "name": "M8.Diagonal.small_cycle_zero",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (z : M6.Physical.Word N), p ≠ 0 → M6.Physical.syndrome N p p z = 0 → M6.Physical.wordWeight N z < 2 → z = 0",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "diagonal_witness",
+      "dependencies": [
+        "delta_weight"
+      ],
+      "spec": {
+        "name": "M8.Diagonal.diagonal_witness",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M6.Physical.Block N, M8.Diagonal.DeltaNotImage N p → (M6.Flatten.flatten N (M6.Physical.delta N 0, M6.Physical.delta N 0) ∈ M6.Spaces.logicalWords N p p ∧ M6.Pinned.weight (M6.Flatten.flatten N (M6.Physical.delta N 0, M6.Physical.delta N 0)) = 2)",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "logical_lower_bound",
+      "dependencies": [
+        "small_cycle_zero"
+      ],
+      "spec": {
+        "name": "M8.Diagonal.logical_lower_bound",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), p ≠ 0 → v ∈ M6.Spaces.logicalWords N p p → 2 ≤ M6.Pinned.weight v",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    },
+    {
+      "id": "distance_two",
+      "dependencies": [
+        "diagonal_witness",
+        "logical_lower_bound"
+      ],
+      "spec": {
+        "name": "M8.Diagonal.distance_two",
+        "statement": "∀ (N : ℕ) [NeZero N], ∀ p : M6.Physical.Block N, p ≠ 0 → M8.Diagonal.DeltaNotImage N p → M8.Diagonal.distance N p = some 2",
+        "imports": [
+          "M8Diagonal"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 §8/9 reusable actual diagonal CSS distance foundation. Actual M6 finite binary vectors, convolution, syndrome, boundary and union-support CSS quantumDistance; not a surrogate distance. DeltaNotImage is an intermediate algebraic condition that downstream explicit families MUST discharge from literal nontrivial gcd; no family is claimed accepted from free hypotheses. No squarefree or odd-N assumption.\nweight_zero uses Finset.card_eq_zero on univ.filter and function ext. weight_one uses Finset.card_eq_one to obtain exactly one nonzero coordinate and the fact a nonzero ZMod 2 element is 1 (fin_cases or ZMod.val bounds); converse direct singleton filter. conv_delta: sum p(r)*ite(i-r=j); the unique r=i-j; use Finset.sum_eq_single and additive arithmetic, or change variables via conv_comm to sum over delta in first factor. delta_weight direct singleton filter. small_cycle_zero: wordWeight=weight first+weight second <2; each block has weight0/1, split natural cases; weight0 gives zero, weight1 gives delta; convolution with delta is a translate of p, hence cannot vanish since p≠0. syndrome is sum of the two conv blocks. diagonal_witness: logical_words_iff; unflatten_flatten; identical conv cancels over ZMod2. If a boundary equals paired delta, project first block after unflatten to contradict DeltaNotImage. flatten_weight and delta_weight give2. logical_lower_bound: logical_words_iff gives actual syndrome zero; flatten_weight/unflatten roundtrip relate weights; small_cycle_zero contradicts zero_not_logical. distance_two: unfold distance; rw M6.ActualCSS.common_quantum_distance; use (M6.Pinned.distance_spec (2*N) (M6.Spaces.logicalWords N p p)).2 2, provide actual witness and universal lowerbound. Check local interfaces/theorem exact signatures before applying. Tactic lines only, no leading by.\nimport M6ActualCSSAccepted\n\nnamespace M8.Diagonal\n/-- Actual CSS distance of the diagonal convolution code. -/\nnoncomputable def distance (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Option ℕ :=\n  M6.CSS.quantumDistance (M6.Spaces.boundaryWords N p p)\n    (M6.Spaces.cycleWords N p p)\n    (M6.Character.subspaceWords (M6.Spaces.D N p p))\n    (M6.Character.dualWords (M6.Spaces.B N p p))\n/-- Algebraic intermediate obligation, discharged for each explicit source family. -/\ndef DeltaNotImage (N : ℕ) [NeZero N] (p : M6.Physical.Block N) : Prop :=\n  ¬ ∃ h : M6.Physical.Block N, M6.Physical.conv N p h = M6.Physical.delta N 0\nend M8.Diagonal\n"
+      }
+    }
+  ]
+}

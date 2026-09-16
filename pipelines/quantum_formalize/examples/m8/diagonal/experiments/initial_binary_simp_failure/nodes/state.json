@@ -1,0 +1,337 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-16T13:07:58.520824+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "conv_delta": {
+      "id": "conv_delta",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Diagonal.conv_delta",
+        "spec_sha256": "2082e3fd17797783f499b40c34f060cc0970654e3ae8b2c4f7fffe297a66bb44",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-k190l909/attempt-001/Candidate_8520ce6fd2f26996.lean",
+            "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-k190l909/attempt-001/FrozenTarget_8520ce6fd2f26996.lean",
+            "feedback": "",
+            "target_sha256": "52c167e3d6a13572f496e9b862e109e00d929fecec328e838244dcbcd318b37a",
+            "target_olean_sha256": "631dea63ca4b89cff57a45f552537cadbfb7bee5a033b2e4ee1a5b723ab8c85e",
+            "source_sha256": "75e832697bda7ca4f73d88f42b47a99c4e80b76775dbfc419cd343e906273661",
+            "olean_sha256": "386490c3728bca24436b06f1fafe63bb56a5ada13c3e5eea8c3890c7864f26c5",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:01:09.736144+00:00",
+        "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-k190l909",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-k190l909/attempt-001/Candidate_8520ce6fd2f26996.lean",
+        "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+        "artifacts": {
+          "conv_delta": {
+            "payload": {
+              "declaration": "theorem M8.Diagonal.conv_delta : ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (j i : ZMod N), M6.Physical.conv N p (M6.Physical.delta N j) i = p (i-j) := by\n  intro N inst p j i\n  classical\n  unfold M6.Physical.conv M6.Physical.delta\n  rw [Finset.sum_eq_single (i - j)]\n  · simp\n  · intro r hr hne\n    have h : i - r ≠ j := by\n      intro heq\n      apply hne\n      calc\n        r = i - (i - r) := (sub_sub_cancel i r).symm\n        _ = i - j := congrArg (fun x => i - x) heq\n    simp [h, Ne.symm h]\n  · simp",
+              "imports": [
+                "M8Diagonal"
+              ],
+              "name": "M8.Diagonal.conv_delta",
+              "ancestors": [],
+              "spec_sha256": "2082e3fd17797783f499b40c34f060cc0970654e3ae8b2c4f7fffe297a66bb44"
+            },
+            "sha256": "7daf86ef054e0c9de42b09ebb9aa8f71dcc4d5c18937e99f60725e02792e6f48"
+          }
+        }
+      }
+    },
+    "delta_weight": {
+      "id": "delta_weight",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Diagonal.delta_weight",
+        "spec_sha256": "7f5ecf73da958d5aadd26203d71fe6190e168234449613362196cc8aa0601fbf",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-kkeher83/attempt-001/Candidate_58722d3ec7a4fa4c.lean:6:88: error: unsolved goals\ncase neg\nN : ℕ\ninst : NeZero N\nj i : ZMod N\nh : ¬i = j\n⊢ ¬j = i\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-kkeher83/attempt-002/Candidate_eaf9fdfc677b552c.lean:11:4: error: unsolved goals\ncase neg\nN : ℕ\ninst : NeZero N\nj i : ZMod N\nhij : ¬i = j\n⊢ ¬j = i\n",
+            "attempt": 2
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-kkeher83/attempt-003/Candidate_513db849c2b99e9a.lean",
+            "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-kkeher83/attempt-003/FrozenTarget_513db849c2b99e9a.lean",
+            "feedback": "",
+            "target_sha256": "70da48c0756bc1228479efc16065b1cf04fba0f6012e3d0968da38cf33c18cf3",
+            "target_olean_sha256": "1dea71eca90f5e65af159d6df4ab31b0f02215425bf23db10932a7128f067986",
+            "source_sha256": "7b4f70ce1ad7de413e6a9f050e2a7b25b2dc0ca4a255e74b0bf54f3976142eaf",
+            "olean_sha256": "75adfaa4fbe0c095041554757144649dd0ec3a885d2c783d110f33bdccfd55ca",
+            "attempt": 3
+          }
+        ],
+        "created_at": "2026-09-16T13:01:09.789771+00:00",
+        "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-kkeher83",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+        "phase": "finished",
+        "round": 3,
+        "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-kkeher83/attempt-003/Candidate_513db849c2b99e9a.lean",
+        "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+        "artifacts": {
+          "delta_weight": {
+            "payload": {
+              "declaration": "theorem M8.Diagonal.delta_weight : ∀ (N : ℕ) [NeZero N], ∀ j : ZMod N, M6.Physical.weight N (M6.Physical.delta N j) = 1 := by\n  intro N inst j\n  classical\n  change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n  have h : Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0) = {j} := by\n    ext i\n    by_cases hij : i = j\n    · subst i\n      simp [M6.Physical.delta]\n    · simp [M6.Physical.delta, hij, Ne.symm hij]\n  rw [h]\n  simp",
+              "imports": [
+                "M8Diagonal"
+              ],
+              "name": "M8.Diagonal.delta_weight",
+              "ancestors": [],
+              "spec_sha256": "7f5ecf73da958d5aadd26203d71fe6190e168234449613362196cc8aa0601fbf"
+            },
+            "sha256": "d1f2946edbf64a55b0fb39322deefaa0d73fc40e437bc92b0de1ab19060f18fe"
+          }
+        }
+      }
+    },
+    "diagonal_witness": {
+      "id": "diagonal_witness",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Diagonal.diagonal_witness",
+        "spec_sha256": "9062c749ef5dba93e76db3fad72033dc5e18ce88c3d1f670937ab59fdd78e281",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-3twuh6zk/attempt-001/Candidate_9f72ca85fc37642b.lean:23:4: error: No goals to be solved\n",
+            "attempt": 1
+          },
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-3twuh6zk/attempt-002/Candidate_367e564dfdddf312.lean",
+            "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-3twuh6zk/attempt-002/FrozenTarget_367e564dfdddf312.lean",
+            "feedback": "",
+            "target_sha256": "07e6fd5cbbc723ba00fa76a3b982b0a468724dd9b5a7b17905b5d7ec9d1097dd",
+            "target_olean_sha256": "558d276e5c074f8620a10238533bd4ab2e59f234c8d77e545fd57f9c54e981ca",
+            "source_sha256": "db3e92d64c9840f5c4911a2105a515dbfa49f92bd453464918d8483b1858c81f",
+            "olean_sha256": "15abb7407edf8b63141a2cbb5b886ad8b155e2e3bd02eea248718434e74bce6e",
+            "attempt": 2
+          }
+        ],
+        "created_at": "2026-09-16T13:04:00.339797+00:00",
+        "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-3twuh6zk",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+        "phase": "finished",
+        "round": 2,
+        "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-3twuh6zk/attempt-002/Candidate_367e564dfdddf312.lean",
+        "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+        "artifacts": {
+          "delta_weight": {
+            "payload": {
+              "declaration": "theorem M8.Diagonal.delta_weight : ∀ (N : ℕ) [NeZero N], ∀ j : ZMod N, M6.Physical.weight N (M6.Physical.delta N j) = 1 := by\n  intro N inst j\n  classical\n  change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n  have h : Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0) = {j} := by\n    ext i\n    by_cases hij : i = j\n    · subst i\n      simp [M6.Physical.delta]\n    · simp [M6.Physical.delta, hij, Ne.symm hij]\n  rw [h]\n  simp",
+              "imports": [
+                "M8Diagonal"
+              ],
+              "name": "M8.Diagonal.delta_weight",
+              "ancestors": [],
+              "spec_sha256": "7f5ecf73da958d5aadd26203d71fe6190e168234449613362196cc8aa0601fbf"
+            },
+            "sha256": "d1f2946edbf64a55b0fb39322deefaa0d73fc40e437bc92b0de1ab19060f18fe"
+          },
+          "diagonal_witness": {
+            "payload": {
+              "declaration": "theorem M8.Diagonal.diagonal_witness : ∀ (N : ℕ) [NeZero N], ∀ p : M6.Physical.Block N, M8.Diagonal.DeltaNotImage N p → (M6.Flatten.flatten N (M6.Physical.delta N 0, M6.Physical.delta N 0) ∈ M6.Spaces.logicalWords N p p ∧ M6.Pinned.weight (M6.Flatten.flatten N (M6.Physical.delta N 0, M6.Physical.delta N 0)) = 2) := by\n  intro N inst p hp\n  classical\n  constructor\n  · apply (M6.Spaces.logical_words_iff N p p _).2\n    constructor\n    · rw [M6.Flatten.flatten_left]\n      funext i\n      change M6.Physical.conv N p (M6.Physical.delta N 0) i + M6.Physical.conv N p (M6.Physical.delta N 0) i = 0\n      have htwo : ∀ x : ZMod 2, x + x = 0 := by decide\n      exact htwo _\n    · rintro ⟨h, he⟩\n      apply hp\n      refine ⟨h, ?_⟩\n      have hh := congrArg (fun v => (M6.Flatten.unflatten N v).1) he\n      simpa only [M6.Flatten.flatten_left, M6.Physical.boundary] using hh\n  · rw [M6.Flatten.flatten_weight]\n    norm_num [M6.Physical.wordWeight, M8.Diagonal.delta_weight]",
+              "imports": [
+                "M8Diagonal"
+              ],
+              "name": "M8.Diagonal.diagonal_witness",
+              "ancestors": [
+                "delta_weight"
+              ],
+              "spec_sha256": "01d0323f5b9e6dd5ec1dfb9e7431eef523de7b33f2f326c97869f78f3f2637e0"
+            },
+            "sha256": "5ea9ad111d7e4edadb2c7d2f6919ce1c670afc28076577dbba719fc829e5c23d"
+          }
+        }
+      }
+    },
+    "weight_one": {
+      "id": "weight_one",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M8.Diagonal.weight_one",
+        "spec_sha256": "141585278c503fdc0089b7b246df600cab1085facf7a460f05c4f0b644de0bc9",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-001/Candidate_e3c7779986b23ad5.lean:6:47: error: unsolved goals\ncase «0»\nN : ℕ\ninst✝ : NeZero N\na : M6.Physical.Block N\n⊢ 0 ≠ 0 → 0 = 1\n\ncase «1»\nN : ℕ\ninst✝ : NeZero N\na : M6.Physical.Block N\n⊢ 1 ≠ 0 → 1 = 1\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-001/Candidate_e3c7779986b23ad5.lean:20:4: error: unsolved goals\ncase pos\nN : ℕ\ninst✝ : NeZero N\na : M6.Physical.Block N\nbinary : ∀ (x : ZMod 2), x ≠ 0 → x = 1\nh : {i | a i ≠ 0}.card = 1\nj : ZMod N\nhj : {i | a i ≠ 0} = {j}\nhs : ∀ (i : ZMod N), a i ≠ 0 ↔ i = j\ni : ZMod N\nhi : i = j\nhai : a i = 1\n⊢ a j = 1\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-001/Candidate_e3c7779986b23ad5.lean:21:35: warning: This simp argument is unused:\n  hai\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Physical.delta, hi]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-001/Candidate_e3c7779986b23ad5.lean:25:35: warning: This simp argument is unused:\n  Ne.symm hi\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Physical.delta, hi, hai]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-001/Candidate_e3c7779986b23ad5.lean:33:35: warning: This simp argument is unused:\n  Ne.symm hi\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Physical.delta, hi]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-002/Candidate_c40e43fb39b956da.lean:5:49: error: unsolved goals\ncase «0»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\n⊢ 0 ≠ 0 → 0 = 1\n\ncase «1»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\n⊢ 1 ≠ 0 → 1 = 1\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-003/Candidate_ee467712c6aff331.lean:5:51: error: unsolved goals\ncase «0»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\n⊢ 0 ≠ 0 → 0 = 1\n\ncase «1»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\n⊢ 1 ≠ 0 → 1 = 1\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-003/Candidate_ee467712c6aff331.lean:25:36: warning: This simp argument is unused:\n  Ne.symm hij\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Physical.delta, hij, hzero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-003/Candidate_ee467712c6aff331.lean:33:38: warning: This simp argument is unused:\n  Ne.symm hij\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Physical.delta, hij]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-004/Candidate_097997259e9fb9dc.lean:6:48: error: unsolved goals\ncase «0»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\n⊢ 0 ≠ 0 → 0 = 1\n\ncase «1»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\n⊢ 1 ≠ 0 → 1 = 1\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-005/Candidate_44eb78e1feeb5aa6.lean:5:47: error: unsolved goals\ncase «0»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\nhx : 0 ≠ 0\n⊢ 0 = 1\n\ncase «1»\nN : ℕ\ninst : NeZero N\na : M6.Physical.Block N\nhx : 1 ≠ 0\n⊢ 1 = 1\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-005/Candidate_44eb78e1feeb5aa6.lean:26:2: error: unsolved goals\ncase mpr\nN : ℕ\ninst : NeZero N\nbinary : ∀ (x : ZMod 2), x ≠ 0 → x = 1\nj : ZMod N\n⊢ {i | i = j}.card = 1\n/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq/attempt-005/Candidate_44eb78e1feeb5aa6.lean:25:35: warning: This simp argument is unused:\n  Ne.symm hi\n\nHint: Omit it from the simp argument list.\n  [apply] simp [M6.Physical.delta, hi, ha]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-16T13:02:18.116376+00:00",
+        "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-nahspscq",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "weight_zero": {
+      "id": "weight_zero",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Diagonal.weight_zero",
+        "spec_sha256": "fe8fc12c738977b641c76a30c33e29fb0af70075ee949ff2c2aea408ee50ac79",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-p4y7lr9_/attempt-001/Candidate_1a357cb2e2049c17.lean",
+            "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-p4y7lr9_/attempt-001/FrozenTarget_1a357cb2e2049c17.lean",
+            "feedback": "",
+            "target_sha256": "5dfb7431adcb2406e57f4c99c4785a85364999ee6a44eeaeff768c0ed5dfd5e2",
+            "target_olean_sha256": "0da0716d39a94b1cf3ddccb01598e4fce6c44a7715cfcf37ead13dc5e3ddcd14",
+            "source_sha256": "7d61d3abe83f7a53c568b28d00869c98fa5181dbb6be26f74bd57c7eacee7394",
+            "olean_sha256": "ec3d121a555f66916fc09f9a94c4ca7bd384b424485715dc919c0171fbcbd712",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T13:06:20.091248+00:00",
+        "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-p4y7lr9_",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-p4y7lr9_/attempt-001/Candidate_1a357cb2e2049c17.lean",
+        "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+        "artifacts": {
+          "weight_zero": {
+            "payload": {
+              "declaration": "theorem M8.Diagonal.weight_zero : ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 0 ↔ a = 0 := by\n  classical\n  intro N inst a\n  change (Finset.univ.filter (fun i : ZMod N => a i ≠ 0)).card = 0 ↔ a = 0\n  constructor\n  · intro h\n    have hempty := Finset.card_eq_zero.mp h\n    funext i\n    change a i = 0\n    by_contra hi\n    have hmem : i ∈ Finset.univ.filter (fun j : ZMod N => a j ≠ 0) :=\n      Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n    simp [hempty] at hmem\n  · rintro rfl\n    simp",
+              "imports": [
+                "M8Diagonal"
+              ],
+              "name": "M8.Diagonal.weight_zero",
+              "ancestors": [],
+              "spec_sha256": "fe8fc12c738977b641c76a30c33e29fb0af70075ee949ff2c2aea408ee50ac79"
+            },
+            "sha256": "a6d7704ba3d3a12afa6e6023239aa2459f40237d2be533b59fc5315bb4e27c12"
+          }
+        }
+      }
+    },
+    "small_cycle_zero": {
+      "id": "small_cycle_zero",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "weight_one"
+      ]
+    },
+    "logical_lower_bound": {
+      "id": "logical_lower_bound",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "small_cycle_zero"
+      ]
+    },
+    "distance_two": {
+      "id": "distance_two",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "logical_lower_bound"
+      ]
+    }
+  }
+}

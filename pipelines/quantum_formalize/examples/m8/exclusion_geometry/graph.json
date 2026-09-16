@@ -1,0 +1,162 @@
+{
+  "title": "M8 original weight and antipodal orbit exclusion geometry",
+  "nodes": [
+    {
+      "id": "unit_half",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.ExclusionGeometry.unit_half",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (h : \u2115) (u : (ZMod N)\u02e3), N = 2*h \u2192 (u : ZMod N) * (h : ZMod N) = (h : ZMod N)",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "pair_affine",
+      "dependencies": [
+        "unit_half"
+      ],
+      "spec": {
+        "name": "M8.ExclusionGeometry.pair_affine",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (h : \u2115) (B : Finset (ZMod N)) (u : (ZMod N)\u02e3) (s : ZMod N), N = 2*h \u2192 M8.ExclusionGeometry.Antipodal h B \u2192 M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s))",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "pair_span",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.ExclusionGeometry.pair_span",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (h : \u2115) (B : Finset (ZMod N)), N = 2*h \u2192 M8.ExclusionGeometry.Antipodal h B \u2192 h \u2264 B.sup ZMod.val",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "orbit_pair",
+      "dependencies": [
+        "pair_affine"
+      ],
+      "spec": {
+        "name": "M8.ExclusionGeometry.orbit_pair",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (h : \u2115) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2*h \u2192 (M8.ExclusionGeometry.Antipodal h c.1 \u2228 M8.ExclusionGeometry.Antipodal h c.2) \u2192 (M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).1 \u2228 M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).2)",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "orbit_span",
+      "dependencies": [
+        "pair_span",
+        "orbit_pair"
+      ],
+      "spec": {
+        "name": "M8.ExclusionGeometry.orbit_span",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (h : \u2115) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2*h \u2192 (M8.ExclusionGeometry.Antipodal h c.1 \u2228 M8.ExclusionGeometry.Antipodal h c.2) \u2192 h \u2264 M8.Anchor.span (M7.Action.act g c)",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "card_sup",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.ExclusionGeometry.card_sup",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 B : Finset (ZMod N), B.card \u2264 B.sup ZMod.val + 1",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "weight_orbit_span",
+      "dependencies": [
+        "card_sup"
+      ],
+      "spec": {
+        "name": "M8.ExclusionGeometry.weight_orbit_span",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (w : \u2115) (c : M7.Action.Recipe N) (g : M7.Action.Record N), c.1.card = w \u2192 c.2.card = w \u2192 w \u2264 M8.Anchor.span (M7.Action.act g c) + 1",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "weight_exclusion",
+      "dependencies": [
+        "weight_orbit_span"
+      ],
+      "spec": {
+        "name": "M8.ExclusionGeometry.weight_exclusion",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (w L : \u2115) (c : M7.Action.Recipe N), c.1.card = w \u2192 c.2.card = w \u2192 L+1 < w \u2192 \u2200 g : M7.Action.Record N, L < M8.Anchor.span (M7.Action.act g c)",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    },
+    {
+      "id": "antipodal_exclusion",
+      "dependencies": [
+        "orbit_span"
+      ],
+      "spec": {
+        "name": "M8.ExclusionGeometry.antipodal_exclusion",
+        "statement": "\u2200 (N : \u2115) [NeZero N], \u2200 (h L : \u2115) (c : M7.Action.Recipe N), N = 2*h \u2192 (M8.ExclusionGeometry.Antipodal h c.1 \u2228 M8.ExclusionGeometry.Antipodal h c.2) \u2192 L < h \u2192 \u2200 g : M7.Action.Record N, L < M8.Anchor.span (M7.Action.act g c)",
+        "imports": [
+          "M8ExclusionGeometry"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original revised M8 \u00a79 actual orbit span obstructions. Preserve actual units, swap, both independent shifts. No distance/hardness assertion. unit_half: unit representative val is coprime to N=2h hence odd; write val=2k+1, cast and use N=0 in ZMod N. Alternatively use unique nonzero element of additive order2. No odd-N assumption (N=2h is explicit original geometry). pair_affine: affine(x+h)=affine x+h from unit_half; witnesses in image. pair_span: for x and x+h, if h\u2264x.val use x; otherwise (x+h).val=x.val+h since x.val+h<2h=N, so second residue\u2265h. Use ZMod.val_add and val_natCast, and Finset.le_sup on membership; NeZero N plus N=2h gives h>0. orbit_pair splits actual Record.exchange and preserves the OR (one block suffices). orbit_span uses pair_span and max left/right. card_sup: injective ZMod.val maps B into Finset.range (B.sup val+1); card_image of injective, Finset.card_le_card, card_range. weight_orbit_span: accepted Action.support_cards implies both image cards=w under equalweight; apply card_sup then max bound. weight_exclusion and antipodal_exclusion by arithmetic/transitivity. General L is the actual finite span threshold input; downstream instantiate fixed Cutoff.limit and literal families. No free count, no tensor/Clifford claim. Tactic lines only, no leading by.\nimport M8AnchorAccepted\n\nnamespace M8.ExclusionGeometry\ndef Antipodal {N : \u2115} (h : \u2115) (A : Finset (ZMod N)) : Prop :=\n  \u2203 x : ZMod N, x \u2208 A \u2227 x + (h : ZMod N) \u2208 A\nend M8.ExclusionGeometry\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "weight_one",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Diagonal.weight_one",
+    "spec_sha256": "141585278c503fdc0089b7b246df600cab1085facf7a460f05c4f0b644de0bc9",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-o3uqbelc/attempt-001/Candidate_f0bc6f02a55d68b8.lean",
+        "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-o3uqbelc/attempt-001/FrozenTarget_f0bc6f02a55d68b8.lean",
+        "feedback": "",
+        "target_sha256": "173dd12b216dc5d6d4b7b25ab344eff661c03209cc55d60a7cddfcee08fe1b13",
+        "target_olean_sha256": "41f39f5b0dd2a038998a8145d0ffe5565106d5ceba62b14c88c5ef524fecc6d5",
+        "source_sha256": "bcca0f207afae0e26f609af2e153dffb9553615e200e6fc2e5e170092cf63290",
+        "olean_sha256": "981fcfc9165f450a3a028851139819904caa282ef093f56b7b92b597287e58e8",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:15:02.120998+00:00",
+    "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-o3uqbelc",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-o3uqbelc/attempt-001/Candidate_f0bc6f02a55d68b8.lean",
+    "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+    "artifacts": {
+      "weight_one": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.weight_one : ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 1 ↔ ∃ j : ZMod N, a = M6.Physical.delta N j := by\n  change ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 1 ↔ ∃ j : ZMod N, a = M6.Physical.delta N j\n  intro N inst a\n  classical\n  have bit_one : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by\n    intro x\n    fin_cases x\n    · intro hx\n      exact (hx rfl).elim\n    · intro _\n      rfl\n  constructor\n  · intro h\n    change (Finset.univ.filter (fun i : ZMod N => a i ≠ 0)).card = 1 at h\n    obtain ⟨j, hj⟩ := Finset.card_eq_one.mp h\n    have hs : ∀ i : ZMod N, a i ≠ 0 ↔ i = j := by\n      intro i\n      have hm := congrArg (fun s : Finset (ZMod N) => i ∈ s) hj\n      simpa using hm\n    refine ⟨j, ?_⟩\n    funext i\n    by_cases hij : i = j\n    · subst i\n      have hone : a j = 1 := bit_one (a j) ((hs j).mpr rfl)\n      simpa [M6.Physical.delta] using hone\n    · have hzero : a i = 0 := by\n        by_contra hn\n        exact hij ((hs i).mp hn)\n      simp [M6.Physical.delta, hij, hzero]\n  · rintro ⟨j, rfl⟩\n    change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n    apply Finset.card_eq_one.mpr\n    refine ⟨j, ?_⟩\n    ext i\n    by_cases hij : i = j\n    · subst i\n      simp [M6.Physical.delta]\n    · simp [M6.Physical.delta, hij]",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.weight_one",
+          "ancestors": [],
+          "spec_sha256": "141585278c503fdc0089b7b246df600cab1085facf7a460f05c4f0b644de0bc9"
+        },
+        "sha256": "4abeac8e792dc927af54987ee31c55d2e910d8dda29889fe6442d4705fc5e281"
+      }
+    }
+  }
+}

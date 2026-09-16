@@ -1,0 +1,7 @@
+{
+  "proof": "change ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 1 ↔ ∃ j : ZMod N, a = M6.Physical.delta N j\nintro N _ a\nclassical\nhave binary : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by\n  intro x\n  fin_cases x <;> simp\nconstructor\n· intro h\n  change (Finset.univ.filter (fun i : ZMod N => a i ≠ 0)).card = 1 at h\n  obtain ⟨j, hj⟩ := Finset.card_eq_one.mp h\n  have hs : ∀ i : ZMod N, a i ≠ 0 ↔ i = j := by\n    intro i\n    have hi := congrArg (fun s : Finset (ZMod N) => i ∈ s) hj\n    simpa using hi\n  refine ⟨j, ?_⟩\n  funext i\n  by_cases hi : i = j\n  · have hai : a i = 1 := binary (a i) ((hs i).mpr hi)\n    simp [M6.Physical.delta, hi, hai]\n  · have hai : a i = 0 := by\n      by_contra hn\n      exact hi ((hs i).mp hn)\n    simp [M6.Physical.delta, hi, Ne.symm hi, hai]\n· rintro ⟨j, rfl⟩\n  change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n  apply Finset.card_eq_one.mpr\n  refine ⟨j, ?_⟩\n  ext i\n  by_cases hi : i = j\n  · simp [M6.Physical.delta, hi]\n  · simp [M6.Physical.delta, hi, Ne.symm hi]",
+  "queries": [
+    "Finset.card_eq_one",
+    "ZMod two_eq_zero_or_one"
+  ]
+}

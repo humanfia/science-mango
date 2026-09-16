@@ -8,7 +8,11 @@ namespace M8.DiscoveryResources
 /-- Symbolic binary-operation upper charges, not Lean evaluator time.
 The explicit order bounds residue bit width by N+1.  Membership scans charge
 comparison and cursor operations, and span scans charge subtraction,
-multiplication, reduction and maximum.  Only executed branches are charged. -/
+multiplication, reduction and maximum.  Only executed branches are charged.  The 64*(N+1)^2 leaf base covers
+standard binary gcd (shift/subtract with decreasing total bit length),
+cutoff computation, final max/comparison and Boolean control.  This
+convention does not charge schoolbook division quadratically per gcd step.
+The separate control charge covers cursor increment, bounds and return. -/
 def control (N : ℕ) : ℕ := 8*(N+1)
 def memberCharge {N : ℕ} (A : Finset (ZMod N)) : ℕ :=
   A.sum (fun _ => 4*(N+1))

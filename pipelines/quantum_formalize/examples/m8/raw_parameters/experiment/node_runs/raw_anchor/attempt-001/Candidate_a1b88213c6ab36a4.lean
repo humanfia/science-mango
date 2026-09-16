@@ -1,0 +1,13 @@
+import FrozenTarget_a1b88213c6ab36a4
+theorem M8.RawParameters.raw_anchor : QuantumHarnessFrozenTarget := by
+  intro N w inst c hw hv
+  classical
+  rcases hv with ⟨hA, hB, hconn⟩
+  have hApos : 0 < c.1.card := by omega
+  have hBpos : 0 < c.2.card := by omega
+  obtain ⟨a, ha⟩ := Finset.card_pos.mp hApos
+  obtain ⟨b, hb⟩ := Finset.card_pos.mp hBpos
+  refine ⟨M8.Anchor.record false 1 a b, ?_⟩
+  have he : M8.Anchor.Eligible c false a b := by
+    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right] using And.intro ha hb
+  exact M8.Anchor.anchored N c false 1 a b he

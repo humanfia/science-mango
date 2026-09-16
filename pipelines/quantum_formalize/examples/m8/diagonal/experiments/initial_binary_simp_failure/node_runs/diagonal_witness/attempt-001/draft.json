@@ -1,0 +1,4 @@
+{
+  "proof": "intro N inst p hp\nclassical\nconstructor\n· apply (M6.Spaces.logical_words_iff N p p _).2\n  constructor\n  · rw [M6.Flatten.flatten_left]\n    funext i\n    change M6.Physical.conv N p (M6.Physical.delta N 0) i + M6.Physical.conv N p (M6.Physical.delta N 0) i = 0\n    have htwo : (2 : ZMod 2) = 0 := by decide\n    rw [← two_mul, htwo, zero_mul]\n  · rintro ⟨h, hh⟩\n    have he := congrArg (M6.Flatten.unflatten N) hh\n    rw [M6.Flatten.flatten_left, M6.Flatten.flatten_left] at he\n    have hf := congrArg Prod.fst he\n    apply hp\n    refine ⟨h, ?_⟩\n    exact hf\n· rw [M6.Flatten.flatten_weight]\n  change M6.Physical.weight N (M6.Physical.delta N 0) + M6.Physical.weight N (M6.Physical.delta N 0) = 2\n  rw [M8.Diagonal.delta_weight]\n  norm_num",
+  "queries": []
+}

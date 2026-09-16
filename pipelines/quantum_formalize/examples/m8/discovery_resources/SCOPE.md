@@ -1,0 +1,5 @@
+# Discovery accounting scope
+
+The instrumented four nested cursors execute the same selected prefix as the frozen discovery algorithm. Costs are sums of specified symbolic binary-operation upper charges, not elapsed Lean evaluator time. The leaf base 64*(N+1)^2 covers standard binary gcd, cutoff evaluation, final max/comparison and Boolean control. Membership and span folds charge each visited support element. Cursor increment, bounds and return are charged separately. The standard binary-gcd convention uses shift/subtract with decreasing total bit length; it is not a quadratic charge for each Euclidean schoolbook division.
+
+This component does not prove compiler/runtime extraction, nor by itself the complete M8 resource theorem. The whole algorithm must add original polynomial Euclid, transformation materialization, actual M6 optimization, original-coordinate witness transport, concrete reusable allocation, and sequential tagged-store costs. Primitive charges are an explicit standard bit-algorithm convention; the Lean theorem certifies the actual search-prefix composition within that model.

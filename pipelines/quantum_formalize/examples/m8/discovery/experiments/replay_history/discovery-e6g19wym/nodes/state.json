@@ -1,0 +1,227 @@
+{
+  "status": "finished",
+  "max_concurrency": 2,
+  "updated_at": "2026-09-16T13:04:16.153076+00:00",
+  "all_nodes_accepted": false,
+  "m5_formalized": false,
+  "nodes": {
+    "good_presentations": {
+      "id": "good_presentations",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.good_presentations",
+        "spec_sha256": "24387e18ec3a5087454dac41a991cf3381b01b6bdd571c9486d79d9eb0341ee7",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-6vigont6/attempt-001/Candidate_af4d644719451dbe.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-6vigont6/attempt-001/FrozenTarget_af4d644719451dbe.lean",
+            "feedback": "",
+            "target_sha256": "5f6eb48e574b73e283b2c5e05bf62a2586fa0be28dfe17356716b419afde6dde",
+            "target_olean_sha256": "b4e7c71287c0830dd763d5c878be5d7620899b863f38b0f9a21b85744d1c8ffb",
+            "source_sha256": "19423938bbf173b283de21e46fe5d300ec6efd4671cd74c8e7c55e28238c5a63",
+            "olean_sha256": "b43627335bd77a8be88eeaaee5a3efe26998028ab3bea56611714802c027731c",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T12:51:58.566157+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-6vigont6",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-6vigont6/attempt-001/Candidate_af4d644719451dbe.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "good_presentations": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.good_presentations : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), (∃ k : M8.Discovery.Choice N, M8.Discovery.Good c k) ↔ ∃ (e : Bool) (u : (ZMod N)ˣ) (a b : ZMod N), M8.Anchor.Eligible c e a b ∧ M8.Anchor.span (M8.Anchor.trial c e u a b) ≤ M8.Cutoff.limit N := by\n  classical\n  intro N inst c\n  constructor\n  · rintro ⟨k, hk, he, hs⟩\n    exact ⟨k.exchange, M8.Discovery.unit k,\n      (k.leftAnchor.val : ZMod N), (k.rightAnchor.val : ZMod N), he, hs⟩\n  · rintro ⟨e, u, a, b, he, hs⟩\n    let k : M8.Discovery.Choice N :=\n      ⟨e, ⟨(u : ZMod N).val, ZMod.val_lt (u : ZMod N)⟩,\n        ⟨a.val, ZMod.val_lt a⟩, ⟨b.val, ZMod.val_lt b⟩⟩\n    have ht : (k.unitIndex.val : ZMod N) = (u : ZMod N) := by\n      exact ZMod.natCast_zmod_val (u : ZMod N)\n    have ha : (k.leftAnchor.val : ZMod N) = a := by\n      exact ZMod.natCast_zmod_val a\n    have hb : (k.rightAnchor.val : ZMod N) = b := by\n      exact ZMod.natCast_zmod_val b\n    have hi : IsUnit (k.unitIndex.val : ZMod N) := by\n      rw [ht]\n      exact u.isUnit\n    have hu : M8.Discovery.unit k = u := by\n      unfold M8.Discovery.unit\n      rw [dif_pos hi]\n      apply Units.ext\n      exact hi.unit_spec.trans ht\n    refine ⟨k, hi, ?_, ?_⟩\n    · change M8.Anchor.Eligible c e (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)\n      rw [ha, hb]\n      exact he\n    · change M8.Anchor.span (M8.Anchor.trial c e (M8.Discovery.unit k)\n        (k.leftAnchor.val : ZMod N) (k.rightAnchor.val : ZMod N)) ≤ M8.Cutoff.limit N\n      rw [hu, ha, hb]\n      exact hs",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.good_presentations",
+              "ancestors": [],
+              "spec_sha256": "24387e18ec3a5087454dac41a991cf3381b01b6bdd571c9486d79d9eb0341ee7"
+            },
+            "sha256": "e13894162bfa1a3270e7e5c763c6fce926b6735ef5c5fdd66961fec483b4e764"
+          }
+        }
+      }
+    },
+    "inverse": {
+      "id": "inverse",
+      "status": "accepted",
+      "accepted": true,
+      "result": {
+        "status": "accepted",
+        "target": "M8.Discovery.inverse",
+        "spec_sha256": "4a4b75b47602e95680b8aeceaa4d763e64af9a44633bce052123f83d2cd0a95f",
+        "accepted": true,
+        "attempts": [
+          {
+            "accepted": true,
+            "stage": "acceptance",
+            "axioms": [
+              "propext",
+              "Classical.choice",
+              "Quot.sound"
+            ],
+            "proof_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-4p8lxmh3/attempt-001/Candidate_3f6dc572d3f4cd85.lean",
+            "target_path": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-4p8lxmh3/attempt-001/FrozenTarget_3f6dc572d3f4cd85.lean",
+            "feedback": "",
+            "target_sha256": "ec6b7e7772e04f585623bbff944377ab05538e6277b433100d370a1c1a3f353b",
+            "target_olean_sha256": "6768cadfdfbd17ba25e24c685bd432b051e8acfb00e32480eb7e3e2323edced2",
+            "source_sha256": "ca391e23f5753ac754343a311171347d541e62d9c19e73d678ecf34e21303f82",
+            "olean_sha256": "42577f2221d5593791598751317f169081f153d843c34ed774863c7688087026",
+            "attempt": 1
+          }
+        ],
+        "created_at": "2026-09-16T12:51:58.582814+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-4p8lxmh3",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 1,
+        "proof": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-4p8lxmh3/attempt-001/Candidate_3f6dc572d3f4cd85.lean",
+        "environment_sha256": "8826e3f21cb9e876be4691b522ea6f2a7c737dc525e7b42557ee1a327833a131",
+        "artifacts": {
+          "inverse": {
+            "payload": {
+              "declaration": "theorem M8.Discovery.inverse : ∀ (N : ℕ) [NeZero N] (c : M7.Action.Recipe N), ∀ k : M8.Discovery.Choice N, M7.Action.act (M7.Action.inverse (M8.Discovery.action k)) (M8.Discovery.transformed c k) = c := by\n  intro N inst c k\n  change M7.Action.act (M7.Action.inverse (M8.Discovery.action k)) (M7.Action.act (M8.Discovery.action k) c) = c\n  exact M7.Action.act_inverse N (M8.Discovery.action k) c",
+              "imports": [
+                "M8Discovery"
+              ],
+              "name": "M8.Discovery.inverse",
+              "ancestors": [],
+              "spec_sha256": "4a4b75b47602e95680b8aeceaa4d763e64af9a44633bce052123f83d2cd0a95f"
+            },
+            "sha256": "3673cb94a96d6ef3c9d25ee1af23ac7596595dda021cacf9f0431553241cc63f"
+          }
+        }
+      }
+    },
+    "test_spec": {
+      "id": "test_spec",
+      "status": "failed",
+      "accepted": false,
+      "result": {
+        "status": "round_limit",
+        "target": "M8.Discovery.test_spec",
+        "spec_sha256": "b8e5945d6c3aba9ca2f63bfb30ce67a3ad26ee8f07fe867a7b5da1554b7f6fa1",
+        "accepted": false,
+        "attempts": [
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-001/Candidate_d8010947898b911f.lean:24:10: error: unsolved goals\ncase pos\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\na : Fin N\ni : ZMod N\ns : Finset (ZMod N)\nhi : i ∉ s\nih : (s.sup fun i => if (i.val == ↑a) = true then 1 else 0) = if ↑↑a ∈ s then 1 else 0\nhia : i = ↑↑a\nha : ↑↑a ∈ s\n⊢ (s.sup fun i => if i = ↑↑a then 1 else 0) = 1\n\ncase neg\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\na : Fin N\ni : ZMod N\ns : Finset (ZMod N)\nhi : i ∉ s\nih : (s.sup fun i => if (i.val == ↑a) = true then 1 else 0) = if ↑↑a ∈ s then 1 else 0\nhia : i = ↑↑a\nha : ↑↑a ∉ s\n⊢ ∀ b ∈ s, (if b = ↑↑a then 1 else 0) ≤ 1\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-001/Candidate_d8010947898b911f.lean:27:14: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-001/Candidate_d8010947898b911f.lean:39:12: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  (Finset.sup ?s fun i => if (i.val == ↑?a) = true then 1 else 0) = 1\nin the target expression\n  ((IsUnit ↑↑k.unitIndex ∧ ((Anchor.left c k.exchange).sup fun i => if i.val = ↑k.leftAnchor then 1 else 0) = 1) ∧\n        ((Anchor.right c k.exchange).sup fun i => if i.val = ↑k.rightAnchor then 1 else 0) = 1) ∧\n      max ((Anchor.left c k.exchange).sup fun i => (↑↑k.unitIndex * (i - ↑↑k.leftAnchor)).val)\n          ((Anchor.right c k.exchange).sup fun i => (↑↑k.unitIndex * (i - ↑↑k.rightAnchor)).val) ≤\n        Cutoff.limit N ↔\n    Good c k\n\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\nhm : ∀ (s : Finset (ZMod N)) (a : Fin N), (s.sup fun i => if (i.val == ↑a) = true then 1 else 0) = 1 ↔ ↑↑a ∈ s\nhg : (↑k.unitIndex).gcd N = 1 ↔ IsUnit ↑↑k.unitIndex\n⊢ ((IsUnit ↑↑k.unitIndex ∧ ((Anchor.left c k.exchange).sup fun i => if i.val = ↑k.leftAnchor then 1 else 0) = 1) ∧\n        ((Anchor.right c k.exchange).sup fun i => if i.val = ↑k.rightAnchor then 1 else 0) = 1) ∧\n      max ((Anchor.left c k.exchange).sup fun i => (↑↑k.unitIndex * (i - ↑↑k.leftAnchor)).val)\n          ((Anchor.right c k.exchange).sup fun i => (↑↑k.unitIndex * (i - ↑↑k.rightAnchor)).val) ≤\n        Cutoff.limit N ↔\n    Good c k\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-001/Candidate_d8010947898b911f.lean:25:39: warning: This simp argument is unused:\n  ih\n\nHint: Omit it from the simp argument list.\n  [apply] simp [Finset.sup_insert, hv, hia, ha]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 1
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-002/Candidate_9e689d5ef10f90da.lean:19:26: error: unsolved goals\ncase neg\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\na i : ZMod N\ns : Finset (ZMod N)\nhi : i ∉ s\nih : (s.sup fun i => if i = a then 1 else 0) = if a ∈ s then 1 else 0\nhia : ¬i = a\nha : a ∉ s\n⊢ ¬a = i\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-002/Candidate_9e689d5ef10f90da.lean:22:25: warning: This simp argument is unused:\n  eq_comm\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hia, ha]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 2
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-003/Candidate_7d3f2d844faea270.lean:22:6: error: unsolved goals\ncase pos\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\na : ZMod N\ns : Finset (ZMod N)\nih : (s.sup fun i => if i = a then 1 else 0) = if a ∈ s then 1 else 0\nhi : a ∉ s\n⊢ (if a ∈ s then 1 else 0) ≤ 1\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-003/Candidate_7d3f2d844faea270.lean:47:37: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n",
+            "attempt": 3
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-004/Candidate_85687c794981ef44.lean:17:6: error: unsolved goals\ncase neg\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\na : ZMod N\ns : Finset (ZMod N)\nha : a ∉ s\n⊢ ∀ b ∈ s, (if b = a then 1 else 0) ≤ 1\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-004/Candidate_85687c794981ef44.lean:19:6: error: unsolved goals\ncase neg\nN : ℕ\ninst : NeZero N\nc : M7.Action.Recipe N\nk : Choice N\nhv : ∀ (i : ZMod N) (a : Fin N), i.val = ↑a ↔ i = ↑↑a\na i : ZMod N\ns : Finset (ZMod N)\nhi : i ∉ s\nhia : ¬i = a\nha : a ∉ s\n⊢ ¬a = i\n",
+            "attempt": 4
+          },
+          {
+            "accepted": false,
+            "stage": "compile",
+            "feedback": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-005/Candidate_4bfd5a374a8865df.lean:19:10: error: Tactic `simp` failed with a nested error:\nmaximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-005/Candidate_4bfd5a374a8865df.lean:27:39: warning: `dif_pos` has been deprecated: Use `dite_eq_left` instead\n/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem/attempt-005/Candidate_4bfd5a374a8865df.lean:19:20: warning: This simp argument is unused:\n  Finset.sup_insert\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all [eq_comm]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n",
+            "attempt": 5
+          }
+        ],
+        "created_at": "2026-09-16T12:55:08.654716+00:00",
+        "work": "/home/jing/m8-lean-discovery-formalization/.humanize-formal-runs/run-1vzo_zem",
+        "library_mapping": {
+          "Mathlib": "Mathlib",
+          "Physlib": "Physlib"
+        },
+        "local_interfaces_sha256": "7130d0071c96f3c54332c67a52be389ab7ac97bca036e1cfaf15ad0d5c7cfee2",
+        "phase": "finished",
+        "round": 5
+      }
+    },
+    "right_none": {
+      "id": "right_none",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "test_spec"
+      ]
+    },
+    "none_iff": {
+      "id": "none_iff",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "right_none"
+      ]
+    },
+    "complete": {
+      "id": "complete",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "none_iff"
+      ]
+    },
+    "sound": {
+      "id": "sound",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "test_spec"
+      ]
+    },
+    "anchored": {
+      "id": "anchored",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "sound"
+      ]
+    },
+    "cutoff": {
+      "id": "cutoff",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "sound"
+      ]
+    },
+    "lex_first": {
+      "id": "lex_first",
+      "status": "blocked",
+      "accepted": false,
+      "blocked_by": [
+        "sound"
+      ]
+    }
+  }
+}

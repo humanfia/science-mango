@@ -1,0 +1,141 @@
+{
+  "title": "M8 mixed two-support family literal foundations",
+  "nodes": [
+    {
+      "id": "support_data",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedFamily.support_data",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 (M8.MixedFamily.left N).card = 2 \u2227 (M8.MixedFamily.right N).card = 2 \u2227 (0 : ZMod N) \u2208 M8.MixedFamily.left N \u2227 (0 : ZMod N) \u2208 M8.MixedFamily.right N \u2227 (1 : ZMod N) \u2208 M8.MixedFamily.left N",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "literal_polynomials",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedFamily.literal_polynomials",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M7.Supports.polynomial (M8.MixedFamily.left N) = M8.MixedFamily.a \u2227 M7.Supports.polynomial (M8.MixedFamily.right N) = M8.MixedFamily.b",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "full_direction",
+      "dependencies": [
+        "support_data"
+      ],
+      "spec": {
+        "name": "M8.MixedFamily.full_direction",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M8.CoverageFoundation.FullDirection (M8.MixedFamily.left N)",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "valid",
+      "dependencies": [
+        "support_data",
+        "full_direction"
+      ],
+      "spec": {
+        "name": "M8.MixedFamily.valid",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M8.PhysicalBridge.Valid 2 (M8.MixedFamily.recipe N)",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "span_cutoff",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedFamily.span_cutoff",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M8.Anchor.span (M8.MixedFamily.recipe N) \u2264 M8.Cutoff.limit N",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "algebra",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedFamily.algebra",
+        "statement": "M8.MixedFamily.b = M8.MixedFamily.a^2 \u2227 M8.MixedFamily.a*M8.MixedFamily.b = 1+Polynomial.X+Polynomial.X^2+Polynomial.X^3",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "signature",
+      "dependencies": [
+        "literal_polynomials",
+        "algebra"
+      ],
+      "spec": {
+        "name": "M8.MixedFamily.signature",
+        "statement": "\u2200 (N : \u2115) [NeZero N], 7 \u2264 N \u2192 M7.RecipeSignature.signature (M8.MixedFamily.recipe N) = M8.MixedFamily.a",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    },
+    {
+      "id": "nontrivial",
+      "dependencies": [],
+      "spec": {
+        "name": "M8.MixedFamily.nontrivial",
+        "statement": "M8.MixedFamily.a \u2260 1 \u2227 M8.MixedFamily.a \u2260 0 \u2227 (M8.MixedFamily.a*M8.MixedFamily.b).natDegree = 3",
+        "imports": [
+          "M8MixedFamily"
+        ],
+        "context": "",
+        "queries": [
+          "algebra"
+        ],
+        "guidance": "Original M8 mixed family a=1+X,b=1+X\u00b2 for every N>=7 including odd/even. No squarefree assumption. Distinct residues give literal support cardinalities and polynomial arrays. Firstblock consecutive_full suffices for union-differences connectedness. span2<=fixed cutoff. Characteristic2 b=a\u00b2. a=X+1 divides X^N+1 for every N (evaluate at1 or geometric series); gcd(a,a\u00b2,M)=a monic. Product ab degree3 ensures nonzero modulo degreeN modulus downstream. Final separated-direction obstruction and distinct cycle-space nonproduct are different claims; no arbitrary Clifford inequivalence or mixed family distance2 is requested. Preserve exact targets.\nimport M8PhysicalBridgeAccepted\nimport M8CoverageFoundationAccepted\nimport M8CutoffAccepted\nimport M8AnchorAccepted\n\nnamespace M8.MixedFamily\nnoncomputable def left (N : \u2115) : Finset (ZMod N) := {0,1}\nnoncomputable def right (N : \u2115) : Finset (ZMod N) := {0,2}\nnoncomputable def recipe (N : \u2115) : M7.Action.Recipe N := (left N,right N)\nnoncomputable def a : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X\nnoncomputable def b : M6.Cyclic.BinaryPolynomial := 1+Polynomial.X^2\nend M8.MixedFamily\n"
+      }
+    }
+  ]
+}

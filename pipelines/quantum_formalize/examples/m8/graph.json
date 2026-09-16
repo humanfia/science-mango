@@ -72,35 +72,9 @@
       }
     },
     {
-      "id": "signed_trace",
-      "dependencies": [
-        "actual_optimizer_resources"
-      ],
-      "spec": null,
-      "metadata": {
-        "scope": "Actual recurrence coefficient magnitude, bit width, exact division and pinned query interface",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
-      }
-    },
-    {
-      "id": "indexed_resources",
-      "dependencies": [
-        "solver",
-        "discovery_resources",
-        "actual_optimizer_resources"
-      ],
-      "spec": null,
-      "metadata": {
-        "scope": "Actual discovery, Euclid, trace and witness indexed-bit work and reusable storage",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
-      }
-    },
-    {
       "id": "sequential_resources",
       "dependencies": [
-        "indexed_resources",
+        "whole_resources",
         "tagged_store"
       ],
       "spec": null,
@@ -111,23 +85,15 @@
       }
     },
     {
-      "id": "direction_invariant",
-      "dependencies": [
-        "coverage_foundation"
-      ],
-      "spec": null,
-      "metadata": {
-        "scope": "Within-block generated subgroup invariant and proper separated-direction obstruction",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
-      }
-    },
-    {
       "id": "coverage",
       "dependencies": [
         "solver",
-        "coverage_foundation",
-        "diagonal"
+        "p3_family",
+        "p4_gcd",
+        "mixed_family",
+        "mixed_nonproduct",
+        "diagonal_polynomial",
+        "coverage_foundation"
       ],
       "spec": null,
       "metadata": {
@@ -140,29 +106,13 @@
       "id": "exclusion",
       "dependencies": [
         "solver",
-        "anchor",
-        "cutoff",
-        "coverage_foundation",
-        "diagonal"
+        "antipodal_family",
+        "exclusion_geometry",
+        "diagonal_polynomial"
       ],
       "spec": null,
       "metadata": {
         "scope": "Exact surviving complement; cardinality rejection; power-two antipodal rejected family",
-        "module_graph": null,
-        "status": "planned or waiting for canonical parents"
-      }
-    },
-    {
-      "id": "original_m8",
-      "dependencies": [
-        "solver",
-        "sequential_resources",
-        "coverage",
-        "exclusion"
-      ],
-      "spec": null,
-      "metadata": {
-        "scope": "Complete revised M8 source-bound closed root; no M9 or correctness/cost oracle",
         "module_graph": null,
         "status": "planned or waiting for canonical parents"
       }
@@ -188,7 +138,7 @@
       "metadata": {
         "scope": "Exact executed-prefix callback and charge accumulation",
         "module_graph": "weighted_search/graph.json",
-        "status": "proof experiment or preflight active"
+        "status": "canonical accepted"
       }
     },
     {
@@ -201,7 +151,7 @@
       "metadata": {
         "scope": "Raw unanchored physical no-logical and encoded-dimension statements",
         "module_graph": "raw_parameters/graph.json",
-        "status": "proof experiment or preflight active"
+        "status": "canonical accepted"
       }
     },
     {
@@ -223,7 +173,7 @@
       "metadata": {
         "scope": "Concrete binary tags and sequential read/write scans",
         "module_graph": "tagged_store/graph.json",
-        "status": "proof experiment or preflight active"
+        "status": "canonical accepted"
       }
     },
     {
@@ -257,6 +207,156 @@
         "scope": "Actual physical diagonal distance-two foundation",
         "module_graph": "diagonal/graph.json",
         "status": "proof experiment or preflight active"
+      }
+    },
+    {
+      "id": "p3_family",
+      "dependencies": [
+        "physical_bridge",
+        "coverage_foundation",
+        "cutoff",
+        "anchor"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Literal all-order trinomial family foundations",
+        "module_graph": "p3_family/graph.json",
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "p4_family",
+      "dependencies": [
+        "physical_bridge",
+        "coverage_foundation",
+        "cutoff",
+        "anchor"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Literal four-term family foundations",
+        "module_graph": "p4_family/graph.json",
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "p4_gcd",
+      "dependencies": [
+        "p4_family"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Full gcd multiplicity for all even orders, including N congruent2 modulo4",
+        "module_graph": null,
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "mixed_family",
+      "dependencies": [
+        "physical_bridge",
+        "coverage_foundation",
+        "cutoff",
+        "anchor"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Literal mixed family and full gcd at all N>=7",
+        "module_graph": "mixed_family/graph.json",
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "mixed_nonproduct",
+      "dependencies": [
+        "mixed_family"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Distinct actual cycle-space nonproduct property under recipe actions",
+        "module_graph": null,
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "diagonal_polynomial",
+      "dependencies": [
+        "diagonal"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual polynomial nonunit to physical distance-two bridge",
+        "module_graph": null,
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "exclusion_geometry",
+      "dependencies": [
+        "anchor"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "General support-cardinality and antipodal actual-orbit span obstructions",
+        "module_graph": "exclusion_geometry/graph.json",
+        "status": "proof experiment or preflight active"
+      }
+    },
+    {
+      "id": "antipodal_family",
+      "dependencies": [
+        "exclusion_geometry",
+        "physical_bridge",
+        "coverage_foundation",
+        "cutoff"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Literal sparse power-two family and full repeated-factor gcd",
+        "module_graph": "antipodal_family/graph.json",
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "bank_layout",
+      "dependencies": [
+        "actual_optimizer_resources"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Concrete reusable buffer layout and actual workspace embedding",
+        "module_graph": "bank_layout/graph.json",
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "whole_resources",
+      "dependencies": [
+        "solver",
+        "discovery_resources",
+        "actual_optimizer_resources",
+        "bank_layout"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Actual algorithm branch charges and reusable layout",
+        "module_graph": null,
+        "status": "planned or waiting for canonical parents"
+      }
+    },
+    {
+      "id": "final",
+      "dependencies": [
+        "solver",
+        "sequential_resources",
+        "coverage",
+        "exclusion"
+      ],
+      "spec": null,
+      "metadata": {
+        "scope": "Complete source-bound revised M8 root and acceptance audit",
+        "module_graph": null,
+        "status": "planned or waiting for canonical parents"
       }
     }
   ]

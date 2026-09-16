@@ -1,0 +1,46 @@
+[
+  {
+    "id": "elementary_bounds",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N], M8.WholeResources.setupWork N \u2264 21000*(N+1)^3 \u2227 M8.WholeResources.transformWork N \u2264 96*(N+1)^3 \u2227 M8.WholeResources.undoWork N \u2264 160*(N+1)^3"
+  },
+  {
+    "id": "original_preprocess_bound",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), M8.WholeResources.originalWork c \u2264 180*(N+1)^3"
+  },
+  {
+    "id": "selected_span",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), \u2200 w : \u2115, 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 \u2200 choice : M8.Discovery.Choice N, M8.Discovery.discover c = some choice \u2192 M6.ActualTransfer.span (M7.Supports.polynomial (M8.Discovery.transformed c choice).1) (M7.Supports.polynomial (M8.Discovery.transformed c choice).2) \u2264 M8.Cutoff.limit N"
+  },
+  {
+    "id": "projection",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), (M8.WholeResources.run c).outcome = M8.Solver.run c"
+  },
+  {
+    "id": "charge_length",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), (M8.WholeResources.run c).charges.length \u2264 6"
+  },
+  {
+    "id": "single_calls",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), (M8.WholeResources.run c).discoveryCalls \u2264 1 \u2227 (M8.WholeResources.run c).optimizerCalls \u2264 (M8.WholeResources.run c).discoveryCalls"
+  },
+  {
+    "id": "noLogical_early",
+    "dependencies": [],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), M8.Solver.originalF c = 1 \u2192 (M8.WholeResources.run c).charges = [M8.WholeResources.setupWork N,M8.WholeResources.originalWork c] \u2227 (M8.WholeResources.run c).discoveryCalls = 0 \u2227 (M8.WholeResources.run c).optimizerCalls = 0"
+  },
+  {
+    "id": "indexed_work_bound",
+    "dependencies": [
+      "elementary_bounds",
+      "original_preprocess_bound",
+      "selected_span"
+    ],
+    "statement": "\u2200 (N : \u2115) [NeZero N] (c : M7.Action.Recipe N), \u2200 w : \u2115, 0 < w \u2192 M8.PhysicalBridge.Valid w c \u2192 M8.WholeResources.indexedWork c \u2264 225000*(N+1)^6"
+  }
+]

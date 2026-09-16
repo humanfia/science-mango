@@ -1,0 +1,16 @@
+import M8RawParameters
+
+theorem M8.RawParameters.raw_anchor : ∀ (N w : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → ∃ g : M7.Action.Record N, M8.PhysicalBridge.Anchored (M7.Action.act g c) := by
+  intro N w inst c hw hv
+  classical
+  rcases hv with ⟨hA, hB, hconn⟩
+  have hApos : 0 < c.1.card := by omega
+  have hBpos : 0 < c.2.card := by omega
+  obtain ⟨a, ha⟩ := Finset.card_pos.mp hApos
+  obtain ⟨b, hb⟩ := Finset.card_pos.mp hBpos
+  refine ⟨M8.Anchor.record false 1 a b, ?_⟩
+  have he : M8.Anchor.Eligible c false a b := by
+    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right] using And.intro ha hb
+  exact M8.Anchor.anchored N c false 1 a b he
+def QuantumHarnessFrozenTarget : Prop :=
+  ∀ (N w : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → (M7.Transport.distance c = none ↔ M8.PhysicalBridge.signature c = 1) ∧ (M7.Transport.LX c = ∅ ↔ M8.PhysicalBridge.signature c = 1)

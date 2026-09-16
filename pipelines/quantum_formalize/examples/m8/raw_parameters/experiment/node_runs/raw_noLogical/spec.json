@@ -1,0 +1,12 @@
+{
+  "name": "M8.RawParameters.raw_noLogical",
+  "statement": "∀ (N w : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → (M7.Transport.distance c = none ↔ M8.PhysicalBridge.signature c = 1) ∧ (M7.Transport.LX c = ∅ ↔ M8.PhysicalBridge.signature c = 1)",
+  "imports": [
+    "M8RawParameters"
+  ],
+  "context": "theorem M8.RawParameters.raw_anchor : ∀ (N w : ℕ) [NeZero N] (c : M8.PhysicalBridge.Recipe N), 0 < w → M8.PhysicalBridge.Valid w c → ∃ g : M7.Action.Record N, M8.PhysicalBridge.Anchored (M7.Action.act g c) := by\n  intro N w inst c hw hv\n  classical\n  rcases hv with ⟨hA, hB, hconn⟩\n  have hApos : 0 < c.1.card := by omega\n  have hBpos : 0 < c.2.card := by omega\n  obtain ⟨a, ha⟩ := Finset.card_pos.mp hApos\n  obtain ⟨b, hb⟩ := Finset.card_pos.mp hBpos\n  refine ⟨M8.Anchor.record false 1 a b, ?_⟩\n  have he : M8.Anchor.Eligible c false a b := by\n    simpa [M8.Anchor.Eligible, M8.Anchor.left, M8.Anchor.right] using And.intro ha hb\n  exact M8.Anchor.anchored N c false 1 a b he",
+  "queries": [
+    "algebra"
+  ],
+  "guidance": "Close the raw unanchored M8 NoLogical and physical dimension interfaces, without supplied optimizer correctness. raw_anchor: positive cards give a∈c.1,b∈c.2; choose M8.Anchor.record false 1 a b and use accepted Anchor.anchored with Eligible. raw_noLogical: choose actual g via raw_anchor. Pointwise_optimizer provides AnswerCorrect for actual transformed arrays; its first two clauses show actual solve=none iff actual quantumDistance=none. PhysicalBridge.noLogical and Transport.distance_invariant transfer exactly original full gcd=1. For LX empty use M6.ActualCSS.common_quantum_distance N indicatorA indicatorB and M6.Pinned.distance_spec, unfolding Final quantumDistance/BX/CX/BZ/CZ and Domain.coefficients_indicator to match Transport.LX. encoded_dimension: M6.ActualCounts.encoded_dimension N literalpolys needs degree<N, obtained from Polynomial.degree_le_natDegree plus Supports.degree_lt; this existing theorem is all-order and needs no anchored premise. Unfold Final.encodedQubits, ActualCounts.f and PhysicalBridge.signature/RecipeSignature.signature/Domain.signature to identify exact full gcd. Do not add assumptions. Return tactic lines only.\nimport M8PhysicalBridgeAccepted\nimport M8AnchorAccepted\nnamespace M8.RawParameters\nend M8.RawParameters\n"
+}

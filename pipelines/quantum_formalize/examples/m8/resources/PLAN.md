@@ -53,5 +53,5 @@ Dependency order: cutoff and measured discovery can run independently; physical 
 
 - `cutoff/experiment`: eight targets canonical, complete assembly/environment gates and original portable payload audit passed.
 - `actual_optimizer_resources/experiment`: eight targets canonical, complete assembly/environment gates and original portable payload audit passed; five canonical parent archives and nineteen direct parent proof payloads were verified.
-- `tagged_store`: eight closed primitive targets have passed definition/type preflight and are running normal frozen proof acceptance. They instantiate binary address tags and actual short-circuit record scan charges; the packed-memory read/write projection is a theorem goal, not an assumed oracle.
+- `tagged_store/experiment`: eight primitive targets canonical, full assembly/environment gates and original portable payload audits passed. Binary address tags, actual short-circuit record scan charges, packed-memory read/write projection and unchanged write layout are proved, not assumed.
 - Final actual discovery plus optimizer plus sequential operation-sequence/resource composition is still downstream. These component statuses do not claim revised M8 completion.

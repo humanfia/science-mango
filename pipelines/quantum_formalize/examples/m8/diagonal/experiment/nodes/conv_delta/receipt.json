@@ -1,0 +1,55 @@
+{
+  "id": "conv_delta",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Diagonal.conv_delta",
+    "spec_sha256": "2082e3fd17797783f499b40c34f060cc0970654e3ae8b2c4f7fffe297a66bb44",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-vsem9ds0/attempt-001/Candidate_2c8305ca6d765bc7.lean",
+        "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-vsem9ds0/attempt-001/FrozenTarget_2c8305ca6d765bc7.lean",
+        "feedback": "",
+        "target_sha256": "52c167e3d6a13572f496e9b862e109e00d929fecec328e838244dcbcd318b37a",
+        "target_olean_sha256": "dfae7e1b2cb023565fb8d8d8ed6918c9be381b8a85203762d5e1b259485baff5",
+        "source_sha256": "91b7a1e1bd6567eb9425e0ffff301b82db17b9ec941af8363463a15993c7e075",
+        "olean_sha256": "71300657f21bb166c015e9de44359d8b18695273171447bec3ca71dfe1817b21",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:13:16.385966+00:00",
+    "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-vsem9ds0",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-vsem9ds0/attempt-001/Candidate_2c8305ca6d765bc7.lean",
+    "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+    "artifacts": {
+      "conv_delta": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.conv_delta : ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (j i : ZMod N), M6.Physical.conv N p (M6.Physical.delta N j) i = p (i-j) := by\n  intro N inst p j i\n  classical\n  unfold M6.Physical.conv M6.Physical.delta\n  rw [Finset.sum_eq_single (i - j)]\n  · simp\n  · intro r hr hne\n    have h : i - r ≠ j := by\n      intro heq\n      apply hne\n      calc\n        r = i - (i - r) := (sub_sub_cancel i r).symm\n        _ = i - j := congrArg (fun x => i - x) heq\n    simp [h, Ne.symm h]\n  · simp",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.conv_delta",
+          "ancestors": [],
+          "spec_sha256": "2082e3fd17797783f499b40c34f060cc0970654e3ae8b2c4f7fffe297a66bb44"
+        },
+        "sha256": "7daf86ef054e0c9de42b09ebb9aa8f71dcc4d5c18937e99f60725e02792e6f48"
+      }
+    }
+  }
+}

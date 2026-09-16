@@ -1,0 +1,112 @@
+{
+  "id": "logical_lower_bound",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Diagonal.logical_lower_bound",
+    "spec_sha256": "e03618a7da45ec078685d220ba4ec76043ba8c8c7b9e136a960b1d7b7ed1ddc0",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-y6ubfbh2/attempt-001/Candidate_b211fd49aee2a46c.lean",
+        "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-y6ubfbh2/attempt-001/FrozenTarget_b211fd49aee2a46c.lean",
+        "feedback": "",
+        "target_sha256": "b1cbb671e36c09e549899f9c698db62c98000230d58432323b2cf4016f9feae8",
+        "target_olean_sha256": "5dad7e046a5c4f0ea6f5b7afd5b5aaf9aaa40e0292e185ac8191ac26e02bdb44",
+        "source_sha256": "cc5664e85b022234d308b4d2856e071b3d4c0f512bd6cf696e4ed61eaae229ff",
+        "olean_sha256": "79ea70cf59006eed6ea8bc8a725c0195646a6b779d94d21a4af046df118a788a",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:20:00.103626+00:00",
+    "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-y6ubfbh2",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-y6ubfbh2/attempt-001/Candidate_b211fd49aee2a46c.lean",
+    "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+    "artifacts": {
+      "weight_zero": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.weight_zero : ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 0 ↔ a = 0 := by\n  classical\n  intro N inst a\n  change (Finset.univ.filter (fun i : ZMod N => a i ≠ 0)).card = 0 ↔ a = 0\n  constructor\n  · intro h\n    have hempty := Finset.card_eq_zero.mp h\n    funext i\n    change a i = 0\n    by_contra hi\n    have hmem : i ∈ Finset.univ.filter (fun j : ZMod N => a j ≠ 0) :=\n      Finset.mem_filter.mpr ⟨Finset.mem_univ i, hi⟩\n    simp [hempty] at hmem\n  · rintro rfl\n    simp",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.weight_zero",
+          "ancestors": [],
+          "spec_sha256": "fe8fc12c738977b641c76a30c33e29fb0af70075ee949ff2c2aea408ee50ac79"
+        },
+        "sha256": "a6d7704ba3d3a12afa6e6023239aa2459f40237d2be533b59fc5315bb4e27c12"
+      },
+      "weight_one": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.weight_one : ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 1 ↔ ∃ j : ZMod N, a = M6.Physical.delta N j := by\n  change ∀ (N : ℕ) [NeZero N], ∀ a : M6.Physical.Block N, M6.Physical.weight N a = 1 ↔ ∃ j : ZMod N, a = M6.Physical.delta N j\n  intro N inst a\n  classical\n  have bit_one : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by\n    intro x\n    fin_cases x\n    · intro hx\n      exact (hx rfl).elim\n    · intro _\n      rfl\n  constructor\n  · intro h\n    change (Finset.univ.filter (fun i : ZMod N => a i ≠ 0)).card = 1 at h\n    obtain ⟨j, hj⟩ := Finset.card_eq_one.mp h\n    have hs : ∀ i : ZMod N, a i ≠ 0 ↔ i = j := by\n      intro i\n      have hm := congrArg (fun s : Finset (ZMod N) => i ∈ s) hj\n      simpa using hm\n    refine ⟨j, ?_⟩\n    funext i\n    by_cases hij : i = j\n    · subst i\n      have hone : a j = 1 := bit_one (a j) ((hs j).mpr rfl)\n      simpa [M6.Physical.delta] using hone\n    · have hzero : a i = 0 := by\n        by_contra hn\n        exact hij ((hs i).mp hn)\n      simp [M6.Physical.delta, hij, hzero]\n  · rintro ⟨j, rfl⟩\n    change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n    apply Finset.card_eq_one.mpr\n    refine ⟨j, ?_⟩\n    ext i\n    by_cases hij : i = j\n    · subst i\n      simp [M6.Physical.delta]\n    · simp [M6.Physical.delta, hij]",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.weight_one",
+          "ancestors": [],
+          "spec_sha256": "141585278c503fdc0089b7b246df600cab1085facf7a460f05c4f0b644de0bc9"
+        },
+        "sha256": "4abeac8e792dc927af54987ee31c55d2e910d8dda29889fe6442d4705fc5e281"
+      },
+      "conv_delta": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.conv_delta : ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (j i : ZMod N), M6.Physical.conv N p (M6.Physical.delta N j) i = p (i-j) := by\n  intro N inst p j i\n  classical\n  unfold M6.Physical.conv M6.Physical.delta\n  rw [Finset.sum_eq_single (i - j)]\n  · simp\n  · intro r hr hne\n    have h : i - r ≠ j := by\n      intro heq\n      apply hne\n      calc\n        r = i - (i - r) := (sub_sub_cancel i r).symm\n        _ = i - j := congrArg (fun x => i - x) heq\n    simp [h, Ne.symm h]\n  · simp",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.conv_delta",
+          "ancestors": [],
+          "spec_sha256": "2082e3fd17797783f499b40c34f060cc0970654e3ae8b2c4f7fffe297a66bb44"
+        },
+        "sha256": "7daf86ef054e0c9de42b09ebb9aa8f71dcc4d5c18937e99f60725e02792e6f48"
+      },
+      "small_cycle_zero": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.small_cycle_zero : ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (z : M6.Physical.Word N), p ≠ 0 → M6.Physical.syndrome N p p z = 0 → M6.Physical.wordWeight N z < 2 → z = 0 := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (z : M6.Physical.Word N), p ≠ 0 → M6.Physical.syndrome N p p z = 0 → M6.Physical.wordWeight N z < 2 → z = 0\n  intro N inst p z hp hs hw\n  classical\n  rcases z with ⟨a, b⟩\n  change M6.Physical.weight N a + M6.Physical.weight N b < 2 at hw\n  change M6.Physical.conv N p a + M6.Physical.conv N p b = 0 at hs\n  have cz : M6.Physical.conv N p 0 = 0 := by\n    funext i\n    simp [M6.Physical.conv]\n  have hd : ∀ j : ZMod N, M6.Physical.conv N p (M6.Physical.delta N j) ≠ 0 := by\n    intro j h\n    apply hp\n    funext i\n    have hi := congrFun h (i + j)\n    simpa [M8.Diagonal.conv_delta] using hi\n  have cases_weight :\n      (M6.Physical.weight N a = 0 ∧ M6.Physical.weight N b = 0) ∨\n      (M6.Physical.weight N a = 1 ∧ M6.Physical.weight N b = 0) ∨\n      (M6.Physical.weight N a = 0 ∧ M6.Physical.weight N b = 1) := by\n    omega\n  rcases cases_weight with ⟨ha, hb⟩ | ⟨ha, hb⟩ | ⟨ha, hb⟩\n  · have ha0 := (M8.Diagonal.weight_zero N a).mp ha\n    have hb0 := (M8.Diagonal.weight_zero N b).mp hb\n    simp [ha0, hb0]\n  · obtain ⟨j, ha⟩ := (M8.Diagonal.weight_one N a).mp ha\n    have hb0 := (M8.Diagonal.weight_zero N b).mp hb\n    rw [ha, hb0, cz, add_zero] at hs\n    exact (hd j hs).elim\n  · have ha0 := (M8.Diagonal.weight_zero N a).mp ha\n    obtain ⟨j, hb⟩ := (M8.Diagonal.weight_one N b).mp hb\n    rw [ha0, hb, cz, zero_add] at hs\n    exact (hd j hs).elim",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.small_cycle_zero",
+          "ancestors": [
+            "conv_delta",
+            "weight_one",
+            "weight_zero"
+          ],
+          "spec_sha256": "a00b4ac21fb9c50c702ba31d447cbb470bfd94fff945c673b46e31baad1fb8d8"
+        },
+        "sha256": "c125f4a64eeaea19fdd895738d74ed2ab0b7cb21f58be902b9a707a5207d2d8e"
+      },
+      "logical_lower_bound": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.logical_lower_bound : ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), p ≠ 0 → v ∈ M6.Spaces.logicalWords N p p → 2 ≤ M6.Pinned.weight v := by\n  change ∀ (N : ℕ) [NeZero N], ∀ (p : M6.Physical.Block N) (v : M6.Pinned.Vector (2*N)), p ≠ 0 → v ∈ M6.Spaces.logicalWords N p p → 2 ≤ M6.Pinned.weight v\n  intro N inst p v hp hv\n  by_contra h\n  have hw : M6.Pinned.weight v < 2 := by omega\n  have hs := ((M6.Spaces.logical_words_iff N p p v).mp hv).1\n  have hw' : M6.Physical.wordWeight N (M6.Flatten.unflatten N v) < 2 := by\n    rw [← M6.Flatten.flatten_weight N, M6.Flatten.flatten_right N]\n    exact hw\n  have hz := M8.Diagonal.small_cycle_zero N p (M6.Flatten.unflatten N v) hp hs hw'\n  have hf0 : M6.Flatten.flatten N (0 : M6.Physical.Word N) = 0 := by\n    simpa only [zero_smul] using (M6.Flatten.flatten_smul N (0 : ZMod 2) (0 : M6.Physical.Word N))\n  have hv0 : v = 0 := by\n    calc\n      v = M6.Flatten.flatten N (M6.Flatten.unflatten N v) := (M6.Flatten.flatten_right N v).symm\n      _ = M6.Flatten.flatten N 0 := congrArg (M6.Flatten.flatten N) hz\n      _ = 0 := hf0\n  apply M6.Spaces.zero_not_logical N p p\n  simpa only [hv0] using hv",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.logical_lower_bound",
+          "ancestors": [
+            "conv_delta",
+            "small_cycle_zero",
+            "weight_one",
+            "weight_zero"
+          ],
+          "spec_sha256": "62026bb680db932921210283ec595e76703a7227ca908aee60976721498397b9"
+        },
+        "sha256": "363892d14a5ba24fda6d6c89ed7b2110e3a5b502efd97855e63938d0fbbcccfc"
+      }
+    }
+  }
+}

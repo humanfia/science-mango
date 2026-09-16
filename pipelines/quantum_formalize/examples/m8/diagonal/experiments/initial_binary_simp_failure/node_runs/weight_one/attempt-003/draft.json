@@ -1,0 +1,7 @@
+{
+  "proof": "classical\nintro N inst a\nhave binary_one : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by\n  intro x\n  fin_cases x <;> simp\nconstructor\n· intro h\n  change (Finset.univ.filter (fun i : ZMod N => a i ≠ 0)).card = 1 at h\n  obtain ⟨j, hj⟩ := Finset.card_eq_one.mp h\n  have support : ∀ i : ZMod N, a i ≠ 0 ↔ i = j := by\n    intro i\n    have hi := Finset.ext_iff.mp hj i\n    simpa using hi\n  refine ⟨j, ?_⟩\n  funext i\n  by_cases hij : i = j\n  · subst i\n    have hval := binary_one (a j) ((support j).2 rfl)\n    simp [M6.Physical.delta, hval]\n  · have hzero : a i = 0 := by\n      by_contra hn\n      exact hij ((support i).1 hn)\n    simp [M6.Physical.delta, hij, Ne.symm hij, hzero]\n· rintro ⟨j, rfl⟩\n  change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n  have hs : Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0) = {j} := by\n    ext i\n    by_cases hij : i = j\n    · subst i\n      simp [M6.Physical.delta]\n    · simp [M6.Physical.delta, hij, Ne.symm hij]\n  rw [hs]\n  simp",
+  "queries": [
+    "Finset.card_eq_one",
+    "Finset.ext_iff"
+  ]
+}

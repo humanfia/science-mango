@@ -1,0 +1,10 @@
+import M8ExclusionGeometry
+def target_0 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (u : (ZMod N)ˣ), N = 2*h → (u : ZMod N) * (h : ZMod N) = (h : ZMod N))
+def target_1 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)) (u : (ZMod N)ˣ) (s : ZMod N), N = 2*h → M8.ExclusionGeometry.Antipodal h B → M8.ExclusionGeometry.Antipodal h (B.image (M7.Action.affine u s)))
+def target_2 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (B : Finset (ZMod N)), N = 2*h → M8.ExclusionGeometry.Antipodal h B → h ≤ B.sup ZMod.val)
+def target_3 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2*h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → (M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).1 ∨ M8.ExclusionGeometry.Antipodal h (M7.Action.act g c).2))
+def target_4 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (h : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), N = 2*h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → h ≤ M8.Anchor.span (M7.Action.act g c))
+def target_5 : Prop := (∀ (N : ℕ) [NeZero N], ∀ B : Finset (ZMod N), B.card ≤ B.sup ZMod.val + 1)
+def target_6 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (w : ℕ) (c : M7.Action.Recipe N) (g : M7.Action.Record N), c.1.card = w → c.2.card = w → w ≤ M8.Anchor.span (M7.Action.act g c) + 1)
+def target_7 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (w L : ℕ) (c : M7.Action.Recipe N), c.1.card = w → c.2.card = w → L+1 < w → ∀ g : M7.Action.Record N, L < M8.Anchor.span (M7.Action.act g c))
+def target_8 : Prop := (∀ (N : ℕ) [NeZero N], ∀ (h L : ℕ) (c : M7.Action.Recipe N), N = 2*h → (M8.ExclusionGeometry.Antipodal h c.1 ∨ M8.ExclusionGeometry.Antipodal h c.2) → L < h → ∀ g : M7.Action.Record N, L < M8.Anchor.span (M7.Action.act g c))

@@ -1,0 +1,69 @@
+{
+  "id": "diagonal_witness",
+  "status": "accepted",
+  "accepted": true,
+  "result": {
+    "status": "accepted",
+    "target": "M8.Diagonal.diagonal_witness",
+    "spec_sha256": "9062c749ef5dba93e76db3fad72033dc5e18ce88c3d1f670937ab59fdd78e281",
+    "accepted": true,
+    "attempts": [
+      {
+        "accepted": true,
+        "stage": "acceptance",
+        "axioms": [
+          "propext",
+          "Classical.choice",
+          "Quot.sound"
+        ],
+        "proof_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-xlcuyzii/attempt-001/Candidate_0110a30063c4c112.lean",
+        "target_path": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-xlcuyzii/attempt-001/FrozenTarget_0110a30063c4c112.lean",
+        "feedback": "",
+        "target_sha256": "07e6fd5cbbc723ba00fa76a3b982b0a468724dd9b5a7b17905b5d7ec9d1097dd",
+        "target_olean_sha256": "243f6f90e2f41fbc280fc362737e29ba2e3b7597c6d9b477a3b3e3742acf80b8",
+        "source_sha256": "110478524094f664dbe275e1750ea3c63208656c4820c23d614e9755aa2be7b8",
+        "olean_sha256": "66256e0609e5688e039817f5e14d51c37630fef5d3f305e4bfedebfdf66eb384",
+        "attempt": 1
+      }
+    ],
+    "created_at": "2026-09-16T13:15:20.815450+00:00",
+    "work": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-xlcuyzii",
+    "library_mapping": {
+      "Mathlib": "Mathlib",
+      "Physlib": "Physlib"
+    },
+    "local_interfaces_sha256": "0e39bd787dc03272146278c625b79e8153fa4604ddee80d2304eac18e0c50e42",
+    "phase": "finished",
+    "round": 1,
+    "proof": "/home/jing/m8-lean-diagonal-formalization/.humanize-formal-runs/run-xlcuyzii/attempt-001/Candidate_0110a30063c4c112.lean",
+    "environment_sha256": "d7e954c672cb1d31904b6f17bc1682763df9cba91028f7f7eb1acf84079f66a2",
+    "artifacts": {
+      "delta_weight": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.delta_weight : ∀ (N : ℕ) [NeZero N], ∀ j : ZMod N, M6.Physical.weight N (M6.Physical.delta N j) = 1 := by\n  intro N inst j\n  classical\n  change (Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0)).card = 1\n  have h : Finset.univ.filter (fun i : ZMod N => M6.Physical.delta N j i ≠ 0) = {j} := by\n    ext i\n    by_cases hij : i = j\n    · subst i\n      simp [M6.Physical.delta]\n    · simp [M6.Physical.delta, hij, Ne.symm hij]\n  rw [h]\n  simp",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.delta_weight",
+          "ancestors": [],
+          "spec_sha256": "7f5ecf73da958d5aadd26203d71fe6190e168234449613362196cc8aa0601fbf"
+        },
+        "sha256": "d1f2946edbf64a55b0fb39322deefaa0d73fc40e437bc92b0de1ab19060f18fe"
+      },
+      "diagonal_witness": {
+        "payload": {
+          "declaration": "theorem M8.Diagonal.diagonal_witness : ∀ (N : ℕ) [NeZero N], ∀ p : M6.Physical.Block N, M8.Diagonal.DeltaNotImage N p → (M6.Flatten.flatten N (M6.Physical.delta N 0, M6.Physical.delta N 0) ∈ M6.Spaces.logicalWords N p p ∧ M6.Pinned.weight (M6.Flatten.flatten N (M6.Physical.delta N 0, M6.Physical.delta N 0)) = 2) := by\n  intro N inst p hp\n  classical\n  constructor\n  · apply (M6.Spaces.logical_words_iff N p p _).2\n    constructor\n    · rw [M6.Flatten.flatten_left]\n      funext i\n      change M6.Physical.conv N p (M6.Physical.delta N 0) i + M6.Physical.conv N p (M6.Physical.delta N 0) i = 0\n      have htwo : ∀ x : ZMod 2, x + x = 0 := by decide\n      exact htwo _\n    · rintro ⟨h, he⟩\n      apply hp\n      refine ⟨h, ?_⟩\n      have hh := congrArg (fun v => (M6.Flatten.unflatten N v).1) he\n      simpa only [M6.Flatten.flatten_left, M6.Physical.boundary] using hh\n  · rw [M6.Flatten.flatten_weight]\n    norm_num [M6.Physical.wordWeight, M8.Diagonal.delta_weight]",
+          "imports": [
+            "M8Diagonal"
+          ],
+          "name": "M8.Diagonal.diagonal_witness",
+          "ancestors": [
+            "delta_weight"
+          ],
+          "spec_sha256": "01d0323f5b9e6dd5ec1dfb9e7431eef523de7b33f2f326c97869f78f3f2637e0"
+        },
+        "sha256": "5ea9ad111d7e4edadb2c7d2f6919ce1c670afc28076577dbba719fc829e5c23d"
+      }
+    }
+  }
+}

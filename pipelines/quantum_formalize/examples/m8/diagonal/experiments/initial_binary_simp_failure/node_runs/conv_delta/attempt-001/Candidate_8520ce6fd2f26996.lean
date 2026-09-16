@@ -1,0 +1,16 @@
+import FrozenTarget_8520ce6fd2f26996
+theorem M8.Diagonal.conv_delta : QuantumHarnessFrozenTarget := by
+  intro N inst p j i
+  classical
+  unfold M6.Physical.conv M6.Physical.delta
+  rw [Finset.sum_eq_single (i - j)]
+  · simp
+  · intro r hr hne
+    have h : i - r ≠ j := by
+      intro heq
+      apply hne
+      calc
+        r = i - (i - r) := (sub_sub_cancel i r).symm
+        _ = i - j := congrArg (fun x => i - x) heq
+    simp [h, Ne.symm h]
+  · simp

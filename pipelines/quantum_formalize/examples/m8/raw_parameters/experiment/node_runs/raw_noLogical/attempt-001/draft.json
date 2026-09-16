@@ -1,0 +1,8 @@
+{
+  "proof": "intro N w inst c hw hv\nclassical\nobtain ⟨g, hg⟩ := M8.RawParameters.raw_anchor N w c hw hv\nhave hp := M8.PhysicalBridge.pointwise_optimizer N c g w hv hg\nhave hn := M8.PhysicalBridge.noLogical N c g w hv hg\nhave hi := M7.Transport.distance_invariant N g c\nhave hsolve : M8.PhysicalBridge.solve (M7.Action.act g c) = none ↔ M7.Transport.distance (M7.Action.act g c) = none := by\n  simp only [M6.Final.PointwiseCorrect, M6.Final.AnswerCorrect] at hp\n  unfold M8.PhysicalBridge.solve M7.Transport.distance\n  cases hs : M6.ActualTransfer.solve N (M7.Supports.polynomial (M7.Action.act g c).1) (M7.Supports.polynomial (M7.Action.act g c).2) with\n  | none => aesop\n  | some ans =>\n    rcases ans with ⟨d, v, k⟩\n    aesop\nhave hd : M7.Transport.distance c = none ↔ M8.PhysicalBridge.signature c = 1 := by\n  rw [← hi]\n  exact hsolve.symm.trans hn\nrefine ⟨hd, ?_⟩\napply Iff.trans _ hd\nhave hc := M6.ActualCSS.common_quantum_distance N (M7.Supports.indicator c.1) (M7.Supports.indicator c.2)\nsimp only [M7.Transport.distance, M6.Final.quantumDistance, M6.Final.BX, M6.Final.CX, M6.Final.BZ, M6.Final.CZ, M7.Domain.coefficients_indicator, M7.Transport.LX, M7.Transport.BX, M7.Transport.CX] at hc ⊢\nfirst\n| have hs := M6.Pinned.distance_spec (M7.Transport.BX c) (M7.Transport.CX c)\n  simp only [M7.Transport.BX, M7.Transport.CX] at hs\n  aesop\n| have hs := M6.Pinned.distance_spec (2 * N) (M7.Transport.BX c) (M7.Transport.CX c)\n  simp only [M7.Transport.BX, M7.Transport.CX] at hs\n  aesop",
+  "queries": [
+    "M6.Final.PointwiseCorrect M6.Final.AnswerCorrect definitions",
+    "M6.ActualCSS.common_quantum_distance M6.Pinned.distance_spec",
+    "M7.Transport.distance M7.Transport.LX M6.Final.quantumDistance definitions"
+  ]
+}
