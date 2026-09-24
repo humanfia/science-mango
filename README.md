@@ -1,69 +1,69 @@
 # HumanizePhysics
 
-**Autonomous Lean 4 Formalization System** — 自动将数学定理与物理问题转化为经过验证的 Lean 4 形式化证明。
+**Autonomous Lean 4 Formalization System** — Automatically transforms mathematical theorems and physics problems into verified Lean 4 formal proofs.
 
-HumanizePhysics 利用 AI（Claude / OpenAI Codex）驱动的多阶段流水线，自动完成从自然语言问题到 Lean 4 机器可验证证明的全过程。
-
----
-
-## 目录
-
-- [快速开始](#快速开始)
-- [启动脚本](#启动脚本-scriptsrunsh)
-- [环境变量](#环境变量)
-- [项目结构](#项目结构)
-- [技术栈](#技术栈)
-- [常用命令](#常用命令)
-- [文档](#文档)
+HumanizePhysics uses an AI-powered (Claude / OpenAI Codex) multi-stage pipeline to automate the entire process from natural-language problems to machine-verifiable Lean 4 proofs.
 
 ---
 
-## 快速开始
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Launch Script](#launch-script-scriptsrunsh)
+- [Environment Variables](#configurable-environment-variables)
+- [Project Structure](#project-structure)
+- [Technology Stack](#technology-stack)
+- [Common Commands](#common-commands)
+- [Documentation](#documentation)
+
+---
+
+## Quick Start
 
 ```bash
-# 1. 安装系统依赖（Lean 4 / elan / Node.js 等）
+# 1. Install system dependencies (Lean 4, elan, Node.js, etc.)
 humanizephysics setup
 
-# 2. 初始化一个项目目录
+# 2. Initialize a project directory
 humanizephysics init <project-dir>
 
-# 3. 启动证明循环
+# 3. Start the proof loop
 scripts/run.sh <project-dir>
 ```
 
 ---
 
-## 启动脚本 (`scripts/run.sh`)
+## Launch Script (`scripts/run.sh`)
 
-`scripts/run.sh` 是 HumanizePhysics 的 **一键启动入口**，适用于无人值守的批量证明场景（CI / 远程服务器 / 定时任务）。
+`scripts/run.sh` is the **one-command launch entry point** for HumanizePhysics. It is designed for unattended batch proving scenarios such as CI, remote servers, and scheduled jobs.
 
-### 用法
+### Usage
 
 ```bash
-# 使用默认项目路径启动
+# Start using the default project path
 ./scripts/run.sh
 
-# 指定项目目录启动
+# Start with a specified project directory
 ./scripts/run.sh /path/to/your/project
 ```
 
-### 脚本做了什么
+### What the Script Does
 
-1. **设置 PATH** — 将 `elan`（Lean 工具链管理器）、`Node.js v22` 和 `npm` 加入 `PATH`，确保运行环境完整。
-2. **切换到 HumanizePhysics 根目录** — 进入 `$HUMANIZEPHYSICS_ROOT`（默认 `/home/ma-user/Python_project/HumanizePhysics`）。
-3. **执行证明循环** — 调用 `humanizephysics loop`，以 **prover-only** 模式（`--from prover`）运行，跳过前置的形式化/提取阶段，直接进入证明求解。
-4. **无 Dashboard** — 使用 `--no-dashboard` 以纯命令行模式运行，适合 headless 服务器。
+1. **Configures `PATH`** — Adds `elan` (the Lean toolchain manager), `Node.js v22`, and `npm` to `PATH` to ensure a complete runtime environment.
+2. **Changes to the HumanizePhysics root directory** — Enters `$HUMANIZEPHYSICS_ROOT` (default: `/home/ma-user/Python_project/HumanizePhysics`).
+3. **Runs the proof loop** — Invokes `humanizephysics loop` in **prover-only** mode (`--from prover`), skipping the preceding formalization and extraction stages and proceeding directly to proof solving.
+4. **Runs without the Dashboard** — Uses `--no-dashboard` for a command-line-only workflow suitable for headless servers.
 
-### 可配置的环境变量
+### Configurable Environment Variables
 
-| 变量 | 默认值 | 说明 |
+| Variable | Default | Description |
 |---|---|---|
-| `HUMANIZEPHYSICS_ROOT` | `/home/ma-user/Python_project/HumanizePhysics` | HumanizePhysics 安装根目录 |
-| `HUMANIZEPHYSICS_MAX_ITERATIONS` | `1` | 每个目标的最大证明迭代次数 |
-| `HUMANIZEPHYSICS_MAX_PARALLEL` | `4` | 同时并行证明的目标数量 |
-| `HUMANIZEPHYSICS_MAX_OBJECTIVES` | `10` | 单次运行处理的最大目标数量 |
+| `HUMANIZEPHYSICS_ROOT` | `/home/ma-user/Python_project/HumanizePhysics` | HumanizePhysics installation root directory |
+| `HUMANIZEPHYSICS_MAX_ITERATIONS` | `1` | Maximum number of proof iterations per objective |
+| `HUMANIZEPHYSICS_MAX_PARALLEL` | `4` | Number of objectives proved concurrently |
+| `HUMANIZEPHYSICS_MAX_OBJECTIVES` | `10` | Maximum number of objectives processed in a single run |
 
-**示例：高并发运行**
+**Example: High-concurrency run**
 
 ```bash
 HUMANIZEPHYSICS_MAX_PARALLEL=8 HUMANIZEPHYSICS_MAX_ITERATIONS=3 HUMANIZEPHYSICS_MAX_OBJECTIVES=50 \
@@ -72,72 +72,72 @@ HUMANIZEPHYSICS_MAX_PARALLEL=8 HUMANIZEPHYSICS_MAX_ITERATIONS=3 HUMANIZEPHYSICS_
 
 ---
 
-## 项目结构
+## Project Structure
 
 ```
 HumanizePhysics/
 ├── scripts/
-│   └── run.sh                  # ⭐ 启动脚本（入口）
+│   └── run.sh                   # ⭐ Launch script (entry point)
 ├── src/humanizephysics/
-│   ├── cli.py                  # CLI 入口 (typer)
-│   ├── agent.py                # AI Agent 封装 (Claude CLI)
-│   ├── prompts.py              # Prompt 模板
-│   ├── dispatch.py             # Harness 路由 (Claude / Codex)
-│   ├── log.py                  # 日志系统
-│   ├── types.py                # 类型定义 (Pydantic)
+│   ├── cli.py                   # CLI entry point (Typer)
+│   ├── agent.py                 # AI agent wrapper (Claude CLI)
+│   ├── prompts.py               # Prompt templates
+│   ├── dispatch.py              # Harness routing (Claude / Codex)
+│   ├── log.py                   # Logging system
+│   ├── types.py                 # Type definitions (Pydantic)
 │   └── commands/
-│       ├── loop/               # 主证明循环编排
-│       ├── prove.py            # 单目标证明
-│       ├── physics_formalize.py # 物理问题自动形式化
-│       ├── setup/              # 依赖安装
-│       ├── init/               # 项目初始化
+│       ├── loop/                # Main proof-loop orchestration
+│       ├── prove.py             # Single-objective proving
+│       ├── physics_formalize.py # Automated physics problem formalization
+│       ├── setup/               # Dependency installation
+│       ├── init/                # Project initialization
 │       └── ...
-├── docs/                       # 文档
-├── tests/                      # 测试 (pytest)
-├── pyproject.toml              # 包元数据 & 依赖
-└── .venv/                      # Python 虚拟环境
+├── docs/                        # Documentation
+├── tests/                       # Tests (pytest)
+├── pyproject.toml               # Package metadata and dependencies
+└── .venv/                       # Python virtual environment
 ```
 
 ---
 
-## 技术栈
+## Technology Stack
 
-| 层 | 技术 |
+| Layer | Technology |
 |---|---|
-| 语言 | Python 3.10+ |
-| CLI 框架 | Typer + Click |
-| AI 后端 | Claude Code CLI, OpenAI SDK |
-| 定理证明器 | Lean 4 (via elan) |
-| 依赖图分析 | leandag, lean-explore |
+| Language | Python 3.10+ |
+| CLI framework | Typer + Click |
+| AI backends | Claude Code CLI, OpenAI SDK |
+| Theorem prover | Lean 4 (via elan) |
+| Dependency graph analysis | leandag, lean-explore |
 | Dashboard | Node.js 22 + Express + Vue.js |
-| 数据校验 | Pydantic |
-| 测试 | pytest |
+| Data validation | Pydantic |
+| Testing | pytest |
 
 ---
 
-## 常用命令
+## Common Commands
 
 ```bash
-humanizephysics setup              # 安装系统依赖 (elan, Node.js 等)
-humanizephysics init <dir>         # 初始化项目目录
-humanizephysics loop <dir>         # 启动证明循环
-humanizephysics prove <file>       # 对单个文件运行证明
-humanizephysics doctor             # 检查环境是否就绪
-humanizephysics dashboard          # 启动 Web Dashboard
-humanizephysics --help             # 查看所有命令
+humanizephysics setup              # Install system dependencies (elan, Node.js, etc.)
+humanizephysics init <dir>         # Initialize a project directory
+humanizephysics loop <dir>         # Start the proof loop
+humanizephysics prove <file>       # Run the prover on a single file
+humanizephysics doctor             # Check whether the environment is ready
+humanizephysics dashboard          # Start the web dashboard
+humanizephysics --help             # Show all commands
 ```
 
 ---
 
-## 文档
+## Documentation
 
-- [CONFIGURATION.md](docs/CONFIGURATION.md) — 项目配置详解
-- [MULTILANE.md](docs/MULTILANE.md) — 多通道并行证明
-- [MIGRATION.md](docs/MIGRATION.md) — 版本迁移指南
-- [CHANGELOG.md](docs/CHANGELOG.md) — 变更日志
+- [CONFIGURATION.md](docs/CONFIGURATION.md) — Detailed project configuration
+- [MULTILANE.md](docs/MULTILANE.md) — Parallel proving across multiple lanes
+- [MIGRATION.md](docs/MIGRATION.md) — Version migration guide
+- [CHANGELOG.md](docs/CHANGELOG.md) — Changelog
 
 ---
 
 ## License
 
-详见项目 License 文件。
+See the project's license file for details.
